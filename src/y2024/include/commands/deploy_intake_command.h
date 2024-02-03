@@ -3,14 +3,14 @@
 
 #include <frc2/command/CommandHelper.h>
 
-#include "frcLib846/math.h"
-#include "subsystems/scorer.h"
-#include "subsystems/scoring_positioner.h"
+#include "frc846/math.h"
+#include "subsystems/shintake.h"
+#include "subsystems/arm.h"
 #include "subsystems/robot_container.h"
 
 class DeployIntakeCommand
     : public frc2::CommandHelper<frc2::Command, DeployIntakeCommand>,
-      public frcLib846::Loggable {
+      public frc846::Loggable {
  public:
   DeployIntakeCommand(RobotContainer& container);
 
@@ -23,8 +23,8 @@ class DeployIntakeCommand
   bool IsFinished() override;
 
  private:
-  ScorerSubsystem& scorer_;
-  ScoringPositionerSubsystem& scoring_positioner_;
+  ShintakeSubsystem& shintake_;
+  ArmSubsystem& arm_;
 
   bool is_done_ = false;
 };

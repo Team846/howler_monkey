@@ -13,17 +13,18 @@
 #include "frc/DataLogManager.h"
 #include "frc2/command/ParallelDeadlineGroup.h"
 #include "frc2/command/WaitCommand.h"
-#include "frcLib846/loggable.h"
-#include "frcLib846/sendable_callback.h"
-#include "frcLib846/wpilib/time.h"
-#include "frcLib846/xbox.h"
+#include "frc846/loggable.h"
+#include "frc846/sendable_callback.h"
+#include "frc846/wpilib/time.h"
+#include "frc846/xbox.h"
 #include "commands/drive_command.h"
 #include "commands/follow_trajectory_command.h"
-#include "subsystems/scorer.h"
-#include "subsystems/scoring_positioner.h"
 
-FunkyRobot::FunkyRobot() : frcLib846::Loggable{"funky_robot"} {
-  next_loop_time_ = frcLib846::wpilib::CurrentFPGATime();
+#include "subsystems/shintake.h"
+#include "subsystems/arm.h"
+
+FunkyRobot::FunkyRobot() : frc846::Loggable{"funky_robot"} {
+  next_loop_time_ = frc846::wpilib::CurrentFPGATime();
 
   int32_t status = 0;
   notifier_ = HAL_InitializeNotifier(&status);
@@ -53,19 +54,19 @@ void FunkyRobot::StartCompetition() {
 
   // Add dashboard buttons
   frc::SmartDashboard::PutData(
-      "zero_modules", new frcLib846::SendableCallback(
+      "zero_modules", new frc846::SendableCallback(
                           [this] { container_.drivetrain_.ZeroModules(); }));
   frc::SmartDashboard::PutData("zero_bearing",
-                               new frcLib846::SendableCallback([this] {
+                               new frc846::SendableCallback([this] {
                                  container_.drivetrain_.SetBearing(0_deg);
                                }));
   frc::SmartDashboard::PutData(
-      "zero_odometry", new frcLib846::SendableCallback(
+      "zero_odometry", new frc846::SendableCallback(
                            [this] { container_.drivetrain_.ZeroOdometry(); }));
   
   frc::SmartDashboard::PutData(
       "verify_hardware",
-      new frcLib846::SendableCallback([this] { VerifyHardware(); }));
+      new frc846::SendableCallback([this] { VerifyHardware(); }));
 
   // Add autos here
   // Default
@@ -108,7 +109,7 @@ void FunkyRobot::StartCompetition() {
     }
 
     // Start loop timing
-    auto loop_start_time = frcLib846::wpilib::CurrentFPGATime();
+    auto loop_start_time = frc846::wpilib::CurrentFPGATime();
 
     // Get current control mode
     frc::DSControlWord word{};
@@ -200,14 +201,14 @@ void FunkyRobot::StartCompetition() {
     // Update graphs
     time_remaining_graph_.Graph(frc::DriverStation::GetMatchTime().to<int>());
 
-    warnings_graph_.Graph(frcLib846::Loggable::GetWarnCount());
-    errors_graph_.Graph(frcLib846::Loggable::GetErrorCount());
+    warnings_graph_.Graph(frc846::Loggable::GetWarnCount());
+    errors_graph_.Graph(frc846::Loggable::GetErrorCount());
 
     can_usage_graph_.Graph(
         frc::RobotController::GetCANStatus().percentBusUtilization * 100);
 
-    auto loop_time = frcLib846::wpilib::CurrentFPGATime() - loop_start_time;
-    loop_time_graph_.Graph(frcLib846::wpilib::CurrentFPGATime() - loop_start_time);
+    auto loop_time = frc846::wpilib::CurrentFPGATime() - loop_start_time;
+    loop_time_graph_.Graph(frc846::wpilib::CurrentFPGATime() - loop_start_time);
 
     // Check loop time
     if (loop_time > kPeriod * 2) {
@@ -230,10 +231,10 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger drivetrain_zero_bearing_trigger{
       [&] { return container_.driver_.readings().back_button; }};
 
-  frc2::Trigger scorer_test_in_trigger{
+  frc2::Trigger shintake_test_in_trigger{
       [&] { return container_.driver_.readings().right_trigger; }};
 
-  frc2::Trigger scorer_test_out_trigger{
+  frc2::Trigger shintake_test_out_trigger{
       [&] { return container_.driver_.readings().left_trigger; }};
 
   frc2::Trigger tele_test_up_trigger{
@@ -249,10 +250,10 @@ void FunkyRobot::InitTeleopTriggers() {
       [&] { return container_.driver_.readings().x_button; }};
 
   frc2::Trigger wrist_test_up_trigger{
-      [&] { return container_.driver_.readings().pov == frcLib846::XboxPOV::kUp; }};
+      [&] { return container_.driver_.readings().pov == frc846::XboxPOV::kUp; }};
 
   frc2::Trigger wrist_test_down_trigger{
-      [&] { return container_.driver_.readings().pov == frcLib846::XboxPOV::kDown; }};
+      [&] { return container_.driver_.readings().pov == frc846::XboxPOV::kDown; }};
 
   // // Bind Triggers to commands
   drivetrain_zero_bearing_trigger.WhileTrue(
@@ -260,108 +261,108 @@ void FunkyRobot::InitTeleopTriggers() {
         container_.drivetrain_.ZeroBearing();
       }).ToPtr());
 
-  scorer_test_in_trigger.WhileTrue(
+  shintake_test_in_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(true, false, 0.0_tps));
+        container_.shintake_.SetTarget(container_.shintake_.MakeTarget(true, false, 0.0_tps));
       }).ToPtr());
 
-  scorer_test_in_trigger.OnFalse(
+  shintake_test_in_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
+        container_.shintake_.SetTarget(container_.shintake_.ZeroTarget());
       }).ToPtr());
 
-  scorer_test_out_trigger.WhileTrue(
+  shintake_test_out_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(false, true, container_.scorer_.shooter_speed_.value()));
+        container_.shintake_.SetTarget(container_.shintake_.MakeTarget(false, true, container_.shintake_.shooter_speed_.value()));
       }).ToPtr());
 
-  scorer_test_out_trigger.OnFalse(
+  shintake_test_out_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scoring_positioner_.SetTarget(container_.scoring_positioner_.ZeroTarget());
+        container_.arm_.SetTarget(container_.arm_.ZeroTarget());
       }).ToPtr());
 
   pivot_test_up_trigger.WhileTrue(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
+        ArmTarget t = container_.arm_.GetTarget();
         t.pivot_output = 0.1;
-        container_.scoring_positioner_.SetTarget(t);
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   pivot_test_up_trigger.OnFalse(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
-        t.pivot_output = container_.scoring_positioner_.readings().pivot_position;
-        container_.scoring_positioner_.SetTarget(t);
+        ArmTarget t = container_.arm_.GetTarget();
+        t.pivot_output = container_.arm_.readings().pivot_position;
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   pivot_test_down_trigger.WhileTrue(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
+        ArmTarget t = container_.arm_.GetTarget();
         t.pivot_output = -0.1;
-        container_.scoring_positioner_.SetTarget(t);
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   pivot_test_down_trigger.OnFalse(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
-        t.pivot_output = container_.scoring_positioner_.readings().pivot_position;
-        container_.scoring_positioner_.SetTarget(t);
+        ArmTarget t = container_.arm_.GetTarget();
+        t.pivot_output = container_.arm_.readings().pivot_position;
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   tele_test_up_trigger.WhileTrue(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
+        ArmTarget t = container_.arm_.GetTarget();
         t.extension = 0.1;
-        container_.scoring_positioner_.SetTarget(t);
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   tele_test_up_trigger.OnFalse(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
-        t.extension = container_.scoring_positioner_.readings().extension;
-        container_.scoring_positioner_.SetTarget(t);
+        ArmTarget t = container_.arm_.GetTarget();
+        t.extension = container_.arm_.readings().extension;
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   tele_test_down_trigger.WhileTrue(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
+        ArmTarget t = container_.arm_.GetTarget();
         t.extension = -0.1;
-        container_.scoring_positioner_.SetTarget(t);
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   tele_test_down_trigger.OnFalse(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
-        t.extension = container_.scoring_positioner_.readings().extension;
-        container_.scoring_positioner_.SetTarget(t);
+        ArmTarget t = container_.arm_.GetTarget();
+        t.extension = container_.arm_.readings().extension;
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   wrist_test_up_trigger.WhileTrue(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
+        ArmTarget t = container_.arm_.GetTarget();
         t.wrist_output = 0.1;
-        container_.scoring_positioner_.SetTarget(t);
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   wrist_test_up_trigger.OnFalse(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
-        t.wrist_output = container_.scoring_positioner_.readings().wrist_position;
-        container_.scoring_positioner_.SetTarget(t);
+        ArmTarget t = container_.arm_.GetTarget();
+        t.wrist_output = container_.arm_.readings().wrist_position;
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   wrist_test_down_trigger.WhileTrue(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
+        ArmTarget t = container_.arm_.GetTarget();
         t.wrist_output = -0.1;
-        container_.scoring_positioner_.SetTarget(t);
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   wrist_test_down_trigger.OnFalse(
     frc2::InstantCommand([this] {
-        ScoringPositionerTarget t = container_.scoring_positioner_.GetTarget();
-        t.wrist_output = container_.scoring_positioner_.readings().wrist_position;
-        container_.scoring_positioner_.SetTarget(t);
+        ArmTarget t = container_.arm_.GetTarget();
+        t.wrist_output = container_.arm_.readings().wrist_position;
+        container_.arm_.SetTarget(t);
     }).ToPtr());
 
   

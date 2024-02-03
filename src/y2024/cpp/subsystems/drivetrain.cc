@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include "frcLib846/wpilib/time.h"
+#include "frc846/wpilib/time.h"
 #include "subsystems/swerve_module.h"
 
 
@@ -11,7 +11,7 @@ double vel_readings_composite_x;
 double vel_readings_composite_y;
 
 DrivetrainSubsystem::DrivetrainSubsystem(bool initialize)
-    : frcLib846::Subsystem<DrivetrainReadings, DrivetrainTarget>{"drivetrain", initialize} {
+    : frc846::Subsystem<DrivetrainReadings, DrivetrainTarget>{"drivetrain", initialize} {
   bearing_offset_ = 0_deg;
   ZeroOdometry();
   frc::SmartDashboard::PutData("Field", &m_field);
@@ -68,7 +68,7 @@ void DrivetrainSubsystem::ZeroOdometry() {
   odometry_.Zero();
 }
 
-void DrivetrainSubsystem::SetPoint(frcLib846::Vector2D<units::foot_t> point) {
+void DrivetrainSubsystem::SetPoint(frc846::Vector2D<units::foot_t> point) {
   //if (!is_initialized()) return;
 
   Log("set point x {} y {}", point.x, point.y);
@@ -83,15 +83,15 @@ void DrivetrainSubsystem::SetBearing(units::degree_t bearing) {
   Log("Zeroed bearing {}", bearing);
 }
 
-std::array<frcLib846::Vector2D<units::feet_per_second_t>,
+std::array<frc846::Vector2D<units::feet_per_second_t>,
            DrivetrainSubsystem::kModuleCount>
 DrivetrainSubsystem::SwerveControl(
-    frcLib846::Vector2D<units::feet_per_second_t> translation,
+    frc846::Vector2D<units::feet_per_second_t> translation,
     units::degrees_per_second_t rotation_speed, units::inch_t width,
     units::inch_t height, units::inch_t radius,
     units::feet_per_second_t max_speed) {
   // Locations of each module
-  static constexpr frcLib846::Vector2D<units::dimensionless_t>
+  static constexpr frc846::Vector2D<units::dimensionless_t>
       kModuleLocationSigns[DrivetrainSubsystem::kModuleCount] = {
           {-1, +1},  // fl
           {+1, +1},  // fr
@@ -99,14 +99,14 @@ DrivetrainSubsystem::SwerveControl(
           {+1, -1},  // br
       };
 
-  std::array<frcLib846::Vector2D<units::feet_per_second_t>,
+  std::array<frc846::Vector2D<units::feet_per_second_t>,
              DrivetrainSubsystem::kModuleCount>
       module_targets;
 
   units::feet_per_second_t max_magnitude;
   for (int i = 0; i < 4; ++i) {
     // Location of the module relaive to the center
-    frcLib846::Vector2D<units::inch_t> location{
+    frc846::Vector2D<units::inch_t> location{
         kModuleLocationSigns[i].x * width / 2,
         kModuleLocationSigns[i].y * height / 2,
     };
@@ -119,7 +119,7 @@ DrivetrainSubsystem::SwerveControl(
         units::math::atan2(location.x, location.y) + 90_deg;
 
     // do 90 - direction to convert bearing to cartesian angle
-    frcLib846::Vector2D<units::feet_per_second_t> rotation{
+    frc846::Vector2D<units::feet_per_second_t> rotation{
         rotation_speed * units::math::cos(90_deg - direction) * radius / 1_rad,
         rotation_speed * units::math::sin(90_deg - direction) * radius / 1_rad,
     };
@@ -157,8 +157,8 @@ bool DrivetrainSubsystem::VerifyHardware() {
   //if (!is_initialized()) return true;
 
   bool ok = true;
-  frcLib846_VERIFY(gyro_.IsConnected(), ok, "gyro is not connected");
-  frcLib846_VERIFY(!gyro_.IsCalibrating(), ok, "gyro is calibrating");
+  FRC846_VERIFY(gyro_.IsConnected(), ok, "gyro is not connected");
+  FRC846_VERIFY(!gyro_.IsCalibrating(), ok, "gyro is calibrating");
 
   for (auto module : modules_all_) {
     bool module_ok = module->VerifyHardware();
@@ -187,7 +187,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
   auto tilt =
       units::degree_t{pitch_initial * units::math::cos(readings.pose.bearing) +
                       roll_initial * units::math::sin(readings.pose.bearing)};
-  auto current_time_ = frcLib846::wpilib::CurrentFPGATime();
+  auto current_time_ = frc846::wpilib::CurrentFPGATime();
 
   readings.tilt = tilt;
 
@@ -201,13 +201,13 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
 
   // Gets the position difference vector for each module, to update odometry
   // with
-  std::array<frcLib846::Vector2D<units::foot_t>, kModuleCount> module_outs;
+  std::array<frc846::Vector2D<units::foot_t>, kModuleCount> module_outs;
   for (int i = 0; i < kModuleCount; ++i) {
     modules_all_[i]->UpdateReadings();
     auto d = modules_all_[i]->readings().distance;
     units::radian_t a = modules_all_[i]->readings().direction;
 
-    frcLib846::Vector2D<units::foot_t> vec{
+    frc846::Vector2D<units::foot_t> vec{
         d * units::math::sin(a),
         d * units::math::cos(a),
     };
@@ -224,7 +224,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
                units::math::sin(90_deg - module->readings().direction);
   }
 
-  frcLib846::Vector2D<units::feet_per_second_t> unfiltered_velocity = {
+  frc846::Vector2D<units::feet_per_second_t> unfiltered_velocity = {
       total_x / kModuleCount, total_y / kModuleCount};
 
   readings.velocity = unfiltered_velocity;
@@ -278,7 +278,7 @@ void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
     throw std::runtime_error{"unhandled case"};
   }
 
-  frcLib846::Vector2D<units::feet_per_second_t> target_translation = {target.v_x,
+  frc846::Vector2D<units::feet_per_second_t> target_translation = {target.v_x,
                                                                    target.v_y};
   // rotate translation vector if field oriented
   if (target.translation_reference == DrivetrainTranslationReference::kField) {
@@ -293,7 +293,7 @@ void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
   if (auto* theta = std::get_if<DrivetrainRotationPosition>(&target.rotation)) {
     // position control
     auto p_error =
-        frcLib846::CoterminalDifference(*theta, readings().pose.bearing);
+        frc846::CoterminalDifference(*theta, readings().pose.bearing);
     auto d_error = readings().angular_velocity;
 
     target_omega = units::degrees_per_second_t(

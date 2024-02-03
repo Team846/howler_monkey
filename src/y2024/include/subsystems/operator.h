@@ -1,21 +1,21 @@
 #ifndef y2024_SUBSYSTEMS_OPERATOR_H_
 #define y2024_SUBSYSTEMS_OPERATOR_H_
 
-#include "frcLib846/grapher.h"
-#include "frcLib846/math.h"
-#include "frcLib846/pref.h"
-#include "frcLib846/subsystem.h"
-#include "frcLib846/xbox.h"
+#include "frc846/grapher.h"
+#include "frc846/math.h"
+#include "frc846/pref.h"
+#include "frc846/subsystem.h"
+#include "frc846/xbox.h"
 #include "ports.h"
 
-using OperatorReadings = frcLib846::XboxReadings;
+using OperatorReadings = frc846::XboxReadings;
 
 struct OperatorTarget {
   bool rumble;
 };
 
 class OperatorSubsystem
-    : public frcLib846::Subsystem<OperatorReadings, OperatorTarget> {
+    : public frc846::Subsystem<OperatorReadings, OperatorTarget> {
  public:
   OperatorSubsystem();
 
@@ -24,13 +24,13 @@ class OperatorSubsystem
   bool VerifyHardware() override;
 
  private:
-  frcLib846::Pref<double> trigger_threshold_{*this, "trigger_threshold", 0.3};
-  frcLib846::Pref<double> rumble_strength_{*this, "rumble_strength", 1.0};
+  frc846::Pref<double> trigger_threshold_{*this, "trigger_threshold", 0.3};
+  frc846::Pref<double> rumble_strength_{*this, "rumble_strength", 1.0};
 
   frc::XboxController xbox_{ports::operator_::kXbox_DSPort};
 
-  frcLib846::Loggable target_loggable_{*this, "target"};
-  frcLib846::Grapher<bool> target_rumble_graph_{target_loggable_, "rumble"};
+  frc846::Loggable target_loggable_{*this, "target"};
+  frc846::Grapher<bool> target_rumble_graph_{target_loggable_, "rumble"};
 
   OperatorReadings GetNewReadings() override;
 

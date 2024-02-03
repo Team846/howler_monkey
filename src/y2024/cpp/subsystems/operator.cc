@@ -1,7 +1,7 @@
 #include "subsystems/operator.h"
 
 OperatorSubsystem::OperatorSubsystem()
-    : frcLib846::Subsystem<OperatorReadings, OperatorTarget>{"operator", true} {}
+    : frc846::Subsystem<OperatorReadings, OperatorTarget>{"operator", true} {}
 
 OperatorTarget OperatorSubsystem::ZeroTarget() const {
   OperatorTarget target;
@@ -11,7 +11,7 @@ OperatorTarget OperatorSubsystem::ZeroTarget() const {
 
 bool OperatorSubsystem::VerifyHardware() {
   bool ok = true;
-  // frcLib846_VERIFY(xbox_.IsConnected(), ok, "not connected");
+  // FRC846_VERIFY(xbox_.IsConnected(), ok, "not connected");
   return ok;
 }
 

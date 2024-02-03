@@ -2,10 +2,10 @@
 
 #include <utility>
 
-#include "frcLib846/math.h"
+#include "frc846/math.h"
 #include "subsystems/drivetrain.h"
 #include "subsystems/swerve_module.h"
-#include "frcLib846/loggable.h"
+#include "frc846/loggable.h"
 
 DriveCommand::DriveCommand(RobotContainer& container)
     : driver_(container.driver_),
@@ -28,10 +28,10 @@ void DriveCommand::Execute() {
 
   // -----TRANSLATION CONTROL-----
 
-  double translate_x = frcLib846::HorizontalDeadband(
+  double translate_x = frc846::HorizontalDeadband(
       driver_.readings().left_stick_x, driver_.translation_deadband_.value(), 1,
       driver_.translation_exponent_.value(), 1);
-  double translate_y = frcLib846::HorizontalDeadband(
+  double translate_y = frc846::HorizontalDeadband(
       driver_.readings().left_stick_y, driver_.translation_deadband_.value(), 1,
       driver_.translation_exponent_.value(), 1);
       
@@ -40,10 +40,10 @@ void DriveCommand::Execute() {
 
   // Slow down translation if slow mode is active
   if (is_slow_drive) {
-    translate_x = frcLib846::HorizontalDeadband(
+    translate_x = frc846::HorizontalDeadband(
       driver_.readings().left_stick_x*abs(driver_.readings().left_stick_x), driver_.translation_deadband_.value(), 1,
       driver_.translation_exponent_.value(), 1);
-    translate_y = frcLib846::HorizontalDeadband(
+    translate_y = frc846::HorizontalDeadband(
       driver_.readings().left_stick_y*abs(driver_.readings().left_stick_y), driver_.translation_deadband_.value(), 1,
       driver_.translation_exponent_.value(), 1);
     drivetrain_target.v_x = translate_x * drivetrain_.max_speed_.value() * drivetrain_.slow_mode_percent_.value();
@@ -59,7 +59,7 @@ void DriveCommand::Execute() {
 
   // -----STEER CONTROL-----
 
-  double steer_x = frcLib846::HorizontalDeadband(
+  double steer_x = frc846::HorizontalDeadband(
       driver_.readings().right_stick_x, driver_.steer_deadband_.value(), 1,
       driver_.steer_exponent_.value(), 1);
 

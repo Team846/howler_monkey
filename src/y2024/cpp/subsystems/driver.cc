@@ -1,7 +1,7 @@
 #include "subsystems/driver.h"
 
 DriverSubsystem::DriverSubsystem()
-    : frcLib846::Subsystem<DriverReadings, DriverTarget>{"driver", true} {}
+    : frc846::Subsystem<DriverReadings, DriverTarget>{"driver", true} {}
 
 DriverTarget DriverSubsystem::ZeroTarget() const {
   DriverTarget target;
@@ -11,7 +11,7 @@ DriverTarget DriverSubsystem::ZeroTarget() const {
 
 bool DriverSubsystem::VerifyHardware() {
   bool ok = true;
-  // frcLib846_VERIFY(xbox_.IsConnected(), ok, "not connected");
+  // FRC846_VERIFY(xbox_.IsConnected(), ok, "not connected");
   return ok;
 }
 

@@ -2,21 +2,21 @@
 
 #include <thread>
 
-#include "frcLib846/motor/config.h"
+#include "frc846/motor/config.h"
 
 static constexpr auto kMotorType = rev::CANSparkMax::MotorType::kBrushless;
 
 SwerveModuleSubsystem::SwerveModuleSubsystem(
-    const frcLib846::Loggable& drivetrain, bool init, std::string location,
+    const frc846::Loggable& drivetrain, bool init, std::string location,
     units::degree_t fallback_cancoder_offset,
-    frcLib846::motor::SparkMAXConfigHelper* drive_esc_config_helper,
-    frcLib846::motor::GainsHelper* drive_esc_gains_helper,
-    frcLib846::motor::SparkMAXConfigHelper* steer_esc_config_helper,
-    frcLib846::motor::GainsHelper* steer_esc_gains_helper,
-    frcLib846::Converter<units::foot_t>& drive_converter,
-    frcLib846::Converter<units::degree_t>& steer_converter,
+    frc846::motor::SparkMAXConfigHelper* drive_esc_config_helper,
+    frc846::motor::GainsHelper* drive_esc_gains_helper,
+    frc846::motor::SparkMAXConfigHelper* steer_esc_config_helper,
+    frc846::motor::GainsHelper* steer_esc_gains_helper,
+    frc846::Converter<units::foot_t>& drive_converter,
+    frc846::Converter<units::degree_t>& steer_converter,
     int drive_esc_id, int steer_esc_id, int cancoder_id
-  ) : frcLib846::Subsystem<SwerveModuleReadings, SwerveModuleTarget>{
+  ) : frc846::Subsystem<SwerveModuleReadings, SwerveModuleTarget>{
           drivetrain,
           "module_" + location,
           init
@@ -128,13 +128,13 @@ SwerveModuleTarget SwerveModuleSubsystem::ZeroTarget() const {
 
 bool SwerveModuleSubsystem::VerifyHardware() {
   bool ok = true;
-  frcLib846_VERIFY(drive_esc_helper_.VerifyConnected(), ok,
+  FRC846_VERIFY(drive_esc_helper_.VerifyConnected(), ok,
                 "drive esc not connected");
-  frcLib846_VERIFY(drive_esc_.GetInverted() == true, ok,
+  FRC846_VERIFY(drive_esc_.GetInverted() == true, ok,
                 "drive esc incorrect invert state");
-  frcLib846_VERIFY(steer_esc_helper_.VerifyConnected(), ok,
+  FRC846_VERIFY(steer_esc_helper_.VerifyConnected(), ok,
                 "steer esc not connected");
-  frcLib846_VERIFY(steer_esc_.GetInverted() == false, ok,
+  FRC846_VERIFY(steer_esc_.GetInverted() == false, ok,
                 "steer esc incorrect invert state");
   return ok;
 }
@@ -185,7 +185,7 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
   if (target.control == kClosedLoop) {
     drive_output = drive_converter_.RealToNativeVelocity(target_velocity);
     drive_esc_helper_.Write(
-        {frcLib846::motor::ControlMode::Velocity, drive_output});
+        {frc846::motor::ControlMode::Velocity, drive_output});
   } else if (target.control == kOpenLoop) {
     if (units::unit_cast<double>(units::math::abs(speed_difference)) > units::unit_cast<double>(kControlChangeThresh)) {
       units::feet_per_second_t adjusted_target_velocity = units::feet_per_second_t(units::unit_cast<double>(current_speed_) - (units::unit_cast<double>(speed_difference) * kSpeedAdjustingFactor));
@@ -200,12 +200,12 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
       }
 
       drive_esc_helper_.Write(
-          {frcLib846::motor::ControlMode::Percent, drive_output});
+          {frc846::motor::ControlMode::Percent, drive_output});
     } else {
       drive_output = target_velocity / kMaxSpeed;
 
       drive_esc_helper_.Write(
-          {frcLib846::motor::ControlMode::Percent, drive_output});
+          {frc846::motor::ControlMode::Percent, drive_output});
     }
   } else {
     Warn("No Control Strategy Set");
@@ -213,5 +213,5 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
 
   double steer_output =
       steer_converter_.RealToNativePosition(normalized_angle - zero_offset_);
-  steer_esc_helper_.Write({frcLib846::motor::ControlMode::Position, steer_output});
+  steer_esc_helper_.Write({frc846::motor::ControlMode::Position, steer_output});
 }

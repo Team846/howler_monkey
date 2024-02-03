@@ -1,29 +1,29 @@
-#ifndef frcLib846_SUBSYSTEMS_ROBOT_CONTAINER_H_
-#define frcLib846_SUBSYSTEMS_ROBOT_CONTAINER_H_
+#ifndef FRC846_SUBSYSTEMS_ROBOT_CONTAINER_H_
+#define FRC846_SUBSYSTEMS_ROBOT_CONTAINER_H_
 
-#include "frcLib846/pref.h"
+#include "frc846/pref.h"
 #include "subsystems/driver.h"
 #include "subsystems/drivetrain.h"
 #include "subsystems/operator.h"
-#include "scorer.h"
-#include "scoring_positioner.h"
+#include "shintake.h"
+#include "arm.h"
 
-class RobotContainer : public frcLib846::Loggable {
+class RobotContainer : public frc846::Loggable {
  public:
-  RobotContainer() : frcLib846::Loggable{"robot_container"} {}
+  RobotContainer() : frc846::Loggable{"robot_container"} {}
 
-  frcLib846::Pref<bool> init_drivetrain_{*this, "init_drivetrain", true};
-  frcLib846::Pref<bool> init_scorer_{*this, "init_scorer", true};
-  frcLib846::Pref<bool> init_scoring_positioner_{*this, "init_scoring_positioner", true};
+  frc846::Pref<bool> init_drivetrain_{*this, "init_drivetrain", true};
+  frc846::Pref<bool> init_shintake_{*this, "init_shintake", true};
+  frc846::Pref<bool> init_arm_{*this, "init_arm", true};
 
   DriverSubsystem driver_;
   OperatorSubsystem operator_;
   DrivetrainSubsystem drivetrain_{init_drivetrain_.value()};
-  ScorerSubsystem scorer_{init_scorer_.value()};
-  ScoringPositionerSubsystem scoring_positioner_{init_scoring_positioner_.value()};
+  ShintakeSubsystem shintake_{init_shintake_.value()};
+  ArmSubsystem arm_{init_arm_.value()};
 
-  std::vector<frcLib846::SubsystemBase*> all_subsystems_{
-      &driver_,  &operator_, &drivetrain_, &scorer_, &scoring_positioner_};
+  std::vector<frc846::SubsystemBase*> all_subsystems_{
+      &driver_,  &operator_, &drivetrain_, &shintake_, &arm_};
 };
 
-#endif  // frcLib846_SUBSYSTEMS_ROBOT_CONTAINER_H_
+#endif  // FRC846_SUBSYSTEMS_ROBOT_CONTAINER_H_

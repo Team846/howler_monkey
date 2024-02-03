@@ -7,14 +7,14 @@
 #include <hal/Types.h>
 #include <units/time.h>
 
-#include "frcLib846/pref.h"
+#include "frc846/pref.h"
 #include "autos/drive_auto.h"
 #include "autos/five_piece_auto.h"
 #include "subsystems/robot_container.h"
 
 enum Mode { kNone, kDisabled, kAutonomous, kTeleop, kTest };
 
-class FunkyRobot : public frc::RobotBase, public frcLib846::Loggable {
+class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
  public:
   static constexpr auto kPeriod = 20_ms;  // 50hz
 
@@ -41,13 +41,13 @@ class FunkyRobot : public frc::RobotBase, public frcLib846::Loggable {
  private:
   RobotContainer container_;
 
-  frcLib846::Grapher<int> time_remaining_graph_{*this, "time"};
+  frc846::Grapher<int> time_remaining_graph_{*this, "time"};
 
-  frcLib846::Grapher<int> warnings_graph_{*this, "warnings"};
-  frcLib846::Grapher<int> errors_graph_{*this, "errors"};
+  frc846::Grapher<int> warnings_graph_{*this, "warnings"};
+  frc846::Grapher<int> errors_graph_{*this, "errors"};
 
-  frcLib846::Grapher<double> can_usage_graph_{*this, "CAN_usage"};
-  frcLib846::Grapher<units::millisecond_t> loop_time_graph_{*this, "loop_time"};
+  frc846::Grapher<double> can_usage_graph_{*this, "CAN_usage"};
+  frc846::Grapher<units::millisecond_t> loop_time_graph_{*this, "loop_time"};
 
   frc2::Command* auto_command_ = nullptr;
   frc::SendableChooser<frc2::Command*> auto_chooser_;

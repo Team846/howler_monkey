@@ -7,7 +7,7 @@
 
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
-#include "frcLib846/math.h"
+#include "frc846/math.h"
 #include "commands/follow_trajectory_command.h"
 #include "subsystems/field.h"
 #include "subsystems/drivetrain.h"

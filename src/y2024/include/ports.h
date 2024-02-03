@@ -27,11 +27,11 @@ struct ports {
     static constexpr int kBRCANCoder_CANID = 4;
   };
 
-  struct scorer_ {
+  struct shintake_ {
     static constexpr int kController_CANID = 20;
   };
 
-  struct scoring_positioner_ {
+  struct arm_ {
     static constexpr int kPivotOne_CANID = 25;
     static constexpr int kPivotTwo_CANID = 26;
     static constexpr int kPivotThree_CANID = 27;

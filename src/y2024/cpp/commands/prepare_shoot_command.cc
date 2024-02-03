@@ -4,14 +4,14 @@
 
 #include <cmath>
 
-#include "frcLib846/math.h"
-#include "frcLib846/wpilib/time.h"
+#include "frc846/math.h"
+#include "frc846/wpilib/time.h"
 
 PrepareShootCommand::PrepareShootCommand(
     RobotContainer& container)
-    : frcLib846::Loggable{"prepare_shoot_command"},
-      scorer_(container.scorer_), scoring_positioner_(container.scoring_positioner_) {
-  AddRequirements({&scoring_positioner_}); //don't add scorer, only set target for scorer once during initialize
+    : frc846::Loggable{"prepare_shoot_command"},
+      shintake_(container.shintake_), arm_(container.arm_) {
+  AddRequirements({&arm_}); //don't add shintake, only set target for shintake once during initialize
   SetName("prepare_shoot_command");
 }
 
@@ -20,8 +20,8 @@ void PrepareShootCommand::Initialize() {
 }
 
 void PrepareShootCommand::Execute() {
-  scorer_.SetTarget(scorer_.ZeroTarget());
-  scoring_positioner_.SetTarget(scoring_positioner_.ZeroTarget());
+  shintake_.SetTarget(shintake_.ZeroTarget());
+  arm_.SetTarget(arm_.ZeroTarget());
 
   is_done_ = true;
 }
