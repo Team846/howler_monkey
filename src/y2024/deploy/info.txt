@@ -1,0 +1,9 @@
+Files placed in this directory will be deployed to the RoboRIO into the
+  'deploy' directory in the home folder. Use the 'frc::filesystem::GetDeployDirectory'
+  function from the 'frc/Filesystem.h' header to get a proper path relative to the deploy
+  directory.
+
+
+To be able to deploy code, create a file called dev.id in this deploy folder. 
+The contents of this file should be your full name: First Last
+Dev.id should be added to gitignore
