@@ -11,6 +11,7 @@
 #include "autos/drive_auto.h"
 #include "autos/five_piece_auto.h"
 #include "subsystems/robot_container.h"
+#include "frc/DigitalInput.h"
 
 enum Mode { kNone, kDisabled, kAutonomous, kTeleop, kTest };
 
@@ -62,6 +63,8 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
       
   // frc2::CommandPtr five_piece_auto_ = 
   //     FivePieceAuto(container_, true);
+
+  frc::DigitalInput homing_switch_{0};
 };
 
 #endif  // y2024_FUNKY_ROBOT_H_

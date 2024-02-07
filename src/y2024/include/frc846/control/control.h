@@ -344,272 +344,272 @@ class SparkRevController : ElectronicSpeedController<X> {
 *
 */
 
-template <typename X> 
-class TalonFXController : ElectronicSpeedController<X> {
-    using V = units::unit_t<units::compound_unit<typename X::unit_type,
-                                                units::inverse<units::second>>>;
+// template <typename X> 
+// class TalonFXController : ElectronicSpeedController<X> {
+//     using V = units::unit_t<units::compound_unit<typename X::unit_type,
+//                                                 units::inverse<units::second>>>;
 
-    using A = units::ampere_t;
+//     using A = units::ampere_t;
 
-    public:
-    TalonFXController(Loggable parent_, std::string name, int kCanIdPort) :
-          obj(parent_, name), 
-            esc_{kCanIdPort} {};
+//     public:
+//     TalonFXController(Loggable parent_, std::string name, int kCanIdPort) :
+//           obj(parent_, name), 
+//             esc_{kCanIdPort} {};
 
-    ~TalonFXController() {
-      if (gains_helper != nullptr) {
-            delete gains_helper;
-      }
-    };
+//     ~TalonFXController() {
+//       if (gains_helper != nullptr) {
+//             delete gains_helper;
+//       }
+//     };
 
-    ElectronicSpeedController<X>* that() {
-      return this;
-    }
+//     ElectronicSpeedController<X>* that() {
+//       return this;
+//     }
 
-    int Setup(units::millisecond_t timeout, ControlGainsHelper* gainsHelper,
-        bool isInverted = false, IdleMode kIdleMode = kCoast) {
+//     int Setup(units::millisecond_t timeout, ControlGainsHelper* gainsHelper,
+//         bool isInverted = false, IdleMode kIdleMode = kCoast) {
 
-        if (VerifyConnected()) {
-          setup = true;
-        } else {
-          obj.Error("? controller could NOT be setup");
-          return -1;
-        }
+//         if (VerifyConnected()) {
+//           setup = true;
+//         } else {
+//           obj.Error("? controller could NOT be setup");
+//           return -1;
+//         }
         
-        if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::NeutralMode::Coast); 
-        else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::NeutralMode::Brake);
+//         if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::NeutralMode::Coast); 
+//         else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::NeutralMode::Brake);
 
-        esc_.ConfigFactoryDefault(timeout.to<double>());
-        esc_.SetInverted(isInverted);
-        gains_helper = gainsHelper;
+//         esc_.ConfigFactoryDefault(timeout.to<double>());
+//         esc_.SetInverted(isInverted);
+//         gains_helper = gainsHelper;
 
-        esc_.ConfigSupplyCurrentLimit(
-        {
-            true,
-            gains_helper->current_limit_.value(),
-            gains_helper->current_limit_.value() * 1.5,
-            50
-        });
-        esc_.EnableVoltageCompensation(12.0);
+//         esc_.ConfigSupplyCurrentLimit(
+//         {
+//             true,
+//             gains_helper->current_limit_.value(),
+//             gains_helper->current_limit_.value() * 1.5,
+//             50
+//         });
+//         esc_.EnableVoltageCompensation(12.0);
 
-        esc_.Config_kP(0, gains_helper->p_.value());
-        esc_.Config_kI(0, gains_helper->i_.value());
-        esc_.Config_kD(0, gains_helper->d_.value());
-        esc_.Config_kF(0, gains_helper->f_.value());
-        esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
+//         esc_.Config_kP(0, gains_helper->p_.value());
+//         esc_.Config_kI(0, gains_helper->i_.value());
+//         esc_.Config_kD(0, gains_helper->d_.value());
+//         esc_.Config_kF(0, gains_helper->f_.value());
+//         esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
         
-        return 0;
-    };
+//         return 0;
+//     };
 
-    int Setup(ControlGainsHelper* gainsHelper, bool isInverted = false,
-        IdleMode kIdleMode = IdleMode::kCoast) {
+//     int Setup(ControlGainsHelper* gainsHelper, bool isInverted = false,
+//         IdleMode kIdleMode = IdleMode::kCoast) {
 
-        if (VerifyConnected()) {
-          setup = true;
-        } else {
-          obj.Error("? controller could NOT be setup");
-          return -1;
-        }
+//         if (VerifyConnected()) {
+//           setup = true;
+//         } else {
+//           obj.Error("? controller could NOT be setup");
+//           return -1;
+//         }
 
-        if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::NeutralMode::Coast);
-        else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::NeutralMode::Brake);
+//         if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::NeutralMode::Coast);
+//         else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::NeutralMode::Brake);
 
-        esc_.ConfigFactoryDefault(CANTimeout.to<double>());
-        esc_.SetInverted(isInverted);
-        gains_helper = gainsHelper;
+//         esc_.ConfigFactoryDefault(CANTimeout.to<double>());
+//         esc_.SetInverted(isInverted);
+//         gains_helper = gainsHelper;
 
-        esc_.ConfigSupplyCurrentLimit(
-        {
-            true,
-            gains_helper->current_limit_.value(),
-            gains_helper->current_limit_.value() * 1.5,
-            50
-        });
-        esc_.EnableVoltageCompensation(12.0);
+//         esc_.ConfigSupplyCurrentLimit(
+//         {
+//             true,
+//             gains_helper->current_limit_.value(),
+//             gains_helper->current_limit_.value() * 1.5,
+//             50
+//         });
+//         esc_.EnableVoltageCompensation(12.0);
 
-        esc_.Config_kP(0, gains_helper->p_.value());
-        esc_.Config_kI(0, gains_helper->i_.value());
-        esc_.Config_kD(0, gains_helper->d_.value());
-        esc_.Config_kF(0, gains_helper->f_.value());
-        esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
+//         esc_.Config_kP(0, gains_helper->p_.value());
+//         esc_.Config_kI(0, gains_helper->i_.value());
+//         esc_.Config_kD(0, gains_helper->d_.value());
+//         esc_.Config_kF(0, gains_helper->f_.value());
+//         esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
 
-        return 0;
-    };
+//         return 0;
+//     };
     
-    int Reset(units::millisecond_t timeout) {
-      if (!setup) return -1;
+//     int Reset(units::millisecond_t timeout) {
+//       if (!setup) return -1;
 
-      esc_.ConfigFactoryDefault(timeout.to<double>());
+//       esc_.ConfigFactoryDefault(timeout.to<double>());
 
-      if (gains_helper != nullptr) {
-          esc_.ConfigSupplyCurrentLimit(
-          {
-              true,
-              gains_helper->current_limit_.value(),
-              gains_helper->current_limit_.value() * 1.5,
-              50
-          });
-      }
+//       if (gains_helper != nullptr) {
+//           esc_.ConfigSupplyCurrentLimit(
+//           {
+//               true,
+//               gains_helper->current_limit_.value(),
+//               gains_helper->current_limit_.value() * 1.5,
+//               50
+//           });
+//       }
 
-      esc_.EnableVoltageCompensation(12.0);
+//       esc_.EnableVoltageCompensation(12.0);
       
-      return 0;
-    };
+//       return 0;
+//     };
 
-    void DisableStatusFrames(std::initializer_list<ctre::StatusFrameEnhanced> frames) {
-      if (!setup) return;
+//     void DisableStatusFrames(std::initializer_list<ctre::StatusFrameEnhanced> frames) {
+//       if (!setup) return;
 
-      for (auto f : frames) {
-        auto err = esc_.SetStatusFramePeriod(f, 255, CANTimeout.to<double>());
-      }
-    };
+//       for (auto f : frames) {
+//         auto err = esc_.SetStatusFramePeriod(f, 255, CANTimeout.to<double>());
+//       }
+//     };
 
-    void SetupConverter(X conv) {
-      if (!setup) return;
+//     void SetupConverter(X conv) {
+//       if (!setup) return;
 
-      conv_.ChangeConversion(conv);
-    };
+//       conv_.ChangeConversion(conv);
+//     };
 
-    void ZeroEncoder(X pos) {
-      if (!setup) return;
+//     void ZeroEncoder(X pos) {
+//       if (!setup) return;
 
-      esc_.SetSelectedSensorPosition(conv_.RealToNativePosition(pos));
-    };
+//       esc_.SetSelectedSensorPosition(conv_.RealToNativePosition(pos));
+//     };
 
-    void ZeroEncoder() {
-      if (!setup) return;
+//     void ZeroEncoder() {
+//       if (!setup) return;
 
-      esc_.SetSelectedSensorPosition(0.0);
-    };
+//       esc_.SetSelectedSensorPosition(0.0);
+//     };
 
-    void Write(ControlMode mode, double output) {
-      if (!setup) return;
+//     void Write(ControlMode mode, double output) {
+//       if (!setup) return;
 
-      if (esc_.HasResetOccurred()) {
-          Reset(CANTimeout);
-          esc_.ClearStickyFaults();
-      }
+//       if (esc_.HasResetOccurred()) {
+//           Reset(CANTimeout);
+//           esc_.ClearStickyFaults();
+//       }
 
-      if (mode == ControlMode::Percent) {
+//       if (mode == ControlMode::Percent) {
 
-        auto peak_output = gains_helper->peak_output_.value();
+//         auto peak_output = gains_helper->peak_output_.value();
 
-        double value = std::max(output, -peak_output);
-        value = std::min(value, +peak_output);
+//         double value = std::max(output, -peak_output);
+//         value = std::min(value, +peak_output);
 
-        esc_.Set(ctre::ControlMode::PercentOutput, conv_.RealToNativeVelocity(value));
-      }
-    };
+//         esc_.Set(ctre::ControlMode::PercentOutput, conv_.RealToNativeVelocity(value));
+//       }
+//     };
 
-    void Write(ControlMode mode, V output) {
-      if (!setup) return;
+//     void Write(ControlMode mode, V output) {
+//       if (!setup) return;
 
-      if (esc_.HasResetOccurred()) {
-          Reset(CANTimeout);
-          esc_.ClearStickyFaults();
-      }
+//       if (esc_.HasResetOccurred()) {
+//           Reset(CANTimeout);
+//           esc_.ClearStickyFaults();
+//       }
 
-      esc_.Config_kP(0, gains_helper->p_.value());
-      esc_.Config_kI(0, gains_helper->i_.value());
-      esc_.Config_kD(0, gains_helper->d_.value());
-      esc_.Config_kF(0, gains_helper->f_.value());
-      esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
+//       esc_.Config_kP(0, gains_helper->p_.value());
+//       esc_.Config_kI(0, gains_helper->i_.value());
+//       esc_.Config_kD(0, gains_helper->d_.value());
+//       esc_.Config_kF(0, gains_helper->f_.value());
+//       esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
 
-      if (mode == ControlMode::Velocity) {
-          esc_.Set(ctre::ControlMode::Velocity, conv_.RealToNativeVelocity(output));
-      }
-    };
+//       if (mode == ControlMode::Velocity) {
+//           esc_.Set(ctre::ControlMode::Velocity, conv_.RealToNativeVelocity(output));
+//       }
+//     };
 
-    void Write(ControlMode mode, X output) {
-      if (!setup) return;
+//     void Write(ControlMode mode, X output) {
+//       if (!setup) return;
 
-      if (esc_.HasResetOccurred()) {
-          Reset(CANTimeout);
-          esc_.ClearStickyFaults();
-      }
+//       if (esc_.HasResetOccurred()) {
+//           Reset(CANTimeout);
+//           esc_.ClearStickyFaults();
+//       }
 
-      esc_.Config_kP(0, gains_helper->p_.value());
-      esc_.Config_kI(0, gains_helper->i_.value());
-      esc_.Config_kD(0, gains_helper->d_.value());
-      esc_.Config_kF(0, gains_helper->f_.value());
-      esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
+//       esc_.Config_kP(0, gains_helper->p_.value());
+//       esc_.Config_kI(0, gains_helper->i_.value());
+//       esc_.Config_kD(0, gains_helper->d_.value());
+//       esc_.Config_kF(0, gains_helper->f_.value());
+//       esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
 
-      if (mode == ControlMode::Position) {
-          esc_.Set(ctre::ControlMode::Position, conv_.RealToNativePosition(output));
-      }
-    };
+//       if (mode == ControlMode::Position) {
+//           esc_.Set(ctre::ControlMode::Position, conv_.RealToNativePosition(output));
+//       }
+//     };
 
-    void Write(ControlMode mode, A output) {
-      if (!setup) return;
+//     void Write(ControlMode mode, A output) {
+//       if (!setup) return;
 
-      if (esc_.HasResetOccurred()) {
-          Reset(CANTimeout);
-          esc_.ClearStickyFaults();
-      }
-
-
-      if (mode == ControlMode::Current) {
-        esc_.Set(ctre::ControlMode::Current, output.to<double>());
-      }
-    };
-
-    void WriteByCurrent(units::ampere_t current) {
-      if (!setup) return;
-
-      esc_.Set(ctre::ControlMode::Current, current.to<double>());
-    }
-
-    V GetVelocity() {
-      if (!setup) throw std::exception();
-
-      return conv_.NativeToRealVelocity(esc_.GetSelectedSensorVelocity());
-    };
-
-    X GetPosition() {
-      if (!setup) throw std::exception();
-
-      return conv_.NativeToRealPosition(esc_.GetSelectedSensorPosition());
-    };
-
-    bool VerifyConnected() {
-      // GetFirmwareVersion sometimes returns 0 the first time you call it
-      esc_.GetFirmwareVersion();
-      return esc_.GetFirmwareVersion() != -1;
-    };
-
-    bool GetInverted() {
-      if (!setup) return false;
-
-      esc_.GetInverted();
-      return esc_.GetInverted();
-    };
-
-    void SetInverted(bool invert) {
-      if (!setup) return;
-
-      esc_.SetInverted(invert);
-    };
-
-    units::ampere_t GetCurrent() {
-      if (!setup) return 0_A;
-
-      return units::ampere_t(esc_.GetOutputCurrent());
-    };
-
-    private:
-    Loggable obj;
-    ControlGainsHelper* gains_helper;
-
-    ctre::TalonFX esc_;
-    ControlGains gains_cache_;
+//       if (esc_.HasResetOccurred()) {
+//           Reset(CANTimeout);
+//           esc_.ClearStickyFaults();
+//       }
 
 
+//       if (mode == ControlMode::Current) {
+//         esc_.Set(ctre::ControlMode::Current, output.to<double>());
+//       }
+//     };
 
-    Converter<X> conv_{kTalonPeriod, kTalonFXSensorTicks, units::make_unit<X>(1.0)};
+//     void WriteByCurrent(units::ampere_t current) {
+//       if (!setup) return;
 
-    bool setup = false;
+//       esc_.Set(ctre::ControlMode::Current, current.to<double>());
+//     }
 
-};
+//     V GetVelocity() {
+//       if (!setup) throw std::exception();
+
+//       return conv_.NativeToRealVelocity(esc_.GetSelectedSensorVelocity());
+//     };
+
+//     X GetPosition() {
+//       if (!setup) throw std::exception();
+
+//       return conv_.NativeToRealPosition(esc_.GetSelectedSensorPosition());
+//     };
+
+//     bool VerifyConnected() {
+//       // GetFirmwareVersion sometimes returns 0 the first time you call it
+//       esc_.GetFirmwareVersion();
+//       return esc_.GetFirmwareVersion() != -1;
+//     };
+
+//     bool GetInverted() {
+//       if (!setup) return false;
+
+//       esc_.GetInverted();
+//       return esc_.GetInverted();
+//     };
+
+//     void SetInverted(bool invert) {
+//       if (!setup) return;
+
+//       esc_.SetInverted(invert);
+//     };
+
+//     units::ampere_t GetCurrent() {
+//       if (!setup) return 0_A;
+
+//       return units::ampere_t(esc_.GetOutputCurrent());
+//     };
+
+//     private:
+//     Loggable obj;
+//     ControlGainsHelper* gains_helper;
+
+//     ctre::phoenix6::hardware::TalonFX esc_;
+//     ControlGains gains_cache_;
+
+
+
+//     Converter<X> conv_{kTalonPeriod, kTalonFXSensorTicks, units::make_unit<X>(1.0)};
+
+//     bool setup = false;
+
+// };
 
 
 

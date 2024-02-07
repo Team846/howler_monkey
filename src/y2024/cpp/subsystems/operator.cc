@@ -11,7 +11,7 @@ OperatorTarget OperatorSubsystem::ZeroTarget() const {
 
 bool OperatorSubsystem::VerifyHardware() {
   bool ok = true;
-  // FRC846_VERIFY(xbox_.IsConnected(), ok, "not connected");
+  FRC846_VERIFY(xbox_.IsConnected(), ok, "not connected");
   return ok;
 }
 

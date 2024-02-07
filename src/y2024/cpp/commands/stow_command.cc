@@ -10,8 +10,9 @@
 StowCommand::StowCommand(
     RobotContainer& container)
     : frc846::Loggable{"stow_command"},
-      shintake_(container.shintake_), arm_(container.arm_) {
-  AddRequirements({&shintake_, &arm_});
+      shintake_(container.shintake_), pivot_(container.pivot_),
+        telescope_(container.telescope_), wrist_(container.wrist_) {
+  AddRequirements({&shintake_, &pivot_, &telescope_, &wrist_});
   SetName("stow_command");
 }
 
@@ -21,7 +22,9 @@ void StowCommand::Initialize() {
 
 void StowCommand::Execute() {
   shintake_.SetTarget(shintake_.ZeroTarget());
-  arm_.SetTarget(arm_.ZeroTarget());
+  pivot_.SetTarget(pivot_.MakeTarget(pivot_.stow_setpoint_pivot.value()));
+  telescope_.SetTarget(telescope_.MakeTarget(telescope_.stow_setpoint_tele_.value()));
+  wrist_.SetTarget(wrist_.MakeTarget(wrist_.stow_setpoint_wrist_.value()));
 
   is_done_ = true;
 }

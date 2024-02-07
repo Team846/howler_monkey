@@ -11,7 +11,7 @@ DriverTarget DriverSubsystem::ZeroTarget() const {
 
 bool DriverSubsystem::VerifyHardware() {
   bool ok = true;
-  // FRC846_VERIFY(xbox_.IsConnected(), ok, "not connected");
+  FRC846_VERIFY(xbox_.IsConnected(), ok, "not connected");
   return ok;
 }
 

@@ -103,7 +103,7 @@ DrivetrainSubsystem::SwerveControl(
              DrivetrainSubsystem::kModuleCount>
       module_targets;
 
-  units::feet_per_second_t max_magnitude;
+  units::feet_per_second_t max_magnitude = 0_fps;
   for (int i = 0; i < 4; ++i) {
     // Location of the module relaive to the center
     frc846::Vector2D<units::inch_t> location{
@@ -124,9 +124,12 @@ DrivetrainSubsystem::SwerveControl(
         rotation_speed * units::math::sin(90_deg - direction) * radius / 1_rad,
     };
 
+
     module_targets[i] = translation + rotation;
-    max_magnitude =
-        units::math::max(max_magnitude, module_targets[i].Magnitude());
+    if (module_targets[i].Magnitude() <= max_speed * 4) {
+      max_magnitude =
+          units::math::max(max_magnitude, module_targets[i].Magnitude());
+    }
   }
 
   // Cap module speed if any of them exceed the max speed.
@@ -317,8 +320,7 @@ void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
   frc::SmartDashboard::PutNumber("velocity_error", (sqrt(units::unit_cast<double>(target.v_x)*units::unit_cast<double>(target.v_x)+units::unit_cast<double>(target.v_y)*units::unit_cast<double>(target.v_y)))-units::unit_cast<double>(vel_readings_composite));
 
   for (int i = 0; i < kModuleCount; ++i) {
-    modules_all_[i]->SetTarget(
+    modules_all_[i]->WriteToHardware(
         {targets[i].Magnitude(), targets[i].Bearing(), target.control});
-    modules_all_[i]->UpdateHardware();
   }
 }

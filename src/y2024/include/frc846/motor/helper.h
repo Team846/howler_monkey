@@ -1,9 +1,7 @@
 #ifndef FRC846_MOTOR_HELPER_H_
 #define FRC846_MOTOR_HELPER_H_
 
-#include <ctre/phoenix/motorcontrol/can/TalonFX.h>
-#include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
-#include <ctre/phoenix/motorcontrol/can/VictorSPX.h>
+// #include <ctre/phoenix6/TalonFX.hpp>
 #include <rev/CANSparkMax.h>
 
 #include <initializer_list>
@@ -23,13 +21,13 @@ static constexpr units::millisecond_t kCANTimeout = 50_ms;
 enum ControlMode { Percent, Velocity, Position, Current };
 
 // Convert control mode to ctre control mode.
-constexpr ctre::ControlMode CTREControlMode(ControlMode mode);
+// constexpr ctre::ControlMode CTREControlMode(ControlMode mode);
 
 // Convert control mode to rev control type.
 constexpr rev::CANSparkMax::ControlType RevControlMode(ControlMode mode);
 
 // Check ctre status code ok.
-void CheckOk(const Loggable loggable, ctre::ErrorCode err, std::string_view field);
+// void CheckOk(const Loggable loggable, ctre::StatusCode err, std::string_view field);
 
 // Check rev status code ok.
 void CheckOk(const Loggable loggable, rev::REVLibError err, std::string_view field);
@@ -46,93 +44,30 @@ struct Output {
   bool operator!=(const Output& other) { return !(*this == other); }
 };
 
-class VictorSPXHelper {
- public:
-  VictorSPXHelper(Loggable parent, ctre::VictorSPX& esc,
-                  VictorSPXConfigHelper* config);
-
-  ~VictorSPXHelper();
-
-  void Setup(units::millisecond_t timeout = kCANTimeout);
-
-  void DisableStatusFrames(
-      std::initializer_list<ctre::StatusFrameEnhanced> frames,
-      units::millisecond_t timeout = kCANTimeout);
-
-  bool VerifyConnected();
-
-  void OnInit(std::function<void()> callback);
-
-  void Write(Output output, units::millisecond_t timeout = kCANTimeout);
-
- private:
-  Loggable parent_;
-
-  ctre::VictorSPX& esc_;
-
-  std::vector<std::function<void()>> on_inits_;
-
-  VictorSPXConfigHelper* config_;
-
-  VictorSPXConfig config_cache_;
-};
-
-class TalonSRXHelper {
- public:
-  TalonSRXHelper(Loggable parent, ctre::TalonSRX& esc,
-                 TalonSRXConfigHelper* config, GainsHelper* gains);
-
-  ~TalonSRXHelper();
-
-  void Setup(units::millisecond_t timeout = kCANTimeout);
-
-  void DisableStatusFrames(
-      std::initializer_list<ctre::StatusFrameEnhanced> frames,
-      units::millisecond_t timeout = kCANTimeout);
-
-  bool VerifyConnected();
-
-  void OnInit(std::function<void()> callback);
-
-  void Write(Output output, units::millisecond_t timeout = kCANTimeout);
-
- private:
-  Loggable parent_;
-
-  ctre::TalonSRX& esc_;
-
-  std::vector<std::function<void()>> on_inits_;
-
-  TalonSRXConfigHelper* config_;
-  GainsHelper* gains_;
-
-  TalonSRXConfig config_cache_;
-  Gains gains_cache_;
-};
 
 class TalonFXHelper {
  public:
-  TalonFXHelper(Loggable parent, ctre::TalonFX& esc,
+  TalonFXHelper(Loggable parent, ctre::phoenix6::hardware::TalonFX& esc,
                 TalonFXConfigHelper* config, GainsHelper* gains);
 
   ~TalonFXHelper();
 
-  void Setup(units::millisecond_t timeout = kCANTimeout);
+  // void Setup(units::millisecond_t timeout = kCANTimeout);
 
-  void DisableStatusFrames(
-      std::initializer_list<ctre::StatusFrameEnhanced> frames,
-      units::millisecond_t timeout = kCANTimeout);
+  // void DisableStatusFrames(
+  //     std::initializer_list<ctre::StatusFrameEnhanced> frames,
+  //     units::millisecond_t timeout = kCANTimeout);
 
-  bool VerifyConnected();
+  // bool VerifyConnected();
 
-  void OnInit(std::function<void()> callback);
+  // void OnInit(std::function<void()> callback);
 
-  void Write(Output output, units::millisecond_t timeout = kCANTimeout);
+  // void Write(Output output, units::millisecond_t timeout = kCANTimeout);
 
  private:
   Loggable parent_;
 
-  ctre::TalonFX& esc_;
+  // ctre::TalonFX& esc_;
 
   std::vector<std::function<void()>> on_inits_;
 

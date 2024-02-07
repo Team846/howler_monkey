@@ -47,8 +47,8 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
   drive_esc_helper_.Setup();
   steer_esc_helper_.Setup();
 
-  // Invert so that clockwise is positive when looking down on the robot
-  cancoder_.ConfigSensorDirection(true);
+  // // Invert so that clockwise is positive when looking down on the robot
+  // cancoder_.ConfigSensorDirection(true);
 
   current_speed_ = 0_fps;
 
@@ -58,7 +58,7 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
 void SwerveModuleSubsystem::ZeroCancoder() {
   std::shared_ptr<nt::NetworkTable> table_ =
       nt::NetworkTableInstance::GetDefault().GetTable(name());
-  table_->SetDefaultNumber("cancoder_offset", cancoder_.GetAbsolutePosition());
+  table_->SetDefaultNumber("cancoder_offset", cancoder_.GetAbsolutePosition().GetValue().to<double>() * 360);
   ZeroWithCANcoder();
 }
 
@@ -94,9 +94,10 @@ void SwerveModuleSubsystem::ZeroWithCANcoder() {
   units::degree_t module_direction = 0_deg;
   for (int attempts = 1; attempts <= kMaxAttempts; ++attempts) {
     Log("CANCoder zero attempt {}/{}", attempts, kMaxAttempts);
-    module_direction = units::degree_t(cancoder_.GetAbsolutePosition());
+    auto position = cancoder_.GetAbsolutePosition();
+    module_direction = units::degree_t(position.GetValue());
 
-    if (cancoder_.GetLastError() == ctre::ErrorCode::OK) {
+    if (position.IsAllGood()) {
       Log("Zeroed to {}!", module_direction);
       break;
     }
@@ -165,7 +166,7 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
   target_direction_graph_.Graph(target.direction);
   direction_graph_.Graph(steer_converter_.NativeToRealPosition(
       steer_esc_helper_.encoder().GetPosition()));
-  cancoder_graph_.Graph(cancoder_.GetAbsolutePosition() * 1_deg);
+  cancoder_graph_.Graph(cancoder_.GetAbsolutePosition().GetValue());
 
   auto [normalized_angle, reverse_drive] =
       NormalizedDirection(readings().direction, target.direction);

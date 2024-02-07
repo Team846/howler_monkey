@@ -1,9 +1,7 @@
 #ifndef FRC846_CONTROL_GAINS_H_
 #define FRC846_CONTROL_GAINS_H_
 
-#include <ctre/phoenix/motorcontrol/can/TalonFX.h>
-#include <ctre/phoenix/motorcontrol/can/TalonSRX.h>
-#include <ctre/phoenix/motorcontrol/can/VictorSPX.h>
+#include <ctre/phoenix6/TalonFX.hpp>
 #include <rev/CANSparkMax.h>
 
 #include "frc846/ctre_namespace.h"
@@ -35,8 +33,8 @@ class ControlGainsHelper : public Loggable {
   frc846::Pref<double> current_limit_;
   frc846::Pref<double> peak_output_;
 
-  void Write(ctre::BaseTalon& esc, ControlGains& cache,
-             units::time::millisecond_t timeout, bool ignore_cache = false);
+  // void Write(ctre::phoenix6::hardware::TalonFX& esc, ControlGains& cache,
+  //            units::time::millisecond_t timeout, bool ignore_cache = false);
 
   void Write(rev::SparkPIDController& pid_controller, ControlGains& cache,
              bool ignore_cache = false);

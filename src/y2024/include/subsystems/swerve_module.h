@@ -1,7 +1,7 @@
 #ifndef y2024_SUBSYSTEMS_SWERVE_MODULE_H_
 #define y2024_SUBSYSTEMS_SWERVE_MODULE_H_
 
-#include <ctre/phoenix/sensors/CANCoder.h>
+#include <ctre/phoenix6/CANcoder.hpp>
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
 #include <units/length.h>
@@ -111,7 +111,7 @@ class SwerveModuleSubsystem
   frc846::motor::SparkMAXHelper steer_esc_helper_;
 
 
-  ctre::CANCoder cancoder_;
+  ctre::CANcoder cancoder_;
 
   SwerveModuleReadings GetNewReadings() override;
 

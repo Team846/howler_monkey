@@ -69,7 +69,6 @@ class Converter {
     x_= x;
   }
 
-
  private:
   const units::second_t native_period_;
   const Tick native_sensor_ticks_;

@@ -93,5 +93,6 @@
     "variant": "cpp",
     "*.inc": "cpp"
   },
-  "wpilib.useWindbgX": true
+  "wpilib.useWindbgX": true,
+  "C_Cpp.errorSquiggles": "enabled"
 }

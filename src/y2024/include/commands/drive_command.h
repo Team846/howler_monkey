@@ -19,8 +19,6 @@ class DriveCommand
  private:
   DriverSubsystem& driver_;
   DrivetrainSubsystem& drivetrain_;
-
-  double last_steer_x = 0;
 };
 
 #endif  // y2024_COMMANDS_DRIVE_COMMAND_H_

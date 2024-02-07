@@ -3,11 +3,11 @@
 namespace frc846::control {
 
 // Check ctre status ok
-void CheckOk(Loggable& loggable, ctre::ErrorCode err, std::string_view field) {
-  if (err != ctre::ErrorCode::OK) {
-    loggable.Error("Unable to update {}", field);
-  }
-};
+// void CheckOk(Loggable& loggable, ctre::StatusCode err, std::string_view field) {
+//   if (err != ctre::StatusCode::OK) {
+//     loggable.Error("Unable to update {}", field);
+//   }
+// };
 
 // Check rev status code ok.
 void CheckOk(Loggable& loggable, rev::REVLibError err, std::string_view field) {
@@ -28,35 +28,36 @@ ControlGainsHelper::ControlGainsHelper(Loggable& parent, ControlGains gains, uni
       current_limit_{*this, "smart_current_limit", currentLimit.to<double>()},
       peak_output_{*this, "peak_output", peakOutput} {}
 
-void ControlGainsHelper::Write(ctre::BaseTalon& esc, ControlGains& cache,
-                        units::time::millisecond_t timeout, bool ignore_cache) {
-  double timeout_ms = timeout.to<double>();
+// void ControlGainsHelper::Write(ctre::phoenix6::hardware::TalonFX& esc, ControlGains& cache,
+//                         units::time::millisecond_t timeout, bool ignore_cache) {
+//   double timeout_ms = timeout.to<double>();
 
-  if (ignore_cache || cache.p != p_.value()) {
-    auto err = esc.Config_kP(idx, p_.value(), timeout_ms);
-    CheckOk(*this, err, "p");
-  }
-  if (ignore_cache || cache.i != i_.value()) {
-    auto err = esc.Config_kI(idx, i_.value(), timeout_ms);
-    CheckOk(*this, err, "i");
-  }
-  if (ignore_cache || cache.d != d_.value()) {
-    auto err = esc.Config_kD(idx, d_.value(), timeout_ms);
-    CheckOk(*this, err, "d");
-  }
-  if (ignore_cache || cache.f != f_.value()) {
-    auto err = esc.Config_kF(idx, f_.value(), timeout_ms);
-    CheckOk(*this, err, "f");
-  }
-  if (ignore_cache ||
-      cache.max_integral_accumulator != max_integral_accumulator_.value()) {
-    auto err = esc.Config_IntegralZone(idx, max_integral_accumulator_.value(),
-                                       timeout_ms);
-    CheckOk(*this, err, "max integral accumulator");
-  }
+//   if (ignore_cache || cache.p != p_.value()) {
+//     auto err = esc.Config_kP(idx, p_.value(), timeout_ms);
+//     CheckOk(*this, err, "p");
+//   }
+//   if (ignore_cache || cache.i != i_.value()) {
+//     auto err = esc.Config_kI(idx, i_.value(), timeout_ms);
+//     CheckOk(*this, err, "i");
+//   }
+//   if (ignore_cache || cache.d != d_.value()) {
+//     esc.Set(ctre::phoenix6::controls::)
+//     auto err = esc.Config_kD(idx, d_.value(), timeout_ms);
+//     CheckOk(*this, err, "d");
+//   }
+//   if (ignore_cache || cache.f != f_.value()) {
+//     auto err = esc.Config_kF(idx, f_.value(), timeout_ms);
+//     CheckOk(*this, err, "f");
+//   }
+//   if (ignore_cache ||
+//       cache.max_integral_accumulator != max_integral_accumulator_.value()) {
+//     auto err = esc.Config_IntegralZone(idx, max_integral_accumulator_.value(),
+//                                        timeout_ms);
+//     CheckOk(*this, err, "max integral accumulator");
+//   }
 
-  UpdateCache(cache);
-}
+//   UpdateCache(cache);
+// }
 
 void ControlGainsHelper::Write(rev::SparkPIDController& pid_controller,
                         ControlGains& cache, bool ignore_cache) {

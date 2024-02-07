@@ -6,100 +6,6 @@
 
 namespace frc846::motor {
 
-VictorSPXConfigHelper::VictorSPXConfigHelper(Loggable parent,
-                                             VictorSPXConfig config)
-    : Loggable{parent, "config"},
-      peak_output_{*this, "peak_output", config.peak_output},
-      voltage_comp_saturation_{*this, "voltage_comp_saturation",
-                               config.voltage_comp_saturation} {}
-
-void VictorSPXConfigHelper::Write(ctre::VictorSPX& esc, VictorSPXConfig& cache,
-                                  units::millisecond_t timeout,
-                                  bool ignore_cache) {
-  double timeout_ms = timeout.to<double>();
-
-  if (ignore_cache || cache.peak_output != peak_output_.value()) {
-    auto err = esc.ConfigPeakOutputForward(peak_output_.value(), timeout_ms);
-    CheckOk(*this, err, "peak_output_forward");
-    err = esc.ConfigPeakOutputReverse(-peak_output_.value(), timeout_ms);
-    CheckOk(*this, err, "peak_output_reverse");
-
-    cache.peak_output = peak_output_.value();
-  }
-  if (ignore_cache ||
-      cache.voltage_comp_saturation != voltage_comp_saturation_.value()) {
-    auto err = esc.ConfigVoltageCompSaturation(
-        voltage_comp_saturation_.value().to<double>(), timeout_ms);
-    CheckOk(*this, err, "voltage_comp_saturation");
-
-    esc.EnableVoltageCompensation(true);
-
-    cache.voltage_comp_saturation = voltage_comp_saturation_.value();
-  }
-}
-
-TalonSRXConfigHelper::TalonSRXConfigHelper(Loggable parent,
-                                           TalonSRXConfig config)
-    : Loggable{parent, "config"},
-      peak_output_{*this, "peak_output", config.peak_output},
-      voltage_comp_saturation_{*this, "voltage_comp_saturation",
-                               config.voltage_comp_saturation},
-
-      peak_current_limit_{*this, "peak_current_limit",
-                          config.peak_current_limit},
-      peak_current_duration_{*this, "peak_current_duration",
-                             config.peak_current_duration},
-      continuous_current_limit_{*this, "continuous_current_limit",
-                                config.continuous_current_limit} {}
-
-void TalonSRXConfigHelper::Write(ctre::TalonSRX& esc, TalonSRXConfig& cache,
-                                 units::millisecond_t timeout,
-                                 bool ignore_cache) {
-  double timeout_ms = timeout.to<double>();
-
-  if (ignore_cache || cache.peak_output != peak_output_.value()) {
-    auto err = esc.ConfigPeakOutputForward(peak_output_.value(), timeout_ms);
-    CheckOk(*this, err, "peak_output_forward");
-    err = esc.ConfigPeakOutputReverse(-peak_output_.value(), timeout_ms);
-    CheckOk(*this, err, "peak_output_reverse");
-
-    cache.peak_output = peak_output_.value();
-  }
-  if (ignore_cache ||
-      cache.voltage_comp_saturation != voltage_comp_saturation_.value()) {
-    auto err = esc.ConfigVoltageCompSaturation(
-        voltage_comp_saturation_.value().to<double>(), timeout_ms);
-    CheckOk(*this, err, "voltage_comp_saturation");
-
-    esc.EnableVoltageCompensation(true);
-
-    cache.voltage_comp_saturation = voltage_comp_saturation_.value();
-  }
-  if (ignore_cache || cache.peak_current_limit != peak_current_limit_.value()) {
-    auto err = esc.ConfigPeakCurrentLimit(
-        peak_current_limit_.value().to<double>(), timeout_ms);
-    CheckOk(*this, err, "peak_current_limit");
-
-    cache.peak_current_limit = peak_current_limit_.value();
-  }
-  if (ignore_cache ||
-      cache.peak_current_duration != peak_current_duration_.value()) {
-    auto err = esc.ConfigPeakCurrentDuration(
-        peak_current_duration_.value().to<double>(), timeout_ms);
-    CheckOk(*this, err, "peak_current_duration");
-
-    cache.peak_current_duration = peak_current_duration_.value();
-  }
-  if (ignore_cache ||
-      cache.continuous_current_limit != continuous_current_limit_.value()) {
-    auto err = esc.ConfigContinuousCurrentLimit(
-        continuous_current_limit_.value().to<double>(), timeout_ms);
-    CheckOk(*this, err, "continuous_current_limit");
-
-    cache.continuous_current_limit = continuous_current_limit_.value();
-  }
-}
-
 TalonFXConfigHelper::TalonFXConfigHelper(Loggable parent,
                                          TalonFXConfig config)
     : Loggable{parent, "config"},
@@ -122,80 +28,80 @@ TalonFXConfigHelper::TalonFXConfigHelper(Loggable parent,
                                        config.stator_continuous_current_limit} {
 }
 
-void TalonFXConfigHelper::Write(ctre::TalonFX& esc, TalonFXConfig& cache,
-                                units::millisecond_t timeout,
-                                bool ignore_cache) {
-  double timeout_ms = timeout.to<double>();
+// void TalonFXConfigHelper::Write(ctre::phoenix6::hardware::TalonFX& esc, TalonFXConfig& cache,
+//                                 units::millisecond_t timeout,
+//                                 bool ignore_cache) {
+//   double timeout_ms = timeout.to<double>();
 
-  if (ignore_cache || cache.peak_output != peak_output_.value()) {
-    auto err = esc.ConfigPeakOutputForward(peak_output_.value(), timeout_ms);
-    CheckOk(*this, err, "peak_output_forward");
-    err = esc.ConfigPeakOutputReverse(-peak_output_.value(), timeout_ms);
-    CheckOk(*this, err, "peak_output_reverse");
+//   if (ignore_cache || cache.peak_output != peak_output_.value()) {
+//     auto err = esc.ConfigPeakOutputForward(peak_output_.value(), timeout_ms);
+//     CheckOk(*this, err, "peak_output_forward");
+//     err = esc.ConfigPeakOutputReverse(-peak_output_.value(), timeout_ms);
+//     CheckOk(*this, err, "peak_output_reverse");
 
-    cache.peak_output = peak_output_.value();
-  }
-  if (ignore_cache ||
-      cache.voltage_comp_saturation != voltage_comp_saturation_.value()) {
-    auto err = esc.ConfigVoltageCompSaturation(
-        voltage_comp_saturation_.value().to<double>(), timeout_ms);
-    CheckOk(*this, err, "voltage_comp_saturation");
+//     cache.peak_output = peak_output_.value();
+//   }
+//   if (ignore_cache ||
+//       cache.voltage_comp_saturation != voltage_comp_saturation_.value()) {
+//     auto err = esc.ConfigVoltageCompSaturation(
+//         voltage_comp_saturation_.value().to<double>(), timeout_ms);
+//     CheckOk(*this, err, "voltage_comp_saturation");
 
-    esc.EnableVoltageCompensation(true);
+//     esc.EnableVoltageCompensation(true);
 
-    cache.voltage_comp_saturation = voltage_comp_saturation_.value();
-  }
-  if (ignore_cache ||
-      cache.supply_continuous_current_limit !=
-          supply_continuous_current_limit_.value() ||
-      cache.supply_peak_current_limit != supply_peak_current_limit_.value() ||
-      cache.supply_peak_current_duration !=
-          supply_peak_current_duration_.value()) {
-    auto err = esc.ConfigSupplyCurrentLimit(
-        {
-            true, /* enable */
-            supply_continuous_current_limit_.value()
-                .to<double>(), /* currentLimit */
-            supply_peak_current_limit_.value()
-                .to<double>(), /* triggerThresholdCurrent */
-            supply_peak_current_duration_.value()
-                .to<double>(), /* triggerThresholdTime */
-        },
-        timeout_ms);
+//     cache.voltage_comp_saturation = voltage_comp_saturation_.value();
+//   }
+//   if (ignore_cache ||
+//       cache.supply_continuous_current_limit !=
+//           supply_continuous_current_limit_.value() ||
+//       cache.supply_peak_current_limit != supply_peak_current_limit_.value() ||
+//       cache.supply_peak_current_duration !=
+//           supply_peak_current_duration_.value()) {
+//     auto err = esc.ConfigSupplyCurrentLimit(
+//         {
+//             true, /* enable */
+//             supply_continuous_current_limit_.value()
+//                 .to<double>(), /* currentLimit */
+//             supply_peak_current_limit_.value()
+//                 .to<double>(), /* triggerThresholdCurrent */
+//             supply_peak_current_duration_.value()
+//                 .to<double>(), /* triggerThresholdTime */
+//         },
+//         timeout_ms);
 
-    CheckOk(*this, err, "supply_current_limit");
+//     CheckOk(*this, err, "supply_current_limit");
 
-    cache.supply_continuous_current_limit =
-        supply_continuous_current_limit_.value();
-    cache.supply_peak_current_limit = supply_peak_current_limit_.value();
-    cache.supply_peak_current_duration = supply_peak_current_duration_.value();
-  }
-  if (ignore_cache ||
-      cache.stator_continuous_current_limit !=
-          stator_continuous_current_limit_.value() ||
-      cache.stator_peak_current_limit != stator_peak_current_limit_.value() ||
-      cache.stator_peak_current_duration !=
-          stator_peak_current_duration_.value()) {
-    auto err = esc.ConfigStatorCurrentLimit(
-        {
-            true, /* enable */
-            stator_continuous_current_limit_.value()
-                .to<double>(), /* currentLimit */
-            stator_peak_current_limit_.value()
-                .to<double>(), /* triggerThresholdCurrent */
-            stator_peak_current_duration_.value()
-                .to<double>(), /* triggerThresholdTime */
-        },
-        timeout_ms);
+//     cache.supply_continuous_current_limit =
+//         supply_continuous_current_limit_.value();
+//     cache.supply_peak_current_limit = supply_peak_current_limit_.value();
+//     cache.supply_peak_current_duration = supply_peak_current_duration_.value();
+//   }
+//   if (ignore_cache ||
+//       cache.stator_continuous_current_limit !=
+//           stator_continuous_current_limit_.value() ||
+//       cache.stator_peak_current_limit != stator_peak_current_limit_.value() ||
+//       cache.stator_peak_current_duration !=
+//           stator_peak_current_duration_.value()) {
+//     auto err = esc.ConfigStatorCurrentLimit(
+//         {
+//             true, /* enable */
+//             stator_continuous_current_limit_.value()
+//                 .to<double>(), /* currentLimit */
+//             stator_peak_current_limit_.value()
+//                 .to<double>(), /* triggerThresholdCurrent */
+//             stator_peak_current_duration_.value()
+//                 .to<double>(), /* triggerThresholdTime */
+//         },
+//         timeout_ms);
 
-    CheckOk(*this, err, "stator_current_limit");
+//     CheckOk(*this, err, "stator_current_limit");
 
-    cache.stator_continuous_current_limit =
-        stator_continuous_current_limit_.value();
-    cache.stator_peak_current_limit = stator_peak_current_limit_.value();
-    cache.stator_peak_current_duration = stator_peak_current_duration_.value();
-  }
-}
+//     cache.stator_continuous_current_limit =
+//         stator_continuous_current_limit_.value();
+//     cache.stator_peak_current_limit = stator_peak_current_limit_.value();
+//     cache.stator_peak_current_duration = stator_peak_current_duration_.value();
+//   }
+// }
 
 SparkMAXConfigHelper::SparkMAXConfigHelper(Loggable parent,
                                            SparkMAXConfig config)

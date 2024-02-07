@@ -10,8 +10,9 @@
 DeployIntakeCommand::DeployIntakeCommand(
     RobotContainer& container)
     : frc846::Loggable{"deploy_intake_command"},
-      shintake_(container.shintake_), arm_(container.arm_) {
-  AddRequirements({&shintake_, &arm_});
+      shintake_(container.shintake_), pivot_(container.pivot_),
+        telescope_(container.telescope_), wrist_(container.wrist_) {
+  AddRequirements({&shintake_, &pivot_, &telescope_, &wrist_});
   SetName("deploy_intake_command");
 }
 
@@ -20,8 +21,10 @@ void DeployIntakeCommand::Initialize() {
 }
 
 void DeployIntakeCommand::Execute() {
-  shintake_.SetTarget(shintake_.ZeroTarget());
-  arm_.SetTarget(arm_.ZeroTarget());
+  shintake_.SetTarget(shintake_.MakeTarget(true, false, 0.0_tps));
+  pivot_.SetTarget(pivot_.MakeTarget(pivot_.intake_setpoint_pivot.value()));
+  telescope_.SetTarget(telescope_.MakeTarget(telescope_.intake_setpoint_tele_.value()));
+  wrist_.SetTarget(wrist_.MakeTarget(wrist_.intake_setpoint_wrist_.value()));
 
   is_done_ = true;
 }

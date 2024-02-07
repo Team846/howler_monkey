@@ -5,7 +5,9 @@
 
 #include "frc846/math.h"
 #include "subsystems/shintake.h"
-#include "subsystems/arm.h"
+#include "subsystems/pivot.h"
+#include "subsystems/telescope.h"
+#include "subsystems/wrist.h"
 #include "subsystems/robot_container.h"
 
 class DeployIntakeCommand
@@ -24,7 +26,9 @@ class DeployIntakeCommand
 
  private:
   ShintakeSubsystem& shintake_;
-  ArmSubsystem& arm_;
+  PivotSubsystem& pivot_;
+  TelescopeSubsystem& telescope_;
+  WristSubsystem& wrist_;
 
   bool is_done_ = false;
 };
