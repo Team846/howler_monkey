@@ -8,44 +8,33 @@ static constexpr auto kMotorType = rev::CANSparkMax::MotorType::kBrushless;
 
 SwerveModuleSubsystem::SwerveModuleSubsystem(
     const frc846::Loggable& drivetrain, bool init, std::string location,
-    units::degree_t fallback_cancoder_offset,
-    frc846::motor::SparkMAXConfigHelper* drive_esc_config_helper,
-    frc846::motor::GainsHelper* drive_esc_gains_helper,
-    frc846::motor::SparkMAXConfigHelper* steer_esc_config_helper,
-    frc846::motor::GainsHelper* steer_esc_gains_helper,
-    frc846::Converter<units::foot_t>& drive_converter,
-    frc846::Converter<units::degree_t>& steer_converter,
-    int drive_esc_id, int steer_esc_id, int cancoder_id
+      units::degree_t fallback_cancoder_offset,
+      frc846::control::ControlGainsHelper* drive_esc_gains_helper,
+      frc846::control::ControlGainsHelper* steer_esc_gains_helper,
+      units::foot_t drive_conversion,
+      units::degree_t steer_conversion, int drive_esc_id,
+      int steer_esc_id, int cancoder_id
   ) : frc846::Subsystem<SwerveModuleReadings, SwerveModuleTarget>{
           drivetrain,
           "module_" + location,
           init
       },
       cancoder_offset_{*this, "cancoder_offset", fallback_cancoder_offset},
-      
-      drive_converter_(drive_converter),
-      steer_converter_(steer_converter),
-      drive_esc_{drive_esc_id, kMotorType},
-      steer_esc_{steer_esc_id, kMotorType},
-      drive_esc_helper_{*this, drive_esc_, drive_esc_config_helper, drive_esc_gains_helper},
-      steer_esc_helper_{*this, steer_esc_, steer_esc_config_helper, steer_esc_gains_helper},
+      drive_esc_helper_{*this, location + "D", drive_esc_id},
+      steer_esc_helper_{*this, location + "S", steer_esc_id},
       cancoder_{cancoder_id} {
-  drive_esc_helper_.OnInit([&] {
-    drive_esc_.SetInverted(true);
+    drive_esc_helper_.Setup(drive_esc_gains_helper);
+    drive_esc_helper_.SetInverted(true);
+    drive_esc_helper_.SetupConverter(drive_conversion);
 
     // Disable applied output frame
     drive_esc_helper_.DisableStatusFrames(
         {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
-  });
 
-  steer_esc_helper_.OnInit([&] {
-    // Disable applied output frame
+    steer_esc_helper_.Setup(steer_esc_gains_helper);
+    steer_esc_helper_.SetupConverter(steer_conversion);
     steer_esc_helper_.DisableStatusFrames(
         {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
-  });
-
-  drive_esc_helper_.Setup();
-  steer_esc_helper_.Setup();
 
   // // Invert so that clockwise is positive when looking down on the robot
   // cancoder_.ConfigSensorDirection(true);
@@ -114,8 +103,7 @@ void SwerveModuleSubsystem::ZeroWithCANcoder() {
 
   zero_offset_ =
       module_direction - cancoder_offset_.value() -
-      steer_converter_.NativeToRealPosition(
-          steer_esc_helper_.encoder().GetPosition());
+          steer_esc_helper_.GetPosition();
 
   last_direction_ = module_direction;
 }
@@ -131,11 +119,11 @@ bool SwerveModuleSubsystem::VerifyHardware() {
   bool ok = true;
   FRC846_VERIFY(drive_esc_helper_.VerifyConnected(), ok,
                 "drive esc not connected");
-  FRC846_VERIFY(drive_esc_.GetInverted() == true, ok,
+  FRC846_VERIFY(drive_esc_helper_.GetInverted() == true, ok,
                 "drive esc incorrect invert state");
   FRC846_VERIFY(steer_esc_helper_.VerifyConnected(), ok,
                 "steer esc not connected");
-  FRC846_VERIFY(steer_esc_.GetInverted() == false, ok,
+  FRC846_VERIFY(steer_esc_helper_.GetInverted() == false, ok,
                 "steer esc incorrect invert state");
   return ok;
 }
@@ -143,18 +131,13 @@ bool SwerveModuleSubsystem::VerifyHardware() {
 SwerveModuleReadings SwerveModuleSubsystem::GetNewReadings() {
   SwerveModuleReadings readings;
 
-  readings.speed = drive_converter_.NativeToRealVelocity(
-    drive_esc_helper_.encoder().GetVelocity());
-  readings.direction =
-      steer_converter_.NativeToRealPosition(
-          steer_esc_helper_.encoder().GetPosition()) +
-      zero_offset_;
-  readings.distance = drive_converter_.NativeToRealPosition(
-      drive_esc_helper_.encoder().GetPosition());
+  readings.speed = drive_esc_helper_.GetVelocity();
+  readings.direction = steer_esc_helper_.GetPosition() + zero_offset_;
+  readings.distance = drive_esc_helper_.GetPosition();
 
   current_speed_ = readings.speed;
 
-  current_graph_.Graph(units::ampere_t(drive_esc_.GetOutputCurrent()));
+  current_graph_.Graph(units::ampere_t(drive_esc_helper_.GetCurrent()));
 
   swerve_speed_graph_.Graph((units::unit_cast<double>(readings.speed)));
 
@@ -164,8 +147,7 @@ SwerveModuleReadings SwerveModuleSubsystem::GetNewReadings() {
 void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
   target_speed_graph_.Graph(target.speed);
   target_direction_graph_.Graph(target.direction);
-  direction_graph_.Graph(steer_converter_.NativeToRealPosition(
-      steer_esc_helper_.encoder().GetPosition()));
+  direction_graph_.Graph(steer_esc_helper_.GetPosition());
   cancoder_graph_.Graph(cancoder_.GetAbsolutePosition().GetValue());
 
   auto [normalized_angle, reverse_drive] =
@@ -184,9 +166,8 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
 
   double drive_output;
   if (target.control == kClosedLoop) {
-    drive_output = drive_converter_.RealToNativeVelocity(target_velocity);
     drive_esc_helper_.Write(
-        {frc846::motor::ControlMode::Velocity, drive_output});
+        frc846::control::ControlMode::Velocity, target_velocity);
   } else if (target.control == kOpenLoop) {
     if (units::unit_cast<double>(units::math::abs(speed_difference)) > units::unit_cast<double>(kControlChangeThresh)) {
       units::feet_per_second_t adjusted_target_velocity = units::feet_per_second_t(units::unit_cast<double>(current_speed_) - (units::unit_cast<double>(speed_difference) * kSpeedAdjustingFactor));
@@ -201,18 +182,17 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
       }
 
       drive_esc_helper_.Write(
-          {frc846::motor::ControlMode::Percent, drive_output});
+          frc846::control::ControlMode::Percent, drive_output);
     } else {
       drive_output = target_velocity / kMaxSpeed;
 
       drive_esc_helper_.Write(
-          {frc846::motor::ControlMode::Percent, drive_output});
+          frc846::control::ControlMode::Percent, drive_output);
     }
   } else {
     Warn("No Control Strategy Set");
   }
 
-  double steer_output =
-      steer_converter_.RealToNativePosition(normalized_angle - zero_offset_);
-  steer_esc_helper_.Write({frc846::motor::ControlMode::Position, steer_output});
+  units::degree_t steer_output = (normalized_angle - zero_offset_);
+  steer_esc_helper_.Write(frc846::control::ControlMode::Position, steer_output);
 }

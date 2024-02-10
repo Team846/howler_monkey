@@ -1,21 +1,7 @@
 #include "frc846/motor/helper.h"
+#include <ctre/phoenix6/TalonFX.hpp>
 
 namespace frc846::motor {
-
-constexpr ctre::ControlMode CTREControlMode(ControlMode mode) {
-  switch (mode) {
-    case ControlMode::Percent:
-      return ctre::ControlMode::PercentOutput;
-    case ControlMode::Velocity:
-      return ctre::ControlMode::Velocity;
-    case ControlMode::Position:
-      return ctre::ControlMode::Position;
-    case ControlMode::Current:
-      return ctre::ControlMode::Current;
-    default:
-      throw std::runtime_error("unsupported control type");
-  }
-}
 
 constexpr rev::CANSparkMax::ControlType RevControlMode(ControlMode mode) {
   switch (mode) {
@@ -32,8 +18,8 @@ constexpr rev::CANSparkMax::ControlType RevControlMode(ControlMode mode) {
   }
 }
 
-void CheckOk(Loggable loggable, ctre::ErrorCode err, std::string_view field) {
-  if (err != ctre::ErrorCode::OK) {
+void CheckOk(Loggable loggable, auto err, std::string_view field) {
+  if (err.IsAllGood()) {
     loggable.Error("Unable to update {}", field);
   }
 }
@@ -42,199 +28,6 @@ void CheckOk(Loggable loggable, rev::REVLibError err, std::string_view field) {
   if (err != rev::REVLibError::kOk) {
     loggable.Error("Unable to update {}", field);
   }
-}
-
-void CTREDisableStatusFrames(
-    const Loggable helper, ctre::BaseMotorController& esc,
-    std::initializer_list<ctre::StatusFrameEnhanced> frames,
-    units::millisecond_t timeout) {
-  for (auto f : frames) {
-    // https://docs.ctre-phoenix.com/en/stable/ch18_CommonAPI.html
-    auto err = esc.SetStatusFramePeriod(f, 255, timeout.to<double>());
-    CheckOk(helper, err, "status_frame");
-  }
-}
-
-void CTRESetup(const Loggable helper, ctre::BaseMotorController& esc,
-               units::millisecond_t timeout) {
-  esc.ConfigFactoryDefault(timeout.to<double>());
-  esc.SetNeutralMode(ctre::NeutralMode::Coast);
-  CTREDisableStatusFrames(helper, esc,
-                          {
-                              ctre::StatusFrameEnhanced::Status_3_Quadrature,
-                              ctre::StatusFrameEnhanced::Status_4_AinTempVbat,
-                              ctre::StatusFrameEnhanced::Status_8_PulseWidth,
-                              ctre::StatusFrameEnhanced::Status_10_MotionMagic,
-                              ctre::StatusFrameEnhanced::Status_12_Feedback1,
-                              ctre::StatusFrameEnhanced::Status_13_Base_PIDF0,
-                              ctre::StatusFrameEnhanced::Status_14_Turn_PIDF1,
-                          },
-                          timeout);
-}
-
-bool CTREVerifyConnected(ctre::BaseMotorController& esc) {
-  return esc.GetFirmwareVersion() != -1;
-}
-
-VictorSPXHelper::VictorSPXHelper(Loggable parent, ctre::VictorSPX& esc,
-                                 VictorSPXConfigHelper* config)
-    : parent_(parent), esc_(esc), config_(config) {}
-
-VictorSPXHelper::~VictorSPXHelper() {
-  if (config_ != nullptr) {
-    delete config_;
-    config_ = nullptr;
-  }
-}
-
-void VictorSPXHelper::Setup(units::millisecond_t timeout) {
-  CTRESetup(parent_, esc_, timeout);
-
-  if (config_ != nullptr) {
-    config_->Write(esc_, config_cache_, timeout, true);
-  }
-
-  for (auto c : on_inits_) {
-    c();
-  }
-}
-
-void VictorSPXHelper::DisableStatusFrames(
-    std::initializer_list<ctre::StatusFrameEnhanced> frames,
-    units::millisecond_t timeout) {
-  CTREDisableStatusFrames(parent_, esc_, frames, timeout);
-}
-
-bool VictorSPXHelper::VerifyConnected() { return CTREVerifyConnected(esc_); }
-
-void VictorSPXHelper::OnInit(std::function<void()> callback) {
-  on_inits_.push_back(callback);
-}
-
-void VictorSPXHelper::Write(Output output, units::millisecond_t timeout) {
-  if (esc_.HasResetOccurred()) {
-    parent_.Warn("Reset detected!! Rewriting config...");
-    Setup(kCANTimeout);
-  }
-
-  if (config_ != nullptr) {
-    config_->Write(esc_, config_cache_, timeout);
-    esc_.Set(CTREControlMode(output.mode), output.value);
-  }
-}
-
-TalonSRXHelper::TalonSRXHelper(Loggable parent, ctre::TalonSRX& esc,
-                               TalonSRXConfigHelper* config, GainsHelper* gains)
-    : parent_(parent), esc_(esc), config_(config), gains_(gains) {}
-
-TalonSRXHelper::~TalonSRXHelper() {
-  if (config_ != nullptr) {
-    delete config_;
-    config_ = nullptr;
-  }
-  if (gains_ != nullptr) {
-    delete gains_;
-    gains_ = nullptr;
-  }
-}
-
-void TalonSRXHelper::Setup(units::millisecond_t timeout) {
-  CTRESetup(parent_, esc_, timeout);
-
-  if (config_ != nullptr) {
-    config_->Write(esc_, config_cache_, timeout, true);
-  }
-  if (gains_ != nullptr) {
-    gains_->Write(esc_, gains_cache_, timeout, true);
-  }
-
-  for (auto c : on_inits_) {
-    c();
-  }
-}
-
-void TalonSRXHelper::DisableStatusFrames(
-    std::initializer_list<ctre::StatusFrameEnhanced> frames,
-    units::millisecond_t timeout) {
-  CTREDisableStatusFrames(parent_, esc_, frames, timeout);
-}
-
-bool TalonSRXHelper::VerifyConnected() { return CTREVerifyConnected(esc_); }
-
-void TalonSRXHelper::OnInit(std::function<void()> callback) {
-  on_inits_.push_back(callback);
-}
-
-void TalonSRXHelper::Write(Output output, units::millisecond_t timeout) {
-  if (esc_.HasResetOccurred()) {
-    parent_.Warn("Reset detected!! Rewriting config...");
-    Setup(kCANTimeout);
-  }
-
-  if (config_ != nullptr) {
-    config_->Write(esc_, config_cache_, timeout);
-  }
-  if (gains_ != nullptr) {
-    gains_->Write(esc_, gains_cache_, timeout);
-  }
-  esc_.Set(CTREControlMode(output.mode), output.value);
-}
-
-TalonFXHelper::TalonFXHelper(Loggable parent, ctre::TalonFX& esc,
-                             TalonFXConfigHelper* config, GainsHelper* gains)
-    : parent_(parent), esc_(esc), config_(config), gains_(gains) {}
-
-TalonFXHelper::~TalonFXHelper() {
-  if (config_ != nullptr) {
-    delete config_;
-    config_ = nullptr;
-  }
-  if (gains_ != nullptr) {
-    delete gains_;
-    gains_ = nullptr;
-  }
-}
-
-void TalonFXHelper::Setup(units::millisecond_t timeout) {
-  CTRESetup(parent_, esc_, timeout);
-
-  if (config_ != nullptr) {
-    config_->Write(esc_, config_cache_, timeout, true);
-  }
-  if (gains_ != nullptr) {
-    gains_->Write(esc_, gains_cache_, timeout, true);
-  }
-
-  for (auto c : on_inits_) {
-    c();
-  }
-}
-
-void TalonFXHelper::DisableStatusFrames(
-    std::initializer_list<ctre::StatusFrameEnhanced> frames,
-    units::millisecond_t timeout) {
-  CTREDisableStatusFrames(parent_, esc_, frames, timeout);
-}
-
-bool TalonFXHelper::VerifyConnected() { return CTREVerifyConnected(esc_); }
-
-void TalonFXHelper::OnInit(std::function<void()> callback) {
-  on_inits_.push_back(callback);
-}
-
-void TalonFXHelper::Write(Output output, units::millisecond_t timeout) {
-  if (esc_.HasResetOccurred()) {
-    parent_.Warn("Reset detected!! Rewriting config...");
-    Setup(kCANTimeout);
-  }
-
-  if (config_ != nullptr) {
-    config_->Write(esc_, config_cache_, timeout);
-  }
-  if (gains_ != nullptr) {
-    gains_->Write(esc_, gains_cache_, timeout);
-  }
-  esc_.Set(CTREControlMode(output.mode), output.value);
 }
 
 SparkMAXHelper::SparkMAXHelper(Loggable parent, rev::CANSparkMax& esc,

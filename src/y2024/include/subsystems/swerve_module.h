@@ -13,8 +13,8 @@
 #include "frc846/ctre_namespace.h"
 #include "frc846/grapher.h"
 #include "frc846/math.h"
-#include "frc846/motor/config.h"
-#include "frc846/motor/helper.h"
+#include "frc846/control/control.h"
+#include "frc846/control/newgains.h"
 #include "frc846/pref.h"
 #include "frc846/subsystem.h"
 
@@ -41,12 +41,10 @@ class SwerveModuleSubsystem
   SwerveModuleSubsystem(
       const frc846::Loggable& drivetrain, bool init, std::string location,
       units::degree_t fallback_cancoder_offset,
-      frc846::motor::SparkMAXConfigHelper* drive_esc_config_helper,
-      frc846::motor::GainsHelper* drive_esc_gains_helper,
-      frc846::motor::SparkMAXConfigHelper* steer_esc_config_helper,
-      frc846::motor::GainsHelper* steer_esc_gains_helper,
-      frc846::Converter<units::foot_t>& drive_converter,
-      frc846::Converter<units::degree_t>& steer_converter, int drive_esc_id,
+      frc846::control::ControlGainsHelper* drive_esc_gains_helper,
+      frc846::control::ControlGainsHelper* steer_esc_gains_helper,
+      units::foot_t drive_conversion,
+      units::degree_t steer_conversion, int drive_esc_id,
       int steer_esc_id, int cancoder_id);
 
   // Calculate the normalized target angle for the module to minimize rotations.
@@ -101,15 +99,9 @@ class SwerveModuleSubsystem
   frc846::Grapher<double> swerve_speed_graph_{*this,
                                                                 "swerve_speed_graph_"};
 
-  frc846::Converter<units::foot_t>& drive_converter_;
-  frc846::Converter<units::degree_t>& steer_converter_;
 
-  rev::CANSparkMax drive_esc_;
-  rev::CANSparkMax steer_esc_;
-
-  frc846::motor::SparkMAXHelper drive_esc_helper_;
-  frc846::motor::SparkMAXHelper steer_esc_helper_;
-
+  frc846::control::SparkRevController<units::foot_t> drive_esc_helper_;
+  frc846::control::SparkRevController<units::degree_t> steer_esc_helper_;
 
   ctre::CANcoder cancoder_;
 

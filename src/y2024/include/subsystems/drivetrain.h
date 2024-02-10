@@ -6,6 +6,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <units/angular_velocity.h>
 #include <units/length.h>
+#include <units/angle.h>
 
 #include <array>
 #include <variant>
@@ -14,7 +15,7 @@
 #include "frc846/conversions.h"
 #include "frc846/grapher.h"
 #include "frc846/math.h"
-#include "frc846/motor/config.h"
+#include "frc846/control/newgains.h"
 #include "frc846/pref.h"
 #include "frc846/subsystem.h"
 #include "frc846/swerve_odometry.h"
@@ -219,17 +220,8 @@ class DrivetrainSubsystem
   frc846::Loggable steer_esc_loggable_{*this, "steer_esc"};
   frc::Field2d m_field;
 
-  frc846::motor::SparkMAXConfigHelper* drive_esc_config_helper_ =
-      new frc846::motor::SparkMAXConfigHelper{
-          drive_esc_loggable_,
-          {
-              1.0,   // peak output
-              12_V,  // voltage comp saturation
-              80_A,  // NEO smart current limit
-          },
-      };
-  frc846::motor::GainsHelper* drive_esc_gains_helper_ =
-      new frc846::motor::GainsHelper{
+  frc846::control::ControlGainsHelper* drive_esc_gains_helper_ =
+      new frc846::control::ControlGainsHelper{
           drive_esc_loggable_,
           {
               0.0002,    /* p */
@@ -238,53 +230,39 @@ class DrivetrainSubsystem
               0.0001769, /* f */
               0,         /* max_integral_accumulator */
           },
+          80_A, // NEO smart current limit
+          1.0,  // peak output
       };
 
-  frc846::motor::SparkMAXConfigHelper* steer_esc_config_helper_ =
-      new frc846::motor::SparkMAXConfigHelper{
-          drive_esc_loggable_,
-          {
-              1.0,   // peak output
-              12_V,  // voltage comp saturation
-              40_A,  // peak current limit (continuous)
-          },
-
-      };
-  frc846::motor::GainsHelper* steer_esc_gains_helper_ =
-      new frc846::motor::GainsHelper{
+  frc846::control::ControlGainsHelper* steer_esc_gains_helper_ =
+      new frc846::control::ControlGainsHelper{
           steer_esc_loggable_,
           {
-              0.12, /* p */
-              0,    /* i */
-              0,    /* d */
-              0,    /* f */
-              0,    /* max_integral_accumulator */
+              0.12,      /* p */
+              0,         /* i */
+              0,         /* d */
+              0,         /* f */
+              0,         /* max_integral_accumulator */
           },
+          40_A, // NEO smart current limit
+          1.0,  // peak output
       };
 
-  frc846::Converter<units::foot_t> drive_converter_{
-      frc846::kSparkMAXPeriod,
-      frc846::kSparkMAXSensorTicks,
+  units::foot_t drive_conversion_ = 
       (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) *
-          frc846::Circumference(wheel_radius_.value()),
-  };
-  frc846::Converter<units::degree_t> steer_converter_{
-      frc846::kSparkMAXPeriod,
-      frc846::kSparkMAXSensorTicks,
-      (7.0 / 150.0) * 1_tr,
-  };
+          frc846::Circumference(wheel_radius_.value());
+  
+  units::degree_t steer_conversion_ = (7.0 / 150.0) * 1_tr;
 
   SwerveModuleSubsystem module_fl_{
       *this,
       is_initialized(),
       "FL",
       3.23_deg,
-      drive_esc_config_helper_,
       drive_esc_gains_helper_,
-      steer_esc_config_helper_,
       steer_esc_gains_helper_,
-      drive_converter_,
-      steer_converter_,
+      drive_conversion_,
+      steer_conversion_,
       ports::drivetrain_::kFLDrive_CANID,
       ports::drivetrain_::kFLSteer_CANID,
       ports::drivetrain_::kFLCANCoder_CANID,
@@ -295,12 +273,10 @@ class DrivetrainSubsystem
       is_initialized(),
       "FR",
       140.05_deg,
-      drive_esc_config_helper_,
       drive_esc_gains_helper_,
-      steer_esc_config_helper_,
       steer_esc_gains_helper_,
-      drive_converter_,
-      steer_converter_,
+      drive_conversion_,
+      steer_conversion_,
       ports::drivetrain_::kFRDrive_CANID,
       ports::drivetrain_::kFRSteer_CANID,
       ports::drivetrain_::kFRCANCoder_CANID,
@@ -311,12 +287,10 @@ class DrivetrainSubsystem
       is_initialized(),
       "BL",
       297.5_deg,
-      drive_esc_config_helper_,
       drive_esc_gains_helper_,
-      steer_esc_config_helper_,
       steer_esc_gains_helper_,
-      drive_converter_,
-      steer_converter_,
+      drive_conversion_,
+      steer_conversion_,
       ports::drivetrain_::kBLDrive_CANID,
       ports::drivetrain_::kBLSteer_CANID,
       ports::drivetrain_::kBLCANCoder_CANID,
@@ -327,12 +301,10 @@ class DrivetrainSubsystem
       is_initialized(),
       "BR",
       157.89_deg,
-      drive_esc_config_helper_,
       drive_esc_gains_helper_,
-      steer_esc_config_helper_,
       steer_esc_gains_helper_,
-      drive_converter_,
-      steer_converter_,
+      drive_conversion_,
+      steer_conversion_,
       ports::drivetrain_::kBRDrive_CANID,
       ports::drivetrain_::kBRSteer_CANID,
       ports::drivetrain_::kBRCANCoder_CANID,

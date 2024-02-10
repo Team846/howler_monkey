@@ -15,12 +15,12 @@ using Tick = double;
 // Talon time denominator in measurements.
 //
 // Plug into `native_per_time`
-static units::second_t constexpr kTalonPeriod = 100_ms;
+static units::second_t constexpr kTalonPeriod = 1_min;
 
 // TalonFX integrated encoder resolution (ticks/turn).
 //
 // Plug into `native_units_per_real_units`.
-static Tick constexpr kTalonFXSensorTicks = 2048;
+static Tick constexpr kTalonFXSensorTicks = 1;
 
 // Talon time denominator in measurements.
 //

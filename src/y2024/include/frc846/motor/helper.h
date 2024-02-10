@@ -1,7 +1,7 @@
 #ifndef FRC846_MOTOR_HELPER_H_
 #define FRC846_MOTOR_HELPER_H_
 
-// #include <ctre/phoenix6/TalonFX.hpp>
+#include <ctre/phoenix6/TalonFX.hpp>
 #include <rev/CANSparkMax.h>
 
 #include <initializer_list>
@@ -52,22 +52,18 @@ class TalonFXHelper {
 
   ~TalonFXHelper();
 
-  // void Setup(units::millisecond_t timeout = kCANTimeout);
+  void Setup(units::millisecond_t timeout = kCANTimeout);
 
-  // void DisableStatusFrames(
-  //     std::initializer_list<ctre::StatusFrameEnhanced> frames,
-  //     units::millisecond_t timeout = kCANTimeout);
+  bool VerifyConnected();
 
-  // bool VerifyConnected();
+  void OnInit(std::function<void()> callback);
 
-  // void OnInit(std::function<void()> callback);
-
-  // void Write(Output output, units::millisecond_t timeout = kCANTimeout);
+  void Write(Output output, units::millisecond_t timeout = kCANTimeout);
 
  private:
   Loggable parent_;
 
-  // ctre::TalonFX& esc_;
+  ctre::phoenix6::hardware::TalonFX& esc_;
 
   std::vector<std::function<void()>> on_inits_;
 

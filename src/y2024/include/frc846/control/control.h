@@ -4,6 +4,7 @@
 #include <asm-generic/errno.h>
 
 #include <rev/CANSparkMax.h>
+#include <ctre/phoenix6/TalonFX.hpp>
 
 #include <initializer_list>
 #include <variant>
@@ -67,10 +68,6 @@ class ElectronicSpeedController {
     virtual void Write(ControlMode mode, V output) = 0;
 
     virtual void Write(ControlMode mode, X output) = 0;
-
-    virtual void Write(ControlMode mode, A output) = 0;
-
-    virtual void WriteByCurrent(units::ampere_t current) = 0;
 
     virtual V GetVelocity() = 0;
 
@@ -344,272 +341,307 @@ class SparkRevController : ElectronicSpeedController<X> {
 *
 */
 
-// template <typename X> 
-// class TalonFXController : ElectronicSpeedController<X> {
-//     using V = units::unit_t<units::compound_unit<typename X::unit_type,
-//                                                 units::inverse<units::second>>>;
+template <typename X> 
+class TalonFXController : ElectronicSpeedController<X> {
+    using V = units::unit_t<units::compound_unit<typename X::unit_type,
+                                                units::inverse<units::second>>>;
 
-//     using A = units::ampere_t;
+    using A = units::ampere_t;
 
-//     public:
-//     TalonFXController(Loggable parent_, std::string name, int kCanIdPort) :
-//           obj(parent_, name), 
-//             esc_{kCanIdPort} {};
+    public:
+    TalonFXController(Loggable parent_, std::string name, int kCanIdPort) :
+          obj(parent_, name), 
+            esc_{kCanIdPort},
+              configurator_{esc_.GetConfigurator()} {};
 
-//     ~TalonFXController() {
-//       if (gains_helper != nullptr) {
-//             delete gains_helper;
-//       }
-//     };
+    ~TalonFXController() {
+      if (gains_helper != nullptr) {
+            delete gains_helper;
+      }
+    };
 
-//     ElectronicSpeedController<X>* that() {
-//       return this;
-//     }
+    ElectronicSpeedController<X>* that() {
+      return this;
+    }
 
-//     int Setup(units::millisecond_t timeout, ControlGainsHelper* gainsHelper,
-//         bool isInverted = false, IdleMode kIdleMode = kCoast) {
+    int Setup(units::millisecond_t timeout, ControlGainsHelper* gainsHelper,
+        bool isInverted = false, IdleMode kIdleMode = kCoast) {
 
-//         if (VerifyConnected()) {
-//           setup = true;
-//         } else {
-//           obj.Error("? controller could NOT be setup");
-//           return -1;
-//         }
+        if (VerifyConnected()) {
+          setup = true;
+        } else {
+          obj.Error("? controller could NOT be setup");
+          return -1;
+        }
         
-//         if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::NeutralMode::Coast); 
-//         else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::NeutralMode::Brake);
+        if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Coast); 
+        else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
 
-//         esc_.ConfigFactoryDefault(timeout.to<double>());
-//         esc_.SetInverted(isInverted);
-//         gains_helper = gainsHelper;
+        gains_helper = gainsHelper;
 
-//         esc_.ConfigSupplyCurrentLimit(
-//         {
-//             true,
-//             gains_helper->current_limit_.value(),
-//             gains_helper->current_limit_.value() * 1.5,
-//             50
-//         });
-//         esc_.EnableVoltageCompensation(12.0);
+        ctre::configs::VoltageConfigs voltageConfs{};
+        ctre::configs::CurrentLimitsConfigs currentConfs{};
+        ctre::configs::MotorOutputConfigs motorConfs{};
+        ctre::configs::Slot0Configs pidConfs{};
 
-//         esc_.Config_kP(0, gains_helper->p_.value());
-//         esc_.Config_kI(0, gains_helper->i_.value());
-//         esc_.Config_kD(0, gains_helper->d_.value());
-//         esc_.Config_kF(0, gains_helper->f_.value());
-//         esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
+        motorConfs.WithInverted(isInverted);
+
+        deviceConfigs.WithMotorOutput(motorConfs);
+
+        currentConfs.SupplyCurrentLimit = gains_helper->current_limit_.value();
+        currentConfs.SupplyCurrentThreshold = 50;
+        currentConfs.SupplyCurrentLimitEnable = true;
+
+        voltageConfs.PeakForwardVoltage = 12.0;
+        voltageConfs.PeakReverseVoltage = -12.0;
+
+        deviceConfigs.WithVoltage(voltageConfs);
+        deviceConfigs.WithCurrentLimits(currentConfs);
+
+        pidConfs.WithKS(gains_helper->f_.value());
+        pidConfs.WithKP(gains_helper->p_.value());
+        pidConfs.WithKI(gains_helper->i_.value());
+        pidConfs.WithKD(gains_helper->d_.value());
+
+        deviceConfigs.WithSlot0(pidConfs);
+
+        configurator_.Apply(deviceConfigs);
         
-//         return 0;
-//     };
+        return 0;
+    };
 
-//     int Setup(ControlGainsHelper* gainsHelper, bool isInverted = false,
-//         IdleMode kIdleMode = IdleMode::kCoast) {
+    int Setup(ControlGainsHelper* gainsHelper, bool isInverted = false,
+        IdleMode kIdleMode = IdleMode::kCoast) {
 
-//         if (VerifyConnected()) {
-//           setup = true;
-//         } else {
-//           obj.Error("? controller could NOT be setup");
-//           return -1;
-//         }
+        if (VerifyConnected()) {
+          setup = true;
+        } else {
+          obj.Error("? controller could NOT be setup");
+          return -1;
+        }
 
-//         if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::NeutralMode::Coast);
-//         else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::NeutralMode::Brake);
+        if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Coast); 
+        else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
 
-//         esc_.ConfigFactoryDefault(CANTimeout.to<double>());
-//         esc_.SetInverted(isInverted);
-//         gains_helper = gainsHelper;
+        gains_helper = gainsHelper;
 
-//         esc_.ConfigSupplyCurrentLimit(
-//         {
-//             true,
-//             gains_helper->current_limit_.value(),
-//             gains_helper->current_limit_.value() * 1.5,
-//             50
-//         });
-//         esc_.EnableVoltageCompensation(12.0);
+        ctre::configs::VoltageConfigs voltageConfs{};
+        ctre::configs::CurrentLimitsConfigs currentConfs{};
+        ctre::configs::MotorOutputConfigs motorConfs{};
+        ctre::configs::Slot0Configs pidConfs{};
 
-//         esc_.Config_kP(0, gains_helper->p_.value());
-//         esc_.Config_kI(0, gains_helper->i_.value());
-//         esc_.Config_kD(0, gains_helper->d_.value());
-//         esc_.Config_kF(0, gains_helper->f_.value());
-//         esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
+        motorConfs.WithInverted(isInverted);
 
-//         return 0;
-//     };
+        deviceConfigs.WithMotorOutput(motorConfs);
+
+        currentConfs.SupplyCurrentLimit = gains_helper->current_limit_.value();
+        currentConfs.SupplyCurrentThreshold = 50;
+        currentConfs.SupplyCurrentLimitEnable = true;
+
+        voltageConfs.PeakForwardVoltage = 12.0;
+        voltageConfs.PeakReverseVoltage = -12.0;
+
+        deviceConfigs.WithVoltage(voltageConfs);
+        deviceConfigs.WithCurrentLimits(currentConfs);
+
+        pidConfs.WithKS(gains_helper->f_.value());
+        pidConfs.WithKP(gains_helper->p_.value());
+        pidConfs.WithKI(gains_helper->i_.value());
+        pidConfs.WithKD(gains_helper->d_.value());
+
+        deviceConfigs.WithSlot0(pidConfs);
+
+        configurator_.Apply(deviceConfigs);
+
+        return 0;
+    };
     
-//     int Reset(units::millisecond_t timeout) {
-//       if (!setup) return -1;
+    int Reset(units::millisecond_t timeout) {
+      if (!setup) return -1;
 
-//       esc_.ConfigFactoryDefault(timeout.to<double>());
+      ctre::configs::VoltageConfigs voltageConfs{};
+      ctre::configs::CurrentLimitsConfigs currentConfs{};
+      ctre::configs::Slot0Configs pidConfs{};
 
-//       if (gains_helper != nullptr) {
-//           esc_.ConfigSupplyCurrentLimit(
-//           {
-//               true,
-//               gains_helper->current_limit_.value(),
-//               gains_helper->current_limit_.value() * 1.5,
-//               50
-//           });
-//       }
+      currentConfs.SupplyCurrentLimit = gains_helper->current_limit_.value();
+      currentConfs.SupplyCurrentThreshold = 50;
+      currentConfs.SupplyCurrentLimitEnable = true;
 
-//       esc_.EnableVoltageCompensation(12.0);
+      voltageConfs.PeakForwardVoltage = 12.0;
+      voltageConfs.PeakReverseVoltage = -12.0;
+
+      deviceConfigs.WithVoltage(voltageConfs);
+      deviceConfigs.WithCurrentLimits(currentConfs);
+
+      pidConfs.WithKS(gains_helper->f_.value());
+      pidConfs.WithKP(gains_helper->p_.value());
+      pidConfs.WithKI(gains_helper->i_.value());
+      pidConfs.WithKD(gains_helper->d_.value());
+
+      deviceConfigs.WithSlot0(pidConfs);
+
+      configurator_.Apply(deviceConfigs);
       
-//       return 0;
-//     };
+      return 0;
+    };
 
-//     void DisableStatusFrames(std::initializer_list<ctre::StatusFrameEnhanced> frames) {
-//       if (!setup) return;
+    void SetupConverter(X conv) {
+      if (!setup) return;
 
-//       for (auto f : frames) {
-//         auto err = esc_.SetStatusFramePeriod(f, 255, CANTimeout.to<double>());
-//       }
-//     };
+      conv_.ChangeConversion(conv);
+    };
 
-//     void SetupConverter(X conv) {
-//       if (!setup) return;
+    void ZeroEncoder(X pos) {
+      if (!setup) return;
 
-//       conv_.ChangeConversion(conv);
-//     };
+      esc_.SetPosition(units::turn_t(conv_.RealToNativePosition(pos)));
+    };
 
-//     void ZeroEncoder(X pos) {
-//       if (!setup) return;
+    void ZeroEncoder() {
+      if (!setup) return;
 
-//       esc_.SetSelectedSensorPosition(conv_.RealToNativePosition(pos));
-//     };
+      esc_.SetPosition(0.0_tr);
+    };
 
-//     void ZeroEncoder() {
-//       if (!setup) return;
+    void Write(ControlMode mode, double output) {
+      if (!setup) return;
 
-//       esc_.SetSelectedSensorPosition(0.0);
-//     };
+      if (esc_.HasResetOccurred()) {
+          Reset(CANTimeout);
+          esc_.ClearStickyFaults();
+      }
 
-//     void Write(ControlMode mode, double output) {
-//       if (!setup) return;
-
-//       if (esc_.HasResetOccurred()) {
-//           Reset(CANTimeout);
-//           esc_.ClearStickyFaults();
-//       }
-
-//       if (mode == ControlMode::Percent) {
-
-//         auto peak_output = gains_helper->peak_output_.value();
-
-//         double value = std::max(output, -peak_output);
-//         value = std::min(value, +peak_output);
-
-//         esc_.Set(ctre::ControlMode::PercentOutput, conv_.RealToNativeVelocity(value));
-//       }
-//     };
-
-//     void Write(ControlMode mode, V output) {
-//       if (!setup) return;
-
-//       if (esc_.HasResetOccurred()) {
-//           Reset(CANTimeout);
-//           esc_.ClearStickyFaults();
-//       }
-
-//       esc_.Config_kP(0, gains_helper->p_.value());
-//       esc_.Config_kI(0, gains_helper->i_.value());
-//       esc_.Config_kD(0, gains_helper->d_.value());
-//       esc_.Config_kF(0, gains_helper->f_.value());
-//       esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
-
-//       if (mode == ControlMode::Velocity) {
-//           esc_.Set(ctre::ControlMode::Velocity, conv_.RealToNativeVelocity(output));
-//       }
-//     };
-
-//     void Write(ControlMode mode, X output) {
-//       if (!setup) return;
-
-//       if (esc_.HasResetOccurred()) {
-//           Reset(CANTimeout);
-//           esc_.ClearStickyFaults();
-//       }
-
-//       esc_.Config_kP(0, gains_helper->p_.value());
-//       esc_.Config_kI(0, gains_helper->i_.value());
-//       esc_.Config_kD(0, gains_helper->d_.value());
-//       esc_.Config_kF(0, gains_helper->f_.value());
-//       esc_.ConfigMaxIntegralAccumulator(0, gains_helper->i_.value());
-
-//       if (mode == ControlMode::Position) {
-//           esc_.Set(ctre::ControlMode::Position, conv_.RealToNativePosition(output));
-//       }
-//     };
-
-//     void Write(ControlMode mode, A output) {
-//       if (!setup) return;
-
-//       if (esc_.HasResetOccurred()) {
-//           Reset(CANTimeout);
-//           esc_.ClearStickyFaults();
-//       }
+      ctre::configs::Slot0Configs pidConfs{};
 
 
-//       if (mode == ControlMode::Current) {
-//         esc_.Set(ctre::ControlMode::Current, output.to<double>());
-//       }
-//     };
+      pidConfs.WithKS(gains_helper->f_.value());
+      pidConfs.WithKP(gains_helper->p_.value());
+      pidConfs.WithKI(gains_helper->i_.value());
+      pidConfs.WithKD(gains_helper->d_.value());
 
-//     void WriteByCurrent(units::ampere_t current) {
-//       if (!setup) return;
+      deviceConfigs.WithSlot0(pidConfs);
 
-//       esc_.Set(ctre::ControlMode::Current, current.to<double>());
-//     }
+      configurator_.Apply(deviceConfigs);
 
-//     V GetVelocity() {
-//       if (!setup) throw std::exception();
+      if (mode == ControlMode::Percent) {
 
-//       return conv_.NativeToRealVelocity(esc_.GetSelectedSensorVelocity());
-//     };
+        auto peak_output = gains_helper->peak_output_.value();
 
-//     X GetPosition() {
-//       if (!setup) throw std::exception();
+        double value = std::max(output, -peak_output);
+        value = std::min(value, +peak_output);
 
-//       return conv_.NativeToRealPosition(esc_.GetSelectedSensorPosition());
-//     };
+        esc_.Set(value);
+      }
+    };
 
-//     bool VerifyConnected() {
-//       // GetFirmwareVersion sometimes returns 0 the first time you call it
-//       esc_.GetFirmwareVersion();
-//       return esc_.GetFirmwareVersion() != -1;
-//     };
+    void Write(ControlMode mode, V output) {
+      if (!setup) return;
 
-//     bool GetInverted() {
-//       if (!setup) return false;
+      if (esc_.HasResetOccurred()) {
+          Reset(CANTimeout);
+          esc_.ClearStickyFaults();
+      }
 
-//       esc_.GetInverted();
-//       return esc_.GetInverted();
-//     };
-
-//     void SetInverted(bool invert) {
-//       if (!setup) return;
-
-//       esc_.SetInverted(invert);
-//     };
-
-//     units::ampere_t GetCurrent() {
-//       if (!setup) return 0_A;
-
-//       return units::ampere_t(esc_.GetOutputCurrent());
-//     };
-
-//     private:
-//     Loggable obj;
-//     ControlGainsHelper* gains_helper;
-
-//     ctre::phoenix6::hardware::TalonFX esc_;
-//     ControlGains gains_cache_;
+      ctre::configs::Slot0Configs pidConfs{};
 
 
+      pidConfs.WithKS(gains_helper->f_.value());
+      pidConfs.WithKP(gains_helper->p_.value());
+      pidConfs.WithKI(gains_helper->i_.value());
+      pidConfs.WithKD(gains_helper->d_.value());
 
-//     Converter<X> conv_{kTalonPeriod, kTalonFXSensorTicks, units::make_unit<X>(1.0)};
+      deviceConfigs.WithSlot0(pidConfs);
 
-//     bool setup = false;
+      configurator_.Apply(deviceConfigs);
+      if (mode == ControlMode::Velocity) {
+          ctre::controls::VelocityDutyCycle cntrl{units::turns_per_second_t(conv_.RealToNativeVelocity(output))};
+          esc_.SetControl(cntrl);
+      }
+    };
 
-// };
+    void Write(ControlMode mode, X output) {
+      if (!setup) return;
+
+      if (esc_.HasResetOccurred()) {
+          Reset(CANTimeout);
+          esc_.ClearStickyFaults();
+      }
+
+      ctre::configs::Slot0Configs pidConfs{};
+
+
+      pidConfs.WithKS(gains_helper->f_.value());
+      pidConfs.WithKP(gains_helper->p_.value());
+      pidConfs.WithKI(gains_helper->i_.value());
+      pidConfs.WithKD(gains_helper->d_.value());
+
+      deviceConfigs.WithSlot0(pidConfs);
+
+      configurator_.Apply(deviceConfigs);
+
+      if (mode == ControlMode::Position) {
+          ctre::controls::PositionDutyCycle cntrl{units::turn_t(conv_.RealToNativePosition(output))};
+          esc_.SetControl(cntrl);
+      }
+    };
+
+    V GetVelocity() {
+      if (!setup) throw std::exception();
+
+      return conv_.NativeToRealVelocity(esc_.GetVelocity().GetValueAsDouble());
+    };
+
+    X GetPosition() {
+      if (!setup) throw std::exception();
+
+      return conv_.NativeToRealPosition(esc_.GetPosition().GetValueAsDouble());
+    };
+
+    bool VerifyConnected() {
+      return esc_.IsAlive();
+    };
+
+    bool GetInverted() {
+      if (!setup) return false;
+
+      esc_.GetInverted();
+      return esc_.GetInverted();
+    };
+
+    void SetInverted(bool invert) {
+      if (!setup) return;
+
+      ctre::configs::MotorOutputConfigs motorConfs{};
+      ctre::configs::Slot0Configs pidConfs{};
+
+      motorConfs.WithInverted(invert);
+
+      deviceConfigs.WithMotorOutput(motorConfs);
+
+      configurator_.Apply(deviceConfigs);
+    };
+
+    units::ampere_t GetCurrent() {
+      if (!setup) return 0_A;
+
+      return units::ampere_t(esc_.GetSupplyCurrent());
+    };
+
+    private:
+    Loggable obj;
+    ControlGainsHelper* gains_helper;
+
+    ctre::phoenix6::hardware::TalonFX esc_;
+    ctre::phoenix6::configs::TalonFXConfigurator& configurator_;
+
+    ctre::phoenix6::configs::TalonFXConfiguration deviceConfigs{};
+
+    ControlGains gains_cache_;
+
+    Converter<X> conv_{kTalonPeriod, kTalonFXSensorTicks, units::make_unit<X>(1.0)};
+
+    bool setup = false;
+};
 
 
 

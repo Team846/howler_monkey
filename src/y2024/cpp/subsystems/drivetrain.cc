@@ -18,7 +18,7 @@ DrivetrainSubsystem::DrivetrainSubsystem(bool initialize)
 }
 
 void DrivetrainSubsystem::ZeroModules() {
-  //if (!is_initialized()) return;
+  if (!is_initialized()) return;
 
   Log("Zeroed modules");
   for (auto module : modules_all_) {
@@ -34,7 +34,7 @@ void DrivetrainSubsystem::ZeroCancoders() {
 }
 
 void DrivetrainSubsystem::ZeroBearing() {
-  //if (!is_initialized()) return;
+  if (!is_initialized()) return;
 
   // Attempt to zero using the gyro, and retry if the gyro is disconnected or
   // calibrating
@@ -62,21 +62,21 @@ void DrivetrainSubsystem::ZeroBearing() {
 }
 
 void DrivetrainSubsystem::ZeroOdometry() {
-  //if (!is_initialized()) return;
+  if (!is_initialized()) return;
 
   bearing_offset_ = 0_deg;
   odometry_.Zero();
 }
 
 void DrivetrainSubsystem::SetPoint(frc846::Vector2D<units::foot_t> point) {
-  //if (!is_initialized()) return;
+  if (!is_initialized()) return;
 
   Log("set point x {} y {}", point.x, point.y);
   odometry_.SetPoint(point);
 }
 
 void DrivetrainSubsystem::SetBearing(units::degree_t bearing) {
-  //if (!is_initialized()) return;
+  if (!is_initialized()) return;
 
   ZeroBearing();
   bearing_offset_ = bearing;
@@ -157,7 +157,7 @@ DrivetrainTarget DrivetrainSubsystem::ZeroTarget() const {
 }
 
 bool DrivetrainSubsystem::VerifyHardware() {
-  //if (!is_initialized()) return true;
+  if (!is_initialized()) return true;
 
   bool ok = true;
   FRC846_VERIFY(gyro_.IsConnected(), ok, "gyro is not connected");
@@ -177,7 +177,7 @@ bool DrivetrainSubsystem::VerifyHardware() {
 DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
   DrivetrainReadings readings;
 
-  //if (!is_initialized()) return readings;
+  if (!is_initialized()) return readings;
 
 
   readings.is_gyro_connected = gyro_.IsConnected();
@@ -259,7 +259,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
 }
 
 void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
-  //if (!is_initialized()) return;
+  if (!is_initialized()) return;
   
   // Graph target
   target_v_x_graph_.Graph(target.v_x);
