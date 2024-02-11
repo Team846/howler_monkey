@@ -8,7 +8,7 @@
 #include <initializer_list>
 #include <type_traits>
 
-namespace frc846 {
+namespace frc846::util {
 
 using Tick = double;
 

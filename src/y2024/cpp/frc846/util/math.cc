@@ -1,6 +1,6 @@
-#include "frc846/math.h"
+#include "frc846/util/math.h"
 
-namespace frc846 {
+namespace frc846::util {
 
 double HorizontalDeadband(double input, double x_intercept, double max,
                           double exponent, double sensitivity) {

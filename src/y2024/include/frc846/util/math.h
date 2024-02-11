@@ -9,7 +9,7 @@
 
 #include <cmath>
 
-namespace frc846 {
+namespace frc846::util {
 
 // Find the circumference of a circle given radius.
 constexpr units::inch_t Circumference(units::meter_t radius) {
@@ -92,7 +92,7 @@ struct Position {
 class FieldPoint {
   public:
 
-  frc846::Position to_position(FieldPoint point) {
+  Position to_position(FieldPoint point) {
     return Position{{point.x.value(), point.y.value()}, point.bearing.value()};
   }
 

@@ -1,22 +1,22 @@
-#include "frc846/trajectory_generator.h"
+#include "frc846/other/trajectory_generator.h"
 
 #include <algorithm>
 
-#include "frc846/math.h"
+#include "frc846/util/math.h"
 #include "frc846/loggable.h"
 
 namespace frc846 {
 
 
-std::vector<Position> InterpolatePoints(Vector2D<units::foot_t> start,
-                                        Vector2D<units::foot_t> end,
+std::vector<util::Position> InterpolatePoints(util::Vector2D<units::foot_t> start,
+                                        util::Vector2D<units::foot_t> end,
                                         units::degree_t start_bearing,
                                         units::degree_t end_bearing,
                                         units::foot_t cut) {
   auto distance = (end - start).Magnitude();
   int n = std::max(units::math::ceil(distance / cut).to<int>(), 1);
 
-  std::vector<Position> points(n);
+  std::vector<util::Position> points(n);
   for (int i = 0; i < n; ++i) {
     double weight = (double)(i) / n;
     points[i] = {{

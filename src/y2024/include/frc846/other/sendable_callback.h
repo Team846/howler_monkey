@@ -5,7 +5,7 @@
 
 #include <functional>
 
-namespace frc846 {
+namespace frc846::other {
 
 // Like an instant command but works when robot is disabled.
 //

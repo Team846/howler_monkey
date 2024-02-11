@@ -4,7 +4,7 @@
 #include <fmt/format.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
-#include "frc846/pref.h"
+#include "frc846/util/pref.h"
 
 namespace frc846 {
 

@@ -12,8 +12,8 @@
 #include "frc846/ctre_namespace.h"
 #include "frc846/loggable.h"
 #include <units/current.h>
-#include "frc846/conversions.h"
-#include "frc846/control/newgains.h"
+#include "frc846/util/conversions.h"
+#include "frc846/control/controlgains.h"
 
 FRC846_CTRE_NAMESPACE()
 
@@ -21,6 +21,7 @@ FRC846_CTRE_NAMESPACE()
 namespace frc846::control {
 
 static constexpr units::millisecond_t CANTimeout = 50_ms;
+
 
 enum ControlMode { Percent, Velocity, Position, Current };
 enum IdleMode { kCoast, kBrake };
@@ -117,10 +118,10 @@ class SparkRevController : ElectronicSpeedController<X> {
           return -1;
         }
 
-        if (kIdleMode == kCoast) esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
-        else if (kIdleMode == kBrake) esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+        if (kIdleMode == kCoast) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast), "Coast Mode");
+        else if (kIdleMode == kBrake) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake), "Brake Mode");
         
-        esc_.SetCANTimeout(timeout.to<double>());
+        CheckOk(obj, esc_.SetCANTimeout(timeout.to<double>()), "CAN Timeout");
         esc_.SetInverted(isInverted);
         gains_helper = gainsHelper;
 
@@ -128,10 +129,10 @@ class SparkRevController : ElectronicSpeedController<X> {
             gains_helper->Write(pid_controller_, gains_cache_, true);
         }
 
-        esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value());
-        esc_.EnableVoltageCompensation(12.0);
+        CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
+        CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
 
-        esc_.BurnFlash();
+        CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
         
         return 0;
     };
@@ -146,9 +147,9 @@ class SparkRevController : ElectronicSpeedController<X> {
           return -1;
         }
 
-        if (kIdleMode == kCoast) esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast);
-        else if (kIdleMode == kBrake) esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-        esc_.SetCANTimeout(CANTimeout.to<double>());
+        if (kIdleMode == kCoast) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast), "Coast Mode");
+        else if (kIdleMode == kBrake) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake), "Brake Mode");
+        CheckOk(obj, esc_.SetCANTimeout(CANTimeout.to<double>()), "CAN Timeout");
         esc_.SetInverted(isInverted);
         gains_helper = gainsHelper;
 
@@ -156,10 +157,10 @@ class SparkRevController : ElectronicSpeedController<X> {
              gains_helper->Write(pid_controller_, gains_cache_, true);
         }
 
-        esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value());
-        esc_.EnableVoltageCompensation(12.0);
+        CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
+        CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
 
-        esc_.BurnFlash();
+        CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
 
         return 0;
     };
@@ -168,16 +169,16 @@ class SparkRevController : ElectronicSpeedController<X> {
     int Reset(units::millisecond_t timeout) {
       if (!setup) return -1;
 
-      esc_.SetCANTimeout(timeout.to<double>());
+      CheckOk(obj, esc_.SetCANTimeout(timeout.to<double>()), "CAN Timeout");
 
       if (gains_helper != nullptr) {
           gains_helper->Write(pid_controller_, gains_cache_, true);
-          esc_.SetSmartCurrentLimit(gains_helper->current_limit_.value());
+          CheckOk(obj, esc_.SetSmartCurrentLimit(gains_helper->current_limit_.value()), "Current Limit");
       }
 
-      esc_.EnableVoltageCompensation(12.0);
+      CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
 
-      esc_.BurnFlash();
+      CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
       
       return 0;
     };
@@ -188,6 +189,7 @@ class SparkRevController : ElectronicSpeedController<X> {
       for (auto f : frames) {
         // https://docs.revrobotics.com/sparkmax/operating-modes/control-interfaces#periodic-status-frames
         auto err = esc_.SetPeriodicFramePeriod(f, 65535);
+        CheckOk(obj, err, "Disable Status Frame");
       }
     };
 
@@ -200,13 +202,13 @@ class SparkRevController : ElectronicSpeedController<X> {
     void ZeroEncoder(X pos) {
       if (!setup) return;
 
-      encoder_.SetPosition(conv_.RealToNativePosition(pos));
+      CheckOk(obj, encoder_.SetPosition(conv_.RealToNativePosition(pos)), "Zero Encoder");
     };
 
     void ZeroEncoder() {
       if (!setup) return;
 
-      encoder_.SetPosition(0.0);
+      CheckOk(obj, encoder_.SetPosition(0.0), "Zero Encoder");
     };
 
     void Write(ControlMode mode, double output) {
@@ -214,17 +216,16 @@ class SparkRevController : ElectronicSpeedController<X> {
 
       if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
           Reset(CANTimeout);
-          esc_.ClearFaults();
+          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
       }
 
       if (mode == ControlMode::Percent) {
-
         auto peak_output = gains_helper->peak_output_.value();
 
         double value = std::max(output, -peak_output);
         value = std::min(value, +peak_output);
 
-        pid_controller_.SetReference(value, LocalRevControlMode(mode));
+        CheckOk(obj, pid_controller_.SetReference(value, LocalRevControlMode(mode)), "Write Duty Cycle");
       }
     };
 
@@ -233,7 +234,7 @@ class SparkRevController : ElectronicSpeedController<X> {
 
       if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
           Reset(CANTimeout);
-          esc_.ClearFaults();
+          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
       }
 
       if (gains_helper != nullptr) {
@@ -241,7 +242,7 @@ class SparkRevController : ElectronicSpeedController<X> {
       }
 
       if (mode == ControlMode::Velocity) {
-          pid_controller_.SetReference(conv_.RealToNativeVelocity(output), LocalRevControlMode(mode));
+          CheckOk(obj, pid_controller_.SetReference(conv_.RealToNativeVelocity(output), LocalRevControlMode(mode)), "Write Velocity");
       }
     };
 
@@ -250,7 +251,7 @@ class SparkRevController : ElectronicSpeedController<X> {
 
       if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
           Reset(CANTimeout);
-          esc_.ClearFaults();
+          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
       }
 
       if (gains_helper != nullptr) {
@@ -258,27 +259,26 @@ class SparkRevController : ElectronicSpeedController<X> {
       }
 
       if (mode == ControlMode::Position) {
-          pid_controller_.SetReference(conv_.RealToNativePosition(output), LocalRevControlMode(mode));
+          CheckOk(obj, pid_controller_.SetReference(conv_.RealToNativePosition(output), LocalRevControlMode(mode)), "Write Position");
       }
     };
 
     void Write(ControlMode mode, A output) {
       if (!setup) return;
-
       if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
           Reset(CANTimeout);
-          esc_.ClearFaults();
+          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
       }
 
       if (mode == ControlMode::Current) {
-          pid_controller_.SetReference(output.to<double>(), LocalRevControlMode(mode));
+          CheckOk(obj, pid_controller_.SetReference(output.to<double>(), LocalRevControlMode(mode)), "Write Current");
       }
     };
 
     void WriteByCurrent(units::ampere_t current) {
       if (!setup) return;
 
-      pid_controller_.SetReference(current.to<double>(), LocalRevControlMode(ControlMode::Current));
+      CheckOk(obj, pid_controller_.SetReference(current.to<double>(), LocalRevControlMode(ControlMode::Current)), "Write Current");
     }
 
     V GetVelocity() {
@@ -329,9 +329,15 @@ class SparkRevController : ElectronicSpeedController<X> {
 
     rev::SparkPIDController pid_controller_;
 
-    Converter<X> conv_{kSparkMAXPeriod, kSparkMAXSensorTicks, units::make_unit<X>(1.0)};
+    util::Converter<X> conv_{util::kSparkMAXPeriod, util::kSparkMAXSensorTicks, units::make_unit<X>(1.0)};
 
     bool setup = false;
+
+    void CheckOk(Loggable& loggable, rev::REVLibError err, std::string field = "?") {
+      if (err != rev::REVLibError::kOk) {
+        loggable.Warn("Unable to update {}", field);
+      }
+    };
 
 };
 
@@ -405,7 +411,7 @@ class TalonFXController : ElectronicSpeedController<X> {
 
         deviceConfigs.WithSlot0(pidConfs);
 
-        configurator_.Apply(deviceConfigs);
+        CheckOk(obj, configurator_.Apply(deviceConfigs));
         
         return 0;
     };
@@ -451,7 +457,7 @@ class TalonFXController : ElectronicSpeedController<X> {
 
         deviceConfigs.WithSlot0(pidConfs);
 
-        configurator_.Apply(deviceConfigs);
+        CheckOk(obj, configurator_.Apply(deviceConfigs));
 
         return 0;
     };
@@ -480,7 +486,7 @@ class TalonFXController : ElectronicSpeedController<X> {
 
       deviceConfigs.WithSlot0(pidConfs);
 
-      configurator_.Apply(deviceConfigs);
+      CheckOk(obj, configurator_.Apply(deviceConfigs));
       
       return 0;
     };
@@ -521,7 +527,7 @@ class TalonFXController : ElectronicSpeedController<X> {
 
       deviceConfigs.WithSlot0(pidConfs);
 
-      configurator_.Apply(deviceConfigs);
+      CheckOk(obj, configurator_.Apply(deviceConfigs));
 
       if (mode == ControlMode::Percent) {
 
@@ -552,7 +558,7 @@ class TalonFXController : ElectronicSpeedController<X> {
 
       deviceConfigs.WithSlot0(pidConfs);
 
-      configurator_.Apply(deviceConfigs);
+      CheckOk(obj, configurator_.Apply(deviceConfigs));
       if (mode == ControlMode::Velocity) {
           ctre::controls::VelocityDutyCycle cntrl{units::turns_per_second_t(conv_.RealToNativeVelocity(output))};
           esc_.SetControl(cntrl);
@@ -577,7 +583,7 @@ class TalonFXController : ElectronicSpeedController<X> {
 
       deviceConfigs.WithSlot0(pidConfs);
 
-      configurator_.Apply(deviceConfigs);
+      CheckOk(obj, configurator_.Apply(deviceConfigs));
 
       if (mode == ControlMode::Position) {
           ctre::controls::PositionDutyCycle cntrl{units::turn_t(conv_.RealToNativePosition(output))};
@@ -618,7 +624,7 @@ class TalonFXController : ElectronicSpeedController<X> {
 
       deviceConfigs.WithMotorOutput(motorConfs);
 
-      configurator_.Apply(deviceConfigs);
+      CheckOk(obj, configurator_.Apply(deviceConfigs));
     };
 
     units::ampere_t GetCurrent() {
@@ -638,9 +644,15 @@ class TalonFXController : ElectronicSpeedController<X> {
 
     ControlGains gains_cache_;
 
-    Converter<X> conv_{kTalonPeriod, kTalonFXSensorTicks, units::make_unit<X>(1.0)};
+    util::Converter<X> conv_{util::kTalonPeriod, util::kTalonFXSensorTicks, units::make_unit<X>(1.0)};
 
     bool setup = false;
+
+    void CheckOk(Loggable& loggable, ctre::phoenix::StatusCode err, std::string field = "TalonFX Config") {
+      if (!(err.IsOK() || err.IsWarning())) {
+        loggable.Warn("Unable to update {}", field);
+      }
+    };
 };
 
 
@@ -1011,7 +1023,7 @@ class RevParallelController {
 
     std::vector<rev::CANSparkMax*> escs_;
 
-    Converter<X> conv_{kSparkMAXPeriod, kSparkMAXSensorTicks, units::make_unit<X>(1.0)};
+    util::Converter<X> conv_{util::kSparkMAXPeriod, util::kSparkMAXSensorTicks, units::make_unit<X>(1.0)};
 
     bool setup = false;
 

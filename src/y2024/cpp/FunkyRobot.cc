@@ -14,13 +14,14 @@
 #include "frc2/command/ParallelDeadlineGroup.h"
 #include "frc2/command/WaitCommand.h"
 #include "frc846/loggable.h"
-#include "frc846/sendable_callback.h"
+#include "frc846/other/sendable_callback.h"
 #include "frc846/wpilib/time.h"
-#include "frc846/xbox.h"
+#include "frc846/other/xbox.h"
 #include "commands/drive_command.h"
+#include "commands/teleop_positioning_command.h"
 #include "commands/follow_trajectory_command.h"
 
-#include "subsystems/shintake.h"
+#include "subsystems/scorer.h"
 #include "subsystems/pivot.h"
 #include "subsystems/wrist.h"
 #include "subsystems/telescope.h"
@@ -58,19 +59,19 @@ void FunkyRobot::StartCompetition() {
 
   // Add dashboard buttons
   frc::SmartDashboard::PutData(
-      "zero_modules", new frc846::SendableCallback(
+      "zero_modules", new frc846::other::SendableCallback(
                           [this] { container_.drivetrain_.ZeroModules(); }));
   frc::SmartDashboard::PutData("zero_bearing",
-                               new frc846::SendableCallback([this] {
+                               new frc846::other::SendableCallback([this] {
                                  container_.drivetrain_.SetBearing(0_deg);
                                }));
   frc::SmartDashboard::PutData(
-      "zero_odometry", new frc846::SendableCallback(
+      "zero_odometry", new frc846::other::SendableCallback(
                            [this] { container_.drivetrain_.ZeroOdometry(); }));
   
   frc::SmartDashboard::PutData(
       "verify_hardware",
-      new frc846::SendableCallback([this] { VerifyHardware(); }));
+      new frc846::other::SendableCallback([this] { VerifyHardware(); }));
 
   // Add autos here
   // Default
@@ -235,6 +236,7 @@ void FunkyRobot::EndCompetition() {
 
 void FunkyRobot::InitTeleopDefaults() {
   container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
+  container_.pivot_.SetDefaultCommand(TeleopPositioningCommand{container_});
 }
 
 void FunkyRobot::InitTeleopTriggers() {
@@ -242,149 +244,37 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger drivetrain_zero_bearing_trigger{
       [&] { return container_.driver_.readings().back_button; }};
 
-  frc2::Trigger shintake_test_in_trigger{
+  frc2::Trigger scorer_test_in_trigger{
       [&] { return container_.driver_.readings().right_trigger; }};
 
-  frc2::Trigger shintake_test_out_trigger{
+  frc2::Trigger scorer_test_out_trigger{
       [&] { return container_.driver_.readings().left_trigger; }};
-
-  frc2::Trigger tele_test_up_trigger{
-      [&] { return container_.driver_.readings().b_button; }};
-
-  frc2::Trigger tele_test_down_trigger{
-      [&] { return container_.driver_.readings().a_button; }};
-
-  frc2::Trigger pivot_test_up_trigger{
-      [&] { return container_.driver_.readings().y_button; }};
-
-  frc2::Trigger pivot_test_down_trigger{
-      [&] { return container_.driver_.readings().x_button; }};
-
-  frc2::Trigger wrist_test_up_trigger{
-      [&] { return container_.driver_.readings().pov == frc846::XboxPOV::kUp; }};
-
-  frc2::Trigger wrist_test_down_trigger{
-      [&] { return container_.driver_.readings().pov == frc846::XboxPOV::kDown; }};
-
-  frc2::Trigger stow_trigger{
-      [&] { return container_.driver_.readings().pov == frc846::XboxPOV::kLeft; }};
-
-  frc2::Trigger intake_deploy_trigger{
-      [&] { return container_.driver_.readings().pov == frc846::XboxPOV::kRight; }};
   
-
   // // Bind Triggers to commands
   drivetrain_zero_bearing_trigger.WhileTrue(
       frc2::InstantCommand([this] {
         container_.drivetrain_.ZeroBearing();
       }).ToPtr());
 
-  shintake_test_in_trigger.WhileTrue(
+  scorer_test_in_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.shintake_.SetTarget(container_.shintake_.MakeTarget(true, false, 0.0_tps));
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(true, false, 0.0_tps));
       }).ToPtr());
 
-  shintake_test_in_trigger.OnFalse(
+  scorer_test_in_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.shintake_.SetTarget(container_.shintake_.ZeroTarget());
+        container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
       }).ToPtr());
 
-  shintake_test_out_trigger.WhileTrue(
+  scorer_test_out_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.shintake_.SetTarget(container_.shintake_.MakeTarget(false, true, container_.shintake_.shooter_speed_.value()));
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(false, true, container_.scorer_.shooter_speed_.value()));
       }).ToPtr());
 
-  shintake_test_out_trigger.OnFalse(
+  scorer_test_out_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.shintake_.SetTarget(container_.shintake_.ZeroTarget());
+        container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
       }).ToPtr());
-
-  pivot_test_up_trigger.WhileTrue(
-    frc2::InstantCommand([this] {
-        PivotTarget t = container_.pivot_.GetTarget();
-        t.pivot_output = 0.1;
-        container_.pivot_.SetTarget(t);
-    }).ToPtr());
-
-  pivot_test_up_trigger.OnFalse(
-    frc2::InstantCommand([this] {
-        PivotTarget t = container_.pivot_.GetTarget();
-        t.pivot_output = container_.pivot_.readings().pivot_position;
-        container_.pivot_.SetTarget(t);
-    }).ToPtr());
-
-  pivot_test_down_trigger.WhileTrue(
-    frc2::InstantCommand([this] {
-        PivotTarget t = container_.pivot_.GetTarget();
-        t.pivot_output = -0.1;
-        container_.pivot_.SetTarget(t);
-    }).ToPtr());
-
-  pivot_test_down_trigger.OnFalse(
-    frc2::InstantCommand([this] {
-        PivotTarget t = container_.pivot_.GetTarget();
-        t.pivot_output = container_.pivot_.readings().pivot_position;
-        container_.pivot_.SetTarget(t);
-    }).ToPtr());
-
-  tele_test_up_trigger.WhileTrue(
-    frc2::InstantCommand([this] {
-        TelescopeTarget t = container_.telescope_.GetTarget();
-        t.extension = 0.1;
-        container_.telescope_.SetTarget(t);
-    }).ToPtr());
-
-  tele_test_up_trigger.OnFalse(
-    frc2::InstantCommand([this] {
-        TelescopeTarget t = container_.telescope_.GetTarget();
-        t.extension = container_.telescope_.readings().extension;
-        container_.telescope_.SetTarget(t);
-    }).ToPtr());
-
-  tele_test_down_trigger.WhileTrue(
-    frc2::InstantCommand([this] {
-        TelescopeTarget t = container_.telescope_.GetTarget();
-        t.extension = -0.1;
-        container_.telescope_.SetTarget(t);
-    }).ToPtr());
-
-  tele_test_down_trigger.OnFalse(
-    frc2::InstantCommand([this] {
-        TelescopeTarget t = container_.telescope_.GetTarget();
-        t.extension = container_.telescope_.readings().extension;
-        container_.telescope_.SetTarget(t);
-    }).ToPtr());
-
-  wrist_test_up_trigger.WhileTrue(
-    frc2::InstantCommand([this] {
-        WristTarget t = container_.wrist_.GetTarget();
-        t.wrist_output = 0.1;
-        container_.wrist_.SetTarget(t);
-    }).ToPtr());
-
-  wrist_test_up_trigger.OnFalse(
-    frc2::InstantCommand([this] {
-        WristTarget t = container_.wrist_.GetTarget();
-        t.wrist_output = container_.wrist_.readings().wrist_position;
-        container_.wrist_.SetTarget(t);
-    }).ToPtr());
-
-  wrist_test_down_trigger.WhileTrue(
-    frc2::InstantCommand([this] {
-        WristTarget t = container_.wrist_.GetTarget();
-        t.wrist_output = -0.1;
-        container_.wrist_.SetTarget(t);
-    }).ToPtr());
-
-  wrist_test_down_trigger.OnFalse(
-    frc2::InstantCommand([this] {
-        WristTarget t = container_.wrist_.GetTarget();
-        t.wrist_output = container_.wrist_.readings().wrist_position;
-        container_.wrist_.SetTarget(t);
-    }).ToPtr());
-
-  stow_trigger.OnTrue(StowCommand{container_}.ToPtr());
-  // intake_deploy_trigger.OnTrue(DeployIntakeCommand{container_}.ToPtr());  
 }
 
 void FunkyRobot::InitTestDefaults() {

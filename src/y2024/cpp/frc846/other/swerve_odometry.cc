@@ -1,16 +1,16 @@
-#include "frc846/swerve_odometry.h"
+#include "frc846/other/swerve_odometry.h"
 
 #include <cmath>
 #include <cstdio>
 
-#include "frc846/math.h"
+#include "frc846/util/math.h"
 
 namespace frc846 {
 
-SwerveOdometry::SwerveOdometry(Position initial_pose) : pose_(initial_pose) {}
+SwerveOdometry::SwerveOdometry(util::Position initial_pose) : pose_(initial_pose) {}
 
 void SwerveOdometry::Update(
-    std::array<Vector2D<units::foot_t>, kModuleCount> wheel_vecs,
+    std::array<util::Vector2D<units::foot_t>, kModuleCount> wheel_vecs,
     units::radian_t bearing) {
   // change in distance from the last odometry update
   for (int i = 0; i < kModuleCount; i++) {
@@ -28,7 +28,7 @@ void SwerveOdometry::Update(
 
   // get the distance components of each of the module, accounting for the robot
   // bearing
-  std::array<Vector2D<units::foot_t>, kModuleCount> xy_comps;
+  std::array<util::Vector2D<units::foot_t>, kModuleCount> xy_comps;
   for (int i = 0; i < kModuleCount; i++) {
     xy_comps[i] = {
         wheel_vecs[i].Magnitude() * units::math::sin(wheel_vecs[i].Bearing()),
@@ -47,11 +47,11 @@ void SwerveOdometry::Update(
   auto sin_theta = units::math::sin(theta);
   auto cos_theta = units::math::cos(theta);
 
-  auto top_bottom = Vector2D<units::foot_t>{
+  auto top_bottom = util::Vector2D<units::foot_t>{
       (left + right) * sin_theta,
       (left + right) * cos_theta,
   };
-  auto left_right = Vector2D<units::foot_t>{
+  auto left_right = util::Vector2D<units::foot_t>{
       (top + bottom) * cos_theta,
       (top + bottom) * -sin_theta,
   };
@@ -61,7 +61,7 @@ void SwerveOdometry::Update(
   pose_.bearing = bearing;
 }
 
-void SwerveOdometry::SetPoint(Vector2D<units::foot_t> point) {
+void SwerveOdometry::SetPoint(util::Vector2D<units::foot_t> point) {
   pose_.point = point;
 }
 

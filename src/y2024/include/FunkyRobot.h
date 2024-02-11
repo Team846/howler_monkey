@@ -7,7 +7,7 @@
 #include <hal/Types.h>
 #include <units/time.h>
 
-#include "frc846/pref.h"
+#include "frc846/util/pref.h"
 #include "autos/drive_auto.h"
 #include "autos/five_piece_auto.h"
 #include "subsystems/robot_container.h"
