@@ -4,8 +4,8 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SequentialCommandGroup.h>
 
-#include "frc846/math.h"
-#include "frc846/trajectory_generator.h"
+#include "frc846/util/math.h"
+#include "frc846/other/trajectory_generator.h"
 #include "subsystems/robot_container.h"
 
 class DriveAuto

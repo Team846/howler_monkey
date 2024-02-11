@@ -2,8 +2,6 @@
 
 #include <thread>
 
-#include "frc846/motor/config.h"
-
 static constexpr auto kMotorType = rev::CANSparkMax::MotorType::kBrushless;
 
 SwerveModuleSubsystem::SwerveModuleSubsystem(
@@ -31,7 +29,7 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
     drive_esc_helper_.DisableStatusFrames(
         {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
 
-    steer_esc_helper_.Setup(steer_esc_gains_helper);
+    steer_esc_helper_.Setup(steer_esc_gains_helper, false, frc846::control::kCoast);
     steer_esc_helper_.SetupConverter(steer_conversion);
     steer_esc_helper_.DisableStatusFrames(
         {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
@@ -84,7 +82,7 @@ void SwerveModuleSubsystem::ZeroWithCANcoder() {
   for (int attempts = 1; attempts <= kMaxAttempts; ++attempts) {
     Log("CANCoder zero attempt {}/{}", attempts, kMaxAttempts);
     auto position = cancoder_.GetAbsolutePosition();
-    module_direction = units::degree_t(position.GetValue());
+    module_direction = (-position.GetValue());
 
     if (position.IsAllGood()) {
       Log("Zeroed to {}!", module_direction);
@@ -148,7 +146,7 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
   target_speed_graph_.Graph(target.speed);
   target_direction_graph_.Graph(target.direction);
   direction_graph_.Graph(steer_esc_helper_.GetPosition());
-  cancoder_graph_.Graph(cancoder_.GetAbsolutePosition().GetValue());
+  cancoder_graph_.Graph(-cancoder_.GetAbsolutePosition().GetValue());
 
   auto [normalized_angle, reverse_drive] =
       NormalizedDirection(readings().direction, target.direction);
@@ -162,7 +160,7 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
   units::feet_per_second_t target_velocity =
       target.speed * (reverse_drive ? -1 : 1);
 
-  auto speed_difference = -target_velocity+current_speed_;
+  auto speed_difference = -target_velocity + current_speed_;
 
   double drive_output;
   if (target.control == kClosedLoop) {

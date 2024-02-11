@@ -4,15 +4,15 @@
 
 #include <cmath>
 
-#include "frc846/math.h"
+#include "frc846/util/math.h"
 #include "frc846/wpilib/time.h"
 
 StowCommand::StowCommand(
     RobotContainer& container)
     : frc846::Loggable{"stow_command"},
-      shintake_(container.shintake_), pivot_(container.pivot_),
+      scorer_(container.scorer_), pivot_(container.pivot_),
         telescope_(container.telescope_), wrist_(container.wrist_) {
-  AddRequirements({&shintake_, &pivot_, &telescope_, &wrist_});
+  AddRequirements({&scorer_, &pivot_, &telescope_, &wrist_});
   SetName("stow_command");
 }
 
@@ -21,7 +21,7 @@ void StowCommand::Initialize() {
 }
 
 void StowCommand::Execute() {
-  shintake_.SetTarget(shintake_.ZeroTarget());
+  scorer_.SetTarget(scorer_.ZeroTarget());
   pivot_.SetTarget(pivot_.MakeTarget(pivot_.stow_setpoint_pivot.value()));
   telescope_.SetTarget(telescope_.MakeTarget(telescope_.stow_setpoint_tele_.value()));
   wrist_.SetTarget(wrist_.MakeTarget(wrist_.stow_setpoint_wrist_.value()));

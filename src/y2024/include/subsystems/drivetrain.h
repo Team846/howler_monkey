@@ -12,22 +12,22 @@
 #include <variant>
 
 #include "frc/filter/SlewRateLimiter.h"
-#include "frc846/conversions.h"
-#include "frc846/grapher.h"
-#include "frc846/math.h"
-#include "frc846/control/newgains.h"
-#include "frc846/pref.h"
+#include "frc846/util/conversions.h"
+#include "frc846/util/grapher.h"
+#include "frc846/util/math.h"
+#include "frc846/control/controlgains.h"
+#include "frc846/util/pref.h"
 #include "frc846/subsystem.h"
-#include "frc846/swerve_odometry.h"
+#include "frc846/other/swerve_odometry.h"
 #include "frc846/wpilib/time.h"
 #include "ports.h"
 #include "subsystems/swerve_module.h"
 
 struct DrivetrainReadings {
   bool is_gyro_connected;
-  frc846::Position pose;
+  frc846::util::Position pose;
   units::degrees_per_second_t angular_velocity;
-  frc846::Vector2D<units::feet_per_second_t> velocity;
+  frc846::util::Vector2D<units::feet_per_second_t> velocity;
   units::degree_t tilt;
   units::degrees_per_second_t tilt_omega;
 };
@@ -76,7 +76,7 @@ class DrivetrainSubsystem
   void ZeroOdometry();
 
   // Set odometry point.
-  void SetPoint(frc846::Vector2D<units::foot_t> point);
+  void SetPoint(frc846::util::Vector2D<units::foot_t> point);
 
   // Set bearing.
   void SetBearing(units::degree_t bearing);
@@ -148,8 +148,8 @@ class DrivetrainSubsystem
 
   // Convert a translation vector and the drivetrain angular velocity to the
   // individual module outputs.
-  static std::array<frc846::Vector2D<units::feet_per_second_t>, kModuleCount>
-  SwerveControl(frc846::Vector2D<units::feet_per_second_t> translation,
+  static std::array<frc846::util::Vector2D<units::feet_per_second_t>, kModuleCount>
+  SwerveControl(frc846::util::Vector2D<units::feet_per_second_t> translation,
                 units::degrees_per_second_t rotation_speed, units::inch_t width,
                 units::inch_t height, units::inch_t radius,
                 units::feet_per_second_t max_speed);
@@ -250,7 +250,7 @@ class DrivetrainSubsystem
 
   units::foot_t drive_conversion_ = 
       (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) *
-          frc846::Circumference(wheel_radius_.value());
+          frc846::util::Circumference(wheel_radius_.value());
   
   units::degree_t steer_conversion_ = (7.0 / 150.0) * 1_tr;
 

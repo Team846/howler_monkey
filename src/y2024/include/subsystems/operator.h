@@ -1,11 +1,11 @@
 #ifndef y2024_SUBSYSTEMS_OPERATOR_H_
 #define y2024_SUBSYSTEMS_OPERATOR_H_
 
-#include "frc846/grapher.h"
-#include "frc846/math.h"
-#include "frc846/pref.h"
+#include "frc846/util/grapher.h"
+#include "frc846/util/math.h"
+#include "frc846/util/pref.h"
 #include "frc846/subsystem.h"
-#include "frc846/xbox.h"
+#include "frc846/other/xbox.h"
 #include "ports.h"
 
 using OperatorReadings = frc846::XboxReadings;

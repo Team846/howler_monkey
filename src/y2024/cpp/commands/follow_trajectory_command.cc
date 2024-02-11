@@ -4,8 +4,8 @@
 
 #include <cmath>
 
-#include "frc846/math.h"
-#include "frc846/trajectory_generator.h"
+#include "frc846/util/math.h"
+#include "frc846/other/trajectory_generator.h"
 #include "frc846/wpilib/time.h"
 #include "subsystems/swerve_module.h"
 
@@ -103,8 +103,8 @@ bool FollowTrajectoryCommand::IsFinished() {
 // https://math.stackexchange.com/questions/274712/calculate-on-which-side-of-a-straight-line-is-a-given-point-located
 bool FollowTrajectoryCommand::HasCrossedWaypoint(
     frc846::Waypoint current_waypoint, frc846::Waypoint prev_waypoint,
-    frc846::Vector2D<units::foot_t> pos,
-    frc846::Vector2D<units::foot_t> extrapolated_point) {
+    frc846::util::Vector2D<units::foot_t> pos,
+    frc846::util::Vector2D<units::foot_t> extrapolated_point) {
   // fmt::print(
   //     "\ncurrent_waypoint x {}, current_waypoint y {}, prev_waypoint x {} y "
   //     "{}, pos x{} y{}, extrap x{}, y{}\n",
@@ -112,9 +112,9 @@ bool FollowTrajectoryCommand::HasCrossedWaypoint(
   //     prev_waypoint.pos.point.x, prev_waypoint.pos.point.y, pos.x, pos.y,
   //     extrapolated_point.x, extrapolated_point.y);
 
-  auto d = [](frc846::Vector2D<units::foot_t> target,
-              frc846::Vector2D<units::foot_t> p1,
-              frc846::Vector2D<units::foot_t> p2) {
+  auto d = [](frc846::util::Vector2D<units::foot_t> target,
+              frc846::util::Vector2D<units::foot_t> p1,
+              frc846::util::Vector2D<units::foot_t> p2) {
     double x =
         ((target.x - p1.x) * (p2.y - p1.y) - (target.y - p1.y) * (p2.x - p1.x))
             .to<double>();
@@ -132,11 +132,11 @@ bool FollowTrajectoryCommand::HasCrossedWaypoint(
   double cos_theta = units::math::cos(theta);
   double sin_theta = units::math::sin(theta);
 
-  auto p1 = current_waypoint.pos.point - frc846::Vector2D<units::foot_t>{
+  auto p1 = current_waypoint.pos.point - frc846::util::Vector2D<units::foot_t>{
                                              1_ft * cos_theta,
                                              1_ft * sin_theta,
                                          };
-  auto p2 = current_waypoint.pos.point + frc846::Vector2D<units::foot_t>{
+  auto p2 = current_waypoint.pos.point + frc846::util::Vector2D<units::foot_t>{
                                              1_ft * cos_theta,
                                              1_ft * sin_theta,
                                          };

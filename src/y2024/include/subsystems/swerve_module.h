@@ -9,13 +9,13 @@
 
 #include <string>
 
-#include "frc846/conversions.h"
+#include "frc846/util/conversions.h"
 #include "frc846/ctre_namespace.h"
-#include "frc846/grapher.h"
-#include "frc846/math.h"
+#include "frc846/util/grapher.h"
+#include "frc846/util/math.h"
 #include "frc846/control/control.h"
-#include "frc846/control/newgains.h"
-#include "frc846/pref.h"
+#include "frc846/control/controlgains.h"
+#include "frc846/util/pref.h"
 #include "frc846/subsystem.h"
 
 FRC846_CTRE_NAMESPACE()

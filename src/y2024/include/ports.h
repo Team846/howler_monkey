@@ -27,7 +27,7 @@ struct ports {
     static constexpr int kBRCANCoder_CANID = 4;
   };
 
-  struct shintake_ {
+  struct scorer_ {
     static constexpr int kController_CANID = 20;
   };
 

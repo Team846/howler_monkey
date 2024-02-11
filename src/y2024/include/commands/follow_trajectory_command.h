@@ -3,8 +3,8 @@
 
 #include <frc2/command/CommandHelper.h>
 
-#include "frc846/math.h"
-#include "frc846/trajectory_generator.h"
+#include "frc846/util/math.h"
+#include "frc846/other/trajectory_generator.h"
 #include "subsystems/drivetrain.h"
 #include "subsystems/robot_container.h"
 
@@ -31,14 +31,14 @@ class FollowTrajectoryCommand
 
   unsigned int target_idx_ = 1;
   bool is_done_ = false;
-  frc846::Vector2D<units::foot_t> current_extrapolated_point_;
+  frc846::util::Vector2D<units::foot_t> current_extrapolated_point_;
 
   units::second_t start_time_;
 
   static bool HasCrossedWaypoint(frc846::Waypoint current_waypoint,
                                  frc846::Waypoint prev_waypoint,
-                                 frc846::Vector2D<units::foot_t> pos,
-                                 frc846::Vector2D<units::foot_t> test_target);
+                                 frc846::util::Vector2D<units::foot_t> pos,
+                                 frc846::util::Vector2D<units::foot_t> test_target);
 };
 
 #endif  // y2024_COMMANDS_FOLLOW_TRAJECTORY_COMMAND_H_
