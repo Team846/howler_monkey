@@ -201,6 +201,7 @@ void FunkyRobot::StartCompetition() {
     }
 
     if (!homing_switch_.Get() && word.IsDisabled()) {
+      std::cout << "HOMING" << std::endl;
       container_.pivot_.ZeroSubsystem();
       container_.telescope_.ZeroSubsystem();
       container_.wrist_.ZeroSubsystem();

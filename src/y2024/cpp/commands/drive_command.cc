@@ -91,8 +91,32 @@ void DriveCommand::Execute() {
 
     if (units::math::abs(dist_x) > 0.5_ft || units::math::abs(dist_y) > 0.5_ft) {
       auto target_angle = units::math::atan2(dist_x, dist_y);
+
+      double SPEAKER_HEIGHT = 3.7;
+      double LAUNCH_VELOCITY = 27.0;
+      double GRAVITY = 32.0;
+
+      // Re-angle to correct sideways motion:
+
+      // h = 1/2 * g * t^2
+      // t = sqrt(2h/g)
+      // s = (r_v_orth)*t
+      // vtan(theta) = s
+      // theta = atan(r_v_orth*t/v)
+
+      auto robot_velocity = drivetrain_.readings().velocity;
+      auto point_target = (field::points::kSpeaker() - drivetrain_.readings().pose.point);
+
+      point_target = point_target.Rotate(90_deg);
+
+      double robot_velocity_orth_component = 
+        (robot_velocity.x.to<double>() * point_target.x.to<double>() + 
+          robot_velocity.y.to<double>() * point_target.y.to<double>())/point_target.Magnitude().to<double>();
+
+      units::degree_t theta_adjust =  units::radian_t(std::atan2(robot_velocity_orth_component * 
+        std::sqrt(2 * SPEAKER_HEIGHT / GRAVITY), LAUNCH_VELOCITY));
       
-      drivetrain_target.rotation = DrivetrainRotationPosition(target_angle);
+      drivetrain_target.rotation = DrivetrainRotationPosition(target_angle + 180_deg - theta_adjust);
     }
   }
 

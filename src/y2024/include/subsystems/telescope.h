@@ -66,9 +66,9 @@ class TelescopeSubsystem
 
 
   frc846::control::SparkRevController<units::inch_t> tele_one_{*this, 
-    "tele_one", ports::arm_::kTele1_CANID};
+    "tele_one", ports::positioning_::kTele1_CANID};
   frc846::control::SparkRevController<units::inch_t> tele_two_{*this, 
-    "tele_two", ports::arm_::kTele2_CANID};
+    "tele_two", ports::positioning_::kTele2_CANID};
 
 
   TelescopeReadings GetNewReadings() override;

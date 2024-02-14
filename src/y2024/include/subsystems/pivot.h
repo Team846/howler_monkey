@@ -67,19 +67,19 @@ class PivotSubsystem
         100_A, 0.5};
 
   frc846::control::SparkRevController<units::degree_t> pivot_one_{*this, 
-    "pivot_one", ports::arm_::kPivotOne_CANID};
+    "pivot_one", ports::positioning_::kPivotOne_CANID};
   frc846::control::SparkRevController<units::degree_t> pivot_two_{*this, 
-    "pivot_two", ports::arm_::kPivotTwo_CANID};
+    "pivot_two", ports::positioning_::kPivotTwo_CANID};
   frc846::control::SparkRevController<units::degree_t> pivot_three_{*this, 
-    "pivot_three", ports::arm_::kPivotThree_CANID};
+    "pivot_three", ports::positioning_::kPivotThree_CANID};
   frc846::control::SparkRevController<units::degree_t> pivot_four_{*this, 
-    "pivot_four", ports::arm_::kPivotFour_CANID};
+    "pivot_four", ports::positioning_::kPivotFour_CANID};
 
   // frc846::control::RevParallelController<units::degree_t> pivot_tandem_{*this, "pivot", {
-  //   ports::arm_::kPivotOne_CANID,
-  //   ports::arm_::kPivotTwo_CANID,
-  //   ports::arm_::kPivotThree_CANID,
-  //   ports::arm_::kPivotFour_CANID
+  //   ports::positioning_::kPivotOne_CANID,
+  //   ports::positioning_::kPivotTwo_CANID,
+  //   ports::positioning_::kPivotThree_CANID,
+  //   ports::positioning_::kPivotFour_CANID
   // }};
 
   PivotReadings GetNewReadings() override;

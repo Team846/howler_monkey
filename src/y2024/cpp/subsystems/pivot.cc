@@ -1,5 +1,6 @@
 #include "subsystems/pivot.h"
 #include "frc846/control/control.h"
+#include "frc846/util/share_tables.h"
 
 PivotSubsystem::PivotSubsystem(bool init)
     : frc846::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
@@ -21,14 +22,19 @@ PivotSubsystem::PivotSubsystem(bool init)
         pivot_two_.Setup(&pivot_esc_gains_, true);
         pivot_three_.Setup(&pivot_esc_gains_, false);
         pivot_four_.Setup(&pivot_esc_gains_, false);
-        pivot_one_.SetupConverter(10_deg);
-        pivot_two_.SetupConverter(10_deg);
-        pivot_three_.SetupConverter(10_deg);
-        pivot_four_.SetupConverter(10_deg);
+        pivot_one_.SetupConverter(1.0_tr / 110.0);
+        pivot_two_.SetupConverter(1.0_tr / 110.0);
+        pivot_three_.SetupConverter(1.0_tr / 110.0);
+        pivot_four_.SetupConverter(1.0_tr / 110.0);
         pivot_one_.ZeroEncoder();
         pivot_two_.ZeroEncoder();
         pivot_three_.ZeroEncoder();
         pivot_four_.ZeroEncoder();
+
+        pivot_one_.ConfigurePositionLimits(90_deg, 0_deg);
+        pivot_two_.ConfigurePositionLimits(90_deg, 0_deg);
+        pivot_three_.ConfigurePositionLimits(90_deg, 0_deg);
+        pivot_four_.ConfigurePositionLimits(90_deg, 0_deg);
 
         // pivot_tandem_.Setup(&pivot_esc_gains_);
         // pivot_tandem_.SetInverted({true, true, false, false});
@@ -69,6 +75,8 @@ PivotReadings PivotSubsystem::GetNewReadings() {
 
   readings.pivot_position = pivot_one_.GetPosition();
 
+  frc846::util::ShareTables::SetVal("pivot_position", readings.pivot_position.to<double>());
+
   pivot_pos_graph.Graph(readings.pivot_position);
 
   return readings;
@@ -76,10 +84,17 @@ PivotReadings PivotSubsystem::GetNewReadings() {
 
 void PivotSubsystem::PositionPivot(PivotTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
-    pivot_one_.Write(frc846::control::ControlMode::Position, *pos);
-    pivot_two_.Write(frc846::control::ControlMode::Position, *pos);
-    pivot_three_.Write(frc846::control::ControlMode::Position, *pos);
-    pivot_four_.Write(frc846::control::ControlMode::Position, *pos);
+    if (*pos < 3.0_deg && readings().pivot_position < 7.0_deg) {
+      pivot_one_.Write(frc846::control::ControlMode::Percent, 0.0);
+      pivot_two_.Write(frc846::control::ControlMode::Percent, 0.0);
+      pivot_three_.Write(frc846::control::ControlMode::Percent, 0.0);
+      pivot_four_.Write(frc846::control::ControlMode::Percent, 0.0);
+    } else {
+      pivot_one_.Write(frc846::control::ControlMode::Position, *pos);
+      pivot_two_.Write(frc846::control::ControlMode::Position, *pos);
+      pivot_three_.Write(frc846::control::ControlMode::Position, *pos);
+      pivot_four_.Write(frc846::control::ControlMode::Position, *pos);
+    }
 
     target_pivot_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.pivot_output)) {

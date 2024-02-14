@@ -1,11 +1,16 @@
 #include "subsystems/wrist.h"
 #include "frc846/control/control.h"
+#include "frc846/util/share_tables.h"
 
 WristSubsystem::WristSubsystem(bool init)
     : frc846::Subsystem<WristReadings, WristTarget>{"wrist", init} {
     if (init) {
-        wrist_esc_.Setup(&wrist_esc_gains_, false);
-        wrist_esc_.SetupConverter(1_deg);
+        wrist_esc_.Setup(&wrist_esc_gains_, true);
+        wrist_esc_.SetupConverter(0.0293 * 340_deg);
+
+        wrist_esc_.ConfigurePositionLimits(130_deg, 0_deg);
+
+        wrist_esc_.ZeroEncoder();
     }
 }
 
@@ -37,6 +42,8 @@ WristReadings WristSubsystem::GetNewReadings() {
   WristReadings readings;
 
   readings.wrist_position = wrist_esc_.GetPosition();
+
+  frc846::util::ShareTables::SetVal("wrist_position", readings.wrist_position.to<double>());
 
   wrist_pos_graph.Graph(readings.wrist_position);
 

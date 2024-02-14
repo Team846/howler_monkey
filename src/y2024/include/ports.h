@@ -31,7 +31,7 @@ struct ports {
     static constexpr int kController_CANID = 20;
   };
 
-  struct arm_ {
+  struct positioning_ {
     static constexpr int kPivotOne_CANID = 25;
     static constexpr int kPivotTwo_CANID = 26;
     static constexpr int kPivotThree_CANID = 27;

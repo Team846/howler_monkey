@@ -29,6 +29,8 @@ class TeleopPositioningCommand
   bool pivotHasRun = false;
   bool telescopeHasRun = false;
   bool wristHasRun = false;
+
+  bool firstIntakeRound = true;
 };
 
 #endif  // y2024_COMMANDS_TELEOP_POSITIONING_COMMAND_H_

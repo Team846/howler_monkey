@@ -249,6 +249,11 @@ class SparkRevController : ElectronicSpeedController<X> {
     void Write(ControlMode mode, X output) {
       if (!setup) return;
 
+      if (usingPositionLimits) {
+        output = units::math::max(output, reverse_position_limit);
+        output = units::math::min(output, forward_position_limit);
+      }
+
       if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
           Reset(CANTimeout);
           CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
@@ -318,11 +323,22 @@ class SparkRevController : ElectronicSpeedController<X> {
       return units::ampere_t(esc_.GetOutputCurrent());
     };
 
-    private:
+    void EnablePositionLimiting(bool enable = true) {
+      usingPositionLimits = enable;
+    }
+
+    void ConfigurePositionLimits(X forward_limit, X reverse_limit, bool enable = true) {
+      forward_position_limit = forward_limit;
+      reverse_position_limit = reverse_limit;
+      EnablePositionLimiting(enable);
+    }
+
     Loggable obj;
+    rev::CANSparkMax esc_;
+    
+    private:
     ControlGainsHelper* gains_helper;
 
-    rev::CANSparkMax esc_;
     ControlGains gains_cache_;
 
     rev::SparkRelativeEncoder encoder_;
@@ -332,6 +348,11 @@ class SparkRevController : ElectronicSpeedController<X> {
     util::Converter<X> conv_{util::kSparkMAXPeriod, util::kSparkMAXSensorTicks, units::make_unit<X>(1.0)};
 
     bool setup = false;
+
+    bool usingPositionLimits = false;
+
+    X reverse_position_limit = units::make_unit<X>(0.0);
+    X forward_position_limit = units::make_unit<X>(0.0);
 
     void CheckOk(Loggable& loggable, rev::REVLibError err, std::string field = "?") {
       if (err != rev::REVLibError::kOk) {
@@ -390,6 +411,15 @@ class TalonFXController : ElectronicSpeedController<X> {
         ctre::configs::MotorOutputConfigs motorConfs{};
         ctre::configs::Slot0Configs pidConfs{};
 
+
+        pidConfs.WithKS(gains_helper->f_.value());
+        pidConfs.WithKP(gains_helper->p_.value());
+        pidConfs.WithKI(gains_helper->i_.value());
+        pidConfs.WithKD(gains_helper->d_.value());
+
+        deviceConfigs.WithSlot0(pidConfs);
+
+
         motorConfs.WithInverted(isInverted);
 
         deviceConfigs.WithMotorOutput(motorConfs);
@@ -435,6 +465,15 @@ class TalonFXController : ElectronicSpeedController<X> {
         ctre::configs::CurrentLimitsConfigs currentConfs{};
         ctre::configs::MotorOutputConfigs motorConfs{};
         ctre::configs::Slot0Configs pidConfs{};
+
+
+        pidConfs.WithKS(gains_helper->f_.value());
+        pidConfs.WithKP(gains_helper->p_.value());
+        pidConfs.WithKI(gains_helper->i_.value());
+        pidConfs.WithKD(gains_helper->d_.value());
+
+        deviceConfigs.WithSlot0(pidConfs);
+
 
         motorConfs.WithInverted(isInverted);
 
@@ -517,17 +556,7 @@ class TalonFXController : ElectronicSpeedController<X> {
           esc_.ClearStickyFaults();
       }
 
-      ctre::configs::Slot0Configs pidConfs{};
-
-
-      pidConfs.WithKS(gains_helper->f_.value());
-      pidConfs.WithKP(gains_helper->p_.value());
-      pidConfs.WithKI(gains_helper->i_.value());
-      pidConfs.WithKD(gains_helper->d_.value());
-
-      deviceConfigs.WithSlot0(pidConfs);
-
-      CheckOk(obj, configurator_.Apply(deviceConfigs));
+      // CheckOk(obj, configurator_.Apply(deviceConfigs));
 
       if (mode == ControlMode::Percent) {
 
@@ -548,17 +577,7 @@ class TalonFXController : ElectronicSpeedController<X> {
           esc_.ClearStickyFaults();
       }
 
-      ctre::configs::Slot0Configs pidConfs{};
-
-
-      pidConfs.WithKS(gains_helper->f_.value());
-      pidConfs.WithKP(gains_helper->p_.value());
-      pidConfs.WithKI(gains_helper->i_.value());
-      pidConfs.WithKD(gains_helper->d_.value());
-
-      deviceConfigs.WithSlot0(pidConfs);
-
-      CheckOk(obj, configurator_.Apply(deviceConfigs));
+      // CheckOk(obj, configurator_.Apply(deviceConfigs));
       if (mode == ControlMode::Velocity) {
           ctre::controls::VelocityDutyCycle cntrl{units::turns_per_second_t(conv_.RealToNativeVelocity(output))};
           esc_.SetControl(cntrl);
@@ -573,17 +592,7 @@ class TalonFXController : ElectronicSpeedController<X> {
           esc_.ClearStickyFaults();
       }
 
-      ctre::configs::Slot0Configs pidConfs{};
-
-
-      pidConfs.WithKS(gains_helper->f_.value());
-      pidConfs.WithKP(gains_helper->p_.value());
-      pidConfs.WithKI(gains_helper->i_.value());
-      pidConfs.WithKD(gains_helper->d_.value());
-
-      deviceConfigs.WithSlot0(pidConfs);
-
-      CheckOk(obj, configurator_.Apply(deviceConfigs));
+      // CheckOk(obj, configurator_.Apply(deviceConfigs));
 
       if (mode == ControlMode::Position) {
           ctre::controls::PositionDutyCycle cntrl{units::turn_t(conv_.RealToNativePosition(output))};
@@ -630,7 +639,7 @@ class TalonFXController : ElectronicSpeedController<X> {
     units::ampere_t GetCurrent() {
       if (!setup) return 0_A;
 
-      return units::ampere_t(esc_.GetSupplyCurrent());
+      return 0_A;
     };
 
     private:

@@ -1,4 +1,5 @@
 #include "commands/teleop_positioning_command.h"
+#include "subsystems/setpoints.h"
 
 #include <utility>
 
@@ -33,11 +34,17 @@ void TeleopPositioningCommand::Execute() {
   bool wrist_up_manual = driver_.readings().pov == frc846::XboxPOV::kUp;
   bool wrist_down_manual = driver_.readings().pov == frc846::XboxPOV::kDown;
 
+  bool intake_position = driver_.readings().left_trigger;
+
   bool running_prep_speaker = driver_.readings().right_trigger;
 
   PivotTarget pivot_target = pivot_.GetTarget();
   TelescopeTarget telescope_target = telescope_.GetTarget();
   WristTarget wrist_target = wrist_.GetTarget();   
+
+  if (!intake_position) {
+    firstIntakeRound = true;
+  }
 
   if (pivot_up_manual || pivot_down_manual) {
     if (pivot_up_manual) {
@@ -48,40 +55,11 @@ void TeleopPositioningCommand::Execute() {
 
     pivotHasRun = true;
   } else if (running_prep_speaker) {
-    double SPEAKER_HEIGHT = 3.7;
-    double LAUNCH_VELOCITY = 27.0;
-    double GRAVITY = 32.0;
-    double shooting_dist = (field::points::kSpeaker() - drivetrain_.readings().pose.point).Magnitude().to<double>();
+    pivot_target.pivot_output = 60_deg;
 
-    std::cout << "SD: " << shooting_dist << std::endl;
-
-    // t = vsin(theta)/g
-    // dist = vcos(theta)t
-    // dist = v^2sin(theta)cos(theta)/g
-    // dist*g/(v^2) = sin(theta)cos(theta)
-    // dist*g/(v^2) = 1/2 sin(2theta)
-    // theta = arcsin(2*dist*g/(v^2))/2
-
-    // OR
-
-    // h = 1/2 * g * t^2
-    // t = sqrt(2h/g)
-    // dist = vcos(theta)*t
-    // dist = vcos(theta)*sqrt(2h/g)
-    // theta = arccos(dist/(v*sqrt(2h/g)))
-
-    units::degree_t theta = units::radian_t(std::asin(2*shooting_dist
-      *GRAVITY/(LAUNCH_VELOCITY * LAUNCH_VELOCITY))/2);
-    units::degree_t theta2 = units::radian_t(std::acos(shooting_dist/(LAUNCH_VELOCITY
-      *std::sqrt(2*SPEAKER_HEIGHT / GRAVITY)))); //theta 2 seems to work?
-
-    //pivot_target.pivot_output = theta;
-
-    std::cout << "ANGLE: " << theta.to<double>() << std::endl;
-    std::cout << "ANGLE 2: " << theta2.to<double>() << std::endl;
-    std::cout << "RAW: " << 2*shooting_dist*GRAVITY/(LAUNCH_VELOCITY * LAUNCH_VELOCITY) << std::endl;
-
-    pivotHasRun = true;
+    pivotHasRun = false;
+  } else if (intake_position) {
+    
   } else if (pivotHasRun) {
     pivot_target.pivot_output = pivot_.readings().pivot_position;
     pivotHasRun = false;
@@ -96,6 +74,8 @@ void TeleopPositioningCommand::Execute() {
     
     telescopeHasRun = true;
   } else if (running_prep_speaker) {
+    telescope_target.extension = 0_in;
+
     telescopeHasRun = true;
   } else if (telescopeHasRun) {
     telescope_target.extension = telescope_.readings().extension;
@@ -111,8 +91,40 @@ void TeleopPositioningCommand::Execute() {
 
     wristHasRun = true;
   } else if (running_prep_speaker) {
+    double SPEAKER_HEIGHT = 3.7;
+    double LAUNCH_VELOCITY = 27.0;
+    double GRAVITY = 32.0;
+    double shooting_dist = (field::points::kSpeaker() - drivetrain_.readings().pose.point).Magnitude().to<double>();
 
-    wristHasRun = true;
+    // h = 1/2 * g * t^2
+    // t = sqrt(2h/g)
+    // dist = vcos(theta)*t
+    // dist = vcos(theta)*sqrt(2h/g)
+    // theta = arccos(dist/(v*sqrt(2h/g)))
+
+    // While moving:
+
+    // h = 1/2 * g * t^2
+    // t = sqrt(2h/g)
+    // dist = (vcos(theta) + r_v_comp)*t
+    // dist = (vcos(theta) + r_v_comp)*sqrt(2h/g)
+    // vcos(theta) = dist/sqrt(2h/g) - r_v_comp
+    // theta = arccos((dist/sqrt(2h/g) - r_v_comp)/v)
+
+    auto robot_velocity = drivetrain_.readings().velocity;
+    auto point_target = (field::points::kSpeaker() - drivetrain_.readings().pose.point);
+
+    double robot_velocity_in_component = 
+      (robot_velocity.x.to<double>() * point_target.x.to<double>() + 
+        robot_velocity.y.to<double>() * point_target.y.to<double>())/point_target.Magnitude().to<double>();
+
+    units::degree_t theta_adjusted = units::radian_t(std::abs(std::acos((shooting_dist/
+    (std::sqrt(2*SPEAKER_HEIGHT / GRAVITY)) - robot_velocity_in_component)/LAUNCH_VELOCITY)));
+
+
+    wrist_target.wrist_output = (theta_adjusted); //add zero_offset, replace 45_deg with pivot
+
+    wristHasRun = false;
   } else if (wristHasRun) {
     wrist_target.wrist_output = wrist_.readings().wrist_position;
     wristHasRun = false;

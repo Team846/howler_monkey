@@ -1,15 +1,19 @@
 #include "subsystems/telescope.h"
 #include "frc846/control/control.h"
+#include "frc846/util/share_tables.h"
 
 TelescopeSubsystem::TelescopeSubsystem(bool init)
     : frc846::Subsystem<TelescopeReadings, TelescopeTarget>{"telescope", init} {
     if (init) {
         tele_one_.Setup(&tele_esc_gains_, true);
         tele_two_.Setup(&tele_esc_gains_, true);
-        tele_one_.SetupConverter(2_in);
-        tele_two_.SetupConverter(2_in);
+        tele_one_.SetupConverter(2.2146_in);
+        tele_two_.SetupConverter(2.2146_in);
         tele_one_.ZeroEncoder();
         tele_two_.ZeroEncoder();
+
+        tele_one_.ConfigurePositionLimits(10_in, 0.5_in);
+        tele_two_.ConfigurePositionLimits(10_in, 0.5_in);
 
         // tele_tandem_.Setup(&tele_esc_gains_);
         // tele_tandem_.SetInverted({true, true});
@@ -56,6 +60,8 @@ TelescopeReadings TelescopeSubsystem::GetNewReadings() {
   TelescopeReadings readings;
 
   readings.extension = tele_one_.GetPosition();
+
+  frc846::util::ShareTables::SetVal("telescope_extension", readings.extension.to<double>());
 
   tele_pos_graph.Graph(readings.extension);
 

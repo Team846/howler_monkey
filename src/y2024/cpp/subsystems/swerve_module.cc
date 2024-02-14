@@ -26,13 +26,13 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
     drive_esc_helper_.SetupConverter(drive_conversion);
 
     // Disable applied output frame
-    drive_esc_helper_.DisableStatusFrames(
-        {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
+    // drive_esc_helper_.DisableStatusFrames(
+    //     {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
 
     steer_esc_helper_.Setup(steer_esc_gains_helper, false, frc846::control::kCoast);
     steer_esc_helper_.SetupConverter(steer_conversion);
-    steer_esc_helper_.DisableStatusFrames(
-        {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
+    // steer_esc_helper_.DisableStatusFrames(
+    //     {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
 
   // // Invert so that clockwise is positive when looking down on the robot
   // cancoder_.ConfigSensorDirection(true);

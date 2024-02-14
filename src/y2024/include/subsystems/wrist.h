@@ -63,7 +63,7 @@ class WristSubsystem
         200_A, 0.5};
   
   frc846::control::SparkRevController<units::degree_t> wrist_esc_{*this, 
-    "wrist_esc", ports::arm_::kWrist_CANID};
+    "wrist_esc", ports::positioning_::kWrist_CANID};
 
   WristReadings GetNewReadings() override;
 

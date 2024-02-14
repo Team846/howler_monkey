@@ -59,6 +59,8 @@ void DrivetrainSubsystem::ZeroBearing() {
       std::this_thread::sleep_for(std::chrono::milliseconds(kSleepTimeMs));
     }
   }
+
+  ZeroModules();
 }
 
 void DrivetrainSubsystem::ZeroOdometry() {
@@ -104,7 +106,7 @@ DrivetrainSubsystem::SwerveControl(
       module_targets;
 
   units::feet_per_second_t max_magnitude = 0_fps;
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < kModuleCount; ++i) {
     // Location of the module relaive to the center
     frc846::util::Vector2D<units::inch_t> location{
         kModuleLocationSigns[i].x * width / 2,
