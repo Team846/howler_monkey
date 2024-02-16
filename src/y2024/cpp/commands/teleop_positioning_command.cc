@@ -63,7 +63,7 @@ void TeleopPositioningCommand::Execute() {
     pivotHasRun = true;
   } else if (running_intake_position) {
     if (firstPositionRound) {
-      double nextPivotTarget = setpoints::intake_profile().getFinalTarget(0);
+      double nextPivotTarget = 10; //setpoints::intake_profile().getFinalTarget(0);
       pivot_target.pivot_output = units::degree_t(nextPivotTarget);
     }
 
@@ -71,7 +71,7 @@ void TeleopPositioningCommand::Execute() {
     pivotHasRun = true;
   } else if (running_amp_position) {
     if (firstPositionRound) {
-      double nextPivotTarget = setpoints::amp_profile().getFinalTarget(0);
+      double nextPivotTarget = 90; //setpoints::amp_profile().getFinalTarget(0);
       pivot_target.pivot_output = units::degree_t(nextPivotTarget);
     }
 
