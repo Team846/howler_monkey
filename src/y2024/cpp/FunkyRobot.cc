@@ -205,6 +205,7 @@ void FunkyRobot::StartCompetition() {
       container_.pivot_.ZeroSubsystem();
       container_.telescope_.ZeroSubsystem();
       container_.wrist_.ZeroSubsystem();
+      container_.leds_.ZeroSubsystem();
     }
 
     // Update dashboards
@@ -246,10 +247,10 @@ void FunkyRobot::InitTeleopTriggers() {
       [&] { return container_.driver_.readings().back_button; }};
 
   frc2::Trigger scorer_test_in_trigger{
-      [&] { return container_.driver_.readings().right_trigger; }};
+      [&] { return container_.driver_.readings().left_trigger; }};
 
   frc2::Trigger scorer_test_out_trigger{
-      [&] { return container_.driver_.readings().left_trigger; }};
+      [&] { return container_.driver_.readings().right_bumper; }};
   
   // // Bind Triggers to commands
   drivetrain_zero_bearing_trigger.WhileTrue(

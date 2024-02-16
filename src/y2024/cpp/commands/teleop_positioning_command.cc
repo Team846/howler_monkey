@@ -16,6 +16,7 @@ TeleopPositioningCommand::TeleopPositioningCommand(RobotContainer& container)
       wrist_(container.wrist_) {
   AddRequirements({&pivot_, &telescope_, &wrist_});
   SetName("teleop_positioning_command");
+  firstPositionRound = true;
 }
 
 void TeleopPositioningCommand::Execute() {
@@ -34,7 +35,9 @@ void TeleopPositioningCommand::Execute() {
   bool wrist_up_manual = driver_.readings().pov == frc846::XboxPOV::kUp;
   bool wrist_down_manual = driver_.readings().pov == frc846::XboxPOV::kDown;
 
-  bool intake_position = driver_.readings().left_trigger;
+  bool running_intake_position = driver_.readings().left_trigger;
+
+  bool running_amp_position = driver_.readings().left_bumper;
 
   bool running_prep_speaker = driver_.readings().right_trigger;
 
@@ -42,27 +45,45 @@ void TeleopPositioningCommand::Execute() {
   TelescopeTarget telescope_target = telescope_.GetTarget();
   WristTarget wrist_target = wrist_.GetTarget();   
 
-  if (!intake_position) {
-    firstIntakeRound = true;
-  }
-
   if (pivot_up_manual || pivot_down_manual) {
+    firstPositionRound = true;
+
     if (pivot_up_manual) {
       pivot_target.pivot_output = 0.1;
     } else if (pivot_down_manual) {
       pivot_target.pivot_output = -0.1;
     }
 
-    pivotHasRun = true;
+    pivotHasRun = false;
   } else if (running_prep_speaker) {
+    firstPositionRound = true;
+
     pivot_target.pivot_output = 60_deg;
 
-    pivotHasRun = false;
-  } else if (intake_position) {
-    
+    pivotHasRun = true;
+  } else if (running_intake_position) {
+    if (firstPositionRound) {
+      double nextPivotTarget = setpoints::intake_profile().getFinalTarget(0);
+      pivot_target.pivot_output = units::degree_t(nextPivotTarget);
+    }
+
+    firstPositionRound = false;
+    pivotHasRun = true;
+  } else if (running_amp_position) {
+    if (firstPositionRound) {
+      double nextPivotTarget = setpoints::amp_profile().getFinalTarget(0);
+      pivot_target.pivot_output = units::degree_t(nextPivotTarget);
+    }
+
+    firstPositionRound = false;
+    pivotHasRun = true;
   } else if (pivotHasRun) {
-    pivot_target.pivot_output = pivot_.readings().pivot_position;
-    pivotHasRun = false;
+    firstPositionRound = true;
+    double nextPivotTarget = setpoints::stow_profile().getFinalTarget(0);
+    pivot_target.pivot_output = units::degree_t(nextPivotTarget);
+  } else {
+    firstPositionRound = true;
+    pivot_target.pivot_output = 0.0;
   }
 
   if (telescope_in_manual || telescope_out_manual) {
@@ -72,14 +93,26 @@ void TeleopPositioningCommand::Execute() {
       telescope_target.extension = 0.1;
     }
     
-    telescopeHasRun = true;
+    telescopeHasRun = false;
   } else if (running_prep_speaker) {
     telescope_target.extension = 0_in;
 
     telescopeHasRun = true;
+  } else if (running_intake_position) {
+    double nextTelescopeTarget = setpoints::intake_profile().getFinalTarget(1);
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
+
+    telescopeHasRun = true;
+  } else if (running_amp_position) {
+    double nextTelescopeTarget = setpoints::amp_profile().getFinalTarget(1);
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
+
+    telescopeHasRun = true;
   } else if (telescopeHasRun) {
-    telescope_target.extension = telescope_.readings().extension;
-    telescopeHasRun = false;
+    double nextTelescopeTarget = setpoints::stow_profile().getFinalTarget(1);
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
+  } else {
+    telescope_target.extension = 0.0;
   }
 
   if (wrist_up_manual || wrist_down_manual) {
@@ -89,7 +122,7 @@ void TeleopPositioningCommand::Execute() {
       wrist_target.wrist_output = -0.1;
     }
 
-    wristHasRun = true;
+    wristHasRun = false;
   } else if (running_prep_speaker) {
     double SPEAKER_HEIGHT = 3.7;
     double LAUNCH_VELOCITY = 27.0;
@@ -124,10 +157,22 @@ void TeleopPositioningCommand::Execute() {
 
     wrist_target.wrist_output = (theta_adjusted); //add zero_offset, replace 45_deg with pivot
 
-    wristHasRun = false;
+    wristHasRun = true;
+  } else if (running_intake_position) {
+    double nextWristTarget = setpoints::intake_profile().getFinalTarget(2);
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
+
+    wristHasRun = true;
+  } else if (running_amp_position) {
+    double nextWristTarget = setpoints::amp_profile().getFinalTarget(2);
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
+
+    wristHasRun = true;
   } else if (wristHasRun) {
-    wrist_target.wrist_output = wrist_.readings().wrist_position;
-    wristHasRun = false;
+    double nextWristTarget = setpoints::stow_profile().getFinalTarget(2);
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
+  } else {
+    wrist_target.wrist_output = 0.0;
   }
 
   pivot_.SetTarget(pivot_target);

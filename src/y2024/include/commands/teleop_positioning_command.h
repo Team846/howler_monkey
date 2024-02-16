@@ -9,6 +9,7 @@
 #include "subsystems/telescope.h"
 #include "subsystems/pivot.h"
 #include "subsystems/robot_container.h"
+#include "frc846/control/motion.h"
 
 class TeleopPositioningCommand
     : public frc2::CommandHelper<frc2::Command, TeleopPositioningCommand> {
@@ -26,11 +27,13 @@ class TeleopPositioningCommand
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;
 
+  std::vector<frc846::motion::MotionSnapshot> snapshot_;
+
   bool pivotHasRun = false;
   bool telescopeHasRun = false;
   bool wristHasRun = false;
 
-  bool firstIntakeRound = true;
+  bool firstPositionRound = true;
 };
 
 #endif  // y2024_COMMANDS_TELEOP_POSITIONING_COMMAND_H_

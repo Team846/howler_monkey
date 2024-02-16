@@ -43,6 +43,9 @@ struct ports {
     static constexpr int kTele2_CANID = 32;
   };
 
+  struct leds_ {
+    static constexpr int kPWMPort = 6;
+  };
 };
 
 #endif  // y2024_PORTS_H_

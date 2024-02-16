@@ -9,8 +9,6 @@
 
 namespace frc846::motion {
 
-frc846::Loggable preferences_loggable = frc846::Loggable{"Preferences/MotionTargets"};
-
 class MotionSnapshot {
     private:
     double pos_;
@@ -34,6 +32,8 @@ class MotionSnapshot {
 };
 
 class MotionTarget {
+    static frc846::Loggable preferences_loggable;
+
     private:
     frc846::Pref<double> pos_pref_;
 
@@ -72,6 +72,10 @@ class MotionProfile {
         snapshots.push_back(MotionSnapshot(ptr.value()));
     }
     return snapshots;
+ }
+
+ double getFinalTarget(int index) {
+    return targets_[index].value();
  }
 
  double calculateNextTarget(int index, std::vector<MotionSnapshot> motion_snapshots) {

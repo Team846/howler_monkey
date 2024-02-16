@@ -127,6 +127,7 @@ class SparkRevController : ElectronicSpeedController<X> {
 
         if (gains_helper != nullptr) {
             gains_helper->Write(pid_controller_, gains_cache_, true);
+            pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
         }
 
         CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
@@ -155,6 +156,7 @@ class SparkRevController : ElectronicSpeedController<X> {
 
         if (gains_helper != nullptr) {
              gains_helper->Write(pid_controller_, gains_cache_, true);
+             pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
         }
 
         CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
@@ -173,6 +175,7 @@ class SparkRevController : ElectronicSpeedController<X> {
 
       if (gains_helper != nullptr) {
           gains_helper->Write(pid_controller_, gains_cache_, true);
+          pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
           CheckOk(obj, esc_.SetSmartCurrentLimit(gains_helper->current_limit_.value()), "Current Limit");
       }
 

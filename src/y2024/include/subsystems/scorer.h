@@ -65,6 +65,8 @@ class ScorerSubsystem
   frc846::control::SparkRevController<units::turn_t> intake_shooter_esc_{*this, 
     "intake_shooter_esc_", ports::scorer_::kController_CANID};
 
+  rev::SparkLimitSwitch note_detection;
+
 
   frc::AnalogTrigger note_detector_{0};
 

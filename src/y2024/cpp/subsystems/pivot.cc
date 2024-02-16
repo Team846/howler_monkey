@@ -84,7 +84,7 @@ PivotReadings PivotSubsystem::GetNewReadings() {
 
 void PivotSubsystem::PositionPivot(PivotTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
-    if (*pos < 3.0_deg && readings().pivot_position < 7.0_deg) {
+    if (*pos < 3.0_deg && readings().pivot_position < 5.0_deg) {
       pivot_one_.Write(frc846::control::ControlMode::Percent, 0.0);
       pivot_two_.Write(frc846::control::ControlMode::Percent, 0.0);
       pivot_three_.Write(frc846::control::ControlMode::Percent, 0.0);

@@ -2,12 +2,13 @@
 #include "frc846/control/control.h"
 
 ScorerSubsystem::ScorerSubsystem(bool init)
-    : frc846::Subsystem<ScorerReadings, ScorerTarget>{"scorer", init} {
+    : frc846::Subsystem<ScorerReadings, ScorerTarget>{"scorer", init},
+    note_detection{intake_shooter_esc_.esc_.GetReverseLimitSwitch(rev::SparkLimitSwitch::Type::kNormallyOpen)} {
     if (init) {
         intake_shooter_esc_.Setup(&shooter_esc_gains_, false);
         intake_shooter_esc_.SetupConverter(1_tr);
 
-        note_detector_.SetLimitsRaw(200, 4090);
+        note_detection.EnableLimitSwitch(true);
     }
 }
 
@@ -38,7 +39,7 @@ bool ScorerSubsystem::VerifyHardware() {
 
 ScorerReadings ScorerSubsystem::GetNewReadings() {
   if (!has_piece_) {
-    has_piece_ = !note_detector_.GetTriggerState();
+    has_piece_ = note_detection.Get();
   }
 
   readings_has_piece_graph.Graph(has_piece_);
@@ -48,10 +49,15 @@ ScorerReadings ScorerSubsystem::GetNewReadings() {
 }
 
 void ScorerSubsystem::DirectWrite(ScorerTarget target) {
-  if (target.run_intake && !has_piece_) {
+  if (target.run_intake) {
+    if (!note_detection.IsLimitSwitchEnabled()) {
+      note_detection.EnableLimitSwitch(true);
+    };
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, intake_speed_.value());
   } else if (target.run_shooter) {
-    has_piece_ = false;
+    if (has_piece_ == true && note_detection.IsLimitSwitchEnabled()) {
+      note_detection.EnableLimitSwitch(false);
+    };
     intake_shooter_esc_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value());
   } else {
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, 0);

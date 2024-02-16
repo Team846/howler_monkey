@@ -37,6 +37,11 @@ void DriveCommand::Execute() {
       driver_.readings().left_stick_y, driver_.translation_deadband_.value(), 1,
       driver_.translation_exponent_.value(), 1);
       
+  if (prep_align_speaker) {
+    translate_x = units::math::min(0.75, units::math::max(translate_x, -0.75));
+    translate_y = units::math::min(0.75, units::math::max(translate_y, -0.75));
+  }
+
   drivetrain_target.v_x = translate_x * drivetrain_.max_speed_.value();
   drivetrain_target.v_y = translate_y * drivetrain_.max_speed_.value();
 
@@ -115,6 +120,7 @@ void DriveCommand::Execute() {
 
       units::degree_t theta_adjust =  units::radian_t(std::atan2(robot_velocity_orth_component * 
         std::sqrt(2 * SPEAKER_HEIGHT / GRAVITY), LAUNCH_VELOCITY));
+
       
       drivetrain_target.rotation = DrivetrainRotationPosition(target_angle + 180_deg - theta_adjust);
     }
