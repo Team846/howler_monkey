@@ -1,5 +1,5 @@
-#ifndef y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_
-#define y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_
+#ifndef y2024_COMMANDS_DEPLOY_INTAKE_COMMAND_H_
+#define y2024_COMMANDS_DEPLOY_INTAKE_COMMAND_H_
 
 #include <frc2/command/CommandHelper.h>
 
@@ -10,11 +10,11 @@
 #include "subsystems/wrist.h"
 #include "subsystems/robot_container.h"
 
-class PrepareShootCommand
-    : public frc2::CommandHelper<frc2::Command, PrepareShootCommand>,
+class DeployIntakeCommand
+    : public frc2::CommandHelper<frc2::Command, DeployIntakeCommand>,
       public frc846::Loggable {
  public:
-  PrepareShootCommand(RobotContainer& container, units::foot_t shooting_distance);
+  DeployIntakeCommand(RobotContainer& container);
 
   void Initialize() override;
 
@@ -30,9 +30,7 @@ class PrepareShootCommand
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;
 
-  double dist_;
-
   bool is_done_ = false;
 };
 
-#endif  // y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_
+#endif  // y2024_COMMANDS_DEPLOY_INTAKE_COMMAND_H_

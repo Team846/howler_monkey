@@ -25,7 +25,7 @@ deploy {
 
                 // Static files artifact
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
-                    files = project.fileTree('src/y2024/deploy/')
+                    files = project.fileTree('src/deploy/')
                     directory = '/home/lvuser/deploy'
                 }
             }
@@ -56,11 +56,11 @@ model {
 
             sources.cpp {
                 source {
-                    srcDir 'src/y2024/cpp'
+                    srcDir 'src/y2024_alpha/cpp'
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
-                    srcDir 'src/y2024/include'
+                    srcDir 'src/y2024_alpha/include'
                 }
             }
 
