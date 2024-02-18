@@ -11,7 +11,8 @@
 #include "frc2/command/WaitUntilCommand.h"
 #include "frc846/util/math.h"
 #include "commands/follow_trajectory_command.h"
-// #include "y2024/commands/shoot_command.h"
+#include "commands/shoot_command.h"
+#include "commands/speaker_align_command.h"
 #include "commands/auto_intake_and_shoot_command.h"
 #include "subsystems/field.h"
 #include "subsystems/drivetrain.h"
@@ -31,23 +32,23 @@ FivePieceAuto::FivePieceAuto(
         container.drivetrain_.SetPoint(pose_.point);
         container.drivetrain_.SetBearing(pose_.bearing);
       }},
-      //Turn and shoot preload
-      FollowTrajectoryCommand{ container, 
-          {{field::points::kFPPreloadShoot(should_flip_), 0_fps}}},
+      SpeakerAlignCommand{ container, 
+          field::points::kFPOrigin(should_flip_).point},
       
       frc2::WaitCommand(0.1_s),
       
-      AutoIntakeAndShootCommand( container, {field::points::kFPWing3Intake(should_flip_), 0_fps}, 
-                                  {field::points::kFPWing3Shoot(should_flip_), 0_fps})
+      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeOne(should_flip_), 0_fps}, 
+                                  {field::points::kFPShootOne(should_flip_), 0_fps}, should_flip_),
       
-      // AutoIntakeAndShootCommand( container, {field::points::kFPWing2Intake(should_flip_), 0_fps}, 
-      //                             {field::points::kFPWing2Shoot(should_flip_), 0_fps}),
+      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeTwo(should_flip_), 0_fps}, 
+                                  {field::points::kFPShootTwo(should_flip_), 0_fps}, should_flip_),
       
-      // AutoIntakeAndShootCommand( container, {field::points::kFPWing1Intake(should_flip_), 0_fps}, 
-      //                             {field::points::kFPWing1Shoot(should_flip_), 0_fps}),
+      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeThree(should_flip_), 0_fps}, 
+                                  {field::points::kFPShootThree(should_flip_), 0_fps}, should_flip_),
 
-      // //Center 1 ring
-      // AutoIntakeAndShootCommand( container, {field::points::kFPCenter1Intake(should_flip_), 0_fps}, 
-      //                             {field::points::kFPCenter1Shoot(should_flip_), 0_fps})
+      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeFour(should_flip_), 0_fps}, 
+                                  {field::points::kFPShootFour(should_flip_), 0_fps}, should_flip_),
+
+      FollowTrajectoryCommand{ container, {{field::points::kFPFinalPosition(should_flip_), 0_fps}}}
      );
 }

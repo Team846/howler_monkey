@@ -62,10 +62,7 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
       DriveAuto{container_, true}.ToPtr();
   
   frc2::CommandPtr five_piece_auto_ = 
-      FivePieceAuto{container_, true}.ToPtr();
-
-  // frc2::CommandPtr five_piece_auto_ = 
-  //     FivePieceAuto(container_, true);
+      FivePieceAuto{container_, false}.ToPtr();
 
   frc::DigitalInput homing_switch_{0};
 };

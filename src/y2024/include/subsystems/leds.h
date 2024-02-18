@@ -53,7 +53,7 @@ class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
   bool hasZeroed = false;
   
   // Number of LEDs.
-  static constexpr int kLength = 30;
+  static constexpr int kLength = 50;
 
   std::array<frc::AddressableLED::LEDData, kLength> leds_buffer_;
 

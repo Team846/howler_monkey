@@ -76,10 +76,10 @@ void FunkyRobot::StartCompetition() {
   // Add autos here
   // Default
 
-  auto_chooser_.SetDefaultOption("drive_auto",
+  auto_chooser_.AddOption("drive_auto",
                                  drive_auto_.get());
   
-  // auto_chooser_.AddOption("five_piece_auto", five_piece_auto_.get());
+  auto_chooser_.SetDefaultOption("five_piece_auto", five_piece_auto_.get());
 
   // Other options
   frc::SmartDashboard::PutData(&auto_chooser_);

@@ -86,7 +86,7 @@ int main() {
 
   std::string file_path = frc::filesystem::GetDeployDirectory()+"/dev.id";
   try {
-      std::cout << "Found dev.id" << std::endl;
+      std::cout << "Trying to find dev.id" << std::endl;
       std::ifstream ifs(file_path);
       std::ostringstream oss;
       oss << ifs.rdbuf();
@@ -97,13 +97,15 @@ int main() {
 
       auto devIdHash = hash_str(devId.c_str());
 
+      std::cout << "Dev.id hash key found: " << devIdHash << std::endl;
+
       for (auto id : validDevIds) {
         if (id == devIdHash) {
           devIdFound = true;
         }
       }
   } catch (std::exception exc) {
-    std::cout << "Dev.id not found." << std::endl;
+    std::cout << "Error processing dev.id." << std::endl;
   }
 
   if (!devIdFound) {
