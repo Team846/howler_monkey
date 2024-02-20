@@ -48,6 +48,8 @@ struct setpoints {
             return stow_pivot_;
     }
   }
+
+  static frc846::motion::MotionTarget point_blank_wrist_;
 };
 
 #endif  // y2024_SETPOINTS_H_

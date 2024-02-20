@@ -5,6 +5,8 @@
 #include "frc846/wpilib/time.h"
 #include "subsystems/swerve_module.h"
 
+#include "frc846/util/share_tables.h"
+
 
 units::feet_per_second_t vel_readings_composite;
 double vel_readings_composite_x;
@@ -257,7 +259,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
 
   vel_readings_composite=units::feet_per_second_t(sqrt(vel_readings_composite_x*vel_readings_composite_x+vel_readings_composite_y*vel_readings_composite_y));
 
-if (april_tags_enabled_.value()){
+if (april_tags_enabled_.value() && !(frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)){
     if (!aprilFrameRequested){
       aprilFrameRequest++;
       poseAtLastRequest=odometry_.pose();

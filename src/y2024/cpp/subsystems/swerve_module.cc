@@ -41,7 +41,7 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
 
   ZeroWithCANcoder();
 
-  drive_esc_helper_.SetInverted(true);
+  drive_esc_helper_.SetInverted(false);
 }
 
 void SwerveModuleSubsystem::ZeroCancoder() {

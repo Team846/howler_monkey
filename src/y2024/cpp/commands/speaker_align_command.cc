@@ -37,8 +37,10 @@ void SpeakerAlignCommand::Execute() {
   
   drivetrain_target.rotation = DrivetrainRotationPosition(target_angle + 180_deg);
 
-  auto detect_angle = std::abs(360 - ((int)(units::math::abs((target_angle + 180_deg)).to<double>() 
-    - drivetrain_.readings().pose.bearing.to<double>())));
+  auto detect_angle = std::abs(((int)(units::math::abs((target_angle)).to<double>() 
+    + drivetrain_.readings().pose.bearing.to<double>())));
+
+  std::cout << detect_angle << std::endl;
 
   is_done_ = detect_angle < 5 || (detect_angle > 355 && detect_angle < 365);
   
