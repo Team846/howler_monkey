@@ -1,5 +1,6 @@
 #include "subsystems/scorer.h"
 #include "frc846/control/control.h"
+#include "frc846/util/share_tables.h"
 
 ScorerSubsystem::ScorerSubsystem(bool init)
     : frc846::Subsystem<ScorerReadings, ScorerTarget>{"scorer", init},
@@ -42,6 +43,7 @@ ScorerReadings ScorerSubsystem::GetNewReadings() {
     has_piece_ = note_detection.Get();
   }
 
+  frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
   readings_has_piece_graph.Graph(has_piece_);
 
   ScorerReadings readings;
@@ -53,13 +55,17 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
     if (!note_detection.IsLimitSwitchEnabled()) {
       note_detection.EnableLimitSwitch(true);
     };
+    frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, intake_speed_.value());
   } else if (target.run_shooter) {
     if (has_piece_ == true && note_detection.IsLimitSwitchEnabled()) {
       note_detection.EnableLimitSwitch(false);
+      has_piece_ = false;
     };
-    intake_shooter_esc_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value());
+    frc846::util::ShareTables::SetBoolean("scorer_has_piece", false);
+    intake_shooter_esc_.Write(frc846::control::ControlMode::Velocity, target.shooter_speed);
   } else {
+    frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, 0);
   }
 }

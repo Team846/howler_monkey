@@ -1,4 +1,5 @@
 #include "subsystems/operator.h"
+#include "frc846/util/share_tables.h"
 
 OperatorSubsystem::OperatorSubsystem()
     : frc846::Subsystem<OperatorReadings, OperatorTarget>{"operator", true} {}
@@ -17,6 +18,9 @@ bool OperatorSubsystem::VerifyHardware() {
 
 OperatorReadings OperatorSubsystem::GetNewReadings() {
   OperatorReadings readings{xbox_, trigger_threshold_.value()};
+
+  frc846::util::ShareTables::SetBoolean("amp", readings.left_trigger);
+  frc846::util::ShareTables::SetBoolean("coopertition", readings.right_trigger);
 
   return readings;
 }

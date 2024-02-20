@@ -61,7 +61,7 @@ TelescopeReadings TelescopeSubsystem::GetNewReadings() {
 
   readings.extension = tele_one_.GetPosition();
 
-  frc846::util::ShareTables::SetVal("telescope_extension", readings.extension.to<double>());
+  frc846::util::ShareTables::SetDouble("telescope_extension", readings.extension.to<double>());
 
   tele_pos_graph.Graph(readings.extension);
 

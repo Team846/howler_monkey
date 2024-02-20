@@ -1,4 +1,5 @@
 #include "subsystems/leds.h"
+#include "frc846/util/share_tables.h"
 
 LEDsSubsystem::LEDsSubsystem(bool init)
     : frc846::Subsystem<LEDsReadings, LEDsTarget>("leds", init) {
@@ -11,9 +12,6 @@ LEDsSubsystem::LEDsSubsystem(bool init)
 
 LEDsTarget LEDsSubsystem::ZeroTarget() const {
   LEDsTarget target;
-  target.kHumanPlayer = kHumanPlayerIdle;
-  target.kAuto = kAutoIdle;
-  target.kPiece = kNoPieceIdle;
   return target;
 }
 
@@ -23,55 +21,53 @@ LEDsReadings LEDsSubsystem::GetNewReadings() { return {}; }
 
 void LEDsSubsystem::DirectWrite(LEDsTarget target) {
   if (hasZeroed) {
-    if (target.kHumanPlayer == kAmplify){
+    if (frc846::util::ShareTables::GetString("mode").compare("disabled") == 0){ 
+      for (int i = 0; i < kLength; i++){
+        leds_buffer_[i].SetRGB(255, 0, 0);
+      }
+    } else if (frc846::util::ShareTables::GetBoolean("amp")){
       for (int i = 0; i < kLength; i++){
         leds_buffer_[i].SetRGB(255, 255, 255);
       }
-    } else if (target.kHumanPlayer == kCoopertition){
+    } else if (frc846::util::ShareTables::GetBoolean("coopertition")){
       for (int i = 0; i < kLength; i++){
         leds_buffer_[i].SetRGB(255, 0, 255);
       }
-    } else if (target.kAuto == kTransit){ //TODO flash red
-      for (int i = 0; i < kLength; i++){
-        leds_buffer_[i].SetRGB(200, 50, 50);
-      }
-    } else if (target.kAuto == kFinished){
+    } else if (frc846::util::ShareTables::GetBoolean("is_climb_sequence")){
       for (int i = 0; i < kLength; i++){
         leds_buffer_[i].SetRGB(0, 255, 0);
       }
-    } else if (target.kPiece == kHasPiece){
+    } else if (frc846::util::ShareTables::GetBoolean("scorer_has_piece")){
       for (int i = 0; i < kLength; i++) {
         const auto pixelHue = (first_pixel_hue_ + (i * 180 / kLength)) % 180;
         leds_buffer_[i].SetHSV(pixelHue, 255, 128);
       }
       first_pixel_hue_ += 3;
       first_pixel_hue_ %= 180;
+    } else if (frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0){
+      for (int i = 0; i < kLength; i++){
+        leds_buffer_[i].SetRGB(0, 0, 255);
+      }
     } else {
       for (int i = 0; i < kLength; i++){
-        leds_buffer_[i].SetRGB(255, 255, 0);
+        leds_buffer_[i].SetRGB(255, 15, 0);
       }
     }
     leds_.SetData(leds_buffer_);
   } else {
-    // if (loops % 30 < 15){
-    //   for (int i = 0; i < kLength; i++){
-    //     leds_buffer_[i].SetRGB(255, 0, 0);
-    //   }
-    // }
-    // else {
-    //   for (int i = 0; i < kLength; i++){
-    //     leds_buffer_[i].SetRGB(0, 0, 0);
-    //   }
-    // }
-    // loops++;
-    // loops%=100;
-
-    for (int i = 0; i < kLength; i++) {
-        const auto pixelHue = (first_pixel_hue_ + (i * 180 / kLength)) % 180;
-        leds_buffer_[i].SetHSV(pixelHue, 255, 128);
+    if (loops % 30 < 15){
+      for (int i = 0; i < kLength; i++){
+        leds_buffer_[i].SetRGB(255, 0, 0);
       }
-      first_pixel_hue_ += 3;
-      first_pixel_hue_ %= 180;
+    }
+    else {
+      for (int i = 0; i < kLength; i++){
+        leds_buffer_[i].SetRGB(0, 0, 0);
+      }
+    }
+    loops++;
+    loops%=120;
+
     leds_.SetData(leds_buffer_);
   }
 }

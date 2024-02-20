@@ -56,11 +56,11 @@ model {
 
             sources.cpp {
                 source {
-                    srcDir 'src/y2024_alpha/cpp'
+                    srcDir 'src/y2024/cpp'
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
-                    srcDir 'src/y2024_alpha/include'
+                    srcDir 'src/y2024/include'
                 }
             }
 

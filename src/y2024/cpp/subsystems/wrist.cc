@@ -43,7 +43,7 @@ WristReadings WristSubsystem::GetNewReadings() {
 
   readings.wrist_position = wrist_esc_.GetPosition();
 
-  frc846::util::ShareTables::SetVal("wrist_position", readings.wrist_position.to<double>());
+  frc846::util::ShareTables::SetDouble("wrist_position", readings.wrist_position.to<double>());
 
   wrist_pos_graph.Graph(readings.wrist_position);
 

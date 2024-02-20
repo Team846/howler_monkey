@@ -75,7 +75,7 @@ PivotReadings PivotSubsystem::GetNewReadings() {
 
   readings.pivot_position = pivot_one_.GetPosition();
 
-  frc846::util::ShareTables::SetVal("pivot_position", readings.pivot_position.to<double>());
+  frc846::util::ShareTables::SetDouble("pivot_position", readings.pivot_position.to<double>());
 
   pivot_pos_graph.Graph(readings.pivot_position);
 

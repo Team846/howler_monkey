@@ -27,10 +27,6 @@ enum LEDsPieceState {
 };
 
 struct LEDsTarget {
-  LEDsHumanPlayerState kHumanPlayer;
-  LEDsAutoState kAuto;
-  LEDsPieceState kPiece;
-  bool has_zeroed;
 };
 
 class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
@@ -53,7 +49,7 @@ class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
   bool hasZeroed = false;
   
   // Number of LEDs.
-  static constexpr int kLength = 50;
+  static constexpr int kLength = 30;
 
   std::array<frc::AddressableLED::LEDData, kLength> leds_buffer_;
 

@@ -10,6 +10,8 @@
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
 #include "frc846/util/math.h"
+#include "commands/prepare_shoot_command.h"
+#include "commands/shoot_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/shoot_command.h"
 #include "commands/speaker_align_command.h"
@@ -31,11 +33,13 @@ FivePieceAuto::FivePieceAuto(
         auto pose_ = field::points::kFPOrigin(flip);
         container.drivetrain_.SetPoint(pose_.point);
         container.drivetrain_.SetBearing(pose_.bearing);
+        first_distance = (field::points::kSpeaker(flip) - pose_.point).Magnitude();
       }},
+      PrepareShootCommand{ container, first_distance },
       SpeakerAlignCommand{ container, 
           field::points::kFPOrigin(should_flip_).point},
-      
-      frc2::WaitCommand(0.1_s),
+      ShootCommand{ container },
+    
       
       AutoIntakeAndShootCommand( container, {field::points::kFPIntakeOne(should_flip_), 0_fps}, 
                                   {field::points::kFPShootOne(should_flip_), 0_fps}, should_flip_),

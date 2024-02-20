@@ -14,6 +14,8 @@ class FivePieceAuto
  public:
   FivePieceAuto(RobotContainer& container, bool should_flip_);
 
+  units::foot_t first_distance;
+
   bool should_flip_;
 };
 

@@ -43,6 +43,11 @@ struct ports {
     static constexpr int kTele2_CANID = 32;
   };
 
+  struct bracer_ {
+    static constexpr int kPWM_Servo_Left = 3;
+    static constexpr int kPWM_Servo_Right = 4;
+  };
+
   struct leds_ {
     static constexpr int kPWMPort = 6;
   };

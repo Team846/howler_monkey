@@ -22,12 +22,12 @@ void PrepareShootCommand::Initialize() {
 }
 
 void PrepareShootCommand::Execute() {
-  scorer_.SetTarget(scorer_.MakeTarget(false, true, scorer_.shooter_speed_.value()));
+  scorer_.SetTarget(scorer_.MakeTarget(false, false, scorer_.shooter_speed_.value()));
 
-  pivot_.SetTarget(pivot_.MakeTarget(60_deg));
-  telescope_.SetTarget(telescope_.MakeTarget(0_in));
+  pivot_.SetTarget(pivot_.MakeTarget(11_deg));
+  telescope_.SetTarget(telescope_.MakeTarget(4.7_in));
 
-  double SPEAKER_HEIGHT = 3.7;
+  double SPEAKER_HEIGHT = 4.7;
   double LAUNCH_VELOCITY = 27.0;
   double GRAVITY = 32.0;
 

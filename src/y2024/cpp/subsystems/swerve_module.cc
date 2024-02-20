@@ -40,6 +40,8 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
   current_speed_ = 0_fps;
 
   ZeroWithCANcoder();
+
+  drive_esc_helper_.SetInverted(true);
 }
 
 void SwerveModuleSubsystem::ZeroCancoder() {

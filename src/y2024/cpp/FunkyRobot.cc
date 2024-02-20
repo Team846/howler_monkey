@@ -123,15 +123,19 @@ void FunkyRobot::StartCompetition() {
     if (word.IsDisabled()) {
       HAL_ObserveUserProgramDisabled();
       mode = Mode::kDisabled;
+      frc846::util::ShareTables::SetString("mode", "disabled");
     } else if (word.IsAutonomous()) {
       HAL_ObserveUserProgramAutonomous();
       mode = Mode::kAutonomous;
+      frc846::util::ShareTables::SetString("mode", "kAutonomous");
     } else if (word.IsTeleop()) {
       HAL_ObserveUserProgramTeleop();
       mode = Mode::kTeleop;
+      frc846::util::ShareTables::SetString("mode", "kTeleop");
     } else if (word.IsTest()) {
       HAL_ObserveUserProgramTest();
       mode = Mode::kTest;
+      frc846::util::ShareTables::SetString("mode", "kTeleop");
     }
 
     // If mode changed
@@ -201,7 +205,7 @@ void FunkyRobot::StartCompetition() {
     }
 
     if (!homing_switch_.Get() && word.IsDisabled()) {
-      std::cout << "HOMING" << std::endl;
+      std::cout << "Zeroing all subsystems" << std::endl;
       container_.pivot_.ZeroSubsystem();
       container_.telescope_.ZeroSubsystem();
       container_.wrist_.ZeroSubsystem();

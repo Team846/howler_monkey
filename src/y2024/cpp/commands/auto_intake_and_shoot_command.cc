@@ -24,13 +24,11 @@ frc2::SequentialCommandGroup AutoIntakeAndShootCommand(
   return frc2::SequentialCommandGroup{
         DeployIntakeCommand{container},
         FollowTrajectoryCommand{ container, {intake_point}},
-        frc2::WaitCommand(0.3_s),
         PrepareShootCommand{container, distance},
         FollowTrajectoryCommand{ container, {shoot_point}},
         SpeakerAlignCommand{container, shoot_point.pos.point},
-        frc2::WaitCommand(0.3_s),
         ShootCommand{container},
-        frc2::WaitCommand(0.5_s),
+        frc2::WaitCommand(0.3_s),
         StowCommand{container}
   };
 }
