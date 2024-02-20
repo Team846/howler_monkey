@@ -257,6 +257,70 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
 
   vel_readings_composite=units::feet_per_second_t(sqrt(vel_readings_composite_x*vel_readings_composite_x+vel_readings_composite_y*vel_readings_composite_y));
 
+if (april_tags_enabled_.value()){
+    if (!aprilFrameRequested){
+      aprilFrameRequest++;
+      poseAtLastRequest=odometry_.pose();
+      double data [2] = {aprilFrameRequest, readings.pose.bearing.to<double>()};
+      aprilTag_table->PutNumberArray("roboRioFrameRequest", data);
+      aprilTag_table->PutNumber("robotBearing", readings.pose.bearing.to<double>());
+      nt_table.Flush();
+      // Debug("We have just requested a frame");
+      // Debug("pos at LastRequest.bearing is  {}", poseAtLastRequest.bearing);
+      // Debug("pos at LastRequest.x is  {}", poseAtLastRequest.point.x);
+      // Debug("pos at LastRequest.y is  {}", poseAtLastRequest.point.y);
+      aprilFrameRequested=true;
+    }
+
+    if (aprilFrameRequested && aprilTag_table->GetNumber("processorFrameSent", -1)==aprilFrameRequest){
+      frc846::util::Vector2D<units::foot_t> robotPoint;\
+      robotPoint.x = units::foot_t(aprilTag_table->GetEntry("robotX").GetDouble(-1.0)) -5.5_in;
+      robotPoint.y = units::foot_t(aprilTag_table->GetEntry("robotY").GetDouble(-1.0)) + 12_in;
+      units::foot_t tagDistance=robotPoint.Magnitude();
+
+      auto aprilTagX = units::foot_t(aprilTag_table->GetEntry("aprilTagX").GetDouble(-1.0));
+      auto aprilTagY = units::foot_t(aprilTag_table->GetEntry("aprilTagY").GetDouble(-1.0));
+      auto aprilTagAngle = units::degree_t(aprilTag_table->GetEntry("aprilTagAngle").GetDouble(0.0));
+
+      double aprilTagConfidence = aprilTag_table->GetEntry("aprilTagConfidence").GetDouble(0.0);
+      auto aprilTagID = aprilTag_table->GetEntry("aprilTagID").GetDouble(-1.0);
+
+
+      // Debug("Robot point.x is  {}", robotPoint.x);
+      // Debug("Robot point.y is  {}", robotPoint.y);
+      units::degree_t tx = units::math::atan(robotPoint.x/robotPoint.y);
+      robotPoint.x=tagDistance*units::math::cos(270_deg-poseAtLastRequest.bearing-tx);
+      robotPoint.y=tagDistance*units::math::sin(270_deg-poseAtLastRequest.bearing-tx);
+      // Debug("this was the confidence {}", aprilTagConfidence);
+      // Debug("this was the bearing {}", poseAtLastRequest.bearing);
+      // Debug("{}", robotPoint.y);
+      robotPoint.x = aprilTagX - robotPoint.x;
+      robotPoint.y = aprilTagY - robotPoint.y;
+      if(aprilTagConfidence>=0.8){
+        double aprilTagFactor = aprilTagConfidence * confidence_factor_.value() *
+                        (1 - (readings.velocity.Magnitude()/max_speed_.value())) * velocity_factor_.value() * 
+                        (1-readings.angular_velocity.to<double>()/50) * velocity_factor_.value() *
+                        (1/(tagDistance.to<double>())) * distance_factor_.value() * 
+                        pow((1-(units::math::abs(readings.pose.bearing-aprilTagAngle)/40_deg)).to<double>(),6) * angle_offset_factor_.value();
+
+        frc846::util::Vector2D<units::foot_t> point;
+        // Debug("factor is  {}", aprilTagFactor);
+        point.x = ((poseAtLastRequest.point.x + (aprilTagFactor * robotPoint.x)) / (1+aprilTagFactor));
+        // + odometry_.pose().point.x-poseAtLastRequest.point.x;
+        point.y = ((poseAtLastRequest.point.y + aprilTagFactor * robotPoint.y) / (1+ aprilTagFactor));
+        //+ odometry_.pose().point.y-poseAtLastRequest.point.y;
+        // Debug("point.x is  {}", point.x);
+        // Debug("point.y is  {}", point.y);
+        odometry_.SetPoint({point.x, point.y});
+        // Debug("updated point");
+      }
+      updatedTagPos=true;
+
+      aprilFrameRequested=false;
+    }
+  }
+
+
   return readings;
 }
 

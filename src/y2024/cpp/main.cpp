@@ -81,7 +81,7 @@ int main() {
     signal(i, handler);
   }
 
-  unsigned int validDevIds[]{72214,};
+  unsigned int validDevIds[]{72214, 69948,};
   bool devIdFound = false;
 
   std::string file_path = frc::filesystem::GetDeployDirectory()+"/dev.id";

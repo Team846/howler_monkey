@@ -146,6 +146,27 @@ class DrivetrainSubsystem
   frc846::Pref<units::feet_per_second_t> balance_max_speed_{
       balance_loggable_, "balance_max_speed", 2.8_fps};
 
+    //April Tag 
+    units::second_t aprilTagFrameTime;
+    frc846::util::Position poseAtFrameCapture;
+    bool updatedTagPos=false;
+    frc846::Loggable april_tags_named_{*this, "april_tags"};
+    frc846::Pref<double> confidence_factor_{april_tags_named_, "april_confidence_factor",1.0};
+    frc846::Pref<double> velocity_factor_{april_tags_named_, "april_velocity_factor", 1.0};
+    frc846::Pref<double> distance_factor_{april_tags_named_, "april_distance_factor", 1.0};
+    frc846::Pref<double> angle_offset_factor_{april_tags_named_, "april_angle_factor", 1.0};
+
+    bool aprilFrameRequested=false;
+    long aprilFrameRequest=0;
+    frc846::util::Position poseAtLastRequest;
+
+    nt::NetworkTableInstance nt_table =
+        nt::NetworkTableInstance::GetDefault();
+    std::shared_ptr<nt::NetworkTable> aprilTag_table =
+        nt::NetworkTableInstance::GetDefault().GetTable("AprilTags");
+    frc846::Pref<bool> april_tags_enabled_{april_tags_named_, "init_april_tags", true};
+
+
   // Convert a translation vector and the drivetrain angular velocity to the
   // individual module outputs.
   static std::array<frc846::util::Vector2D<units::feet_per_second_t>, kModuleCount>
