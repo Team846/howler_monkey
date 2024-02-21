@@ -289,8 +289,8 @@ if (april_tags_enabled_.value()){
       // Debug("Robot point.x is  {}", robotPoint.x);
       // Debug("Robot point.y is  {}", robotPoint.y);
       units::degree_t tx = units::math::atan(robotPoint.x/robotPoint.y);
-      robotPoint.x=tagDistance*units::math::cos(270_deg-poseAtLastRequest.bearing-tx);
-      robotPoint.y=tagDistance*units::math::sin(270_deg-poseAtLastRequest.bearing-tx);
+      robotPoint.x=tagDistance*units::math::cos(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
+      robotPoint.y=tagDistance*units::math::sin(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
       // Debug("this was the confidence {}", aprilTagConfidence);
       // Debug("this was the bearing {}", poseAtLastRequest.bearing);
       // Debug("{}", robotPoint.y);
