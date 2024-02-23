@@ -2,6 +2,8 @@
 #define y2024_PORTS_H_
 
 struct ports {
+  //2..13 dt, 16...19 p, 24? t, SET PDP 1  
+
   struct driver_ {
     static constexpr int kXbox_DSPort = 0;
   };
@@ -28,7 +30,9 @@ struct ports {
   };
 
   struct scorer_ {
-    static constexpr int kController_CANID = 20;
+    static constexpr int kController_CANID = 22;
+    static constexpr int kShooterOneController_CANID = 44;
+    static constexpr int kShooterTwoController_CANID = 45;
   };
 
   struct positioning_ {

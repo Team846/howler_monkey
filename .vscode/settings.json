@@ -91,7 +91,9 @@
     "typeinfo": "cpp",
     "valarray": "cpp",
     "variant": "cpp",
-    "*.inc": "cpp"
+    "*.inc": "cpp",
+    "csignal": "cpp",
+    "filesystem": "cpp"
   },
   "wpilib.useWindbgX": true,
   "C_Cpp.errorSquiggles": "enabled"

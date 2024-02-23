@@ -27,12 +27,12 @@ void PrepareShootCommand::Execute() {
   pivot_.SetTarget(pivot_.MakeTarget(11_deg));
   telescope_.SetTarget(telescope_.MakeTarget(4.7_in));
 
-  double SPEAKER_HEIGHT = 4.7;
-  double LAUNCH_VELOCITY = 27.0;
+  double SPEAKER_HEIGHT = 3.7;
+  double LAUNCH_VELOCITY = 29.0;
   double GRAVITY = 32.0;
 
   units::degree_t theta = units::radian_t(std::abs(std::acos((dist_/
-  (std::sqrt(2*SPEAKER_HEIGHT / GRAVITY)))/LAUNCH_VELOCITY)));
+      (std::sqrt(2*SPEAKER_HEIGHT / GRAVITY)))/LAUNCH_VELOCITY)));
 
   wrist_.SetTarget(wrist_.MakeTarget(theta));
 

@@ -88,8 +88,8 @@ void DriveCommand::Execute() {
   if (prep_align_speaker) {
     auto current_x = drivetrain_.readings().pose.point.x;
     auto current_y = drivetrain_.readings().pose.point.y;
-    auto target_x = field::points::kSpeaker().x;
-    auto target_y = field::points::kSpeaker().y;
+    auto target_x = field::points::kSpeakerTeleop().x;
+    auto target_y = field::points::kSpeakerTeleop().y;
 
     auto dist_x = target_x - current_x;
     auto dist_y = target_y - current_y;
@@ -110,7 +110,7 @@ void DriveCommand::Execute() {
       // theta = atan(r_v_orth*t/v)
 
       auto robot_velocity = drivetrain_.readings().velocity;
-      auto point_target = (field::points::kSpeaker() - drivetrain_.readings().pose.point);
+      auto point_target = (field::points::kSpeakerTeleop() - drivetrain_.readings().pose.point);
 
       point_target = point_target.Rotate(90_deg);
 

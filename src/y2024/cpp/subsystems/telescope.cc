@@ -6,14 +6,14 @@ TelescopeSubsystem::TelescopeSubsystem(bool init)
     : frc846::Subsystem<TelescopeReadings, TelescopeTarget>{"telescope", init} {
     if (init) {
         tele_one_.Setup(&tele_esc_gains_, true);
-        tele_two_.Setup(&tele_esc_gains_, true);
-        tele_one_.SetupConverter(2.2146_in);
-        tele_two_.SetupConverter(2.2146_in);
+        // tele_two_.Setup(&tele_esc_gains_, true);
+        tele_one_.SetupConverter(0.25_in);//2.2146_in);
+        // tele_two_.SetupConverter(2.2146_in);
         tele_one_.ZeroEncoder();
-        tele_two_.ZeroEncoder();
+        // tele_two_.ZeroEncoder();
 
-        tele_one_.ConfigurePositionLimits(10_in, 0.5_in);
-        tele_two_.ConfigurePositionLimits(10_in, 0.5_in);
+        tele_one_.ConfigurePositionLimits(2_in, -2_in);//10_in, 0.5_in);
+        // tele_two_.ConfigurePositionLimits(10_in, 0.5_in);
 
         // tele_tandem_.Setup(&tele_esc_gains_);
         // tele_tandem_.SetInverted({true, true});
@@ -49,7 +49,7 @@ bool TelescopeSubsystem::VerifyHardware() {
     bool ok = true;
 
     FRC846_VERIFY(tele_one_.VerifyConnected(), ok, "Tele one not connected");
-    FRC846_VERIFY(tele_two_.VerifyConnected(), ok, "Tele two not connected");
+    // FRC846_VERIFY(tele_two_.VerifyConnected(), ok, "Tele two not connected");
 
     return ok;
   }
@@ -71,12 +71,12 @@ TelescopeReadings TelescopeSubsystem::GetNewReadings() {
 void TelescopeSubsystem::PositionTelescope(TelescopeTarget target) {
   if (auto pos = std::get_if<units::inch_t>(&target.extension)) {
     tele_one_.Write(frc846::control::ControlMode::Position, *pos);
-    tele_two_.Write(frc846::control::ControlMode::Position, *pos);
+    // tele_two_.Write(frc846::control::ControlMode::Position, *pos);
 
     target_tele_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.extension)) {
     tele_one_.Write(frc846::control::ControlMode::Percent, *output);
-    tele_two_.Write(frc846::control::ControlMode::Percent, *output);
+    // tele_two_.Write(frc846::control::ControlMode::Percent, *output);
 
     target_tele_duty_cycle_graph.Graph(*output);
   }

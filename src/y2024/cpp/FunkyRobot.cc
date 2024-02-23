@@ -216,6 +216,9 @@ void FunkyRobot::StartCompetition() {
     frc::SmartDashboard::UpdateValues();
     frc::Shuffleboard::Update();
 
+
+    robotStore.Refresh();
+
     // Update graphs
     time_remaining_graph_.Graph(frc::DriverStation::GetMatchTime().to<int>());
 
@@ -250,6 +253,10 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger drivetrain_zero_bearing_trigger{
       [&] { return container_.driver_.readings().back_button; }};
 
+
+  frc2::Trigger on_piece_trigger{
+      [&] { return frc846::util::ShareTables::GetBoolean("scorer_has_piece"); }};
+
   frc2::Trigger scorer_test_in_trigger{
       [&] { return container_.driver_.readings().left_trigger; }};
 
@@ -281,6 +288,19 @@ void FunkyRobot::InitTeleopTriggers() {
       frc2::InstantCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
       }).ToPtr());
+
+  on_piece_trigger.OnTrue(
+    frc2::InstantCommand([this] {
+        DriverTarget driver_target{};
+        driver_target.rumble = true;
+        container_.driver_.SetTarget(driver_target);
+      }).WithTimeout(1_s).AndThen(
+        frc2::InstantCommand([this] {
+          DriverTarget driver_target{};
+          driver_target.rumble = false;
+          container_.driver_.SetTarget(driver_target);
+        }).ToPtr()
+      ));
 }
 
 void FunkyRobot::InitTestDefaults() {

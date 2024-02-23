@@ -36,7 +36,7 @@ class TelescopeSubsystem
   void ZeroSubsystem() { 
     hasZeroed = true;
     tele_one_.ZeroEncoder();
-    tele_two_.ZeroEncoder();
+    // tele_two_.ZeroEncoder();
     SetTarget(ZeroTarget());
   }
 
@@ -66,9 +66,9 @@ class TelescopeSubsystem
 
 
   frc846::control::SparkRevController<units::inch_t> tele_one_{*this, 
-    "tele_one", ports::positioning_::kTele1_CANID};
-  frc846::control::SparkRevController<units::inch_t> tele_two_{*this, 
-    "tele_two", ports::positioning_::kTele2_CANID};
+    "tele_one", 24}; //ports::positioning_::kTele1_CANID};
+  // frc846::control::SparkRevController<units::inch_t> tele_two_{*this, 
+  //   "tele_two", ports::positioning_::kTele2_CANID};
 
 
   TelescopeReadings GetNewReadings() override;

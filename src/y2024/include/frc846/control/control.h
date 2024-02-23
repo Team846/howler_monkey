@@ -4,6 +4,7 @@
 #include <asm-generic/errno.h>
 
 #include <rev/CANSparkMax.h>
+#include <rev/CANSparkFlex.h>
 #include <ctre/phoenix6/TalonFX.hpp>
 
 #include <initializer_list>
@@ -36,6 +37,21 @@ constexpr rev::CANSparkMax::ControlType LocalRevControlMode(ControlMode mode) {
       return rev::CANSparkMax::ControlType::kPosition;
     case ControlMode::Current:
       return rev::CANSparkMax::ControlType::kCurrent;
+    default:
+      throw std::runtime_error("unsupported control type");
+  }
+}
+
+constexpr rev::CANSparkFlex::ControlType LocalFlexControlMode(ControlMode mode) {
+  switch (mode) {
+    case ControlMode::Percent:
+      return rev::CANSparkFlex::ControlType::kDutyCycle;
+    case ControlMode::Velocity:
+      return rev::CANSparkFlex::ControlType::kVelocity;
+    case ControlMode::Position:
+      return rev::CANSparkFlex::ControlType::kPosition;
+    case ControlMode::Current:
+      return rev::CANSparkFlex::ControlType::kCurrent;
     default:
       throw std::runtime_error("unsupported control type");
   }
@@ -361,6 +377,288 @@ class SparkRevController : ElectronicSpeedController<X> {
       if (err != rev::REVLibError::kOk) {
         loggable.Warn("Unable to update {}", field);
       }
+    };
+
+};
+
+template <typename X> 
+class SparkFlexController : ElectronicSpeedController<X> {
+    using V = units::unit_t<units::compound_unit<typename X::unit_type,
+                                                units::inverse<units::second>>>;
+
+    using A = units::ampere_t;
+
+    public:
+    SparkFlexController(Loggable parent_, std::string name, int kCANid, rev::CANSparkLowLevel::MotorType type = rev::CANSparkLowLevel::MotorType::kBrushless) :
+          obj(parent_, name),
+            esc_{kCANid, type}, 
+              encoder_{esc_.GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 42)},
+              pid_controller_{esc_.GetPIDController()} {
+              };
+
+    ~SparkFlexController() {
+      if (gains_helper != nullptr) {
+            delete gains_helper;
+      }
+    };
+
+    ElectronicSpeedController<X>* that() {
+      return this;
+    }
+
+    int Setup(units::millisecond_t timeout, ControlGainsHelper* gainsHelper,
+        bool isInverted = false, IdleMode kIdleMode = IdleMode::kBrake) {
+
+        if (VerifyConnected()) {
+          setup = true;
+        } else {
+          obj.Error("? controller could NOT be setup");
+          return -1;
+        }
+
+        if (kIdleMode == kCoast) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkFlex::IdleMode::kCoast), "Coast Mode");
+        else if (kIdleMode == kBrake) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkFlex::IdleMode::kBrake), "Brake Mode");
+        
+        CheckOk(obj, esc_.SetCANTimeout(timeout.to<double>()), "CAN Timeout");
+        esc_.SetInverted(isInverted);
+        gains_helper = gainsHelper;
+
+        if (gains_helper != nullptr) {
+            gains_helper->Write(pid_controller_, gains_cache_, true);
+            pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
+        }
+
+        CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
+        CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
+
+        CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
+        
+        return 0;
+    };
+
+    int Setup(ControlGainsHelper* gainsHelper, bool isInverted = false,
+        IdleMode kIdleMode = IdleMode::kBrake) {
+
+        if (VerifyConnected()) {
+          setup = true;
+        } else {
+          obj.Error("? controller could NOT be setup");
+          return -1;
+        }
+
+        if (kIdleMode == kCoast) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkFlex::IdleMode::kCoast), "Coast Mode");
+        else if (kIdleMode == kBrake) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkFlex::IdleMode::kBrake), "Brake Mode");
+        CheckOk(obj, esc_.SetCANTimeout(CANTimeout.to<double>()), "CAN Timeout");
+        esc_.SetInverted(isInverted);
+        gains_helper = gainsHelper;
+
+        if (gains_helper != nullptr) {
+             gains_helper->Write(pid_controller_, gains_cache_, true);
+             pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
+        }
+
+        CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
+        CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
+
+        CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
+
+        return 0;
+    };
+
+    
+    int Reset(units::millisecond_t timeout) {
+      if (!setup) return -1;
+
+      CheckOk(obj, esc_.SetCANTimeout(timeout.to<double>()), "CAN Timeout");
+
+      if (gains_helper != nullptr) {
+          gains_helper->Write(pid_controller_, gains_cache_, true);
+          pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
+          CheckOk(obj, esc_.SetSmartCurrentLimit(gains_helper->current_limit_.value()), "Current Limit");
+      }
+
+      CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
+
+      CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
+      
+      return 0;
+    };
+
+    void DisableStatusFrames(std::initializer_list<rev::CANSparkLowLevel::PeriodicFrame> frames) {
+      if (!setup) return;
+
+      for (auto f : frames) {
+        // https://docs.revrobotics.com/sparkmax/operating-modes/control-interfaces#periodic-status-frames
+        auto err = esc_.SetPeriodicFramePeriod(f, 65535);
+        CheckOk(obj, err, "Disable Status Frame");
+      }
+    };
+
+    void SetupConverter(X conv) {
+      if (!setup) return;
+
+      conv_.ChangeConversion(conv);
+    };
+
+    void ZeroEncoder(X pos) {
+      if (!setup) return;
+
+      CheckOk(obj, encoder_.SetPosition(conv_.RealToNativePosition(pos)), "Zero Encoder");
+    };
+
+    void ZeroEncoder() {
+      if (!setup) return;
+
+      CheckOk(obj, encoder_.SetPosition(0.0), "Zero Encoder");
+    };
+
+    void Write(ControlMode mode, double output) {
+      if (!setup) return;
+
+      if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
+          Reset(CANTimeout);
+          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
+      }
+
+      if (mode == ControlMode::Percent) {
+        auto peak_output = gains_helper->peak_output_.value();
+
+        double value = std::max(output, -peak_output);
+        value = std::min(value, +peak_output);
+
+        CheckOk(obj, pid_controller_.SetReference(value, LocalFlexControlMode(mode)), "Write Duty Cycle");
+      }
+    };
+
+    void Write(ControlMode mode, V output) {
+      if (!setup) return;
+
+      if (esc_.GetStickyFault(rev::CANSparkFlex::FaultID::kHasReset)) {
+          Reset(CANTimeout);
+          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
+      }
+
+      if (gains_helper != nullptr) {
+          gains_helper->Write(pid_controller_, gains_cache_, false);
+      }
+
+      if (mode == ControlMode::Velocity) {
+          CheckOk(obj, pid_controller_.SetReference(conv_.RealToNativeVelocity(output), LocalFlexControlMode(mode)), "Write Velocity");
+      }
+    };
+
+    void Write(ControlMode mode, X output) {
+      if (!setup) return;
+
+      if (usingPositionLimits) {
+        output = units::math::max(output, reverse_position_limit);
+        output = units::math::min(output, forward_position_limit);
+      }
+
+      if (esc_.GetStickyFault(rev::CANSparkFlex::FaultID::kHasReset)) {
+          Reset(CANTimeout);
+          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
+      }
+
+      if (gains_helper != nullptr) {
+          gains_helper->Write(pid_controller_, gains_cache_, false);
+      }
+
+      if (mode == ControlMode::Position) {
+          CheckOk(obj, pid_controller_.SetReference(conv_.RealToNativePosition(output), LocalFlexControlMode(mode)), "Write Position");
+      }
+    };
+
+    void Write(ControlMode mode, A output) {
+      if (!setup) return;
+      if (esc_.GetStickyFault(rev::CANSparkFlex::FaultID::kHasReset)) {
+          Reset(CANTimeout);
+          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
+      }
+
+      if (mode == ControlMode::Current) {
+          CheckOk(obj, pid_controller_.SetReference(output.to<double>(), LocalFlexControlMode(mode)), "Write Current");
+      }
+    };
+
+    void WriteByCurrent(units::ampere_t current) {
+      if (!setup) return;
+
+      CheckOk(obj, pid_controller_.SetReference(current.to<double>(), LocalFlexControlMode(ControlMode::Current)), "Write Current");
+    }
+
+    V GetVelocity() {
+      if (!setup) throw std::exception();
+
+      return conv_.NativeToRealVelocity(encoder_.GetVelocity());
+    };
+
+    X GetPosition() {
+      if (!setup) throw std::exception();
+
+      return conv_.NativeToRealPosition(encoder_.GetPosition());
+    };
+
+    bool VerifyConnected() {
+      // GetFirmwareVersion sometimes returns 0 the first time you call it
+      esc_.GetFirmwareVersion();
+      return esc_.GetFirmwareVersion() != 0;
+    };
+
+    bool GetInverted() {
+      if (!setup) return false;
+      
+      esc_.GetInverted();
+      return esc_.GetInverted();
+    };
+
+    void SetInverted(bool invert) {
+      if (!setup) return;
+
+      esc_.SetInverted(invert);
+    };
+
+    units::ampere_t GetCurrent() {
+      if (!setup) return 0_A;
+
+      return units::ampere_t(esc_.GetOutputCurrent());
+    };
+
+    void EnablePositionLimiting(bool enable = true) {
+      usingPositionLimits = enable;
+    }
+
+    void ConfigurePositionLimits(X forward_limit, X reverse_limit, bool enable = true) {
+      forward_position_limit = forward_limit;
+      reverse_position_limit = reverse_limit;
+      EnablePositionLimiting(enable);
+    }
+
+    Loggable obj;
+    rev::CANSparkFlex esc_;
+    
+    private:
+    ControlGainsHelper* gains_helper;
+
+    ControlGains gains_cache_;
+
+    rev::SparkRelativeEncoder encoder_;
+
+    rev::SparkPIDController pid_controller_;
+
+    util::Converter<X> conv_{util::kSparkMAXPeriod, util::kSparkMAXSensorTicks, units::make_unit<X>(1.0)};
+
+    bool setup = false;
+
+    bool usingPositionLimits = false;
+
+    X reverse_position_limit = units::make_unit<X>(0.0);
+    X forward_position_limit = units::make_unit<X>(0.0);
+
+    void CheckOk(Loggable& loggable, rev::REVLibError err, std::string field = "?") {
+      if (err != rev::REVLibError::kOk) {
+        loggable.Warn("Unable to update {}", field);
+      } 
     };
 
 };

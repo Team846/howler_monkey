@@ -15,9 +15,17 @@ struct field {
 
     static frc846::util::Vector2D<units::foot_t> kSpeaker(bool flip = false) {
       if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(104.4_in, 4.4_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 14.4_in);
       } else {
-        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 645.8_in);
+        return frc846::util::Vector2D<units::foot_t>(104.4_in, 635.8_in);
+      }
+    }
+
+    static frc846::util::Vector2D<units::foot_t> kSpeakerTeleop(bool flip = false) {
+      if (!flip) {
+        return frc846::util::Vector2D<units::foot_t>(104.4_in, 14.4_in);
+      } else {
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 615.8_in);
       }
     }
 

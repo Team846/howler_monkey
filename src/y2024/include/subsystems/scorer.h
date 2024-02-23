@@ -36,15 +36,17 @@ class ScorerSubsystem
 
   bool GetHasPiece() { return has_piece_; }
 
-  frc846::Pref<double> intake_speed_{*this, "intake_speed_", 0.3};
-  frc846::Pref<double> intake_feed_speed_{*this, "intake_feed_speed_", 0.1};
-  frc846::Pref<units::turns_per_second_t> shooter_speed_{*this, "shooter_speed_", 50_tps};
+  frc846::Pref<units::turns_per_second_t> intake_speed_{*this, "intake_speed_", 40_tps};
+  frc846::Pref<units::turns_per_second_t> intake_feed_speed_{*this, "intake_feed_speed_", 70.0_tps};
+  frc846::Pref<units::turns_per_second_t> shooter_speed_{*this, "shooter_speed_", 2600_tps};
+  frc846::Pref<double> spin_{*this, "shooter_spin", 0.33};
 
  private:
   bool has_piece_;
 
   frc846::Loggable readings_named_{*this, "readings"};
   frc846::Grapher<bool> readings_has_piece_graph{readings_named_, "readings_has_piece"};
+  frc846::Grapher<double> readings_shooting_speed_left_graph{readings_named_, "readings_shooting_speed_left_graph"};
 
   frc846::Loggable target_named_{*this, "target"};
   frc846::Grapher<bool> target_is_intaking_graph{target_named_, "target_is_intaking_graph"};
@@ -62,8 +64,15 @@ class ScorerSubsystem
     {0, 0, 0, 0, 0}, 
         200_A, 0.5};
 
+
   frc846::control::SparkRevController<units::turn_t> intake_shooter_esc_{*this, 
     "intake_shooter_esc_", ports::scorer_::kController_CANID};
+
+  frc846::control::SparkRevController<units::turn_t> shooter_esc_one_{*this, 
+    "shooter_esc_one_", ports::scorer_::kShooterOneController_CANID};
+
+  frc846::control::SparkRevController<units::turn_t> shooter_esc_two_{*this, 
+    "shooter_esc_two", ports::scorer_::kShooterTwoController_CANID};
 
   rev::SparkLimitSwitch note_detection;
 

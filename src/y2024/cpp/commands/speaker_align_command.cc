@@ -28,20 +28,22 @@ void SpeakerAlignCommand::Execute() {
   auto target_x = field::points::kSpeaker().x;
   auto target_y = field::points::kSpeaker().y;
 
+  auto drivetrain_target = drivetrain_.ZeroTarget();
+
   auto dist_x = target_x - current_x;
   auto dist_y = target_y - current_y;
 
-  auto drivetrain_target = drivetrain_.ZeroTarget();
 
-  units::degree_t target_angle = units::math::atan2(dist_x, dist_y);
-  
-  drivetrain_target.rotation = DrivetrainRotationPosition(target_angle + 180_deg);
+  units::degree_t target_angle = units::math::atan2(dist_x, dist_y) + 180_deg;
+      
+  drivetrain_target.rotation = DrivetrainRotationPosition(target_angle);
 
-  auto detect_angle = std::abs(((int)(units::math::abs((target_angle)).to<double>() 
-    + drivetrain_.readings().pose.bearing.to<double>())));
+  auto detect_angle = std::abs(((int)((target_angle.to<double>() 
+    - drivetrain_.readings().pose.bearing.to<double>()))));
 
-  std::cout << detect_angle << std::endl;
 
+  std::cout << target_angle.to<double>() << std::endl;
+  std::cout << drivetrain_.readings().pose.bearing.to<double>() << std::endl;
   is_done_ = detect_angle < 5 || (detect_angle > 355 && detect_angle < 365);
   
   drivetrain_.SetTarget(drivetrain_target);

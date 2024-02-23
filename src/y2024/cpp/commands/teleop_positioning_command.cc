@@ -126,9 +126,10 @@ void TeleopPositioningCommand::Execute() {
     wristHasRun = false;
   } else if (running_prep_speaker) {
     double SPEAKER_HEIGHT = 3.7;
-    double LAUNCH_VELOCITY = 27.0;
+    double LAUNCH_VELOCITY = 29.0;
     double GRAVITY = 32.0;
-    double shooting_dist = (field::points::kSpeaker() - drivetrain_.readings().pose.point).Magnitude().to<double>();
+    double shooting_dist = (field::points::kSpeakerTeleop() - drivetrain_.readings().pose.point).Magnitude().to<double>();
+
 
     // h = 1/2 * g * t^2
     // t = sqrt(2h/g)
@@ -145,16 +146,24 @@ void TeleopPositioningCommand::Execute() {
     // vcos(theta) = dist/sqrt(2h/g) - r_v_comp
     // theta = arccos((dist/sqrt(2h/g) - r_v_comp)/v)
 
+
     auto robot_velocity = drivetrain_.readings().velocity;
-    auto point_target = (field::points::kSpeaker() - drivetrain_.readings().pose.point);
+    auto point_target = (field::points::kSpeakerTeleop() - drivetrain_.readings().pose.point);
 
     double robot_velocity_in_component = 
       (robot_velocity.x.to<double>() * point_target.x.to<double>() + 
         robot_velocity.y.to<double>() * point_target.y.to<double>())/point_target.Magnitude().to<double>();
 
     units::degree_t theta_adjusted = units::radian_t(std::abs(std::acos((shooting_dist/
-    (std::sqrt(2*SPEAKER_HEIGHT / GRAVITY)) - robot_velocity_in_component)/LAUNCH_VELOCITY)));
+      (std::sqrt(2*SPEAKER_HEIGHT / GRAVITY)) - robot_velocity_in_component)/LAUNCH_VELOCITY)));
 
+    if (theta_adjusted < 7_deg) {
+      DriverTarget driver_target{true};
+      driver_.SetTarget(driver_target);
+    } else {
+      DriverTarget driver_target{false};
+      driver_.SetTarget(driver_target);
+    }
 
     wrist_target.wrist_output = (theta_adjusted); //add zero_offset, replace 45_deg with pivot
 
@@ -179,7 +188,6 @@ void TeleopPositioningCommand::Execute() {
   pivot_.SetTarget(pivot_target);
   telescope_.SetTarget(telescope_target);
   wrist_.SetTarget(wrist_target);
-  
 }
 
 bool TeleopPositioningCommand::IsFinished() { return false; }
