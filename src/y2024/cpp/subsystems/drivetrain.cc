@@ -267,10 +267,6 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
       aprilTag_table->PutNumberArray("roboRioFrameRequest", data);
       aprilTag_table->PutNumber("robotBearing", readings.pose.bearing.to<double>());
       nt_table.Flush();
-      // Debug("We have just requested a frame");
-      // Debug("pos at LastRequest.bearing is  {}", poseAtLastRequest.bearing);
-      // Debug("pos at LastRequest.x is  {}", poseAtLastRequest.point.x);
-      // Debug("pos at LastRequest.y is  {}", poseAtLastRequest.point.y);
       aprilFrameRequested=true;
     }
 
@@ -283,21 +279,17 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
       auto aprilTagX = units::foot_t(aprilTag_table->GetEntry("aprilTagX").GetDouble(-1.0));
       auto aprilTagY = units::foot_t(aprilTag_table->GetEntry("aprilTagY").GetDouble(-1.0));
       auto aprilTagAngle = units::degree_t(aprilTag_table->GetEntry("aprilTagAngle").GetDouble(0.0));
-
+      bool isRed = frc846::util::ShareTables::GetBoolean("is_red_side");
       double aprilTagConfidence = aprilTag_table->GetEntry("aprilTagConfidence").GetDouble(0.0);
-      // auto aprilTagID = aprilTag_table->GetEntry("aprilTagID").GetDouble(-1.0);
-
-
-      // Debug("Robot point.x is  {}", robotPoint.x);
-      // Debug("Robot point.y is  {}", robotPoint.y);
       units::degree_t tx = units::math::atan(robotPoint.x/robotPoint.y);
       robotPoint.x=tagDistance*units::math::cos(270_deg-poseAtLastRequest.bearing-tx);
       robotPoint.y=tagDistance*units::math::sin(270_deg-poseAtLastRequest.bearing-tx);
-      // Debug("this was the confidence {}", aprilTagConfidence);
-      // Debug("this was the bearing {}", poseAtLastRequest.bearing);
-      // Debug("{}", robotPoint.y);
       robotPoint.x = aprilTagX - robotPoint.x;
       robotPoint.y = aprilTagY - robotPoint.y;
+
+      if (!isRed){
+        aprilTagAngle+=180_deg;
+      }
       if(aprilTagConfidence>=0.8){
         double aprilTagFactor = aprilTagConfidence * confidence_factor_.value() *
                         (1 - (readings.velocity.Magnitude()/max_speed_.value())) * velocity_factor_.value() * 
@@ -307,10 +299,8 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
 
         frc846::util::Vector2D<units::foot_t> point;
         // Debug("factor is  {}", aprilTagFactor);
-        point.x = ((poseAtLastRequest.point.x + (aprilTagFactor * robotPoint.x)) / (1+aprilTagFactor));
-        // + odometry_.pose().point.x-poseAtLastRequest.point.x;
-        point.y = ((poseAtLastRequest.point.y + aprilTagFactor * robotPoint.y) / (1+ aprilTagFactor));
-        //+ odometry_.pose().point.y-poseAtLastRequest.point.y;
+        point.x = ((poseAtLastRequest.point.x + (aprilTagFactor * robotPoint.x)) / (1+aprilTagFactor)) + odometry_.pose().point.x-poseAtLastRequest.point.x;
+        point.y = ((poseAtLastRequest.point.y + aprilTagFactor * robotPoint.y) / (1+ aprilTagFactor)) + odometry_.pose().point.y-poseAtLastRequest.point.y;
         // Debug("point.x is  {}", point.x);
         // Debug("point.y is  {}", point.y);
         odometry_.SetPoint({point.x, point.y});
