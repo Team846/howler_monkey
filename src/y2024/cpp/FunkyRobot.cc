@@ -9,6 +9,7 @@
 #include <frc2/command/ParallelRaceGroup.h>
 #include <frc2/command/button/Trigger.h>
 #include <hal/Notifier.h>
+#include <cameraserver/CameraServer.h>
 
 #include "frc/DataLogManager.h"
 #include "frc2/command/ParallelDeadlineGroup.h"
@@ -20,7 +21,6 @@
 #include "commands/drive_command.h"
 #include "commands/teleop_positioning_command.h"
 #include "commands/follow_trajectory_command.h"
-
 #include "subsystems/scorer.h"
 #include "subsystems/pivot.h"
 #include "subsystems/wrist.h"
@@ -56,6 +56,9 @@ void FunkyRobot::StartCompetition() {
   frc::DataLogManager::Start();
 
   frc::DriverStation::StartDataLog(frc::DataLogManager::GetLog());
+
+  std::thread visionThread(VisionThread);
+  visionThread.detach();
 
   // Add dashboard buttons
   frc::SmartDashboard::PutData(

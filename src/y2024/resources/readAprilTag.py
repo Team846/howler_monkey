@@ -14,22 +14,26 @@ validTagIds = [4, 7, 3, 8]
 
 aprilTagX=[0-14/12.0]*20
 aprilTagY=[6-6/12.0]*20
+aprilAngle=[180]*20
 
-aprilTagX[4]=104.4/12-5.5/12.0 #RED?
+aprilTagX[4]=104.4/12-5.5/12.0 #RED
 aprilTagY[4]=4.4/12+12/12.0
+aprilAngle[4]=180
 
-aprilTagX[3]=126.65/12-5.5/12.0 #RED?
+aprilTagX[3]=126.65/12-5.5/12.0 #RED
 aprilTagY[3]=4.4/12+12/12.0
+aprilAngle[3]=180
 
-aprilTagX[7]=-104.4/12-5.5/12.0 #BLUE?
+aprilTagX[7]=-104.4/12-5.5/12.0 #BLUE
 aprilTagY[7]=635.8/12+12/12.0
+aprilAngle[7]=0
 
-aprilTagX[8]=-126.65/12-5.5/12.0 #BLUE?
+aprilTagX[8]=-126.65/12-5.5/12.0 #BLUE
 aprilTagY[8]=635.8/12+12/12.0
+aprilAngle[8]=0
 
 # aprilTagX[16]=0.3-14/12.0
 # aprilTagY[16]=9.0247+6/12.0
-aprilAngle=[180]*20
 
 locations=np.array([0.0, 0.0, 0.0])
 
