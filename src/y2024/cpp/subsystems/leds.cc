@@ -17,7 +17,10 @@ LEDsTarget LEDsSubsystem::ZeroTarget() const {
 
 bool LEDsSubsystem::VerifyHardware() { return true; }
 
-LEDsReadings LEDsSubsystem::GetNewReadings() { return {}; }
+LEDsReadings LEDsSubsystem::GetNewReadings() { 
+  frc846::util::ShareTables::SetBoolean("is_red_side", isRedSide.value());
+  return {}; 
+}
 
 void LEDsSubsystem::DirectWrite(LEDsTarget target) {
   if (hasZeroed) {
