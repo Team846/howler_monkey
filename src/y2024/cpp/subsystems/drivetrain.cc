@@ -259,7 +259,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
 
   vel_readings_composite=units::feet_per_second_t(sqrt(vel_readings_composite_x*vel_readings_composite_x+vel_readings_composite_y*vel_readings_composite_y));
 
-if (april_tags_enabled_.value() && !(frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)){
+  if (april_tags_enabled_.value() && !(frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)){
     if (!aprilFrameRequested){
       aprilFrameRequest++;
       poseAtLastRequest=odometry_.pose();
@@ -285,7 +285,7 @@ if (april_tags_enabled_.value() && !(frc846::util::ShareTables::GetString("mode"
       auto aprilTagAngle = units::degree_t(aprilTag_table->GetEntry("aprilTagAngle").GetDouble(0.0));
 
       double aprilTagConfidence = aprilTag_table->GetEntry("aprilTagConfidence").GetDouble(0.0);
-      auto aprilTagID = aprilTag_table->GetEntry("aprilTagID").GetDouble(-1.0);
+      // auto aprilTagID = aprilTag_table->GetEntry("aprilTagID").GetDouble(-1.0);
 
 
       // Debug("Robot point.x is  {}", robotPoint.x);
