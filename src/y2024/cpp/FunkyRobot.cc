@@ -261,13 +261,10 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger on_piece_trigger{
       [&] { return frc846::util::ShareTables::GetBoolean("scorer_has_piece"); }};
 
-  frc2::Trigger scorer_in_trigger{
+  frc2::Trigger scorer_test_in_trigger{
       [&] { return container_.driver_.readings().left_trigger; }};
 
-  frc2::Trigger scorer_spin_up_trigger{
-      [&] { return container_.driver_.readings().right_trigger; }};
-
-  frc2::Trigger scorer_out_trigger{
+  frc2::Trigger scorer_test_out_trigger{
       [&] { return container_.driver_.readings().right_bumper; }};
   
   // // Bind Triggers to commands
@@ -276,35 +273,26 @@ void FunkyRobot::InitTeleopTriggers() {
         container_.drivetrain_.ZeroBearing();
       }).ToPtr());
 
-  scorer_in_trigger.WhileTrue(
+  scorer_test_in_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIntake));
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(true, false, 0.0_tps));
       }).ToPtr());
 
-  scorer_in_trigger.OnFalse(
+  scorer_test_in_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
       }).ToPtr());
 
-  scorer_spin_up_trigger.WhileTrue(
+  scorer_test_out_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kSpinUp));
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(false, true, container_.scorer_.shooter_speed_.value()));
       }).ToPtr());
 
-  scorer_spin_up_trigger.OnFalse(
+  scorer_test_out_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
       }).ToPtr());
 
-  scorer_out_trigger.WhileTrue(
-      frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kShoot));
-      }).ToPtr());
-
-  scorer_out_trigger.OnFalse(
-      frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
-      }).ToPtr());
 
   on_piece_trigger.OnTrue(
     frc2::InstantCommand([this] {
