@@ -59,7 +59,7 @@ void FunkyRobot::StartCompetition() {
 
   std::thread visionThread(VisionThread);
   visionThread.detach();
-
+ 
   // Add dashboard buttons
   frc::SmartDashboard::PutData(
       "zero_modules", new frc846::other::SendableCallback(
@@ -283,12 +283,17 @@ void FunkyRobot::InitTeleopTriggers() {
 
   scorer_in_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
   scorer_spin_up_trigger.WhileTrue(
       frc2::InstantCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kSpinUp));
+      }).ToPtr());
+
+  scorer_spin_up_trigger.OnFalse(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
   scorer_out_trigger.WhileTrue(
@@ -298,7 +303,7 @@ void FunkyRobot::InitTeleopTriggers() {
 
   scorer_out_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
   on_piece_trigger.OnTrue(

@@ -24,11 +24,11 @@ aprilTagX[3]=126.65/12-5.5/12.0 #RED
 aprilTagY[3]=4.4/12+12/12.0
 aprilAngle[3]=180
 
-aprilTagX[7]=-104.4/12-5.5/12.0 #BLUE
+aprilTagX[7]=-126.65/12-5.5/12.0 #BLUE
 aprilTagY[7]=635.8/12+12/12.0
 aprilAngle[7]=0
 
-aprilTagX[8]=-126.65/12-5.5/12.0 #BLUE
+aprilTagX[8]=-104.4/12-5.5/12.0 #BLUE
 aprilTagY[8]=635.8/12+12/12.0
 aprilAngle[8]=0
 
@@ -74,8 +74,8 @@ def getDistance(xReal, yReal, verticalPixelHeight, horizontalPixelWidth, tagHeig
     diagonalFOV=(68.5)*(3.14159/180)
     f = math.sqrt(horizontalPixelWidth*horizontalPixelWidth+verticalPixelHeight*verticalPixelHeight)/(2*(math.tan(diagonalFOV/2)))
     # 587.4786864517579
-    mountHeight=13
-    mountAngle=(35)*(3.14159/180)
+    mountHeight=12
+    mountAngle=(37)*(3.14159/180)
 
     VertAngle = mountAngle+math.atan(y/f)
     yDist = (tagHeight-mountHeight)/math.tan(VertAngle)

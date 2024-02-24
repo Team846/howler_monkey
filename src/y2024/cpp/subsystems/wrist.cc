@@ -6,7 +6,7 @@ WristSubsystem::WristSubsystem(bool init)
     : frc846::Subsystem<WristReadings, WristTarget>{"wrist", init} {
     if (init) {
         wrist_esc_.Setup(&wrist_esc_gains_, true);
-        wrist_esc_.SetupConverter(1/40.0 * 1_tr); //0.0293 * 340_deg);
+        wrist_esc_.SetupConverter(1/40.0 * 1_tr);
 
         wrist_esc_.ConfigurePositionLimits(185_deg, 0_deg);
 
@@ -55,6 +55,8 @@ void WristSubsystem::PositionWrist(WristTarget target) {
     wrist_esc_.Write(frc846::control::ControlMode::Position, *pos);
 
     target_wrist_pos_graph.Graph(*pos);
+
+    std::cout << "here" << std::endl;
   } else if (auto output = std::get_if<double>(&target.wrist_output)) {
     wrist_esc_.Write(frc846::control::ControlMode::Percent, *output);
 

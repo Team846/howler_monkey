@@ -5,41 +5,23 @@
 PivotSubsystem::PivotSubsystem(bool init)
     : frc846::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
     if (init) {
-        // pivot_tandem.AddESC(pivot_one_esc_.that());
-        // pivot_tandem.AddESC(pivot_two_esc_.that());
-        // pivot_tandem.AddESC(pivot_three_esc_.that());
-        // pivot_tandem.AddESC(pivot_four_esc_.that());
-        // pivot_tandem.SetupAll(&pivot_esc_gains_, {false, false, true, true});
-        // pivot_tandem.SetupAllConversions(1.0_deg); //TODO add conversion
-        // pivot_tandem.ZeroEncoders();
-
-        // pivot_tandem.Setup(&pivot_esc_gains_);
-        // pivot_tandem.SetInverted({false, false, true, true});
-        // pivot_tandem.SetupConverter(1.0_deg);
-        // pivot_tandem.ZeroEncoder();
-
         pivot_one_.Setup(&pivot_esc_gains_, true);
         pivot_two_.Setup(&pivot_esc_gains_, true);
         pivot_three_.Setup(&pivot_esc_gains_, false);
         pivot_four_.Setup(&pivot_esc_gains_, false);
-        pivot_one_.SetupConverter(1.0_tr / 110.0);
-        pivot_two_.SetupConverter(1.0_tr / 110.0);
-        pivot_three_.SetupConverter(1.0_tr / 110.0);
-        pivot_four_.SetupConverter(1.0_tr / 110.0);
+        pivot_one_.SetupConverter(1.0_tr / (60.0/7.0 * 50.0/18.0 * 64.0/10.0));
+        pivot_two_.SetupConverter(1.0_tr / (60.0/7.0 * 50.0/18.0 * 64.0/10.0));
+        pivot_three_.SetupConverter(1.0_tr / (60.0/7.0 * 50.0/18.0 * 64.0/10.0));
+        pivot_four_.SetupConverter(1.0_tr / (60.0/7.0 * 50.0/18.0 * 64.0/10.0));
         pivot_one_.ZeroEncoder();
         pivot_two_.ZeroEncoder();
         pivot_three_.ZeroEncoder();
         pivot_four_.ZeroEncoder();
 
-        pivot_one_.ConfigurePositionLimits(90_deg, 0_deg);
-        pivot_two_.ConfigurePositionLimits(90_deg, 0_deg);
-        pivot_three_.ConfigurePositionLimits(90_deg, 0_deg);
-        pivot_four_.ConfigurePositionLimits(90_deg, 0_deg);
-
-        // pivot_tandem_.Setup(&pivot_esc_gains_);
-        // pivot_tandem_.SetInverted({true, true, false, false});
-        // pivot_tandem_.SetupConverter(10_deg);
-        // pivot_tandem_.ZeroEncoder();
+        pivot_one_.ConfigurePositionLimits(120_deg, 0_deg);
+        pivot_two_.ConfigurePositionLimits(120_deg, 0_deg);
+        pivot_three_.ConfigurePositionLimits(120_deg, 0_deg);
+        pivot_four_.ConfigurePositionLimits(120_deg, 0_deg);
     }
 }
 
@@ -73,7 +55,7 @@ bool PivotSubsystem::VerifyHardware() {
 PivotReadings PivotSubsystem::GetNewReadings() {
   PivotReadings readings;
 
-  readings.pivot_position = pivot_one_.GetPosition();
+  readings.pivot_position = pivot_three_.GetPosition();
 
   frc846::util::ShareTables::SetDouble("pivot_position", readings.pivot_position.to<double>());
 
