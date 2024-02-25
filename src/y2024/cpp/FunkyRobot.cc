@@ -215,6 +215,22 @@ void FunkyRobot::StartCompetition() {
       container_.wrist_.ZeroSubsystem();
       container_.leds_.ZeroSubsystem();
     }
+    if (!coasting_switch_.Get() && word.IsDisabled()) {
+      std::cout << "All Coast" << std::endl;
+      container_.pivot_.Coast();
+      container_.telescope_.Coast();
+      container_.wrist_.Coast();
+      coast_counter_ = 500;
+    }
+
+    if (coast_counter_ == 1) {
+      container_.pivot_.Brake();
+      container_.telescope_.Brake();
+      container_.wrist_.Brake();
+      coast_counter_ -= 1;
+    } else if (coast_counter_ > 0) {
+      coast_counter_ -= 1;
+    }
 
     // Update dashboards
     frc::SmartDashboard::UpdateValues();
@@ -261,11 +277,24 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger on_piece_trigger{
       [&] { return frc846::util::ShareTables::GetBoolean("scorer_has_piece"); }};
 
-  frc2::Trigger scorer_test_in_trigger{
+  frc2::Trigger scorer_in_trigger{
       [&] { return container_.driver_.readings().left_trigger; }};
 
-  frc2::Trigger scorer_test_out_trigger{
-      [&] { return container_.driver_.readings().right_bumper; }};
+  frc2::Trigger scorer_spin_up_trigger{
+      [&] { return container_.driver_.readings().right_trigger; }};
+
+  frc2::Trigger scorer_eject_trigger{
+      [&] { return (container_.operator_.readings().right_bumper && 
+        container_.pivot_.readings().pivot_position < 20_deg) || (
+            !container_.driver_.readings().right_trigger && 
+              container_.pivot_.readings().pivot_position > 40_deg &&
+                container_.driver_.readings().right_bumper
+        ); }};
+
+  frc2::Trigger scorer_out_trigger{
+      [&] { return (container_.driver_.readings().right_bumper 
+        && container_.driver_.readings().right_trigger
+      ); }};
   
   // // Bind Triggers to commands
   drivetrain_zero_bearing_trigger.WhileTrue(
@@ -273,39 +302,58 @@ void FunkyRobot::InitTeleopTriggers() {
         container_.drivetrain_.ZeroBearing();
       }).ToPtr());
 
-  scorer_test_in_trigger.WhileTrue(
+  scorer_in_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(true, false, 0.0_tps));
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIntake));
       }).ToPtr());
 
-  scorer_test_in_trigger.OnFalse(
+  scorer_in_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
-  scorer_test_out_trigger.WhileTrue(
+  scorer_spin_up_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(false, true, container_.scorer_.shooter_speed_.value()));
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kSpinUp));
       }).ToPtr());
 
-  scorer_test_out_trigger.OnFalse(
+  scorer_spin_up_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.ZeroTarget());
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
+  scorer_out_trigger.WhileTrue(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kShoot));
+      }).ToPtr());
 
-  on_piece_trigger.OnTrue(
+  scorer_out_trigger.OnFalse(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+      }).ToPtr());
+
+  scorer_eject_trigger.WhileTrue(
     frc2::InstantCommand([this] {
-        DriverTarget driver_target{};
-        driver_target.rumble = true;
-        container_.driver_.SetTarget(driver_target);
-      }).WithTimeout(1_s).AndThen(
-        frc2::InstantCommand([this] {
-          DriverTarget driver_target{};
-          driver_target.rumble = false;
-          container_.driver_.SetTarget(driver_target);
-        }).ToPtr()
-      ));
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kRelease));
+      }).ToPtr());
+
+  scorer_eject_trigger.OnFalse(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+      }).ToPtr());
+
+  // on_piece_trigger.OnTrue(
+  //   frc2::InstantCommand([this] {
+  //       DriverTarget driver_target{};
+  //       driver_target.rumble = true;
+  //       container_.driver_.SetTarget(driver_target);
+  //     }).WithTimeout(1_s).AndThen(
+  //       frc2::InstantCommand([this] {
+  //         DriverTarget driver_target{};
+  //         driver_target.rumble = false;
+  //         container_.driver_.SetTarget(driver_target);
+  //       }).ToPtr()
+  //     ));
 }
 
 void FunkyRobot::InitTestDefaults() {

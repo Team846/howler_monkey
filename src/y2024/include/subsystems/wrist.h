@@ -33,6 +33,14 @@ class WristSubsystem
 
   bool GetHasZeroed() { return hasZeroed; }
 
+  void Coast() {
+    wrist_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+  }
+
+  void Brake() {
+    wrist_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+  }
+
   void ZeroSubsystem() { 
     hasZeroed = true;
     wrist_esc_.ZeroEncoder();
@@ -42,6 +50,8 @@ class WristSubsystem
   frc846::Pref<units::degree_t> intake_setpoint_wrist_{*this, "intake_setpoint_wrist", 0_deg};
 
   frc846::Pref<units::degree_t> stow_setpoint_wrist_{*this, "stow_setpoint_wrist", 0_deg};
+
+  frc846::Pref<units::degree_t> wrist_home_offset_{*this, "stow_setpoint_wrist", 49_deg};
 
  private:
   bool hasZeroed = false;

@@ -33,6 +33,14 @@ class TelescopeSubsystem
 
   bool GetHasZeroed() { return hasZeroed; }
 
+  void Coast() {
+    tele_one_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+  }
+
+  void Brake() {
+    tele_one_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+  }
+
   void ZeroSubsystem() { 
     hasZeroed = true;
     tele_one_.ZeroEncoder();

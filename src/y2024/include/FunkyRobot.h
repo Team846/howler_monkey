@@ -89,8 +89,11 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
       FivePieceAuto{container_, true}.ToPtr();
 
   frc::DigitalInput homing_switch_{0};
+  frc::DigitalInput coasting_switch_{1};
 
   frc846::FunkyStore robotStore {};
+
+  int coast_counter_ = 0;
 };
 
 #endif  // y2024_FUNKY_ROBOT_H_

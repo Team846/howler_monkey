@@ -28,8 +28,6 @@ struct DrivetrainReadings {
   frc846::util::Position pose;
   units::degrees_per_second_t angular_velocity;
   frc846::util::Vector2D<units::feet_per_second_t> velocity;
-  units::degree_t tilt;
-  units::degrees_per_second_t tilt_omega;
 };
 
 
@@ -127,12 +125,6 @@ class DrivetrainSubsystem
   frc846::Pref<units::degrees_per_second_t> angular_velocity_threshold_{
       *this, "angular_velocity_threshold", 1_deg_per_s};
 
-  frc846::Loggable balance_loggable_{*this, "balance"};
-  // Auto Balance gains
-  frc846::Loggable balance_gains_loggable_{balance_loggable_, "balance_gains"};
-  frc846::Pref<double> balance_gains_p_{balance_gains_loggable_, "p", 0.05};
-  frc846::Pref<double> balance_gains_d_{balance_gains_loggable_, "d", 0};
-
   frc846::Loggable align_gains_loggable_{*this, "align_gains"};
   frc846::Pref<double> align_gains_p_{align_gains_loggable_, "p", 3.5};
 
@@ -140,11 +132,6 @@ class DrivetrainSubsystem
   frc846::Pref<units::inch_t> align_tolerance_{align_gains_loggable_,
                                                "align_tolerance", 0.3_in};
 
-  // Auto Balance Thresholds
-  frc846::Pref<units::degree_t> angle_threshold_{balance_loggable_,
-                                                 "angle_threshold", 0.001_deg};
-  frc846::Pref<units::feet_per_second_t> balance_max_speed_{
-      balance_loggable_, "balance_max_speed", 2.8_fps};
 
     //April Tag 
     units::second_t aprilTagFrameTime;
@@ -200,19 +187,11 @@ class DrivetrainSubsystem
   frc846::Pref<double> bearing_gains_p_{bearing_gains_loggable_, "p", 8.3};
   frc846::Pref<double> bearing_gains_d_{bearing_gains_loggable_, "d", -4.7};
 
-  units::degree_t prev_tilt_ = 0_deg;
-  units::second_t prev_time_ = 0_s;
-
   // Pose graphers.
   frc846::Loggable pose_loggable_{*this, "pose"};
   frc846::Grapher<units::foot_t> pose_x_graph_{pose_loggable_, "x"};
   frc846::Grapher<units::foot_t> pose_y_graph_{pose_loggable_, "y"};
   frc846::Grapher<units::degree_t> pose_bearing_graph{pose_loggable_, "bearing"};
-
-  // Balance graphers.
-  frc846::Grapher<units::degree_t> tilt_graph_{balance_loggable_, "tilt"};
-  frc846::Grapher<units::degrees_per_second_t> tilt_omega_graph_{balance_loggable_,
-                                                                 "tilt_omega"};
 
   // Velocity graphers.
   frc846::Loggable velocity_loggable_{*this, "velocity"};

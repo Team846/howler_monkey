@@ -100,11 +100,11 @@ class SwerveModuleSubsystem
                                                                 "swerve_speed_graph_"};
 
 
-  frc846::control::SparkRevController<units::foot_t> drive_esc_helper_;
-  frc846::control::SparkRevController<units::degree_t> steer_esc_helper_;
+  // frc846::control::SparkRevController<units::foot_t> drive_esc_helper_;
+  // frc846::control::SparkRevController<units::degree_t> steer_esc_helper_;
 
-  // frc846::control::TalonFXController<units::foot_t> drive_esc_helper_;
-  // frc846::control::TalonFXController<units::degree_t> steer_esc_helper_;
+  frc846::control::TalonFXController<units::foot_t> drive_esc_helper_;
+  frc846::control::TalonFXController<units::degree_t> steer_esc_helper_;
 
   ctre::CANcoder cancoder_;
 
