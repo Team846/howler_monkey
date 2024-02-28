@@ -146,10 +146,15 @@ class SparkRevController : ElectronicSpeedController<X> {
             pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
         }
 
+        esc_.SetOpenLoopRampRate(1.0);
+        esc_.SetClosedLoopRampRate(1.0);
+
         CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
         CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
 
         CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
+
+        esc_.SetPeriodicFramePeriod(rev::CANSparkBase::PeriodicFrame::kStatus0, 30);
         
         return 0;
     };
@@ -175,10 +180,15 @@ class SparkRevController : ElectronicSpeedController<X> {
              pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
         }
 
+        esc_.SetOpenLoopRampRate(1.0);
+        esc_.SetClosedLoopRampRate(1.0);
+
         CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
         CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
 
         CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
+
+        esc_.SetPeriodicFramePeriod(rev::CANSparkBase::PeriodicFrame::kStatus0, 30);
 
         return 0;
     };
@@ -195,9 +205,14 @@ class SparkRevController : ElectronicSpeedController<X> {
           CheckOk(obj, esc_.SetSmartCurrentLimit(gains_helper->current_limit_.value()), "Current Limit");
       }
 
+      esc_.SetOpenLoopRampRate(1.0);
+      esc_.SetClosedLoopRampRate(1.0);
+
       CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
 
       CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
+
+      esc_.SetPeriodicFramePeriod(rev::CANSparkBase::PeriodicFrame::kStatus0, 30);
       
       return 0;
     };
@@ -306,13 +321,13 @@ class SparkRevController : ElectronicSpeedController<X> {
     }
 
     V GetVelocity() {
-      if (!setup) throw std::exception();
+      if (!setup) return units::make_unit<V>(0);
 
       return conv_.NativeToRealVelocity(encoder_.GetVelocity());
     };
 
     X GetPosition() {
-      if (!setup) throw std::exception();
+      if (!setup) return  units::make_unit<X>(0);
 
       return conv_.NativeToRealPosition(encoder_.GetPosition());
     };
@@ -416,10 +431,10 @@ class SparkFlexController : ElectronicSpeedController<X> {
           return -1;
         }
 
-        if (kIdleMode == kCoast) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkFlex::IdleMode::kCoast), "Coast Mode");
-        else if (kIdleMode == kBrake) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkFlex::IdleMode::kBrake), "Brake Mode");
+        if (kIdleMode == kCoast) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast), "Coast Mode");
+        else if (kIdleMode == kBrake) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake), "Brake Mode");
         
-        CheckOk(obj, esc_.SetCANTimeout(timeout.to<double>()), "CAN Timeout");
+        esc_.SetCANTimeout(timeout.to<double>());
         esc_.SetInverted(isInverted);
         gains_helper = gainsHelper;
 
@@ -428,10 +443,15 @@ class SparkFlexController : ElectronicSpeedController<X> {
             pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
         }
 
-        CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
-        CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
+        esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value());
+        esc_.EnableVoltageCompensation(12.0);
 
-        CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
+        esc_.SetClosedLoopRampRate(gains_helper->ramp_rate_.value());
+        esc_.SetOpenLoopRampRate(gains_helper->ramp_rate_.value());
+
+        esc_.BurnFlash();
+
+        esc_.SetPeriodicFramePeriod(rev::CANSparkBase::PeriodicFrame::kStatus0, 30);
         
         return 0;
     };
@@ -446,9 +466,10 @@ class SparkFlexController : ElectronicSpeedController<X> {
           return -1;
         }
 
-        if (kIdleMode == kCoast) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkFlex::IdleMode::kCoast), "Coast Mode");
-        else if (kIdleMode == kBrake) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkFlex::IdleMode::kBrake), "Brake Mode");
-        CheckOk(obj, esc_.SetCANTimeout(CANTimeout.to<double>()), "CAN Timeout");
+        if (kIdleMode == kCoast) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kCoast), "Coast Mode");
+        else if (kIdleMode == kBrake) CheckOk(obj, esc_.SetIdleMode(rev::CANSparkMax::IdleMode::kBrake), "Brake Mode");
+
+        esc_.SetCANTimeout(CANTimeout.to<double>());
         esc_.SetInverted(isInverted);
         gains_helper = gainsHelper;
 
@@ -457,10 +478,15 @@ class SparkFlexController : ElectronicSpeedController<X> {
              pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
         }
 
-        CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()), "Current Limit");
-        CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
+        esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value());
+        esc_.EnableVoltageCompensation(12.0);
 
-        CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
+        esc_.SetClosedLoopRampRate(gains_helper->ramp_rate_.value());
+        esc_.SetOpenLoopRampRate(gains_helper->ramp_rate_.value());
+
+        esc_.BurnFlash();
+
+        esc_.SetPeriodicFramePeriod(rev::CANSparkBase::PeriodicFrame::kStatus0, 30);
 
         return 0;
     };
@@ -469,17 +495,22 @@ class SparkFlexController : ElectronicSpeedController<X> {
     int Reset(units::millisecond_t timeout) {
       if (!setup) return -1;
 
-      CheckOk(obj, esc_.SetCANTimeout(timeout.to<double>()), "CAN Timeout");
+      esc_.SetCANTimeout(timeout.to<double>());
 
       if (gains_helper != nullptr) {
           gains_helper->Write(pid_controller_, gains_cache_, true);
           pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
-          CheckOk(obj, esc_.SetSmartCurrentLimit(gains_helper->current_limit_.value()), "Current Limit");
+          esc_.SetSmartCurrentLimit(gains_helper->current_limit_.value());
       }
 
-      CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
+      esc_.EnableVoltageCompensation(12.0);
 
-      CheckOk(obj, esc_.BurnFlash(), "Burn Flash");
+      esc_.SetClosedLoopRampRate(gains_helper->ramp_rate_.value());
+      esc_.SetOpenLoopRampRate(gains_helper->ramp_rate_.value());
+
+      esc_.BurnFlash();
+
+      esc_.SetPeriodicFramePeriod(rev::CANSparkBase::PeriodicFrame::kStatus0, 30);
       
       return 0;
     };
@@ -503,7 +534,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
     void ZeroEncoder(X pos) {
       if (!setup) return;
 
-      CheckOk(obj, encoder_.SetPosition(conv_.RealToNativePosition(pos)), "Zero Encoder");
+      encoder_.SetPosition(conv_.RealToNativePosition(pos));
     };
 
     void ZeroEncoder() {
@@ -517,7 +548,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
 
       if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
           Reset(CANTimeout);
-          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
+          esc_.ClearFaults();
       }
 
       if (mode == ControlMode::Percent) {
@@ -526,7 +557,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
         double value = std::max(output, -peak_output);
         value = std::min(value, +peak_output);
 
-        CheckOk(obj, pid_controller_.SetReference(value, LocalFlexControlMode(mode)), "Write Duty Cycle");
+        pid_controller_.SetReference(value, LocalFlexControlMode(mode));
       }
     };
 
@@ -535,7 +566,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
 
       if (esc_.GetStickyFault(rev::CANSparkFlex::FaultID::kHasReset)) {
           Reset(CANTimeout);
-          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
+          esc_.ClearFaults();
       }
 
       if (gains_helper != nullptr) {
@@ -543,7 +574,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
       }
 
       if (mode == ControlMode::Velocity) {
-          CheckOk(obj, pid_controller_.SetReference(conv_.RealToNativeVelocity(output), LocalFlexControlMode(mode)), "Write Velocity");
+          pid_controller_.SetReference(conv_.RealToNativeVelocity(output), LocalFlexControlMode(mode));
       }
     };
 
@@ -551,13 +582,18 @@ class SparkFlexController : ElectronicSpeedController<X> {
       if (!setup) return;
 
       if (usingPositionLimits) {
-        output = units::math::max(output, reverse_position_limit);
-        output = units::math::min(output, forward_position_limit);
+        if (output < reverse_position_limit) {
+          pid_controller_.SetReference(0.0, LocalFlexControlMode(ControlMode::Percent));
+          return;
+        } else if (output > forward_position_limit) {
+          pid_controller_.SetReference(0.0, LocalFlexControlMode(ControlMode::Percent));
+          return;
+        }
       }
 
       if (esc_.GetStickyFault(rev::CANSparkFlex::FaultID::kHasReset)) {
           Reset(CANTimeout);
-          CheckOk(obj, esc_.ClearFaults(), "Clear Faults Post Reset");
+          esc_.ClearFaults();
       }
 
       if (gains_helper != nullptr) {
@@ -565,7 +601,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
       }
 
       if (mode == ControlMode::Position) {
-          CheckOk(obj, pid_controller_.SetReference(conv_.RealToNativePosition(output), LocalFlexControlMode(mode)), "Write Position");
+          pid_controller_.SetReference(conv_.RealToNativePosition(output), LocalFlexControlMode(mode));
       }
     };
 
@@ -588,13 +624,13 @@ class SparkFlexController : ElectronicSpeedController<X> {
     }
 
     V GetVelocity() {
-      if (!setup) throw std::exception();
+      if (!setup) return units::make_unit<V>(0);
 
       return conv_.NativeToRealVelocity(encoder_.GetVelocity());
     };
 
     X GetPosition() {
-      if (!setup) throw std::exception();
+      if (!setup) return units::make_unit<X>(0);
 
       return conv_.NativeToRealPosition(encoder_.GetPosition());
     };
@@ -710,16 +746,6 @@ class TalonFXController : ElectronicSpeedController<X> {
         ctre::configs::VoltageConfigs voltageConfs{};
         ctre::configs::CurrentLimitsConfigs currentConfs{};
         ctre::configs::MotorOutputConfigs motorConfs{};
-        ctre::configs::Slot0Configs pidConfs{};
-
-
-        pidConfs.WithKS(gains_helper->f_.value());
-        pidConfs.WithKP(gains_helper->p_.value());
-        pidConfs.WithKI(gains_helper->i_.value());
-        pidConfs.WithKD(gains_helper->d_.value());
-
-        deviceConfigs.WithSlot0(pidConfs);
-
 
         motorConfs.WithInverted(isInverted);
 
@@ -735,14 +761,20 @@ class TalonFXController : ElectronicSpeedController<X> {
         deviceConfigs.WithVoltage(voltageConfs);
         deviceConfigs.WithCurrentLimits(currentConfs);
 
-        pidConfs.WithKS(gains_helper->f_.value());
-        pidConfs.WithKP(gains_helper->p_.value());
-        pidConfs.WithKI(gains_helper->i_.value());
-        pidConfs.WithKD(gains_helper->d_.value());
-
-        deviceConfigs.WithSlot0(pidConfs);
-
         CheckOk(obj, configurator_.Apply(deviceConfigs));
+
+        if (gains_helper != nullptr) {
+          gains_helper->Write(configurator_, deviceConfigs, gains_cache_, false);
+        }
+
+        esc_.OptimizeBusUtilization();
+
+        esc_.GetPosition().SetUpdateFrequency(50_Hz);
+        esc_.GetVelocity().SetUpdateFrequency(50_Hz);
+        esc_.GetSupplyCurrent().SetUpdateFrequency(10_Hz);
+        esc_.GetSupplyVoltage().SetUpdateFrequency(10_Hz);
+        esc_.GetForwardLimit().SetUpdateFrequency(50_Hz);
+        esc_.GetReverseLimit().SetUpdateFrequency(50_Hz);
         
         return 0;
     };
@@ -765,17 +797,7 @@ class TalonFXController : ElectronicSpeedController<X> {
         ctre::configs::VoltageConfigs voltageConfs{};
         ctre::configs::CurrentLimitsConfigs currentConfs{};
         ctre::configs::MotorOutputConfigs motorConfs{};
-        ctre::configs::Slot0Configs pidConfs{};
-
-
-        pidConfs.WithKS(gains_helper->f_.value());
-        pidConfs.WithKP(gains_helper->p_.value());
-        pidConfs.WithKI(gains_helper->i_.value());
-        pidConfs.WithKD(gains_helper->d_.value());
-
-        deviceConfigs.WithSlot0(pidConfs);
-
-
+        
         motorConfs.WithInverted(isInverted);
 
         deviceConfigs.WithMotorOutput(motorConfs);
@@ -790,14 +812,20 @@ class TalonFXController : ElectronicSpeedController<X> {
         deviceConfigs.WithVoltage(voltageConfs);
         deviceConfigs.WithCurrentLimits(currentConfs);
 
-        pidConfs.WithKS(gains_helper->f_.value());
-        pidConfs.WithKP(gains_helper->p_.value());
-        pidConfs.WithKI(gains_helper->i_.value());
-        pidConfs.WithKD(gains_helper->d_.value());
-
-        deviceConfigs.WithSlot0(pidConfs);
-
         CheckOk(obj, configurator_.Apply(deviceConfigs));
+
+        if (gains_helper != nullptr) {
+          gains_helper->Write(configurator_, deviceConfigs, gains_cache_, false);
+        }
+
+        esc_.OptimizeBusUtilization();
+
+        esc_.GetPosition().SetUpdateFrequency(50_Hz);
+        esc_.GetVelocity().SetUpdateFrequency(50_Hz);
+        esc_.GetSupplyCurrent().SetUpdateFrequency(10_Hz);
+        esc_.GetSupplyVoltage().SetUpdateFrequency(10_Hz);
+        esc_.GetForwardLimit().SetUpdateFrequency(50_Hz);
+        esc_.GetReverseLimit().SetUpdateFrequency(50_Hz);
 
         return 0;
     };
@@ -807,7 +835,6 @@ class TalonFXController : ElectronicSpeedController<X> {
 
       ctre::configs::VoltageConfigs voltageConfs{};
       ctre::configs::CurrentLimitsConfigs currentConfs{};
-      ctre::configs::Slot0Configs pidConfs{};
 
       currentConfs.SupplyCurrentLimit = gains_helper->current_limit_.value();
       currentConfs.SupplyCurrentThreshold = 50;
@@ -819,14 +846,20 @@ class TalonFXController : ElectronicSpeedController<X> {
       deviceConfigs.WithVoltage(voltageConfs);
       deviceConfigs.WithCurrentLimits(currentConfs);
 
-      pidConfs.WithKS(gains_helper->f_.value());
-      pidConfs.WithKP(gains_helper->p_.value());
-      pidConfs.WithKI(gains_helper->i_.value());
-      pidConfs.WithKD(gains_helper->d_.value());
-
-      deviceConfigs.WithSlot0(pidConfs);
-
       CheckOk(obj, configurator_.Apply(deviceConfigs));
+
+      if (gains_helper != nullptr) {
+        gains_helper->Write(configurator_, deviceConfigs, gains_cache_, false);
+      }
+
+      esc_.OptimizeBusUtilization();
+
+      esc_.GetPosition().SetUpdateFrequency(50_Hz);
+      esc_.GetVelocity().SetUpdateFrequency(50_Hz);
+      esc_.GetSupplyCurrent().SetUpdateFrequency(10_Hz);
+      esc_.GetSupplyVoltage().SetUpdateFrequency(10_Hz);
+      esc_.GetForwardLimit().SetUpdateFrequency(50_Hz);
+      esc_.GetReverseLimit().SetUpdateFrequency(50_Hz);
       
       return 0;
     };
@@ -878,6 +911,10 @@ class TalonFXController : ElectronicSpeedController<X> {
           esc_.ClearStickyFaults();
       }
 
+      if (gains_helper != nullptr) {
+          gains_helper->Write(configurator_, deviceConfigs, gains_cache_, false);
+      }
+
       // CheckOk(obj, configurator_.Apply(deviceConfigs));
       if (mode == ControlMode::Velocity) {
           ctre::controls::VelocityDutyCycle cntrl{units::turns_per_second_t(conv_.RealToNativeVelocity(output))};
@@ -893,6 +930,10 @@ class TalonFXController : ElectronicSpeedController<X> {
           esc_.ClearStickyFaults();
       }
 
+      if (gains_helper != nullptr) {
+          gains_helper->Write(configurator_, deviceConfigs, gains_cache_, false);
+      }
+
       // CheckOk(obj, configurator_.Apply(deviceConfigs));
 
       if (mode == ControlMode::Position) {
@@ -902,13 +943,13 @@ class TalonFXController : ElectronicSpeedController<X> {
     };
 
     V GetVelocity() {
-      if (!setup) throw std::exception();
+      if (!setup) return units::make_unit<V>(0);
 
       return conv_.NativeToRealVelocity(esc_.GetVelocity().GetValueAsDouble());
     };
 
     X GetPosition() {
-      if (!setup) throw std::exception();
+      if (!setup) return units::make_unit<X>(0);
 
       return conv_.NativeToRealPosition(esc_.GetPosition().GetValueAsDouble());
     };
@@ -1290,7 +1331,7 @@ class RevParallelController {
     }
 
     X GetPosition() {
-      if (!setup) throw std::exception();
+      if (!setup) return units::make_unit<X>(0);
 
       double sum = 0.0;
 

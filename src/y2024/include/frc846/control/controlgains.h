@@ -23,7 +23,8 @@ struct ControlGains {
 
 class ControlGainsHelper : public Loggable {
  public:
-  ControlGainsHelper(Loggable& parent, ControlGains gains, units::ampere_t currentLimit = 40.0_A, double peak_output_ = 1.0);
+  ControlGainsHelper(Loggable& parent, ControlGains gains, units::ampere_t currentLimit = 40.0_A, double peak_output_ = 1.0, 
+    double rampRate = 1.0);
 
   frc846::Pref<double> p_;
   frc846::Pref<double> i_;
@@ -33,8 +34,11 @@ class ControlGainsHelper : public Loggable {
   frc846::Pref<double> current_limit_;
   frc846::Pref<double> peak_output_;
 
-  // void Write(ctre::phoenix6::hardware::TalonFX& esc, ControlGains& cache,
-  //            units::time::millisecond_t timeout, bool ignore_cache = false);
+  frc846::Pref<double> ramp_rate_;
+
+  void Write(ctre::phoenix6::configs::TalonFXConfigurator& configurator,
+        ctre::phoenix6::configs::TalonFXConfiguration& configs, ControlGains& cache, 
+          bool ignore_cache = false);
 
   void Write(rev::SparkPIDController& pid_controller, ControlGains& cache,
              bool ignore_cache = false);

@@ -1,0 +1,52 @@
+Default.int | 0
+Preferences/MotionTargets/Pivot/amp_position.double | 107.000000
+Preferences/MotionTargets/Pivot/intake_position.double | 0.000000
+Preferences/MotionTargets/Pivot/shoot_position.double | 37.000000
+Preferences/MotionTargets/Telescope/amp_position.double | 0.000000
+Preferences/MotionTargets/Telescope/intake_position.double | 2.600000
+Preferences/MotionTargets/Wrist/amp_position.double | 145.000000
+Preferences/MotionTargets/Wrist/intake_position.double | 84.600000
+Preferences/MotionTargets/Wrist/point_blank.double | 40.200000
+Preferences/MotionTargets/Wrist/stow_position.double | 0.000000
+driver/steer_deadband.double | 0.080000
+driver/translation_deadband.double | 0.080000
+drivetrain/auto_max_speed (fps).double | 8.000000
+drivetrain/drive_esc/gains/f.double | 0.010000
+drivetrain/drive_esc/gains/p.double | 0.000000
+drivetrain/max_acceleration (fps_sq).double | 12.000000
+drivetrain/max_deceleration (fps_sq).double | 14.000000
+drivetrain/max_speed (fps).double | 15.000000
+drivetrain/module_BL/cancoder_offset (deg).double | -81.100000
+drivetrain/module_BR/cancoder_offset (deg).double | -174.500000
+drivetrain/module_FL/cancoder_offset (deg).double | 100.800000
+drivetrain/module_FR/cancoder_offset (deg).double | 86.700000
+drivetrain/percent_max_omega.double | 0.550000
+drivetrain/pov_control_speed_.double | 10.000000
+drivetrain/ramp_rate_vx (fps).double | 150.000000
+drivetrain/ramp_rate_vy (fps).double | 200.000000
+pivot/pivot_gains/gains/p.double | 0.700000
+pivot/pivot_gains/gains/peak_output.double | 0.500000
+robot_container/init_drivetrain.bool | false
+robot_container/init_pivot.bool | true
+robot_container/init_scorer.bool | true
+robot_container/init_telescope.bool | false
+robot_container/init_wrist.bool | false
+scorer/intake_feed_speed_ (tps).double | 30.000000
+scorer/intake_gains/gains/f.double | 0.000252
+scorer/intake_gains/gains/p.double | 0.000100
+scorer/intake_gains/gains/peak_output.double | 1.000000
+scorer/intake_gains/gains/smart_current_limit.double | 400.000000
+scorer/ramp_rate_vy (tps).double | 5.000000
+scorer/release_speed.double | -1.000000
+scorer/shooter_gains/gains/f.double | 0.000230
+scorer/shooter_gains/gains/p.double | 0.000000
+scorer/shooter_gains/gains/peak_output.double | 1.000000
+scorer/shooter_speed_ (tps).double | -50.000000
+scorer/shooter_spin.double | 0.330000
+telescope/tele_gains/gains/p.double | 0.300000
+telescope/tele_gains/gains/peak_output.double | 0.300000
+wrist/home_offset_wrist_ (deg).double | 47.000000
+wrist/stow_setpoint_wrist (deg).double | 49.000000
+wrist/stow_setpoint_wrist_ (deg).double | 15.000000
+wrist/wrist_gains/gains/p.double | 1.000000
+wrist/wrist_gains/gains/peak_output.double | 0.250000
