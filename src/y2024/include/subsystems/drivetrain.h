@@ -161,7 +161,7 @@ class DrivetrainSubsystem
                 units::degrees_per_second_t rotation_speed, units::inch_t width,
                 units::inch_t height, units::inch_t radius,
                 units::feet_per_second_t max_speed);
-
+    
   DrivetrainTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;
@@ -313,7 +313,7 @@ class DrivetrainSubsystem
   SwerveModuleSubsystem* modules_all_[kModuleCount]{&module_fl_, &module_fr_,
                                                     &module_bl_, &module_br_};
 
-  AHRS gyro_{frc::SPI::Port::kMXP};
+  AHRS gyro_{frc::SerialPort::kMXP};
 
   DrivetrainReadings GetNewReadings() override;
 

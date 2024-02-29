@@ -24,12 +24,20 @@ DriveAuto::DriveAuto(
         auto pose_ = field::points::kTestingOrigin(flip);
         container.drivetrain_.SetPoint(pose_.point);
         container.drivetrain_.SetBearing(pose_.bearing);
+
+        std::cout << "start" << std::endl;
       }},
 
       FollowTrajectoryCommand{
           container,
           {
-              {field::points::kTestingPoint(should_flip_), 0_fps},
-          }
-    });
+              {{1000_in, 1000_in, 0_deg}, 4_fps},
+          },
+      },
+
+      frc2::InstantCommand{[&, flip = should_flip_] {
+
+        std::cout << "end" << std::endl;
+      }}
+  );
 }

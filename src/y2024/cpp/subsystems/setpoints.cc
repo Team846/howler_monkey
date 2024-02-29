@@ -12,4 +12,11 @@ frc846::motion::MotionTarget setpoints::stow_pivot_{"Pivot", "stow_position", 0_
 frc846::motion::MotionTarget setpoints::stow_telescope_{"Telescope", "stow_position", 0_in};
 frc846::motion::MotionTarget setpoints::stow_wrist_{"Wrist", "stow_position", 0_deg};
 
+frc846::motion::MotionTarget setpoints::shoot_pivot_{"Pivot", "shoot_position", 60_deg};
+frc846::motion::MotionTarget setpoints::shoot_telescope_{"Telescope", "shoot_position", 0_deg};
 frc846::motion::MotionTarget setpoints::point_blank_wrist_{"Wrist", "point_blank", 40_deg};
+
+frc846::motion::MotionTarget setpoints::shoot_x_{"Forward Axis", "shoot_position", 20_in};
+frc846::motion::MotionTarget setpoints::shoot_y_{"Upward Axis", "shoot_position", 20_in};
+frc846::motion::MotionTarget setpoints::point_blank_shooting_angle_{"Shooting Angle", "point_blank", 43_deg};
+

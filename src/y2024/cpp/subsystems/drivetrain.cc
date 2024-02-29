@@ -196,16 +196,6 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
                       roll_initial * units::math::sin(readings.pose.bearing)};
   auto current_time_ = frc846::wpilib::CurrentFPGATime();
 
-  readings.tilt = tilt;
-
-  auto dt = current_time_ - prev_time_;
-  readings.tilt_omega = (tilt - prev_tilt_) / dt;
-
-  tilt_graph_.Graph(tilt);
-  tilt_omega_graph_.Graph(readings.tilt_omega);
-  prev_tilt_ = tilt;
-  prev_time_ = current_time_;
-
   // Gets the position difference vector for each module, to update odometry
   // with
   std::array<frc846::util::Vector2D<units::foot_t>, kModuleCount> module_outs;
@@ -272,24 +262,25 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
 
     if (aprilFrameRequested && aprilTag_table->GetNumber("processorFrameSent", -1)==aprilFrameRequest){
       frc846::util::Vector2D<units::foot_t> robotPoint;\
-      robotPoint.x = units::foot_t(aprilTag_table->GetEntry("robotX").GetDouble(-1.0)) -5.5_in;
-      robotPoint.y = units::foot_t(aprilTag_table->GetEntry("robotY").GetDouble(-1.0)) + 12_in;
+      robotPoint.x = units::foot_t(aprilTag_table->GetEntry("robotX").GetDouble(-1.0)) + 5.5_in;
+      robotPoint.y = units::foot_t(aprilTag_table->GetEntry("robotY").GetDouble(-1.0)) + 11.0_in;
       units::foot_t tagDistance=robotPoint.Magnitude();
 
       auto aprilTagX = units::foot_t(aprilTag_table->GetEntry("aprilTagX").GetDouble(-1.0));
       auto aprilTagY = units::foot_t(aprilTag_table->GetEntry("aprilTagY").GetDouble(-1.0));
       auto aprilTagAngle = units::degree_t(aprilTag_table->GetEntry("aprilTagAngle").GetDouble(0.0));
       bool isRed = frc846::util::ShareTables::GetBoolean("is_red_side");
-      double aprilTagConfidence = aprilTag_table->GetEntry("aprilTagConfidence").GetDouble(0.0);
-      units::degree_t tx = units::math::atan(robotPoint.x/robotPoint.y);
-      robotPoint.x=tagDistance*units::math::cos(270_deg-poseAtLastRequest.bearing-tx);
-      robotPoint.y=tagDistance*units::math::sin(270_deg-poseAtLastRequest.bearing-tx);
-      robotPoint.x = aprilTagX - robotPoint.x;
-      robotPoint.y = aprilTagY - robotPoint.y;
-
       if (!isRed){
         aprilTagAngle+=180_deg;
       }
+      double aprilTagConfidence = aprilTag_table->GetEntry("aprilTagConfidence").GetDouble(0.0);
+      units::degree_t tx = units::math::atan(robotPoint.x/robotPoint.y);
+      robotPoint.x=tagDistance*units::math::cos(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
+      robotPoint.y=tagDistance*units::math::sin(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
+      robotPoint.x = aprilTagX - robotPoint.x;
+      robotPoint.y = aprilTagY - robotPoint.y;
+
+
       if(aprilTagConfidence>=0.8){
         double aprilTagFactor = aprilTagConfidence * confidence_factor_.value() *
                         (1 - (readings.velocity.Magnitude()/max_speed_.value())) * velocity_factor_.value() * 

@@ -24,13 +24,14 @@ drivetrain/percent_max_omega.double | 0.550000
 drivetrain/pov_control_speed_.double | 10.000000
 drivetrain/ramp_rate_vx (fps).double | 150.000000
 drivetrain/ramp_rate_vy (fps).double | 200.000000
-pivot/pivot_gains/gains/p.double | 0.700000
-pivot/pivot_gains/gains/peak_output.double | 0.500000
-robot_container/init_drivetrain.bool | false
+pivot/intake_setpoint_pivot (deg).double | 1.300000
+pivot/pivot_gains/gains/p.double | 0.030000
+pivot/pivot_gains/gains/peak_output.double | 0.350000
+robot_container/init_drivetrain.bool | true
 robot_container/init_pivot.bool | true
 robot_container/init_scorer.bool | true
-robot_container/init_telescope.bool | false
-robot_container/init_wrist.bool | false
+robot_container/init_telescope.bool | true
+robot_container/init_wrist.bool | true
 scorer/intake_feed_speed_ (tps).double | 30.000000
 scorer/intake_gains/gains/f.double | 0.000252
 scorer/intake_gains/gains/p.double | 0.000100
@@ -43,10 +44,13 @@ scorer/shooter_gains/gains/p.double | 0.000000
 scorer/shooter_gains/gains/peak_output.double | 1.000000
 scorer/shooter_speed_ (tps).double | -50.000000
 scorer/shooter_spin.double | 0.330000
-telescope/tele_gains/gains/p.double | 0.300000
+telescope/intake_setpoint_tele_ (in).double | 2.800000
+telescope/tele_gains/gains/p.double | 0.500000
 telescope/tele_gains/gains/peak_output.double | 0.300000
 wrist/home_offset_wrist_ (deg).double | 47.000000
+wrist/intake_setpoint_wrist (deg).double | 83.000000
 wrist/stow_setpoint_wrist (deg).double | 49.000000
 wrist/stow_setpoint_wrist_ (deg).double | 15.000000
-wrist/wrist_gains/gains/p.double | 1.000000
+wrist/wrist_gains/gains/p.double | 0.180000
 wrist/wrist_gains/gains/peak_output.double | 0.250000
+wrist/wrist_gains/gains/ramp_rate.double | 0.000000

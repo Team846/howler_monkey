@@ -3,6 +3,12 @@
 
 #include "frc846/control/motion.h"
 
+struct CoordinateTarget {
+  frc846::motion::MotionTarget shooting_angle;
+  frc846::motion::MotionTarget forward_axis;
+  frc846::motion::MotionTarget upward_axis;
+};
+
 struct setpoints {
   static frc846::motion::MotionTarget amp_pivot_;
   static frc846::motion::MotionTarget amp_telescope_;
@@ -49,7 +55,29 @@ struct setpoints {
     }
   }
 
+  static frc846::motion::MotionTarget shoot_pivot_;
+  static frc846::motion::MotionTarget shoot_telescope_;
   static frc846::motion::MotionTarget point_blank_wrist_;
+
+  static frc846::motion::MotionTarget kShoot(int kIndex) { 
+    switch (kIndex) {
+        case 2:
+            return point_blank_wrist_;
+        case 1:
+            return shoot_telescope_;
+        default:
+            return shoot_pivot_;
+    }
+  }
+
+  static frc846::motion::MotionTarget shoot_x_;
+  static frc846::motion::MotionTarget shoot_y_;
+  static frc846::motion::MotionTarget point_blank_shooting_angle_;
+
+  
+  static CoordinateTarget kShootCoordinates(int kIndex) { 
+    return {point_blank_shooting_angle_, shoot_x_, shoot_y_};
+  }
 };
 
 #endif  // y2024_SETPOINTS_H_
