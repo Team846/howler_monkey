@@ -11,16 +11,19 @@
 #include "units/angular_velocity.h"
 #include "frc/AnalogInput.h"
 #include "frc/AnalogTrigger.h"
+#include "frc/filter/SlewRateLimiter.h"
 
 
 struct ScorerReadings {
   
 };
 
+enum ScorerState {
+  kIdle, kIntake, kSpinUp, kShoot, kRelease
+};
+
 struct ScorerTarget {
-  bool run_intake;
-  bool run_shooter;
-  units::turns_per_second_t shooter_speed;
+  ScorerState target_state;
 };
 
 
@@ -30,16 +33,18 @@ class ScorerSubsystem
   ScorerSubsystem(bool init);
 
   ScorerTarget ZeroTarget() const override;
-  ScorerTarget MakeTarget(bool intake, bool shoot, units::turns_per_second_t shoot_spd);
+  ScorerTarget MakeTarget(ScorerState target_state);
 
   bool VerifyHardware() override;
 
   bool GetHasPiece() { return has_piece_; }
 
-  frc846::Pref<units::turns_per_second_t> intake_speed_{*this, "intake_speed_", 40_tps};
-  frc846::Pref<units::turns_per_second_t> intake_feed_speed_{*this, "intake_feed_speed_", 70.0_tps};
-  frc846::Pref<units::turns_per_second_t> shooter_speed_{*this, "shooter_speed_", 2600_tps};
+  frc846::Pref<double> intake_speed_{*this, "intake_speed_", 0.6};
+  frc846::Pref<double> intake_feed_speed_{*this, "intake_feed_speed_dc_", 0.7};
+  frc846::Pref<units::turns_per_second_t> shooter_speed_{*this, "shooter_speed_", -50_tps};
   frc846::Pref<double> spin_{*this, "shooter_spin", 0.33};
+
+  frc846::Pref<double> release_speed_{*this, "release_speed", -0.3};
 
  private:
   bool has_piece_;
@@ -68,14 +73,14 @@ class ScorerSubsystem
   frc846::control::SparkRevController<units::turn_t> intake_shooter_esc_{*this, 
     "intake_shooter_esc_", ports::scorer_::kController_CANID};
 
-  frc846::control::SparkRevController<units::turn_t> shooter_esc_one_{*this, 
+  frc846::control::SparkFlexController<units::turn_t> shooter_esc_one_{*this, 
     "shooter_esc_one_", ports::scorer_::kShooterOneController_CANID};
 
-  frc846::control::SparkRevController<units::turn_t> shooter_esc_two_{*this, 
+  frc846::control::SparkFlexController<units::turn_t> shooter_esc_two_{*this, 
     "shooter_esc_two", ports::scorer_::kShooterTwoController_CANID};
 
   rev::SparkLimitSwitch note_detection;
-
+  rev::SparkLimitSwitch note_detection_other;
 
   frc::AnalogTrigger note_detector_{0};
 

@@ -57,8 +57,9 @@ void FunkyRobot::StartCompetition() {
 
   frc::DriverStation::StartDataLog(frc::DataLogManager::GetLog());
 
-  std::thread visionThread(VisionThread);
-  visionThread.detach();
+
+  // std::thread visionThread(VisionThread);
+  // visionThread.detach();
  
   // Add dashboard buttons
   frc::SmartDashboard::PutData(
@@ -79,11 +80,11 @@ void FunkyRobot::StartCompetition() {
   // Add autos here
   // Default
 
-  auto_chooser_.AddOption("drive_auto",
-                                 drive_auto_.get());
+  // auto_chooser_.AddOption("drive_auto",
+  //                                drive_auto_.get());
   
-  auto_chooser_.SetDefaultOption("five_piece_auto_red", five_piece_auto_red_.get());
-  auto_chooser_.AddOption("five_piece_auto_blue", five_piece_auto_blue_.get());
+  // auto_chooser_.SetDefaultOption("five_piece_auto_red", five_piece_auto_red_.get());
+  // auto_chooser_.AddOption("five_piece_auto_blue", five_piece_auto_blue_.get());
 
   // Other options
   frc::SmartDashboard::PutData(&auto_chooser_);
@@ -284,8 +285,7 @@ void FunkyRobot::InitTeleopTriggers() {
       [&] { return container_.driver_.readings().right_trigger; }};
 
   frc2::Trigger scorer_eject_trigger{
-      [&] { return (container_.operator_.readings().right_bumper && 
-        container_.pivot_.readings().pivot_position < 20_deg) || (
+      [&] { return (container_.operator_.readings().right_bumper) || (
             !container_.driver_.readings().right_trigger && 
               container_.pivot_.readings().pivot_position > 40_deg &&
                 container_.driver_.readings().right_bumper
@@ -293,7 +293,8 @@ void FunkyRobot::InitTeleopTriggers() {
 
   frc2::Trigger scorer_out_trigger{
       [&] { return (container_.driver_.readings().right_bumper 
-        && container_.driver_.readings().right_trigger
+        && container_.driver_.readings().right_trigger || 
+          container_.operator_.readings().pov == frc846::XboxPOV::kLeft
       ); }};
   
   // // Bind Triggers to commands
