@@ -296,6 +296,9 @@ void FunkyRobot::InitTeleopTriggers() {
         && container_.driver_.readings().right_trigger || 
           container_.operator_.readings().pov == frc846::XboxPOV::kLeft
       ); }};
+
+  frc2::Trigger scorer_manual_intake_trigger{
+      [&] { return (container_.operator_.readings().pov == frc846::XboxPOV::kRight); }};
   
   // // Bind Triggers to commands
   drivetrain_zero_bearing_trigger.WhileTrue(
@@ -329,6 +332,16 @@ void FunkyRobot::InitTeleopTriggers() {
       }).ToPtr());
 
   scorer_out_trigger.OnFalse(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+      }).ToPtr());
+
+  scorer_manual_intake_trigger.WhileTrue(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIntake));
+      }).ToPtr());
+
+  scorer_manual_intake_trigger.OnFalse(
       frc2::InstantCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());

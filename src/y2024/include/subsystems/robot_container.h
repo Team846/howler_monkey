@@ -24,11 +24,11 @@ class RobotContainer : public frc846::Loggable {
 
   DriverSubsystem driver_;
   OperatorSubsystem operator_;
-  DrivetrainSubsystem drivetrain_{false};
-  ScorerSubsystem scorer_{false}; //init_scorer_.value()};
+  DrivetrainSubsystem drivetrain_{init_drivetrain_.value()};
+  ScorerSubsystem scorer_{init_scorer_.value()};
   WristSubsystem wrist_{init_wrist_.value()};
-  PivotSubsystem pivot_{false}; //init_pivot_.value()};
-  TelescopeSubsystem telescope_{false}; //init_telescope_.value()};
+  PivotSubsystem pivot_{init_pivot_.value()};
+  TelescopeSubsystem telescope_{init_telescope_.value()};
   LEDsSubsystem leds_{init_leds_.value()};
 
   std::vector<frc846::SubsystemBase*> all_subsystems_{

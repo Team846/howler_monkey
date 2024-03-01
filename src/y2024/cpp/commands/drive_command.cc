@@ -100,7 +100,7 @@ void DriveCommand::Execute() {
 
   bool is_robot_centric = false;
   bool is_slow_drive = driver_.readings().right_bumper;
-  bool prep_align_speaker = false; driver_.readings().right_trigger;
+  bool prep_align_speaker = false; //driver_.readings().right_trigger;
 
 
   // -----TRANSLATION CONTROL-----
@@ -172,10 +172,10 @@ void DriveCommand::Execute() {
     if (units::math::abs(dist_x) > 0.5_ft || units::math::abs(dist_y) > 0.5_ft) {
       auto target_angle = units::math::atan2(dist_x, dist_y);
 
-      double shooting_dist = (field::points::kSpeakerTeleop() - drivetrain_.readings().pose.point).Magnitude().to<double>();
+      double shooting_dist = (field::points::kSpeaker() - drivetrain_.readings().pose.point).Magnitude().to<double>();
 
       auto robot_velocity = drivetrain_.readings().velocity;
-      auto point_target = (field::points::kSpeakerTeleop() - drivetrain_.readings().pose.point);
+      auto point_target = (field::points::kSpeaker() - drivetrain_.readings().pose.point);
 
       double robot_velocity_in_component = 
         (robot_velocity.x.to<double>() * point_target.x.to<double>() + 

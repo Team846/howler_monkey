@@ -11,6 +11,10 @@ WristSubsystem::WristSubsystem(bool init)
         wrist_esc_.ConfigurePositionLimits(185_deg, 0_deg);
 
         wrist_esc_.ZeroEncoder();
+
+        wrist_esc_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
+          rev::CANSparkBase::PeriodicFrame::kStatus4, 
+          rev::CANSparkBase::PeriodicFrame::kStatus3});
     }
 }
 
@@ -56,7 +60,6 @@ void WristSubsystem::PositionWrist(WristTarget target) {
 
     target_wrist_pos_graph.Graph(*pos);
 
-    std::cout << "here" << std::endl;
   } else if (auto output = std::get_if<double>(&target.wrist_output)) {
     wrist_esc_.Write(frc846::control::ControlMode::Percent, *output);
 

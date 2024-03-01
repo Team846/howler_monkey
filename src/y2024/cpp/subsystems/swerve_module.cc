@@ -21,7 +21,7 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
       drive_esc_helper_{*this, location + "D", drive_esc_id},
       steer_esc_helper_{*this, location + "S", steer_esc_id},
       cancoder_{cancoder_id} {
-    drive_esc_helper_.Setup(drive_esc_gains_helper);
+    drive_esc_helper_.Setup(drive_esc_gains_helper, false, frc846::control::kBrake);
     drive_esc_helper_.SetInverted(true);
     drive_esc_helper_.SetupConverter(drive_conversion);
 
@@ -119,7 +119,7 @@ bool SwerveModuleSubsystem::VerifyHardware() {
   bool ok = true;
   FRC846_VERIFY(drive_esc_helper_.VerifyConnected(), ok,
                 "drive esc not connected");
-  FRC846_VERIFY(drive_esc_helper_.GetInverted() == true, ok,
+  FRC846_VERIFY(drive_esc_helper_.GetInverted() == false, ok,
                 "drive esc incorrect invert state");
   FRC846_VERIFY(steer_esc_helper_.VerifyConnected(), ok,
                 "steer esc not connected");

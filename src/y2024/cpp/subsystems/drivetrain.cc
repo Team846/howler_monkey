@@ -275,13 +275,13 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
       }
       double aprilTagConfidence = aprilTag_table->GetEntry("aprilTagConfidence").GetDouble(0.0);
       units::degree_t tx = units::math::atan(robotPoint.x/robotPoint.y);
-      robotPoint.x=tagDistance*units::math::cos(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
-      robotPoint.y=tagDistance*units::math::sin(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
+      robotPoint.x = tagDistance*units::math::cos(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
+      robotPoint.y = tagDistance*units::math::sin(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
       robotPoint.x = aprilTagX - robotPoint.x;
       robotPoint.y = aprilTagY - robotPoint.y;
 
 
-      if(aprilTagConfidence>=0.8){
+      if(aprilTagConfidence>=0.6){
         double aprilTagFactor = aprilTagConfidence * confidence_factor_.value() *
                         (1 - (readings.velocity.Magnitude()/max_speed_.value())) * velocity_factor_.value() * 
                         (1-readings.angular_velocity.to<double>()/50) * velocity_factor_.value() *

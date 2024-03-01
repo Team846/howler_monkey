@@ -4,6 +4,7 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "subsystems/driver.h"
+#include "subsystems/operator.h"
 #include "subsystems/wrist.h"
 #include "subsystems/drivetrain.h"
 #include "subsystems/telescope.h"
@@ -22,6 +23,7 @@ class TeleopPositioningCommand
 
  private:
   DriverSubsystem& driver_;
+  OperatorSubsystem& operator_;
   DrivetrainSubsystem& drivetrain_;
   PivotSubsystem& pivot_;
   TelescopeSubsystem& telescope_;
@@ -32,8 +34,20 @@ class TeleopPositioningCommand
   bool pivotHasRun = false;
   bool telescopeHasRun = false;
   bool wristHasRun = false;
+  bool lastPivotManual = false;
+  bool lastTeleManual = false;
+  bool lastWristManual = false;
 
-  bool firstPositionRound = true;
+  double mpiv_adj = 0.0;
+  double mtele_adj = 0.0;
+  double mwr_adj = 0.0;
+
+  double mx_adj = 0.0;
+  double mu_adj = 0.0;
+  double ms_adj = 0.0;
+  double pmx_adj = 0.0;
+  double pmu_adj = 0.0;
+  double pms_adj = 0.0;
 };
 
 #endif  // y2024_COMMANDS_TELEOP_POSITIONING_COMMAND_H_

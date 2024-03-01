@@ -49,9 +49,9 @@ class WristSubsystem
 
   frc846::Pref<units::degree_t> intake_setpoint_wrist_{*this, "intake_setpoint_wrist", 0_deg};
 
-  frc846::Pref<units::degree_t> stow_setpoint_wrist_{*this, "stow_setpoint_wrist", 0_deg};
+  frc846::Pref<units::degree_t> stow_setpoint_wrist_{*this, "stow_setpoint_wrist_", 0_deg};
 
-  frc846::Pref<units::degree_t> wrist_home_offset_{*this, "stow_setpoint_wrist", 49_deg};
+  frc846::Pref<units::degree_t> wrist_home_offset_{*this, "home_offset_wrist_", 30_deg};
 
  private:
   bool hasZeroed = false;

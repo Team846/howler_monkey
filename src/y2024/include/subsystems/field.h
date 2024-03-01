@@ -34,7 +34,7 @@ struct field {
       return frc846::util::FieldPoint("testing_origin", 0_in, 0_in, 0_deg).flip(should_flip);
     };
 
-    static frc846::util::Position kTestingPoint(bool should_flip) {
+    static frc846::util::Position  kTestingPoint(bool should_flip) {
       return frc846::util::FieldPoint("testing_point", 0_in, 100_in, 0_deg).flip(should_flip);
     };
 

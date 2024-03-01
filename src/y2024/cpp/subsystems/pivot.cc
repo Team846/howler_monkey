@@ -5,23 +5,36 @@
 PivotSubsystem::PivotSubsystem(bool init)
     : frc846::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
     if (init) {
-        pivot_one_.Setup(&pivot_esc_gains_, true);
-        pivot_two_.Setup(&pivot_esc_gains_, true);
-        pivot_three_.Setup(&pivot_esc_gains_, false);
-        pivot_four_.Setup(&pivot_esc_gains_, false);
-        pivot_one_.SetupConverter(1.0_tr / (60.0/7.0 * 50.0/18.0 * 64.0/10.0));
-        pivot_two_.SetupConverter(1.0_tr / (60.0/7.0 * 50.0/18.0 * 64.0/10.0));
-        pivot_three_.SetupConverter(1.0_tr / (60.0/7.0 * 50.0/18.0 * 64.0/10.0));
-        pivot_four_.SetupConverter(1.0_tr / (60.0/7.0 * 50.0/18.0 * 64.0/10.0));
+        pivot_one_.Setup(&pivot_esc_gains_, true, frc846::control::kBrake);
+        pivot_two_.Setup(&pivot_esc_gains_, true, frc846::control::kBrake);
+        pivot_three_.Setup(&pivot_esc_gains_, false, frc846::control::kBrake);
+        pivot_four_.Setup(&pivot_esc_gains_, false, frc846::control::kBrake);
+        pivot_one_.SetupConverter(1.0_tr / (68.0/7.0 * 50.0/18.0 * 64.0/10.0));
+        pivot_two_.SetupConverter(1.0_tr / (68.0/7.0 * 50.0/18.0 * 64.0/10.0));
+        pivot_three_.SetupConverter(1.0_tr / (68.0/7.0 * 50.0/18.0 * 64.0/10.0));
+        pivot_four_.SetupConverter(1.0_tr / (68.0/7.0 * 50.0/18.0 * 64.0/10.0));
         pivot_one_.ZeroEncoder();
         pivot_two_.ZeroEncoder();
         pivot_three_.ZeroEncoder();
         pivot_four_.ZeroEncoder();
 
-        pivot_one_.ConfigurePositionLimits(120_deg, 0_deg);
-        pivot_two_.ConfigurePositionLimits(120_deg, 0_deg);
-        pivot_three_.ConfigurePositionLimits(120_deg, 0_deg);
-        pivot_four_.ConfigurePositionLimits(120_deg, 0_deg);
+        pivot_one_.ConfigurePositionLimits(120_deg, -5_deg);
+        pivot_two_.ConfigurePositionLimits(120_deg, -5_deg);
+        pivot_three_.ConfigurePositionLimits(120_deg, -5_deg);
+        pivot_four_.ConfigurePositionLimits(120_deg, -5_deg);
+
+        pivot_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
+          rev::CANSparkBase::PeriodicFrame::kStatus4, 
+          rev::CANSparkBase::PeriodicFrame::kStatus3});
+        pivot_two_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
+          rev::CANSparkBase::PeriodicFrame::kStatus4, 
+          rev::CANSparkBase::PeriodicFrame::kStatus3});
+        pivot_three_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
+          rev::CANSparkBase::PeriodicFrame::kStatus4, 
+          rev::CANSparkBase::PeriodicFrame::kStatus3});
+        pivot_four_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
+          rev::CANSparkBase::PeriodicFrame::kStatus4, 
+          rev::CANSparkBase::PeriodicFrame::kStatus3});
     }
 }
 
@@ -55,7 +68,7 @@ bool PivotSubsystem::VerifyHardware() {
 PivotReadings PivotSubsystem::GetNewReadings() {
   PivotReadings readings;
 
-  readings.pivot_position = pivot_three_.GetPosition();
+  readings.pivot_position = pivot_one_.GetPosition();
 
   frc846::util::ShareTables::SetDouble("pivot_position", readings.pivot_position.to<double>());
 
@@ -66,16 +79,20 @@ PivotReadings PivotSubsystem::GetNewReadings() {
 
 void PivotSubsystem::PositionPivot(PivotTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
-    if (*pos < 3.0_deg && readings().pivot_position < 5.0_deg) {
+    if (*pos < 1.0_deg && readings().pivot_position < -0.5_deg) {
       pivot_one_.Write(frc846::control::ControlMode::Percent, 0.0);
       pivot_two_.Write(frc846::control::ControlMode::Percent, 0.0);
       pivot_three_.Write(frc846::control::ControlMode::Percent, 0.0);
       pivot_four_.Write(frc846::control::ControlMode::Percent, 0.0);
     } else {
-      pivot_one_.Write(frc846::control::ControlMode::Position, *pos);
-      pivot_two_.Write(frc846::control::ControlMode::Position, *pos);
-      pivot_three_.Write(frc846::control::ControlMode::Position, *pos);
-      pivot_four_.Write(frc846::control::ControlMode::Position, *pos);
+      // goal = {*pos, units::degrees_per_second_t(0)};
+      // progress = ramp_rate_.Calculate(20_ms, progress, goal);
+      pivot_one_.Write(frc846::control::ControlMode::Position, *pos); //progress.position);
+      pivot_two_.Write(frc846::control::ControlMode::Position, *pos); //progress.position);
+      pivot_three_.Write(frc846::control::ControlMode::Position, *pos); //progress.position);
+      pivot_four_.Write(frc846::control::ControlMode::Position, *pos); //progress.position);
+
+      intermediate_pivot_pos_graph.Graph(progress.position);
     }
 
     target_pivot_pos_graph.Graph(*pos);

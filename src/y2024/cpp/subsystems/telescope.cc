@@ -11,7 +11,11 @@ TelescopeSubsystem::TelescopeSubsystem(bool init)
         
         tele_one_.ZeroEncoder();
        
-        tele_one_.ConfigurePositionLimits(10.5_in, 0_in);
+        tele_one_.ConfigurePositionLimits(8.5_in, 0_in);
+
+        tele_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
+          rev::CANSparkBase::PeriodicFrame::kStatus4, 
+          rev::CANSparkBase::PeriodicFrame::kStatus3});
     }
 }
 
