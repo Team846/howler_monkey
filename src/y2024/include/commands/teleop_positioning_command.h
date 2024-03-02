@@ -34,20 +34,13 @@ class TeleopPositioningCommand
   bool pivotHasRun = false;
   bool telescopeHasRun = false;
   bool wristHasRun = false;
-  bool lastPivotManual = false;
-  bool lastTeleManual = false;
-  bool lastWristManual = false;
 
   double mpiv_adj = 0.0;
   double mtele_adj = 0.0;
-  double mwr_adj = 0.0;
 
   double mx_adj = 0.0;
   double mu_adj = 0.0;
   double ms_adj = 0.0;
-  double pmx_adj = 0.0;
-  double pmu_adj = 0.0;
-  double pms_adj = 0.0;
 };
 
 #endif  // y2024_COMMANDS_TELEOP_POSITIONING_COMMAND_H_

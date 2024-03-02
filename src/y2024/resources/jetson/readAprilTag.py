@@ -16,19 +16,19 @@ aprilTagX=[0-14/12.0]*20
 aprilTagY=[6-6/12.0]*20
 aprilAngle=[180]*20
 
-aprilTagX[4]=104.4/12-5.5/12.0 #RED
+aprilTagX[4]=104.4/12 #RED
 aprilTagY[4]=4.4/12+12/12.0
 aprilAngle[4]=0
 
-aprilTagX[3]=126.65/12-5.5/12.0 #RED
+aprilTagX[3]=126.65/12 #RED
 aprilTagY[3]=4.4/12+12/12.0
 aprilAngle[3]=0
 
-aprilTagX[7]=-126.65/12-5.5/12.0 #BLUE
+aprilTagX[7]=-104.4/12 #BLUE
 aprilTagY[7]=635.8/12+12/12.0
 aprilAngle[7]=180
 
-aprilTagX[8]=-104.4/12-5.5/12.0 #BLUE
+aprilTagX[8]=-126.65/12 #BLUE
 aprilTagY[8]=635.8/12+12/12.0
 aprilAngle[8]=180
 

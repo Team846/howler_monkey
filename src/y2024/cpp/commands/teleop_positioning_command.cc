@@ -29,10 +29,10 @@ class TeleopShootingCalculator {
 
     static constexpr double g = 32.0;
 
-    static constexpr double h = 78/12 - 26/12;
+    static constexpr double h = 81.0/12.0 - 39.0/12.0;
     static constexpr double l = 14.0 / 12.0;
 
-    static constexpr double v = 25.5;
+    static constexpr double v = 48.0;
 
     static constexpr double k = 0; //0.43;
     static constexpr double w = 0; //105.0 * pi / 180.0;
@@ -66,7 +66,7 @@ class TeleopShootingCalculator {
   }
 
   static double calculate(double d, double r_v, double r_o, 
-    double initial_guess = radians(30), double tolerance=0.04, double max_iterations=200) {
+    double initial_guess = radians(1.01), double tolerance=0.04, double max_iterations=600) {
     double x = initial_guess;
     for (int i = 0; i < max_iterations; i++) {
         auto fx = f_of_x(x, d, r_v, r_o);
@@ -75,10 +75,10 @@ class TeleopShootingCalculator {
         }
 
         x -= std::min(radians(120.0/std::max(14, (i+1))), 
-          std::max(radians(-120.0/std::max(14, (i+1))), fx / f_prime(x, d, r_v, r_o))) / 10.0;
+          std::max(radians(-120.0/std::max(14, (i+1))), (fx / f_prime(x, d, r_v, r_o)))) / 10.0;
 
-        if (x < 0.0) x = radians(30);
-        else if (x > pi / 2) x = radians(30);
+        if (x < 0.0) x = radians(1.01);
+        else if (x > pi / 2) x = radians(1.01);
     }
 
     return 0.0;
@@ -126,6 +126,9 @@ class InverseKinematics {
   
   public:
   static RawPositions toRaw(CoordinatePositions pos) {
+    pos.forward_axis = std::max(std::min(pos.forward_axis, robotWidth / 2.0 + 11.0),-robotWidth / 2.0 - 11.0);
+    pos.upward_axis = std::min(std::max(0.0, pos.upward_axis), 47.0);
+
     RawPositions raw{};
 
     double pivotForwardComponent = (pos.forward_axis - (wristToFlywheels)*std::cos(pos.shooting_angle)) 
@@ -203,8 +206,6 @@ void TeleopPositioningCommand::Execute() {
   bool telescope_out_manual = operator_.readings().b_button;
   bool pivot_down_manual = operator_.readings().x_button;
   bool pivot_up_manual = operator_.readings().y_button;
-  bool wrist_up_manual = false;// operator_.readings().pov == frc846::XboxPOV::kUp;
-  bool wrist_down_manual = false; //operator_.readings().pov == frc846::XboxPOV::kDown;
 
   bool running_intake_position = driver_.readings().left_trigger;
   bool running_amp_position = driver_.readings().left_bumper;
@@ -223,7 +224,6 @@ void TeleopPositioningCommand::Execute() {
     } else if (pivot_down_manual) {
       mpiv_adj -= 40.0 / 50.0;
     }
-    pivotHasRun = false;
   }
 
   if (telescope_in_manual || telescope_out_manual) {
@@ -232,16 +232,6 @@ void TeleopPositioningCommand::Execute() {
     } else if (telescope_out_manual) {
       mtele_adj -= 11.0 / (2.0 * 50.0);
     }
-    telescopeHasRun = false;
-  }
-
-  if (wrist_up_manual || wrist_down_manual) {
-    if (wrist_up_manual) {
-      mwr_adj += 40.0 / 50.0;
-    } else if (wrist_down_manual) {
-      mwr_adj -= 40.0 / 50.0;
-    }
-    wristHasRun = false; // remove? fix?
   }
 
   double translate_x = frc846::util::HorizontalDeadband(
@@ -252,82 +242,64 @@ void TeleopPositioningCommand::Execute() {
       driver_.translation_exponent_.value(), 1);
 
   if (std::abs(translate_x) > 0.02) {
-    mx_adj += 11.0 / 50.0 * translate_x;
+    mx_adj -= 11.0 / 50.0 * translate_x;
+    mx_adj = std::min(std::max(mx_adj, 28.0 + 12.0), -(28.0 + 12.0));
   }
 
   if (std::abs(translate_u) > 0.02) {
     mu_adj += 11.0 / 50.0 * translate_u;
+    mu_adj = std::min(std::max(mu_adj, -48.0), 48.0);
   }
 
-  bool wa = operator_.readings().pov == frc846::XboxPOV::kUp;
-  bool wb = operator_.readings().pov == frc846::XboxPOV::kDown;
+  bool w_up = operator_.readings().pov == frc846::XboxPOV::kUp;
+  bool w_d = operator_.readings().pov == frc846::XboxPOV::kDown;
 
-  if (wa || wb) {
-    if (wa) {
+  if (w_up || w_d) {
+    if (w_up) {
       ms_adj += 40.0 / 50.0;
-    } else if (wb) {
+    } else if (w_d) {
       ms_adj -= 40.0 / 50.0;
     }
   }
 
   if (temporary_climb) {
-    pivot_target.pivot_output = -3_deg + units::degree_t(mpiv_adj);
-
-    std::cout << "climbing" << std::endl;
+    pivot_target.pivot_output = -3_deg;
 
     pivotHasRun = true;
   } else if (temporary_pre_climb) {
-    pivot_target.pivot_output = 107_deg + units::degree_t(mpiv_adj);
+    pivot_target.pivot_output = 107_deg;
 
     pivotHasRun = true;
   } else if (running_prep_speaker) {
     double nextPivotTarget = setpoints::kShoot(0).value();
-    pivot_target.pivot_output = units::degree_t(nextPivotTarget + mpiv_adj);
-
-    // std::cout << InverseKinematics::degree_toCoordinate({(setpoints::kShoot(0).value()), 
-    //   (setpoints::kShoot(2).value()),
-    //      (setpoints::kShoot(1).value())}).forward_axis << std::endl;
-    // std::cout << InverseKinematics::degree_toCoordinate({(setpoints::kShoot(0).value()), 
-    //   (setpoints::kShoot(2).value()),
-    //      (setpoints::kShoot(1).value())}).upward_axis<< std::endl;
-    // std::cout << InverseKinematics::degree_toCoordinate({(setpoints::kShoot(0).value()), 
-    //   (setpoints::kShoot(2).value()),
-    //      (setpoints::kShoot(1).value())}).shooting_angle << std::endl;
-    // std::cout << "endback" << std::endl;
-    // std::cout << degs(InverseKinematics::toRaw(InverseKinematics::degree_toCoordinate({(setpoints::kShoot(0).value()), 
-    // (setpoints::kShoot(2).value()),
-    //     (setpoints::kShoot(1).value())})).pivot_angle) << std::endl                                                                                                                                                                                                                                                                                                                                                                                  ;
+    pivot_target.pivot_output = units::degree_t(nextPivotTarget);                                                                                                                                                                                                                                                                                                                                                                         ;
 
     pivotHasRun = true;
 
   } else if (running_intake_position) {
     double nextPivotTarget = setpoints::kIntake(0).value();
-    pivot_target.pivot_output = units::degree_t(nextPivotTarget + mpiv_adj);
+    pivot_target.pivot_output = units::degree_t(nextPivotTarget);
 
     pivotHasRun = true;
   } else if (running_amp_position) {
     double nextPivotTarget = setpoints::kAmp(0).value();
-    pivot_target.pivot_output = units::degree_t(nextPivotTarget + mpiv_adj);
+    pivot_target.pivot_output = units::degree_t(nextPivotTarget);
 
     pivotHasRun = true;
   } else if (pivotHasRun) {
     double nextPivotTarget = setpoints::kStow(0).value();
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);
 
-    mu_adj = 0.0; //FIX
+    mu_adj = 0.0;
     mx_adj = 0.0;
     ms_adj = 0.0;
 
     mpiv_adj = 0.0;
-  } if (pivot_up_manual) {
-    pivot_target.pivot_output = 0.13;
-    lastPivotManual = true;
-  } else if (pivot_down_manual) {
-    pivot_target.pivot_output = -0.13;
-    lastPivotManual = true;
-  } else if (lastPivotManual) {
-    pivot_target.pivot_output = pivot_.readings().pivot_position;
-    lastPivotManual = false;
+
+    pivotHasRun = false;
+  } else {
+    double nextPivotTarget = setpoints::kStow(0).value();
+    pivot_target.pivot_output = units::degree_t(nextPivotTarget);
   }
 
   if (temporary_climb || temporary_pre_climb) {
@@ -336,17 +308,17 @@ void TeleopPositioningCommand::Execute() {
     telescopeHasRun = true;
   } if (running_prep_speaker) {
     double nextTelescopeTarget = setpoints::kShoot(1).value();
-    telescope_target.extension = units::inch_t(nextTelescopeTarget + mtele_adj);
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     telescopeHasRun = true;
   } else if (running_intake_position) {
     double nextTelescopeTarget = setpoints::kIntake(1).value();
-    telescope_target.extension = units::inch_t(nextTelescopeTarget + mtele_adj);
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     telescopeHasRun = true;
   } else if (running_amp_position) {
     double nextTelescopeTarget = setpoints::kAmp(1).value();
-    telescope_target.extension = units::inch_t(nextTelescopeTarget + mtele_adj);
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     telescopeHasRun = true;
   } else if (telescopeHasRun) {
@@ -354,20 +326,16 @@ void TeleopPositioningCommand::Execute() {
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     mtele_adj = 0.0;
-  } if (telescope_out_manual) {
-    telescope_target.extension = 0.1;
-    lastTeleManual = true;
-  } else if (telescope_in_manual) {
-    telescope_target.extension = -0.1;
-    lastTeleManual = true;
-  } else if (lastTeleManual) {
-    telescope_target.extension = telescope_.readings().extension;
-    lastTeleManual = false;
+
+    telescopeHasRun = false;
+  } else {
+    double nextTelescopeTarget = setpoints::kStow(1).value();
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
   }
 
   if (temporary_climb || temporary_pre_climb) {
     double nextWristTarget = setpoints::kStow(2).value();
-    wrist_target.wrist_output = units::degree_t(nextWristTarget + mwr_adj);
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;
   } else if (running_prep_speaker) {
@@ -385,9 +353,7 @@ void TeleopPositioningCommand::Execute() {
       robot_velocity.Magnitude().to<double>() - robot_velocity_in_component * robot_velocity_in_component);
 
 
-    shooting_dist =  (13.0 + 40.0) / 12.0; // shooting_dist + (13.0) / 12.0;
-
-    // std::cout << "SD" << shooting_dist << std::endl;
+    shooting_dist =  shooting_dist + (4.0) / 12.0; //(13.0 + 40.0) / 12.0;
 
     units::degree_t theta = units::degree_t(TeleopShootingCalculator::calculate(shooting_dist, 
       0.0, 0.0));
@@ -400,36 +366,27 @@ void TeleopPositioningCommand::Execute() {
       driver_.SetTarget(driver_target);
     }
 
-    // std::cout << "TH" << theta.to<double>() << std::endl;
-
     wrist_target.wrist_output = 90_deg + units::degree_t(frc846::util::ShareTables::GetDouble("pivot_position")) - 17.5_deg
-      - wrist_.wrist_home_offset_.value() + units::degree_t(theta) + units::degree_t(mwr_adj); //units::degree_t(setpoints::point_blank_wrist_.value());
+      - wrist_.wrist_home_offset_.value() + units::degree_t(theta); //units::degree_t(setpoints::point_blank_wrist_.value());
 
     wristHasRun = true;
   } else if (running_intake_position) {
     double nextWristTarget = setpoints::kIntake(2).value();
-    wrist_target.wrist_output = units::degree_t(nextWristTarget + mwr_adj);
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;
   } else if (running_amp_position) {
     double nextWristTarget = setpoints::kAmp(2).value();
-    wrist_target.wrist_output = units::degree_t(nextWristTarget + mwr_adj);
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;
   } else if (wristHasRun) {
     double nextWristTarget = setpoints::kStow(2).value();
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
-
-    mwr_adj = 0.0;
-  } if (wrist_up_manual) {
-    wrist_target.wrist_output = 0.15;
-    lastWristManual = true;
-  } else if (wrist_down_manual) {
-    wrist_target.wrist_output = -0.15;
-    lastWristManual = true;
-  } else if (lastWristManual) {
-    wrist_target.wrist_output = wrist_.readings().wrist_position;
-    lastWristManual = false;
+    wristHasRun = false;
+  } else {
+    double nextWristTarget = setpoints::kStow(2).value();
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
   }
 
   if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
@@ -441,16 +398,12 @@ void TeleopPositioningCommand::Execute() {
         coordinateConverted.upward_axis += mu_adj;// - pmu_adj;
         // coordinateConverted.shooting_angle += radians(ms_adj);
 
-        // std::cout << mx_adj << "mx adj" << coordinateConverted.forward_axis;
-        // std::cout << mu_adj << "mu adj" << coordinateConverted.upward_axis;
-
-        pivot_target.pivot_output = units::degree_t(degs(InverseKinematics::toRaw(coordinateConverted).pivot_angle));
+        pivot_target.pivot_output = units::degree_t(degs(InverseKinematics::toRaw(coordinateConverted).pivot_angle) + mpiv_adj);
         wrist_target.wrist_output = units::degree_t(degs(InverseKinematics::toRaw(coordinateConverted).wrist_angle) + ms_adj);
-        telescope_target.extension = units::inch_t(InverseKinematics::toRaw(coordinateConverted).extension);
+        telescope_target.extension = units::inch_t(InverseKinematics::toRaw(coordinateConverted).extension + mtele_adj);
       } 
     }
   }
-
   pivot_.SetTarget(pivot_target);
   telescope_.SetTarget(telescope_target);
   wrist_.SetTarget(wrist_target);

@@ -7,6 +7,7 @@
 #include "subsystems/drivetrain.h"
 #include "subsystems/swerve_module.h"
 #include "frc846/loggable.h"
+#include "frc846/util/share_tables.h"
 
 class DriveShootingCalculator {
   private:
@@ -29,10 +30,10 @@ class DriveShootingCalculator {
 
     static constexpr double g = 32.0;
 
-    static constexpr double h = 78/12 - 26/12;
+    static constexpr double h = 81.0/12 - 39.0/12;
     static constexpr double l = 14.0 / 12.0;
 
-    static constexpr double v = 25.5;
+    static constexpr double v = 48.0;
 
     static constexpr double k = 0; //0.43;
     static constexpr double w = 0; //105.0 * pi / 180.0;
@@ -64,7 +65,7 @@ class DriveShootingCalculator {
   }
 
   static double calculate(double d, double r_v, double r_o, 
-    double initial_guess = radians(30), double tolerance=0.01, double max_iterations=150) {
+    double initial_guess = radians(1.01), double tolerance=0.01, double max_iterations=600) {
     double x = initial_guess;
     for (int i = 0; i < max_iterations; i++) {
         auto fx = f_of_x(x, d, r_v, r_o);
@@ -72,11 +73,11 @@ class DriveShootingCalculator {
           return degs(std::asin(r_o / (v * std::cos(x))));
         }
 
-        x -= std::min(radians(120.0/std::max(10, (i+1))), 
-          std::max(radians(-120.0/std::max(10, (i+1))), 100 * fx / f_prime(x, d, r_v, r_o)));
+        x -= std::min(radians(120.0/std::max(14, (i+1))), 
+          std::max(radians(-120.0/std::max(14, (i+1))), fx / f_prime(x, d, r_v, r_o))) / 10.0;
 
-        if (x < 0.0) x = radians(45);
-        else if (x > pi / 2) x = radians(45);
+        if (x < 0.0) x = radians(1.01);
+        else if (x > pi / 2) x = radians(1.01);
     }
 
     return 0.0;
@@ -100,7 +101,7 @@ void DriveCommand::Execute() {
 
   bool is_robot_centric = false;
   bool is_slow_drive = driver_.readings().right_bumper;
-  bool prep_align_speaker = false; //driver_.readings().right_trigger;
+  bool prep_align_speaker = driver_.readings().right_trigger;
 
 
   // -----TRANSLATION CONTROL-----
@@ -163,16 +164,16 @@ void DriveCommand::Execute() {
   if (prep_align_speaker) {
     auto current_x = drivetrain_.readings().pose.point.x;
     auto current_y = drivetrain_.readings().pose.point.y;
-    auto target_x = field::points::kSpeakerTeleop().x;
-    auto target_y = field::points::kSpeakerTeleop().y;
+    auto target_x = field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")).x;
+    auto target_y = field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")).y;
 
     auto dist_x = target_x - current_x;
     auto dist_y = target_y - current_y;
 
     if (units::math::abs(dist_x) > 0.5_ft || units::math::abs(dist_y) > 0.5_ft) {
-      auto target_angle = units::math::atan2(dist_x, dist_y);
+      auto target_angle = units::math::atan2(dist_x, units::math::abs(dist_y));
 
-      double shooting_dist = (field::points::kSpeaker() - drivetrain_.readings().pose.point).Magnitude().to<double>();
+      double shooting_dist = (field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")) - drivetrain_.readings().pose.point).Magnitude().to<double>();
 
       auto robot_velocity = drivetrain_.readings().velocity;
       auto point_target = (field::points::kSpeaker() - drivetrain_.readings().pose.point);
@@ -186,9 +187,9 @@ void DriveCommand::Execute() {
         robot_velocity.Magnitude().to<double>() - robot_velocity_in_component * robot_velocity_in_component);
 
       units::degree_t theta_adjust = units::degree_t(DriveShootingCalculator::calculate(shooting_dist, 
-        robot_velocity_in_component, robot_velocity_orth_component));
+        0.0, 0.0));
    
-      drivetrain_target.rotation = DrivetrainRotationPosition(target_angle + 180_deg - theta_adjust);
+      drivetrain_target.rotation = DrivetrainRotationPosition(target_angle - theta_adjust);
     }
   }
 
