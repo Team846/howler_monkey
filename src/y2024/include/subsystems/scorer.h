@@ -15,7 +15,7 @@
 
 
 struct ScorerReadings {
-  
+  double kLeftErrorPercent;
 };
 
 enum ScorerState {
@@ -45,6 +45,8 @@ class ScorerSubsystem
   frc846::Pref<double> spin_{*this, "shooter_spin", 0.33};
 
   frc846::Pref<double> release_speed_{*this, "release_speed", -0.3};
+
+  frc846::Pref<double> shooting_exit_velocity_{*this, "shooting_exit_velocity", 47.0};
 
  private:
   bool has_piece_;
@@ -81,9 +83,6 @@ class ScorerSubsystem
 
   rev::SparkLimitSwitch note_detection;
   rev::SparkLimitSwitch note_detection_other;
-
-  frc::AnalogTrigger note_detector_{0};
-
 
   ScorerReadings GetNewReadings() override;
 

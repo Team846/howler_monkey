@@ -60,6 +60,7 @@ bool ScorerSubsystem::VerifyHardware() {
 }
 
 ScorerReadings ScorerSubsystem::GetNewReadings() {
+  ScorerReadings readings;
   if (!has_piece_) {
     has_piece_ = note_detection.Get();
   }
@@ -67,9 +68,10 @@ ScorerReadings ScorerSubsystem::GetNewReadings() {
   frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
   readings_has_piece_graph.Graph(has_piece_);
 
-  readings_shooting_speed_left_graph.Graph(shooter_speed_.value().to<double>() * (1 - spin_.value()) - shooter_esc_one_.GetVelocity().to<double>());
+  readings.kLeftErrorPercent = (shooter_speed_.value().to<double>() * (1 + spin_.value()) - shooter_esc_one_.GetVelocity().to<double>()) / (shooter_speed_.value().to<double>() * (1 + spin_.value()));
 
-  ScorerReadings readings;
+  readings_shooting_speed_left_graph.Graph(shooter_speed_.value().to<double>());
+
   return readings;
 }
 
@@ -108,7 +110,7 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
   } else {
     frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, 0);
-    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0);
-    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0);
+    shooter_esc_one_.Write(frc846::control::ControlMode::Velocity, 0.0_tps); //shooter_speed_.value() / 2.5);
+    shooter_esc_two_.Write(frc846::control::ControlMode::Velocity, 0.0_tps);//, shooter_speed_.value() / 2.5);
   }
 }

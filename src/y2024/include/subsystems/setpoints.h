@@ -70,13 +70,19 @@ struct setpoints {
     }
   }
 
-  static frc846::motion::MotionTarget shoot_x_;
-  static frc846::motion::MotionTarget shoot_y_;
-  static frc846::motion::MotionTarget point_blank_shooting_angle_;
+  static frc846::motion::MotionTarget trap_pivot_;
+  static frc846::motion::MotionTarget trap_telescope_;
+  static frc846::motion::MotionTarget trap_wrist_;
 
-  
-  static CoordinateTarget kShootCoordinates(int kIndex) { 
-    return {point_blank_shooting_angle_, shoot_x_, shoot_y_};
+  static frc846::motion::MotionTarget kTrap(int kIndex) { 
+    switch (kIndex) {
+        case 2:
+            return trap_wrist_;
+        case 1:
+            return trap_telescope_;
+        default:
+            return trap_pivot_;
+    }
   }
 };
 
