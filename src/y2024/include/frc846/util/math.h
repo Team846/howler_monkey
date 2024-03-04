@@ -119,7 +119,7 @@ class FieldPoint {
     return flip(*this, should_flip);
   }
 
-  Loggable& point_names_ = *(new Loggable("field_points"));
+  Loggable& point_names_ = *(new Loggable("Preferences/field_points"));
 
   FieldPoint(std::string name) : 
     x{point_names_, name + "_x", 0.0_in},

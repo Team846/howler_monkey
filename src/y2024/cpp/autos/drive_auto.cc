@@ -31,7 +31,7 @@ DriveAuto::DriveAuto(
       FollowTrajectoryCommand{
           container,
           {
-              {{1000_in, 1000_in, 0_deg}, 4_fps},
+              {field::points::kTestingPoint(should_flip_), 0_fps},
           },
       },
 
