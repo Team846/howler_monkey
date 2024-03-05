@@ -113,11 +113,12 @@ struct field {
     };
     
     //ONE PIECE AUTO
+    static frc846::util::FieldPoint op_origin;
     static frc846::util::Position kOPOrigin(bool should_flip){
-      return frc846::util::FieldPoint("OP_origin", 104.4_in, 44.4_in, 0_deg).flip(should_flip);
+      return op_origin.flip(should_flip);
     }
 
-    frc846::util::FieldPoint op_end;
+    static frc846::util::FieldPoint op_end;
     static frc846::util::Position kOPEnd(bool should_flip){
       return op_end.flip(should_flip);
     }
