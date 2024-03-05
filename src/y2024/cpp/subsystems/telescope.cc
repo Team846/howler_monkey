@@ -11,7 +11,7 @@ TelescopeSubsystem::TelescopeSubsystem(bool init)
         
         tele_one_.ZeroEncoder();
        
-        tele_one_.ConfigurePositionLimits(3.9_in, 0_in);
+        tele_one_.ConfigurePositionLimits(7.0_in, 0_in);
 
         tele_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
           rev::CANSparkBase::PeriodicFrame::kStatus4, 
@@ -57,18 +57,7 @@ TelescopeReadings TelescopeSubsystem::GetNewReadings() {
 
 void TelescopeSubsystem::PositionTelescope(TelescopeTarget target) {
   if (auto pos = std::get_if<units::inch_t>(&target.extension)) {
-    if (frc846::util::ShareTables::GetDouble("pivot_position") < 10.0) {
-      tele_one_.ConfigurePositionLimits(2.6_in, 0_in);
-    } else {
-      tele_one_.ConfigurePositionLimits(3.9_in, 0_in);
-    }
-    if ((frc846::util::ShareTables::GetDouble("pivot_position") > 60.0 &&
-      frc846::util::ShareTables::GetDouble("wrist_position") > 110.0) ||
-      frc846::util::ShareTables::GetDouble("pivot_position") < 7.0)
-      tele_one_.Write(frc846::control::ControlMode::Position, *pos);
-    else {
-      tele_one_.Write(frc846::control::ControlMode::Position, 0.0_in);
-    }
+    tele_one_.Write(frc846::control::ControlMode::Position, *pos);
 
     target_tele_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.extension)) {

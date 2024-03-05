@@ -80,11 +80,14 @@ void FunkyRobot::StartCompetition() {
   // Add autos here
   // Default
 
-  // auto_chooser_.AddOption("drive_auto",
-  //                                drive_auto_.get());
+  auto_chooser_.AddOption("drive_auto",
+                                 drive_auto_.get());
   
-  // auto_chooser_.SetDefaultOption("five_piece_auto_red", five_piece_auto_red_.get());
-  // auto_chooser_.AddOption("five_piece_auto_blue", five_piece_auto_blue_.get());
+  auto_chooser_.SetDefaultOption("five_piece_auto_red", five_piece_auto_red_.get());
+  auto_chooser_.AddOption("five_piece_auto_blue", five_piece_auto_blue_.get());
+  auto_chooser_.AddOption("three_piece_source_auto_red", three_piece_source_auto_red_.get());
+  auto_chooser_.AddOption("three_piece_source_auto_blue", three_piece_source_auto_blue_.get());
+  auto_chooser_.AddOption("one_piece_auto", one_piece_auto_.get());
 
   // Other options
   frc::SmartDashboard::PutData(&auto_chooser_);
@@ -282,18 +285,21 @@ void FunkyRobot::InitTeleopTriggers() {
       [&] { return container_.driver_.readings().left_trigger; }};
 
   frc2::Trigger scorer_spin_up_trigger{
-      [&] { return container_.driver_.readings().right_trigger; }};
+      [&] { return container_.driver_.readings().right_trigger 
+        || container_.driver_.readings().y_button
+          || container_.operator_.readings().right_stick_x > 0.5 
+            || container_.operator_.readings().right_stick_y > 0.5; }};
 
   frc2::Trigger scorer_eject_trigger{
       [&] { return (container_.operator_.readings().right_bumper) || (
-            !container_.driver_.readings().right_trigger && 
+            !(container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && 
               container_.pivot_.readings().pivot_position > 40_deg &&
                 container_.driver_.readings().right_bumper
         ); }};
 
   frc2::Trigger scorer_out_trigger{
-      [&] { return (container_.driver_.readings().right_bumper 
-        && container_.driver_.readings().right_trigger || 
+      [&] { return ((container_.driver_.readings().right_bumper
+        && (container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.2) || 
           container_.operator_.readings().pov == frc846::XboxPOV::kLeft
       ); }};
 

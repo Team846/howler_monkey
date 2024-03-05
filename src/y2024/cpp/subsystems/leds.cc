@@ -40,6 +40,32 @@ void LEDsSubsystem::DirectWrite(LEDsTarget target) {
       for (int i = 0; i < kLength; i++){
         leds_buffer_[i].SetRGB(0, 255, 0);
       }
+    } else if (frc846::util::ShareTables::GetString("shooting_state").compare("kReady") == 0){
+      if (loops % 10 < 5){
+        for (int i = 0; i < kLength; i++){
+          leds_buffer_[i].SetRGB(0, 255, 0);
+        }
+      }
+      else {
+        for (int i = 0; i < kLength; i++){
+          leds_buffer_[i].SetRGB(0, 0, 0);
+        }
+      }
+      loops++;
+      loops%=100;
+    } else if (frc846::util::ShareTables::GetString("shooting_state").compare("kUnready") == 0){
+      if (loops % 20 < 10){
+        for (int i = 0; i < kLength; i++){
+          leds_buffer_[i].SetRGB(0, 0, 255);
+        }
+      }
+      else {
+        for (int i = 0; i < kLength; i++){
+          leds_buffer_[i].SetRGB(0, 0, 0);
+        }
+      }
+      loops++;
+      loops%=100;
     } else if (frc846::util::ShareTables::GetBoolean("scorer_has_piece")){
       for (int i = 0; i < kLength; i++) {
         const auto pixelHue = (first_pixel_hue_ + (i * 180 / kLength)) % 180;

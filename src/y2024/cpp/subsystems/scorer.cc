@@ -31,8 +31,6 @@ ScorerSubsystem::ScorerSubsystem(bool init)
         note_detection.EnableLimitSwitch(true);
 
 
-        shooter_esc_two_.SetInverted(true);
-
         note_detection_other.EnableLimitSwitch(false);
 
     }
@@ -110,7 +108,7 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
   } else {
     frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, 0);
-    shooter_esc_one_.Write(frc846::control::ControlMode::Velocity, 0.0_tps); //shooter_speed_.value() / 2.5);
-    shooter_esc_two_.Write(frc846::control::ControlMode::Velocity, 0.0_tps);//, shooter_speed_.value() / 2.5);
+    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0.0);
+    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0.0);
   }
 }

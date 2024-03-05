@@ -440,7 +440,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
 
         if (gains_helper != nullptr) {
             gains_helper->Write(pid_controller_, gains_cache_, true);
-            pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
+            pid_controller_.SetOutputRange(gains_helper->reverse_peak_output_.value(), gains_helper->peak_output_.value());
         }
 
         esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value());
@@ -475,7 +475,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
 
         if (gains_helper != nullptr) {
              gains_helper->Write(pid_controller_, gains_cache_, true);
-             pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
+             pid_controller_.SetOutputRange(gains_helper->reverse_peak_output_.value(), gains_helper->peak_output_.value());
         }
 
         esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value());
@@ -499,7 +499,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
 
       if (gains_helper != nullptr) {
           gains_helper->Write(pid_controller_, gains_cache_, true);
-          pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(), gains_helper->peak_output_.value());
+          pid_controller_.SetOutputRange(gains_helper->reverse_peak_output_.value(), gains_helper->peak_output_.value());
           esc_.SetSmartCurrentLimit(gains_helper->current_limit_.value());
       }
 
@@ -738,9 +738,6 @@ class TalonFXController : ElectronicSpeedController<X> {
           return -1;
         }
         
-        if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Coast); 
-        else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
-
         gains_helper = gainsHelper;
 
         ctre::configs::VoltageConfigs voltageConfs{};
@@ -748,6 +745,9 @@ class TalonFXController : ElectronicSpeedController<X> {
         ctre::configs::MotorOutputConfigs motorConfs{};
 
         motorConfs.WithInverted(isInverted);
+
+        if (kIdleMode == kCoast) motorConfs.WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Coast); 
+        else if (kIdleMode == kBrake) motorConfs.WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
 
         deviceConfigs.WithMotorOutput(motorConfs);
 
@@ -789,9 +789,6 @@ class TalonFXController : ElectronicSpeedController<X> {
           return -1;
         }
 
-        if (kIdleMode == kCoast) esc_.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Coast); 
-        else if (kIdleMode == kBrake) esc_.SetNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
-
         gains_helper = gainsHelper;
 
         ctre::configs::VoltageConfigs voltageConfs{};
@@ -799,6 +796,9 @@ class TalonFXController : ElectronicSpeedController<X> {
         ctre::configs::MotorOutputConfigs motorConfs{};
         
         motorConfs.WithInverted(isInverted);
+
+        if (kIdleMode == kCoast) motorConfs.WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Coast); 
+        else if (kIdleMode == kBrake) motorConfs.WithNeutralMode(ctre::phoenix6::signals::NeutralModeValue::Brake);
 
         deviceConfigs.WithMotorOutput(motorConfs);
 
@@ -811,6 +811,7 @@ class TalonFXController : ElectronicSpeedController<X> {
 
         deviceConfigs.WithVoltage(voltageConfs);
         deviceConfigs.WithCurrentLimits(currentConfs);
+
 
         CheckOk(obj, configurator_.Apply(deviceConfigs));
 

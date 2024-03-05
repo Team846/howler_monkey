@@ -35,7 +35,7 @@ FivePieceAuto::FivePieceAuto(
         container.drivetrain_.SetBearing(pose_.bearing);
         first_distance = (field::points::kSpeaker(flip) - pose_.point).Magnitude();
       }},
-      PrepareShootCommand{ container, first_distance },
+      PrepareShootCommand{ container, 0.0}, //first_distance.to<double>() },
       SpeakerAlignCommand{ container, 
           field::points::kFPOrigin(should_flip_).point},
       frc2::WaitCommand{0.5_s},

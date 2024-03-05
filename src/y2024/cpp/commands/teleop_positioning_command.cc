@@ -83,27 +83,120 @@ class TeleopShootingCalculator {
   }
 };
 
-// struct RawPositions {
-//   double pivot_angle;
-//   double wrist_angle;
-//   double extension;
-// };
+struct RawPositions {
+  double pivot_angle;
+  double wrist_angle;
+  double extension;
+};
 
-// struct CoordinatePositions {
-//   double shooting_angle;
-//   double forward_axis;
-//   double upward_axis;
-// };
+struct CoordinatePositions {
+  double shooting_angle;
+  double forward_axis;
+  double upward_axis;
+};
 
-static double radians(double degs) {
+static constexpr double radians(double degs) {
   return degs * 3.141592658979 / 180;
 }
 
-static double degs(double radians) {
+static constexpr double degs(double radians) {
     return radians * 180 / 3.141592658979;
 }
 
+class InverseKinematics {
+  private:
+  static constexpr double pivotToWrist = 20.05;
+  static constexpr double pivotToWristOffset = -4.25;
+  static constexpr double wristToFlywheels = 6.2;
 
+  static constexpr double pivotToGround = 17.5;
+
+  static constexpr double pivotToCenter = 9.5; //FIX
+
+  static constexpr double robotWidth = 28;
+
+  static double pow(double base, int exponent) {
+    for (int i = 1; i < exponent; i++) {
+      base *= base;
+    }
+    return base;
+  }
+  
+  public:
+  static bool withinBounds(CoordinatePositions pos) {
+    return (pos.forward_axis > robotWidth / 2.0 + 10.0 || pos.forward_axis < -robotWidth / 2.0 - 10.0
+      ||  pos.upward_axis < 0.0 || pos.upward_axis > 47.0);
+  }
+
+  static RawPositions toRaw(CoordinatePositions pos) {
+    if (pos.forward_axis > robotWidth / 2.0 + 10.0 || pos.forward_axis < -robotWidth / 2.0 - 10.0
+      ||  pos.upward_axis < 0.0 || pos.upward_axis > 47.0) {
+
+      double angle = atan2(pos.upward_axis, pos.forward_axis);
+
+      double maxMagnitude = std::abs(std::min(robotWidth / 2.0 + 10.0, -robotWidth / 2.0 - 10.0) / cos(angle));
+      
+
+      double magnitude = std::min(std::max(0.0, std::min(std::max(0.0, std::hypot(pos.forward_axis, pos.upward_axis)), maxMagnitude)), 47.0);
+
+      pos.forward_axis = magnitude * cos(angle);
+      pos.upward_axis = magnitude * sin(angle);
+    }
+
+    RawPositions raw{};
+
+    double pivotForwardComponent = (pos.forward_axis - (wristToFlywheels)*std::cos(pos.shooting_angle)) 
+      - pivotToCenter;
+
+    double pivotUpwardComponent = (pos.upward_axis - (wristToFlywheels)*std::sin(pos.shooting_angle)) - pivotToGround;
+    
+    raw.extension = std::sqrt(pow(pivotForwardComponent, 2) + pow(pivotUpwardComponent, 2) - pow(pivotToWristOffset, 2)) 
+        - pivotToWrist;
+
+    double pivotDistanceHypotenuse = (std::sqrt(pow(pivotToWristOffset, 2) 
+      + pow(pivotToWrist + raw.extension, 2)));
+
+
+    double pivotTotalAngle = (std::atan2(pivotForwardComponent, pivotUpwardComponent));
+
+    double pivotAddedAngle = (std::atan2(pivotToWristOffset, pivotToWrist + raw.extension));
+
+    raw.pivot_angle =  radians(90) - (pivotTotalAngle - pivotAddedAngle - radians(17.0));
+
+    raw.wrist_angle = -(pos.shooting_angle - (std::atan2(pivotUpwardComponent, pivotForwardComponent)) - radians(47.0));
+
+    return raw;
+  }
+
+  static CoordinatePositions toCoordinate(RawPositions pos) {
+    CoordinatePositions coordinate{};
+
+    pos.pivot_angle -= radians(17.0);
+    pos.wrist_angle -= radians(47.0);
+  
+    double truePivotAngle = (pos.pivot_angle) - (std::atan2(pivotToWristOffset,
+          pos.extension+pivotToWrist));
+
+
+    double pivotDistanceHypotenuse = (std::sqrt(pow(pivotToWristOffset, 2) 
+      + pow(pivotToWrist + pos.extension, 2)));
+
+    coordinate.upward_axis = (pivotToGround + 
+       pivotDistanceHypotenuse * std::sin(truePivotAngle) + 
+        wristToFlywheels * std::sin(truePivotAngle - pos.wrist_angle));
+
+    coordinate.forward_axis = (pivotDistanceHypotenuse * std::cos(truePivotAngle) + 
+      wristToFlywheels * std::cos(truePivotAngle - pos.wrist_angle)) + pivotToCenter;
+
+    coordinate.shooting_angle = ((truePivotAngle) - pos.wrist_angle); 
+
+    return coordinate;
+  }
+
+  static CoordinatePositions degree_toCoordinate(RawPositions pos) {
+    return toCoordinate({radians(pos.pivot_angle), radians(pos.wrist_angle), pos.extension});
+  }
+};
 
 TeleopPositioningCommand::TeleopPositioningCommand(RobotContainer& container)
     : driver_(container.driver_),
@@ -339,21 +432,27 @@ void TeleopPositioningCommand::Execute() {
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
   }
 
-  // if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
-  //   if (auto* wrist_pos = std::get_if<units::angle::degree_t>(&wrist_target.wrist_output)) {
-  //     if (auto* tele_ext = std::get_if<units::inch_t>(&telescope_target.extension)) {
-  //       CoordinatePositions coordinateConverted = InverseKinematics::toCoordinate({radians(piv_pos->to<double>()), 
-  //         radians(wrist_pos->to<double>()), tele_ext->to<double>()});
-  //       coordinateConverted.forward_axis += mx_adj;// - pmx_adj;
-  //       coordinateConverted.upward_axis += mu_adj;// - pmu_adj;
-  //       // coordinateConverted.shooting_angle += radians(ms_adj);
 
-  //       pivot_target.pivot_output = units::degree_t(degs(InverseKinematics::toRaw(coordinateConverted).pivot_angle) + mpiv_adj);
-  //       wrist_target.wrist_output = units::degree_t(degs(InverseKinematics::toRaw(coordinateConverted).wrist_angle) + ms_adj);
-  //       telescope_target.extension = units::inch_t(InverseKinematics::toRaw(coordinateConverted).extension + mtele_adj);
-  //     } 
-  //   }
-  // }
+  if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
+    if (auto* wrist_pos = std::get_if<units::angle::degree_t>(&wrist_target.wrist_output)) {
+      if (auto* tele_ext = std::get_if<units::inch_t>(&telescope_target.extension)) {
+        CoordinatePositions coordinateConverted = InverseKinematics::toCoordinate({radians(piv_pos->to<double>() + mpiv_adj), 
+          radians(wrist_pos->to<double>() + ms_adj), tele_ext->to<double>() + mtele_adj});
+
+        if (!InverseKinematics::withinBounds(coordinateConverted)) {
+          mpiv_adj = pmpiv_adj;
+          ms_adj = pms_adj;
+          mtele_adj = pmtele_adj;
+
+          std::cout << "OUT of bounds" << std::endl;
+        } else {
+          pmpiv_adj =  mpiv_adj;
+          pms_adj = ms_adj;
+          pmtele_adj = mtele_adj;
+        }
+      } 
+    }
+  }
 
   if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
     pivot_target.pivot_output = *piv_pos + units::degree_t(mpiv_adj);

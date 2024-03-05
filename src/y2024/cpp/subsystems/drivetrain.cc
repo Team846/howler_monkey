@@ -261,7 +261,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
     }
 
     if (aprilFrameRequested && aprilTag_table->GetNumber("processorFrameSent", -1)==aprilFrameRequest){
-      frc846::util::Vector2D<units::foot_t> robotPoint;\
+      frc846::util::Vector2D<units::foot_t> robotPoint;
       robotPoint.x = units::foot_t(aprilTag_table->GetEntry("robotX").GetDouble(-1.0)) + 5.5_in;
       robotPoint.y = units::foot_t(aprilTag_table->GetEntry("robotY").GetDouble(-1.0)) + 11.0_in;
       units::foot_t tagDistance=robotPoint.Magnitude();
@@ -285,7 +285,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
         double aprilTagFactor = aprilTagConfidence * confidence_factor_.value() *
                         (1 - (readings.velocity.Magnitude()/max_speed_.value())) * velocity_factor_.value() * 
                         (1-readings.angular_velocity.to<double>()/50) * velocity_factor_.value() *
-                        (1/(tagDistance.to<double>())) * distance_factor_.value() * 
+                        (15-(tagDistance.to<double>())) * distance_factor_.value() * 
                         pow((1-(units::math::abs(readings.pose.bearing-aprilTagAngle)/40_deg)).to<double>(),6) * angle_offset_factor_.value();
 
         frc846::util::Vector2D<units::foot_t> point;
@@ -362,6 +362,7 @@ void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
   // Max speed in open loop vs closed loop
   auto max_speed = target.control == kOpenLoop ? max_speed_.value()
                                                : auto_max_speed_.value();
+
 
   auto targets = SwerveControl(target_translation, target_omega, width_.value(),
                                height_.value(), module_radius_, max_speed);

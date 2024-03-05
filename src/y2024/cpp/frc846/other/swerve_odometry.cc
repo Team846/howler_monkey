@@ -4,6 +4,7 @@
 #include <cstdio>
 
 #include "frc846/util/math.h"
+#include "frc846/util/share_tables.h"
 
 namespace frc846 {
 
@@ -12,6 +13,8 @@ SwerveOdometry::SwerveOdometry(util::Position initial_pose) : pose_(initial_pose
 void SwerveOdometry::Update(
     std::array<util::Vector2D<units::foot_t>, kModuleCount> wheel_vecs,
     units::radian_t bearing) {
+
+  
   // change in distance from the last odometry update
   for (int i = 0; i < kModuleCount; i++) {
     units::foot_t wheel_dist = wheel_vecs[i].Magnitude();
@@ -29,6 +32,7 @@ void SwerveOdometry::Update(
   // get the distance components of each of the module, accounting for the robot
   // bearing
   std::array<util::Vector2D<units::foot_t>, kModuleCount> xy_comps;
+
   for (int i = 0; i < kModuleCount; i++) {
     xy_comps[i] = {
         wheel_vecs[i].Magnitude() * units::math::sin(wheel_vecs[i].Bearing()),
@@ -57,7 +61,11 @@ void SwerveOdometry::Update(
   };
 
   pose_.point.x += (top_bottom.y + left_right.y) / 2;
-  pose_.point.y += (top_bottom.x + left_right.x) / 2;
+  if (frc846::util::ShareTables::GetBoolean("is_red_side") || (frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)) {
+    pose_.point.y += (top_bottom.x + left_right.x) / 2;
+  } else {
+    pose_.point.y -= (top_bottom.x + left_right.x) / 2;
+  }
   pose_.bearing = bearing;
 }
 

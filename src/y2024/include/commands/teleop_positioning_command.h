@@ -28,6 +28,7 @@ class TeleopPositioningCommand
   PivotSubsystem& pivot_;
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;
+  ScorerSubsystem& scorer_;
 
   std::vector<frc846::motion::MotionSnapshot> snapshot_;
 
@@ -37,10 +38,13 @@ class TeleopPositioningCommand
 
   double mpiv_adj = 0.0;
   double mtele_adj = 0.0;
+  double pmpiv_adj = 0.0;
+  double pmtele_adj = 0.0;
 
   double mx_adj = 0.0;
   double mu_adj = 0.0;
   double ms_adj = 0.0;
+  double pms_adj = 0.0;
 };
 
 #endif  // y2024_COMMANDS_TELEOP_POSITIONING_COMMAND_H_

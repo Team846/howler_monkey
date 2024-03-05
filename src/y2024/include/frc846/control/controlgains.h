@@ -23,7 +23,7 @@ struct ControlGains {
 
 class ControlGainsHelper : public Loggable {
  public:
-  ControlGainsHelper(Loggable& parent, ControlGains gains, units::ampere_t currentLimit = 40.0_A, double peak_output_ = 1.0, 
+  ControlGainsHelper(Loggable& parent, ControlGains gains, units::ampere_t currentLimit = 40.0_A, double peak_output_ = 1.0,
     double rampRate = 1.0);
 
   frc846::Pref<double> p_;
@@ -33,6 +33,7 @@ class ControlGainsHelper : public Loggable {
   frc846::Pref<double> max_integral_accumulator_;
   frc846::Pref<double> current_limit_;
   frc846::Pref<double> peak_output_;
+  frc846::Pref<double> reverse_peak_output_;
 
   frc846::Pref<double> ramp_rate_;
 

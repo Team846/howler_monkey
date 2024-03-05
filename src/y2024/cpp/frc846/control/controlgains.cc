@@ -25,6 +25,7 @@ ControlGainsHelper::ControlGainsHelper(Loggable& parent, ControlGains gains, uni
                                 gains.max_integral_accumulator},
       current_limit_{*this, "smart_current_limit", currentLimit.to<double>()},
       peak_output_{*this, "peak_output", peakOutput},
+      reverse_peak_output_{*this, "peak_output_reverse_", -peakOutput},
       ramp_rate_{*this, "ramp_rate", rampRate} {}
 
 void ControlGainsHelper::Write(rev::SparkPIDController& pid_controller,

@@ -9,6 +9,8 @@
 
 #include "subsystems/field.h"
 
+#include "frc846/util/share_tables.h"
+
 SpeakerAlignCommand::SpeakerAlignCommand(
     RobotContainer& container, frc846::util::Vector2D<units::foot_t> shooting_point)
     : frc846::Loggable{"speaker_align_command"},
@@ -25,8 +27,8 @@ void SpeakerAlignCommand::Initialize() {
 void SpeakerAlignCommand::Execute() {
   auto current_x = shoot_point.x;
   auto current_y = shoot_point.y;
-  auto target_x = field::points::kSpeaker().x;
-  auto target_y = field::points::kSpeaker().y;
+  auto target_x = field::points::kSpeaker(frc846::util::ShareTables::GetBoolean("is_red_side")).x;
+  auto target_y = field::points::kSpeaker(frc846::util::ShareTables::GetBoolean("is_red_side")).y;
 
   auto drivetrain_target = drivetrain_.ZeroTarget();
 
@@ -34,7 +36,7 @@ void SpeakerAlignCommand::Execute() {
   auto dist_y = target_y - current_y;
 
 
-  units::degree_t target_angle = units::math::atan2(dist_x, dist_y) + 180_deg;
+  units::degree_t target_angle = units::math::atan2(dist_x, units::math::abs(dist_y));
       
   drivetrain_target.rotation = DrivetrainRotationPosition(target_angle);
 

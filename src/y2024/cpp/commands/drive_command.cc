@@ -65,7 +65,7 @@ class DriveShootingCalculator {
   }
 
   static double calculate(double d, double r_v, double r_o, 
-    double initial_guess = radians(1.01), double tolerance=0.01, double max_iterations=600) {
+    double initial_guess = radians(1.01), double tolerance=0.04, double max_iterations=600) {
     double x = initial_guess;
     for (int i = 0; i < max_iterations; i++) {
         auto fx = f_of_x(x, d, r_v, r_o);
