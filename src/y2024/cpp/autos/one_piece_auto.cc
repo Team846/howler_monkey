@@ -20,7 +20,7 @@
 #include "subsystems/drivetrain.h"
 #include "subsystems/robot_container.h"
 #include "subsystems/swerve_module.h"
-#include "commands/wait_till_spin_up.h"
+#include "commands/wait_till_spin_up_command.h"
 
 OnePieceAuto::OnePieceAuto(
     RobotContainer& container, bool should_flip)

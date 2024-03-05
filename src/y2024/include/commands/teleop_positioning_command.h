@@ -9,6 +9,7 @@
 #include "subsystems/drivetrain.h"
 #include "subsystems/telescope.h"
 #include "subsystems/pivot.h"
+#include "subsystems/super_structure.h"
 #include "subsystems/robot_container.h"
 #include "frc846/control/motion.h"
 
@@ -29,6 +30,7 @@ class TeleopPositioningCommand
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;
   ScorerSubsystem& scorer_;
+  SuperStructureSubsystem& super_;
 
   std::vector<frc846::motion::MotionSnapshot> snapshot_;
 

@@ -27,6 +27,7 @@ struct DrivetrainReadings {
   bool is_gyro_connected;
   frc846::util::Position pose;
   units::degrees_per_second_t angular_velocity;
+  units::degree_t tilt;
   frc846::util::Vector2D<units::feet_per_second_t> velocity;
 };
 

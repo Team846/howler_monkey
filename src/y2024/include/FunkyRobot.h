@@ -31,24 +31,24 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
   void StartCompetition() override;
   void EndCompetition() override;
 
-  static void VisionThread(){
-    cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
-    camera.SetResolution(240, 240);
+  // static void VisionThread(){
+  //   cs::UsbCamera camera = frc::CameraServer::StartAutomaticCapture();
+  //   camera.SetResolution(240, 240);
 
-    cs::CvSink cvSink = frc::CameraServer::GetVideo();
-    cs::CvSource outputStream =
-        frc::CameraServer::PutVideo("Rectangle", 240, 240);
+  //   cs::CvSink cvSink = frc::CameraServer::GetVideo();
+  //   cs::CvSource outputStream =
+  //       frc::CameraServer::PutVideo("Rectangle", 240, 240);
 
-    cv::Mat mat;
+  //   cv::Mat mat;
 
-    while (true) {
-      if (cvSink.GrabFrame(mat) == 0) {
-        outputStream.NotifyError(cvSink.GetError());
-        continue;
-      }
-      outputStream.PutFrame(mat);
-    }
-  }
+  //   while (true) {
+  //     if (cvSink.GrabFrame(mat) == 0) {
+  //       outputStream.NotifyError(cvSink.GetError());
+  //       continue;
+  //     }
+  //     outputStream.PutFrame(mat);
+  //   }
+  // }
 
   void InitTeleopDefaults();
   void InitTeleopTriggers();

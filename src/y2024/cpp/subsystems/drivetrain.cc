@@ -191,7 +191,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
 
   auto pitch_initial = units::degree_t(gyro_.GetPitch());
   auto roll_initial = units::degree_t(gyro_.GetRoll());
-  auto tilt =
+  readings.tilt =
       units::degree_t{pitch_initial * units::math::cos(readings.pose.bearing) +
                       roll_initial * units::math::sin(readings.pose.bearing)};
   auto current_time_ = frc846::wpilib::CurrentFPGATime();
@@ -295,7 +295,10 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
         // Debug("point.x is  {}", point.x);
         // Debug("point.y is  {}", point.y);
         odometry_.SetPoint({point.x, point.y});
+        frc846::util::ShareTables::SetBoolean("april_tag_seen", true);
         // Debug("updated point");
+      } else{
+        frc846::util::ShareTables::SetBoolean("april_tag_seen", false);
       }
       updatedTagPos=true;
 
