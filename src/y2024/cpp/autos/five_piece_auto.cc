@@ -35,25 +35,26 @@ FivePieceAuto::FivePieceAuto(
         container.drivetrain_.SetBearing(pose_.bearing);
         first_distance = (field::points::kSpeaker(flip) - pose_.point).Magnitude();
       }},
-      PrepareShootCommand{ container, 0.0}, //first_distance.to<double>() },
-      SpeakerAlignCommand{ container, 
-          field::points::kFPOrigin(should_flip_).point},
-      frc2::WaitCommand{0.5_s},
+      PrepareShootCommand{ container,  (field::points::kSpeaker(should_flip_) - field::points::kFPOrigin(should_flip_).point).Magnitude().to<double>()}, //first_distance.to<double>() },
+      // SpeakerAlignCommand{ container, 
+      //     field::points::kFPOrigin(should_flip_).point},
+      frc2::WaitCommand{2_s},
       ShootCommand{ container },
+      frc2::WaitCommand{2_s},
     
       
       AutoIntakeAndShootCommand( container, {field::points::kFPIntakeOne(should_flip_), 0_fps}, 
                                   {field::points::kFPShootOne(should_flip_), 0_fps}, should_flip_),
       
       AutoIntakeAndShootCommand( container, {field::points::kFPIntakeTwo(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootTwo(should_flip_), 0_fps}, should_flip_),
+                                  {field::points::kFPShootTwo(should_flip_), 0_fps}, should_flip_)
       
-      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeThree(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootThree(should_flip_), 0_fps}, should_flip_),
+      // AutoIntakeAndShootCommand( container, {field::points::kFPIntakeThree(should_flip_), 0_fps}, 
+      //                             {field::points::kFPShootThree(should_flip_), 0_fps}, should_flip_)
 
-      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeFour(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootFour(should_flip_), 0_fps}, should_flip_),
+      // AutoIntakeAndShootCommand( container, {field::points::kFPIntakeFour(should_flip_), 0_fps}, 
+      //                             {field::points::kFPShootFour(should_flip_), 0_fps}, should_flip_),
 
-      FollowTrajectoryCommand{ container, {{field::points::kFPFinalPosition(should_flip_), 0_fps}}}
+      // FollowTrajectoryCommand{ container, {{field::points::kFPFinalPosition(should_flip_), 0_fps}}}
      );
 }

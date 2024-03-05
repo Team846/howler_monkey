@@ -24,7 +24,7 @@ void PrepareShootCommand::Initialize() {
 void PrepareShootCommand::Execute() {
   scorer_.SetTarget(scorer_.MakeTarget(kSpinUp));
 
-  pivot_.SetTarget(pivot_.MakeTarget(37_deg));
+  pivot_.SetTarget(pivot_.MakeTarget(39.2_deg));
   telescope_.SetTarget(telescope_.MakeTarget(0_in));
 
   std::cout << "DIST" << dist_ << std::endl;
@@ -34,7 +34,7 @@ void PrepareShootCommand::Execute() {
 
   std::cout << "T" << theta.to<double>() << std::endl;
 
-  wrist_.SetTarget(wrist_.MakeTarget(110_deg - wrist_.wrist_home_offset_.value() + theta));
+  wrist_.SetTarget(wrist_.MakeTarget(112_deg));//110_deg - wrist_.wrist_home_offset_.value() + theta));
 
   is_done_ = true;
 }

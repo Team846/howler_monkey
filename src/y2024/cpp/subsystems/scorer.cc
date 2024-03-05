@@ -80,8 +80,8 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
     };
     frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, intake_speed_.value());
-    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0);
-    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0);
+    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, -0.2);
+    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, -0.2);
   } else if (target.target_state == kShoot) {
     if (has_piece_ == true || note_detection.IsLimitSwitchEnabled()) {
       note_detection.EnableLimitSwitch(false);
@@ -108,7 +108,7 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
   } else {
     frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, 0);
-    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0.0);
-    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0.0);
+    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, -0.4);
+    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, -0.4);
   }
 }
