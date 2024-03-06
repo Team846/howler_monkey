@@ -53,8 +53,6 @@ class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
 
   std::array<frc::AddressableLED::LEDData, kLength> leds_buffer_;
 
-  frc846::Pref<bool> isRedSide{*this, "is_red_side", true};
-
   frc::AddressableLED leds_{ports::leds_::kPWMPort};
 
   LEDsReadings GetNewReadings() override;

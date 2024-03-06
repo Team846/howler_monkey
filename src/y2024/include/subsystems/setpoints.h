@@ -70,6 +70,51 @@ struct setpoints {
     }
   }
 
+  static frc846::motion::MotionTarget auto_shoot_pivot_;
+  static frc846::motion::MotionTarget auto_shoot_telescope_;
+  static frc846::motion::MotionTarget auto_shoot_wrist_;
+
+  static frc846::motion::MotionTarget kAutoShoot(int kIndex) { 
+    switch (kIndex) {
+        case 2:
+            return auto_shoot_wrist_;
+        case 1:
+            return auto_shoot_telescope_;
+        default:
+            return auto_shoot_pivot_;
+    }
+  }
+
+  static frc846::motion::MotionTarget climb_pivot_;
+  static frc846::motion::MotionTarget climb_telescope_;
+  static frc846::motion::MotionTarget climb_wrist_;
+
+  static frc846::motion::MotionTarget kClimb(int kIndex) { 
+    switch (kIndex) {
+        case 2:
+            return climb_wrist_;
+        case 1:
+            return climb_telescope_;
+        default:
+            return climb_pivot_;
+    }
+  }
+
+  static frc846::motion::MotionTarget pre_climb_pivot_;
+  static frc846::motion::MotionTarget pre_climb_telescope_;
+  static frc846::motion::MotionTarget pre_climb_wrist_;
+
+  static frc846::motion::MotionTarget kPreClimb(int kIndex) { 
+    switch (kIndex) {
+        case 2:
+            return pre_climb_wrist_;
+        case 1:
+            return pre_climb_telescope_;
+        default:
+            return pre_climb_pivot_;
+    }
+  }
+
   static frc846::motion::MotionTarget trap_pivot_;
   static frc846::motion::MotionTarget trap_telescope_;
   static frc846::motion::MotionTarget trap_wrist_;

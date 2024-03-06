@@ -5,6 +5,7 @@
 
 #include "subsystems/driver.h"
 #include "subsystems/drivetrain.h"
+#include "subsystems/super_structure.h"
 #include "subsystems/robot_container.h"
 
 class DriveCommand
@@ -19,6 +20,7 @@ class DriveCommand
  private:
   DriverSubsystem& driver_;
   DrivetrainSubsystem& drivetrain_;
+  SuperStructureSubsystem& super_;
 };
 
 #endif  // y2024_COMMANDS_DRIVE_COMMAND_H_

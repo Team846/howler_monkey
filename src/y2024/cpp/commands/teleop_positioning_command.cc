@@ -29,7 +29,7 @@ class TeleopShootingCalculator {
 
     static constexpr double g = 32.0;
 
-    static constexpr double h = 81.0/12.0 - 39.0/12.0;
+    static constexpr double h_speaker = 81.0/12.0;
     static constexpr double l = 14.0 / 12.0;
 
     static constexpr double k = 0; //0.43;
@@ -37,7 +37,8 @@ class TeleopShootingCalculator {
 
   public:
 
-  static double f_of_x(double v, double x, double d, double r_v, double r_o) {
+  static double f_of_x(double v, double x, double d, double r_v, double r_o, double h_shooter) {
+    double h=h_speaker-h_shooter/12.0;
     double cosx = cos(x);
     double sinx = sin(x);
     return ((v*sinx)*(d-l*cosx/2)/(v*cosx*sqrt(1-(r_o/(v*cosx))*(r_o/(v*cosx)))+r_v)
@@ -45,7 +46,8 @@ class TeleopShootingCalculator {
                     +l*sinx/2+k*sin(x+w)-h);
   }
 
-  static double f_prime(double v, double x, double d, double r_v, double r_o) {
+  static double f_prime(double v, double x, double d, double r_v, double r_o, double h_shooter)  {
+    double h=h_speaker-h_shooter/12.0;
     double cosx = cos(x);
     double sinx = sin(x);
 
@@ -63,20 +65,21 @@ class TeleopShootingCalculator {
     return v*cosx*t + v*sinx*t_prime + l*cosx/2 - 1.0/2.0*g*2*t*t_prime;
   }
 
-  static double calculate(double v, double d, double r_v, double r_o, 
+  static double calculate(double v, double d, double r_v, double r_o, double h_shooter,
     double initial_guess = radians(1.01), double tolerance=0.06, double max_iterations=5000) {
+    double h = h_speaker-h_shooter/12.0;
     double x = initial_guess;
     for (int i = 0; i < max_iterations; i++) {
-        auto fx = f_of_x(v, x, d, r_v, r_o);
+        auto fx = f_of_x(v, x, d, r_v, r_o, h_shooter);
         if (std::abs(fx) < tolerance) {
           return degs(x);
         }
 
         x -= std::min(radians(140.0/std::max(18, (i+1))), 
-          std::max(radians(-140.0/std::max(18, (i+1))), (fx / f_prime(v, x, d, r_v, r_o))));
+          std::max(radians(-140.0/std::max(18, (i+1))), (fx / f_prime(v, x, d, r_v, r_o, h_shooter))));
 
-        if (x < 0.0) x = radians(1.01);
-        else if (x > pi / 2) x = radians(1.01);
+        if (x < 0.0) x = radians(initial_guess);
+        else if (x > pi / 2) x = radians(initial_guess);
     }
 
     return 0.0;
@@ -198,6 +201,43 @@ class InverseKinematics {
   }
 };
 
+class TrapCalculator{
+  private:
+    static constexpr units::inch_t pivotHookDist=10_in;
+    static constexpr units::degree_t pivotHookAngle=10_deg;
+    static constexpr units::inch_t pivotToWrist=10_in;
+    static constexpr units::inch_t wristToUpperIntake=10_in;
+    static constexpr units::degree_t wristToUpperIntakeOffset=10_deg;
+    static constexpr units::inch_t wristToLowerIntake=10_in;
+    static constexpr units::inch_t pivotToWristOffset=-4.25_in;
+    static constexpr units::inch_t chainToStageX=10_in;
+
+  public:
+    static units::degree_t getWristAngle(units::degree_t pivotAngle, units::inch_t telescope_extension, units::inch_t drivetrain_tilt, units::degree_t wrist_guess) { //drivetrain_tilt could be constnat, depends on how climb works
+      // pivotAngle-=17_deg;
+
+      // units::degree_t truePivotAngle = ((pivotAngle) + (units::math::atan2(telescope_extension+pivotToWrist, pivotToWristOffset)))-90_deg;
+
+      // units::inch_t pivotDistanceHypotenuse = (units::math::sqrt(units::math::pow<2>(pivotToWristOffset) 
+      //   + units::math::pow<2>(pivotToWrist+telescope_extension) ));
+
+      // frc846::util::Vector2D<units::inch_t> wristPos; 
+      // wristPos.x=-pivotHookDist*units::math::cos(drivetrain_tilt)*units::math::cos(truePivotAngle-drivetrain_tilt); 
+      // wristPos.y=pivotHookDist*units::math::sin(drivetrain_tilt)*pivotDistanceHypotenuse*units::math::sin(truePivotAngle-drivetrain_tilt);
+
+      // units::degree_t topRollerSolution=180_deg+(truePivotAngle-drivetrain_tilt+(-units::math::acos((chainToStageX-wristPos.x)/wristToUpperIntake)+10_deg))-133_deg;      
+      // units::degree_t bottomRollerSolution=180_deg + (truePivotAngle-drivetrain_tilt+units::math::acos((chainToStageX-wristPos.x)/wristToLowerIntake))-133_deg;
+
+      // if (units::math::abs(topRollerSolution-wrist_guess)<units::math::abs(bottomRollerSolution-wrist_guess)){
+      //   return topRollerSolution;
+      // }
+      // else{
+      //   return bottomRollerSolution;
+      // }
+      return 0_deg;
+    }
+};
+
 TeleopPositioningCommand::TeleopPositioningCommand(RobotContainer& container)
     : driver_(container.driver_),
       operator_(container.operator_),
@@ -205,7 +245,8 @@ TeleopPositioningCommand::TeleopPositioningCommand(RobotContainer& container)
       pivot_(container.pivot_),
       telescope_(container.telescope_),
       wrist_(container.wrist_),
-      scorer_(container.scorer_) {
+      scorer_(container.scorer_), 
+      super_(container.super_structure_) {
   AddRequirements({&pivot_, &telescope_, &wrist_});
   SetName("teleop_positioning_command");
 }
@@ -289,11 +330,11 @@ void TeleopPositioningCommand::Execute() {
 
     pivotHasRun = true;
   } else if (climb) {
-    pivot_target.pivot_output = -3_deg;
+    pivot_target.pivot_output = setpoints::kClimb(0).value();
 
     pivotHasRun = true;
   } else if (pre_climb) {
-    pivot_target.pivot_output = 100_deg;
+    pivot_target.pivot_output = setpoints::kPreClimb(0).value();
 
     pivotHasRun = true;
   } else if (running_prep_speaker) {
@@ -388,13 +429,13 @@ void TeleopPositioningCommand::Execute() {
       robot_velocity.Magnitude().to<double>() - robot_velocity_in_component * robot_velocity_in_component);
 
 
-    shooting_dist =  shooting_dist + (4.0) / 12.0; //(13.0 + 40.0) / 12.0;
+    shooting_dist =  shooting_dist + super_.teleop_shooter_x_.value().to<double>()/12.0; //(13.0 + 40.0) / 12.0;
 
     units::degree_t theta = units::degree_t(TeleopShootingCalculator::calculate(scorer_.shooting_exit_velocity_.value(), shooting_dist - 2.6, 
-      0.0, 0.0));
+      0.0, 0.0, super_.teleop_shooter_height_.value().to<double>(), super_.shoot_angle_calc_intial_guess_.value().to<double>(), super_.shoot_angle_calc_tolerance_.value(), super_.shoot_angle_calc_max_iterations_.value()));
 
 
-    if (shooting_dist < 11.0 && std::abs(scorer_.readings().kLeftErrorPercent) < 0.2) {
+    if (shooting_dist < super_.shooter_range_.value().to<double>() && std::abs(scorer_.readings().kLeftErrorPercent) < super_.shooter_speed_tolerance_.value()) {
       DriverTarget driver_target{true};
       driver_.SetTarget(driver_target);
       frc846::util::ShareTables::SetString("shooting_state", "kReady");

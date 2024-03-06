@@ -15,22 +15,29 @@ validTagIds = [4, 7, 3, 8]
 aprilTagX=[0-14/12.0]*20
 aprilTagY=[6-6/12.0]*20
 aprilAngle=[180]*20
+aprilHeights=[10]*20
 
 aprilTagX[4]=-104.4/12 #RED
 aprilTagY[4]=0.0/12.0
 aprilAngle[4]=0
+aprilHeights[4]=53.88
 
 aprilTagX[3]=-126.65/12 #RED
 aprilTagY[3]=4.4/12+12/12.0
 aprilAngle[3]=0
+aprilHeights[3]=53.88
 
 aprilTagX[7]=-104.4/12 #BLUE
 aprilTagY[7]=635.8/12+1/12.0
 aprilAngle[7]=180
+aprilHeights[7]=53.88
 
-aprilTagX[8]=-126.65/12 #BLUE
-aprilTagY[8]=635.8/12+12/12.0
+aprilTagX[8]=-127.08/12 #BLUE
+aprilTagY[8]=651.25/12
 aprilAngle[8]=180
+aprilHeights[8]=53.88
+
+
 
 # aprilTagX[16]=0.3-14/12.0
 # aprilTagY[16]=9.0247+6/12.0

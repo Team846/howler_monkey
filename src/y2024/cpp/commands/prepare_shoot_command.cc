@@ -4,6 +4,8 @@
 
 #include <cmath>
 
+#include "subsystems/setpoints.h"
+
 #include "frc846/util/math.h"
 #include "frc846/wpilib/time.h"
 
@@ -24,7 +26,7 @@ void PrepareShootCommand::Initialize() {
 void PrepareShootCommand::Execute() {
   scorer_.SetTarget(scorer_.MakeTarget(kSpinUp));
 
-  pivot_.SetTarget(pivot_.MakeTarget(38.0_deg));
+  pivot_.SetTarget(pivot_.MakeTarget(setpoints::kAutoShoot(0).value()));
   telescope_.SetTarget(telescope_.MakeTarget(0_in));
 
   std::cout << "DIST" << dist_ << std::endl;
@@ -34,7 +36,7 @@ void PrepareShootCommand::Execute() {
 
   std::cout << "T" << theta.to<double>() << std::endl;
 
-  wrist_.SetTarget(wrist_.MakeTarget(112_deg));//110_deg - wrist_.wrist_home_offset_.value() + theta));
+  wrist_.SetTarget(wrist_.MakeTarget(setpoints::kAutoShoot(2).value()));//110_deg - wrist_.wrist_home_offset_.value() + theta));
 
   is_done_ = true;
 }

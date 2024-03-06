@@ -10,6 +10,7 @@
 #include "pivot.h"
 #include "telescope.h"
 #include "leds.h"
+#include "super_structure.h"
 
 class RobotContainer : public frc846::Loggable {
  public:
@@ -24,6 +25,7 @@ class RobotContainer : public frc846::Loggable {
 
   DriverSubsystem driver_;
   OperatorSubsystem operator_;
+  SuperStructureSubsystem super_structure_{true};
   DrivetrainSubsystem drivetrain_{init_drivetrain_.value()};
   ScorerSubsystem scorer_{init_scorer_.value()};
   WristSubsystem wrist_{init_wrist_.value()};
@@ -32,7 +34,7 @@ class RobotContainer : public frc846::Loggable {
   LEDsSubsystem leds_{init_leds_.value()};
 
   std::vector<frc846::SubsystemBase*> all_subsystems_{
-      &driver_,  &operator_, &drivetrain_, &scorer_, &wrist_, &pivot_, &telescope_, &leds_};
+      &driver_,  &operator_, &drivetrain_, &scorer_, &wrist_, &pivot_, &telescope_, &leds_, &super_structure_};
 };
 
 #endif  // FRC846_SUBSYSTEMS_ROBOT_CONTAINER_H_

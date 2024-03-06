@@ -27,9 +27,9 @@ frc2::SequentialCommandGroup AutoIntakeAndShootCommand(
         PrepareShootCommand{container, distance.to<double>()},
         FollowTrajectoryCommand{ container, {shoot_point}},
         // SpeakerAlignCommand{container, shoot_point.pos.point},
-        frc2::WaitCommand(1_s),
+        frc2::WaitCommand(container.super_structure_.pre_shoot_wait_.value()),
         ShootCommand{container},
-        frc2::WaitCommand(1_s),
+        frc2::WaitCommand(container.super_structure_.post_shoot_wait_.value()),
         StowCommand{container}
   };
 }

@@ -30,7 +30,7 @@ class DriveShootingCalculator {
 
     static constexpr double g = 32.0;
 
-    static constexpr double h = 81.0/12 - 39.0/12;
+    static constexpr double h_speaker = 81.0/12;
     static constexpr double l = 14.0 / 12.0;
 
     static constexpr double v = 48.0;
@@ -40,7 +40,8 @@ class DriveShootingCalculator {
 
   public:
 
-  static double f_of_x(double x, double d, double r_v, double r_o) {
+  static double f_of_x(double x, double d, double r_v, double r_o, double h_shooter) {
+    double h = h_speaker-h_shooter/12.0;
     double cosx = cos(x);
     double sinx = sin(x);
     return ((v*sinx)*(d-l*cosx/2)/(v*cosx*sqrt(1-(r_o/(v*cosx))*(r_o/(v*cosx)))+r_v)
@@ -48,7 +49,8 @@ class DriveShootingCalculator {
                     +l*sinx/2+k*sin(x+w)-h);
   }
 
-  static double f_prime(double x, double d, double r_v, double r_o) {
+  static double f_prime(double x, double d, double r_v, double r_o, double h_shooter) {
+    double h = h_speaker-h_shooter/12.0;
     double cosx = cos(x);
     double sinx = sin(x);
 
@@ -64,20 +66,21 @@ class DriveShootingCalculator {
     return v*cosx*t + v*sinx*t_prime + l*cosx/2 - 1.0/2.0*g*2*t*t_prime;
   }
 
-  static double calculate(double d, double r_v, double r_o, 
+  static double calculate(double d, double r_v, double r_o, double h_shooter,
     double initial_guess = radians(1.01), double tolerance=0.04, double max_iterations=600) {
+    double h = h_speaker-h_shooter/12.0;
     double x = initial_guess;
     for (int i = 0; i < max_iterations; i++) {
-        auto fx = f_of_x(x, d, r_v, r_o);
+        auto fx = f_of_x(x, d, r_v, r_o, h_shooter);
         if (std::abs(fx) < tolerance) {
           return degs(std::asin(r_o / (v * std::cos(x))));
         }
 
         x -= std::min(radians(120.0/std::max(14, (i+1))), 
-          std::max(radians(-120.0/std::max(14, (i+1))), fx / f_prime(x, d, r_v, r_o))) / 10.0;
+          std::max(radians(-120.0/std::max(14, (i+1))), fx / f_prime(x, d, r_v, r_o, h_shooter))) / 10.0;
 
-        if (x < 0.0) x = radians(1.01);
-        else if (x > pi / 2) x = radians(1.01);
+        if (x < 0.0) x = radians(initial_guess);
+        else if (x > pi / 2) x = radians(initial_guess);
     }
 
     return 0.0;
@@ -86,7 +89,8 @@ class DriveShootingCalculator {
 
 DriveCommand::DriveCommand(RobotContainer& container)
     : driver_(container.driver_),
-      drivetrain_(container.drivetrain_) {
+      drivetrain_(container.drivetrain_), 
+      super_(container.super_structure_) {
   AddRequirements({&drivetrain_});
   SetName("drive_command");
 }
@@ -186,8 +190,8 @@ void DriveCommand::Execute() {
       double robot_velocity_orth_component = std::sqrt(robot_velocity.Magnitude().to<double>()*
         robot_velocity.Magnitude().to<double>() - robot_velocity_in_component * robot_velocity_in_component);
 
-      units::degree_t theta_adjust = units::degree_t(DriveShootingCalculator::calculate(shooting_dist, 
-        0.0, 0.0));
+      units::degree_t theta_adjust = 0_deg;//units::degree_t(DriveShootingCalculator::calculate(shooting_dist, 
+        //0.0, 0.0, super_.teleop_shooter_height_.value().to<double>(), super_.shoot_drive_angle_calc_intial_guess_.value().to<double>(), super_.shoot_drive_angle_calc_tolerance_.value(), super_.shoot_drive_angle_calc_max_iterations_.value()));
    
       drivetrain_target.rotation = DrivetrainRotationPosition(target_angle - theta_adjust);
     }
