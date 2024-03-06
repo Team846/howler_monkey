@@ -24,7 +24,7 @@ void PrepareShootCommand::Initialize() {
 void PrepareShootCommand::Execute() {
   scorer_.SetTarget(scorer_.MakeTarget(kSpinUp));
 
-  pivot_.SetTarget(pivot_.MakeTarget(39.2_deg));
+  pivot_.SetTarget(pivot_.MakeTarget(38.0_deg));
   telescope_.SetTarget(telescope_.MakeTarget(0_in));
 
   std::cout << "DIST" << dist_ << std::endl;

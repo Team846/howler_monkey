@@ -433,26 +433,26 @@ void TeleopPositioningCommand::Execute() {
   }
 
 
-  if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
-    if (auto* wrist_pos = std::get_if<units::angle::degree_t>(&wrist_target.wrist_output)) {
-      if (auto* tele_ext = std::get_if<units::inch_t>(&telescope_target.extension)) {
-        CoordinatePositions coordinateConverted = InverseKinematics::toCoordinate({radians(piv_pos->to<double>() + mpiv_adj), 
-          radians(wrist_pos->to<double>() + ms_adj), tele_ext->to<double>() + mtele_adj});
+  // if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
+  //   if (auto* wrist_pos = std::get_if<units::angle::degree_t>(&wrist_target.wrist_output)) {
+  //     if (auto* tele_ext = std::get_if<units::inch_t>(&telescope_target.extension)) {
+  //       CoordinatePositions coordinateConverted = InverseKinematics::toCoordinate({radians(piv_pos->to<double>() + mpiv_adj), 
+  //         radians(wrist_pos->to<double>() + ms_adj), tele_ext->to<double>() + mtele_adj});
 
-        if (!InverseKinematics::withinBounds(coordinateConverted)) {
-          mpiv_adj = pmpiv_adj;
-          ms_adj = pms_adj;
-          mtele_adj = pmtele_adj;
+  //       if (!InverseKinematics::withinBounds(coordinateConverted)) {
+  //         mpiv_adj = pmpiv_adj;
+  //         ms_adj = pms_adj;
+  //         mtele_adj = pmtele_adj;
 
-          std::cout << "OUT of bounds" << std::endl;
-        } else {
-          pmpiv_adj =  mpiv_adj;
-          pms_adj = ms_adj;
-          pmtele_adj = mtele_adj;
-        }
-      } 
-    }
-  }
+  //         std::cout << "OUT of bounds" << std::endl;
+  //       } else {
+  //         pmpiv_adj =  mpiv_adj;
+  //         pms_adj = ms_adj;
+  //         pmtele_adj = mtele_adj;
+  //       }
+  //     } 
+  //   }
+  // }
 
   if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
     pivot_target.pivot_output = *piv_pos + units::degree_t(mpiv_adj);

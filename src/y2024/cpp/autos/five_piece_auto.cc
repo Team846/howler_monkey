@@ -40,7 +40,7 @@ FivePieceAuto::FivePieceAuto(
       //     field::points::kFPOrigin(should_flip_).point},
       frc2::WaitCommand{2_s},
       ShootCommand{ container },
-      frc2::WaitCommand{2_s},
+      frc2::WaitCommand{1_s},
     
       
       AutoIntakeAndShootCommand( container, {field::points::kFPIntakeOne(should_flip_), 0_fps}, 
