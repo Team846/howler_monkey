@@ -39,9 +39,12 @@ class ScorerSubsystem
 
   bool GetHasPiece() { return has_piece_; }
 
-  frc846::Pref<double> intake_speed_{*this, "intake_speed_", 0.6};
-  frc846::Pref<double> intake_feed_speed_{*this, "intake_feed_speed_dc_", 0.7};
+  frc846::Pref<units::turns_per_second_t> intake_speed_{*this, "intake_speed_", 70_tps};
+  // frc846::Pref<double> intake_feed_speed_{*this, "intake_feed_speed_dc_", 0.7};
+
+  frc846::Pref<units::turns_per_second_t> intake_feed_speed_{*this, "intake_feed_speed_v_", 50_tps};
   frc846::Pref<units::turns_per_second_t> shooter_speed_{*this, "shooter_speed_", -50_tps};
+
   frc846::Pref<double> spin_{*this, "shooter_spin", 0.33};
 
   frc846::Pref<double> release_speed_{*this, "release_speed", -0.3};

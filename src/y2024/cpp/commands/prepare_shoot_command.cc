@@ -26,17 +26,15 @@ void PrepareShootCommand::Initialize() {
 void PrepareShootCommand::Execute() {
   scorer_.SetTarget(scorer_.MakeTarget(kSpinUp));
 
-  pivot_.SetTarget(pivot_.MakeTarget(setpoints::kAutoShoot(0).value()));
+  pivot_.SetTarget(pivot_.MakeTarget(units::degree_t(setpoints::kAutoShoot(0).value())));
   telescope_.SetTarget(telescope_.MakeTarget(0_in));
 
-  std::cout << "DIST" << dist_ << std::endl;
 
   units::degree_t theta = units::degree_t(ShootingCalculator::calculate(scorer_.shooting_exit_velocity_.value(),
     dist_ + 1.4, 0.0, 0.0));
 
-  std::cout << "T" << theta.to<double>() << std::endl;
 
-  wrist_.SetTarget(wrist_.MakeTarget(setpoints::kAutoShoot(2).value()));//110_deg - wrist_.wrist_home_offset_.value() + theta));
+  wrist_.SetTarget(wrist_.MakeTarget(units::degree_t(setpoints::kAutoShoot(2).value())));//110_deg - wrist_.wrist_home_offset_.value() + theta));
 
   is_done_ = true;
 }

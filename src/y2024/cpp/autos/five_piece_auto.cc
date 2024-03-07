@@ -38,23 +38,23 @@ FivePieceAuto::FivePieceAuto(
       PrepareShootCommand{ container,  (field::points::kSpeaker(should_flip_) - field::points::kFPOrigin(should_flip_).point).Magnitude().to<double>()}, //first_distance.to<double>() },
       // SpeakerAlignCommand{ container, 
       //     field::points::kFPOrigin(should_flip_).point},
-      frc2::WaitCommand{2_s},
+      frc2::WaitCommand{1.5_s},
       ShootCommand{ container },
-      frc2::WaitCommand{1_s},
+      frc2::WaitCommand{container.super_structure_.post_shoot_wait_.value()},
     
       
       AutoIntakeAndShootCommand( container, {field::points::kFPIntakeOne(should_flip_), 0_fps}, 
                                   {field::points::kFPShootOne(should_flip_), 0_fps}, should_flip_),
       
       AutoIntakeAndShootCommand( container, {field::points::kFPIntakeTwo(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootTwo(should_flip_), 0_fps}, should_flip_)
+                                  {field::points::kFPShootTwo(should_flip_), 0_fps}, should_flip_),
       
-      // AutoIntakeAndShootCommand( container, {field::points::kFPIntakeThree(should_flip_), 0_fps}, 
-      //                             {field::points::kFPShootThree(should_flip_), 0_fps}, should_flip_)
+      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeThree(should_flip_), 0_fps}, 
+                                  {field::points::kFPShootThree(should_flip_), 0_fps}, should_flip_),
 
       // AutoIntakeAndShootCommand( container, {field::points::kFPIntakeFour(should_flip_), 0_fps}, 
       //                             {field::points::kFPShootFour(should_flip_), 0_fps}, should_flip_),
 
-      // FollowTrajectoryCommand{ container, {{field::points::kFPFinalPosition(should_flip_), 0_fps}}}
+      FollowTrajectoryCommand{ container, {{field::points::kFPFinalPosition(should_flip_), 0_fps}}}
      );
 }

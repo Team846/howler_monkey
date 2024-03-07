@@ -41,6 +41,13 @@ class SuperStructureSubsystem : public frc846::Subsystem<SuperStructureReadings,
   frc846::Pref<double> shoot_drive_angle_calc_max_iterations_{shooting_named_, "shoot_drive_angle_calc_max_iterations", 5000};
   frc846::Pref<units::degree_t> shoot_drive_angle_calc_intial_guess_{shooting_named_, "shoot_drive_angle_calc_intial_guess", 1.01_deg};
 
+  frc846::Pref<units::inch_t> trap_start_x{shooting_named_, "trap_start_x", 17_in};
+  frc846::Pref<units::inch_t> trap_start_y{shooting_named_, "trap_start_y", 25_in};
+  frc846::Pref<units::inch_t> trap_end_x{shooting_named_, "trap_end_x", 25_in};
+  frc846::Pref<units::inch_t> trap_end_y{shooting_named_, "trap_end_y", 47_in};
+  frc846::Pref<units::degree_t> trap_start_angle{shooting_named_, "trap_start_a", 60_deg};
+  frc846::Pref<units::degree_t> trap_end_angle{shooting_named_, "trap_end_a", -10_deg};
+
  private:
   
   bool hasZeroed = false;

@@ -60,13 +60,16 @@ void WristSubsystem::PositionWrist(WristTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
 
     units::degree_t pivot_angle = units::degree_t(frc846::util::ShareTables::GetDouble("pivot_position"))-17_deg;
-    units::degree_t wrist_angle = readings().wrist_position+(180_deg-wrist_home_offset_.value());
+    units::degree_t wrist_angle = readings().wrist_position+(180_deg-(wrist_home_offset_.value()+wrist_cg_offset_.value()));
     units::degree_t shooting_angle = 180_deg+pivot_angle-wrist_angle;
 
-    double f = k_.value()*units::math::sin(shooting_angle);
+    double f = k_.value()*units::math::abs(units::math::cos(shooting_angle));
+
     double p = p_.value()*(*pos-readings().wrist_position).to<double>();
 
-    wrist_esc_.Write(frc846::control::ControlMode::Percent, f+p);
+    double d = d_.value()*(wrist_esc_.GetVelocity()).to<double>();
+
+    wrist_esc_.Write(frc846::control::ControlMode::Percent, f + p - d);
     
     target_wrist_error_graph.Graph(*pos-readings().wrist_position);
     target_wrist_pos_graph.Graph(*pos);

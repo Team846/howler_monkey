@@ -81,12 +81,14 @@ robot_container/init_telescope.bool | true
 robot_container/init_wrist.bool | true
 scorer/intake_feed_speed_ (tps).double | 30.000000
 scorer/intake_feed_speed_dc_.double | -1.000000
+scorer/intake_feed_speed_v_ (tps).double | -70.000000
 scorer/intake_gains/gains/f.double | 0.000252
 scorer/intake_gains/gains/p.double | 0.000100
 scorer/intake_gains/gains/peak_output.double | 1.000000
 scorer/intake_gains/gains/peak_output_reverse_.double | -1.000000
 scorer/intake_gains/gains/ramp_rate.double | 0.200000
 scorer/intake_gains/gains/smart_current_limit.double | 100.000000
+scorer/intake_speed_ (tps).double | -30.000000
 scorer/intake_speed_.double | -1.000000
 scorer/ramp_rate_vy (tps).double | 5.000000
 scorer/release_speed.double | 1.000000
@@ -98,16 +100,20 @@ scorer/shooter_gains/gains/ramp_rate.double | 0.500000
 scorer/shooter_gains/gains/smart_current_limit.double | 100.000000
 scorer/shooter_speed_ (tps).double | -80.000000
 scorer/shooter_spin.double | 0.050000
-scorer/shooting_exit_velocity.double | 45.020000
+scorer/shooting_exit_velocity.double | 48.000000
 super_structure/auto/post_shoot_wait (s).double | 0.100000
 super_structure/auto/pre_shoot_wait (s).double | 0.000000
+super_structure/is_red_side.bool | false
+super_structure/shooting/teleop_shooter_height (in).double | 42.000000
+super_structure/shooting/teleop_shooter_x (in).double | 7.000000
 telescope/intake_setpoint_tele_ (in).double | 2.800000
 telescope/tele_gains/gains/p.double | 0.120000
 telescope/tele_gains/gains/peak_output.double | 0.300000
 telescope/tele_gains/gains/peak_output_reverse_.double | -0.200000
 telescope/tele_gains/gains/ramp_rate.double | 0.000000
-wrist/gains/k.double | 0.001000
-wrist/gains/p.double | 0.007500
+wrist/gains/d.double | 0.000000
+wrist/gains/k.double | -0.047000
+wrist/gains/p.double | 0.007000
 wrist/home_offset_wrist_ (deg).double | 46.400000
 wrist/intake_setpoint_wrist (deg).double | 83.000000
 wrist/stow_setpoint_wrist (deg).double | 49.000000
@@ -116,5 +122,5 @@ wrist/wrist_gains/gains/d.double | 2.000000
 wrist/wrist_gains/gains/f.double | -0.000000
 wrist/wrist_gains/gains/p.double | 0.140000
 wrist/wrist_gains/gains/peak_output.double | 0.300000
-wrist/wrist_gains/gains/peak_output_reverse_.double | -0.270000
+wrist/wrist_gains/gains/peak_output_reverse_.double | -0.250000
 wrist/wrist_gains/gains/ramp_rate.double | 0.000000

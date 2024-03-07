@@ -52,6 +52,7 @@ class WristSubsystem
   frc846::Pref<units::degree_t> stow_setpoint_wrist_{*this, "stow_setpoint_wrist_", 0_deg};
 
   frc846::Pref<units::degree_t> wrist_home_offset_{*this, "home_offset_wrist_", 30_deg};
+  frc846::Pref<units::degree_t> wrist_cg_offset_{*this, "cg_offset_wrist_", 60_deg};
 
  private:
   bool hasZeroed = false;
@@ -59,6 +60,7 @@ class WristSubsystem
   frc846::Loggable gains_{*this, "gains"};
   frc846::Pref<double> k_{gains_, "k", 0.0};
   frc846::Pref<double> p_{gains_, "p", 0.0};
+  frc846::Pref<double> d_{gains_, "d", 0.0};
 
   frc846::Loggable readings_named_{*this, "readings"};
 

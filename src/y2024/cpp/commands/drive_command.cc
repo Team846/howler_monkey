@@ -193,7 +193,7 @@ void DriveCommand::Execute() {
       units::degree_t theta_adjust = 0_deg;//units::degree_t(DriveShootingCalculator::calculate(shooting_dist, 
         //0.0, 0.0, super_.teleop_shooter_height_.value().to<double>(), super_.shoot_drive_angle_calc_intial_guess_.value().to<double>(), super_.shoot_drive_angle_calc_tolerance_.value(), super_.shoot_drive_angle_calc_max_iterations_.value()));
    
-      drivetrain_target.rotation = DrivetrainRotationPosition(target_angle - theta_adjust);
+      drivetrain_target.rotation = DrivetrainRotationPosition(-target_angle + theta_adjust);
     }
   }
 

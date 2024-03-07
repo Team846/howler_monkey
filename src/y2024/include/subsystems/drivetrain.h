@@ -79,6 +79,9 @@ class DrivetrainSubsystem
 
   // Set bearing.
   void SetBearing(units::degree_t bearing);
+  
+  // Set Map
+  void SetMap();
 
   // Max drivetrain speed (NEO SDS Mk4i L1 -> 12 theoretical).
   frc846::Pref<units::feet_per_second_t> max_speed_{*this, "max_speed",
@@ -153,6 +156,12 @@ class DrivetrainSubsystem
     std::shared_ptr<nt::NetworkTable> aprilTag_table =
         nt::NetworkTableInstance::GetDefault().GetTable("AprilTags");
     frc846::Pref<bool> april_tags_enabled_{april_tags_named_, "init_april_tags", true};
+    
+    std::shared_ptr<nt::NetworkTable> leftcam =
+        nt::NetworkTableInstance::GetDefault().GetTable("leftcamgpd");
+
+    std::shared_ptr<nt::NetworkTable> backcam = 
+        nt::NetworkTableInstance::GetDefault().GetTable("backcamgpd");
 
 
   // Convert a translation vector and the drivetrain angular velocity to the
@@ -168,6 +177,8 @@ class DrivetrainSubsystem
   bool VerifyHardware() override;
 
  private:
+  int lastRelocalize = 0;
+
   // Drivetrain dimensions.
   frc846::Pref<units::inch_t> width_{*this, "width", 21.75_in};
   frc846::Pref<units::inch_t> height_{*this, "height", 26.75_in};

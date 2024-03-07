@@ -17,15 +17,15 @@ struct field {
       if (!flip) {
         return frc846::util::Vector2D<units::foot_t>(-104.4_in, -10.4_in);
       } else {
-        return frc846::util::Vector2D<units::foot_t>(104.4_in, 659.8_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, -659.8_in);
       }
     }
 
     static frc846::util::Vector2D<units::foot_t> kSpeakerTeleop(bool flip = false) {
       if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(104.4_in, -10.4_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, -10.4_in);
       } else {
-        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 659.8_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, -659.8_in);
       }
     }
 
@@ -85,9 +85,10 @@ struct field {
     //   return frc846::util::FieldPoint("FP_shoot_four", -80.7_in, 84.4_in, 0_deg).flip(should_flip);
     // };
 
-    // static frc846::util::Position kFPFinalPosition(bool should_flip) {
-    //   return frc846::util::FieldPoint("FP_final_position", -69.2_in, 120.4_in, 0_deg).flip(should_flip);
-    // };
+    static frc846::util::FieldPoint fp_final_position;
+    static frc846::util::Position kFPFinalPosition(bool should_flip) {
+      return fp_final_position.flip(should_flip);
+    };
 
     // THREE PIECE SOURCE AUTO
     static frc846::util::Position kSSOrigin(bool should_flip) {
@@ -113,6 +114,8 @@ struct field {
     static frc846::util::Position kSSFinalPosition(bool should_flip) {
       return frc846::util::FieldPoint("SS_final_position", -139.2_in, 266.4_in, 0_deg).flip(should_flip);
     };
+
+    static frc846::Pref<units::foot_t> one_piece_extra_distance_;
     
     //ONE PIECE AUTO
     static frc846::util::FieldPoint op_origin;
