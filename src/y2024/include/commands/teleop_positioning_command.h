@@ -12,6 +12,7 @@
 #include "subsystems/super_structure.h"
 #include "subsystems/robot_container.h"
 #include "frc846/control/motion.h"
+#include "subsystems/bracer.h"
 
 class TeleopPositioningCommand
     : public frc2::CommandHelper<frc2::Command, TeleopPositioningCommand> {
@@ -30,6 +31,7 @@ class TeleopPositioningCommand
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;
   ScorerSubsystem& scorer_;
+  BracerSubsystem& bracer_;
   SuperStructureSubsystem& super_;
 
   std::vector<frc846::motion::MotionSnapshot> snapshot_;

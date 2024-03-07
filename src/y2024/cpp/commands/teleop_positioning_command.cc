@@ -108,13 +108,16 @@ static constexpr double degs(double radians) {
 
 class InverseKinematics {
   private:
-  static constexpr double pivotToWrist = 20.05;
+  static constexpr double pivotToWrist = 20.5;
   static constexpr double pivotToWristOffset = -4.25;
   static constexpr double wristToFlywheels = 6.2;
 
-  static constexpr double pivotToGround = 17.5;
+  static constexpr double wristToIntake = 14.5;
+  static constexpr double wristToIntakeOtherAngle = radians(36.5);
 
-  static constexpr double pivotToCenter = 9.5; //FIX
+  static constexpr double pivotToGround = 16.25;
+
+  static constexpr double pivotToCenter = 9.25;
 
   static constexpr double robotWidth = 28;
 
@@ -126,21 +129,19 @@ class InverseKinematics {
   }
   
   public:
-  static bool withinBounds(CoordinatePositions pos) {
-    return (pos.forward_axis > robotWidth / 2.0 + 10.0 || pos.forward_axis < -robotWidth / 2.0 - 10.0
-      ||  pos.upward_axis < 0.0 || pos.upward_axis > 47.0);
+static bool withinBounds(CoordinatePositions pos) {
+    return (pos.forward_axis < robotWidth / 2.0 + 11.5 && pos.forward_axis > -robotWidth / 2.0 - 11.5
+      &&  pos.upward_axis > 0.0 && pos.upward_axis < 47.5);
   }
 
   static RawPositions toRaw(CoordinatePositions pos) {
-    if (pos.forward_axis > robotWidth / 2.0 + 10.0 || pos.forward_axis < -robotWidth / 2.0 - 10.0
-      ||  pos.upward_axis < 0.0 || pos.upward_axis > 47.0) {
-
+    if (!withinBounds(pos)) {
       double angle = atan2(pos.upward_axis, pos.forward_axis);
 
-      double maxMagnitude = std::abs(std::min(robotWidth / 2.0 + 10.0, -robotWidth / 2.0 - 10.0) / cos(angle));
+      double maxMagnitude = std::abs(std::min(robotWidth / 2.0 + 11.5, -robotWidth / 2.0 - 11.5) / cos(angle));
       
 
-      double magnitude = std::min(std::max(0.0, std::min(std::max(0.0, std::hypot(pos.forward_axis, pos.upward_axis)), maxMagnitude)), 47.0);
+      double magnitude = std::min(std::max(0.0, std::min(std::max(0.0, std::hypot(pos.forward_axis, pos.upward_axis)), maxMagnitude)), 47.5);
 
       pos.forward_axis = magnitude * cos(angle);
       pos.upward_axis = magnitude * sin(angle);
@@ -148,10 +149,10 @@ class InverseKinematics {
 
     RawPositions raw{};
 
-    double pivotForwardComponent = (pos.forward_axis - (wristToFlywheels)*std::cos(pos.shooting_angle)) 
-      - pivotToCenter;
+    double pivotForwardComponent = (pos.forward_axis - (wristToIntake)*std::cos(pos.shooting_angle)) 
+      + pivotToCenter;
 
-    double pivotUpwardComponent = (pos.upward_axis - (wristToFlywheels)*std::sin(pos.shooting_angle)) - pivotToGround;
+    double pivotUpwardComponent = (pos.upward_axis - (wristToIntake)*std::sin(pos.shooting_angle)) - pivotToGround;
     
     raw.extension = std::sqrt(pow(pivotForwardComponent, 2) + pow(pivotUpwardComponent, 2) - pow(pivotToWristOffset, 2)) 
         - pivotToWrist;
@@ -160,13 +161,13 @@ class InverseKinematics {
       + pow(pivotToWrist + raw.extension, 2)));
 
 
-    double pivotTotalAngle = (std::atan2(pivotForwardComponent, pivotUpwardComponent));
+    double pivotTotalAngle = (std::atan2(pivotUpwardComponent, pivotForwardComponent));
 
     double pivotAddedAngle = (std::atan2(pivotToWristOffset, pivotToWrist + raw.extension));
 
-    raw.pivot_angle =  radians(90) - (pivotTotalAngle - pivotAddedAngle - radians(17.0));
+    raw.pivot_angle =  (pivotTotalAngle - pivotAddedAngle + radians(17.0));
 
-    raw.wrist_angle = -(pos.shooting_angle - (std::atan2(pivotUpwardComponent, pivotForwardComponent)) - radians(47.0));
+    raw.wrist_angle = ((pos.shooting_angle - raw.pivot_angle + radians(17.0) - radians(49))) - wristToIntakeOtherAngle;
 
     return raw;
   }
@@ -175,9 +176,9 @@ class InverseKinematics {
     CoordinatePositions coordinate{};
 
     pos.pivot_angle -= radians(17.0);
-    pos.wrist_angle -= radians(47.0);
+    pos.wrist_angle -= radians(49.0);
   
-    double truePivotAngle = (pos.pivot_angle) - (std::atan2(pivotToWristOffset,
+    double truePivotAngle = (pos.pivot_angle) + (std::atan2(pivotToWristOffset,
           pos.extension+pivotToWrist));
 
 
@@ -185,13 +186,13 @@ class InverseKinematics {
       + pow(pivotToWrist + pos.extension, 2)));
 
     coordinate.upward_axis = (pivotToGround + 
-       pivotDistanceHypotenuse * std::sin(truePivotAngle) + 
-        wristToFlywheels * std::sin(truePivotAngle - pos.wrist_angle));
+       pivotDistanceHypotenuse * std::sin(truePivotAngle)) + 
+        wristToIntake * std::sin(pos.pivot_angle - pos.wrist_angle + wristToIntakeOtherAngle);
 
-    coordinate.forward_axis = (pivotDistanceHypotenuse * std::cos(truePivotAngle) + 
-      wristToFlywheels * std::cos(truePivotAngle - pos.wrist_angle)) + pivotToCenter;
+    coordinate.forward_axis = pivotDistanceHypotenuse * std::cos(truePivotAngle) -
+      pivotToCenter + wristToIntake * std::cos(pos.pivot_angle - pos.wrist_angle + wristToIntakeOtherAngle);
 
-    coordinate.shooting_angle = ((truePivotAngle) - pos.wrist_angle); 
+    coordinate.shooting_angle = ((pos.pivot_angle) - pos.wrist_angle + wristToIntakeOtherAngle); 
 
     return coordinate;
   }
@@ -201,42 +202,6 @@ class InverseKinematics {
   }
 };
 
-class TrapCalculator{
-  private:
-    static constexpr units::inch_t pivotHookDist=10_in;
-    static constexpr units::degree_t pivotHookAngle=10_deg;
-    static constexpr units::inch_t pivotToWrist=10_in;
-    static constexpr units::inch_t wristToUpperIntake=10_in;
-    static constexpr units::degree_t wristToUpperIntakeOffset=10_deg;
-    static constexpr units::inch_t wristToLowerIntake=10_in;
-    static constexpr units::inch_t pivotToWristOffset=-4.25_in;
-    static constexpr units::inch_t chainToStageX=10_in;
-
-  public:
-    static units::degree_t getWristAngle(units::degree_t pivotAngle, units::inch_t telescope_extension, units::inch_t drivetrain_tilt, units::degree_t wrist_guess) { //drivetrain_tilt could be constnat, depends on how climb works
-      // pivotAngle-=17_deg;
-
-      // units::degree_t truePivotAngle = ((pivotAngle) + (units::math::atan2(telescope_extension+pivotToWrist, pivotToWristOffset)))-90_deg;
-
-      // units::inch_t pivotDistanceHypotenuse = (units::math::sqrt(units::math::pow<2>(pivotToWristOffset) 
-      //   + units::math::pow<2>(pivotToWrist+telescope_extension) ));
-
-      // frc846::util::Vector2D<units::inch_t> wristPos; 
-      // wristPos.x=-pivotHookDist*units::math::cos(drivetrain_tilt)*units::math::cos(truePivotAngle-drivetrain_tilt); 
-      // wristPos.y=pivotHookDist*units::math::sin(drivetrain_tilt)*pivotDistanceHypotenuse*units::math::sin(truePivotAngle-drivetrain_tilt);
-
-      // units::degree_t topRollerSolution=180_deg+(truePivotAngle-drivetrain_tilt+(-units::math::acos((chainToStageX-wristPos.x)/wristToUpperIntake)+10_deg))-133_deg;      
-      // units::degree_t bottomRollerSolution=180_deg + (truePivotAngle-drivetrain_tilt+units::math::acos((chainToStageX-wristPos.x)/wristToLowerIntake))-133_deg;
-
-      // if (units::math::abs(topRollerSolution-wrist_guess)<units::math::abs(bottomRollerSolution-wrist_guess)){
-      //   return topRollerSolution;
-      // }
-      // else{
-      //   return bottomRollerSolution;
-      // }
-      return 0_deg;
-    }
-};
 
 TeleopPositioningCommand::TeleopPositioningCommand(RobotContainer& container)
     : driver_(container.driver_),
@@ -246,6 +211,7 @@ TeleopPositioningCommand::TeleopPositioningCommand(RobotContainer& container)
       telescope_(container.telescope_),
       wrist_(container.wrist_),
       scorer_(container.scorer_), 
+      bracer_(container.bracer_),
       super_(container.super_structure_) {
   AddRequirements({&pivot_, &telescope_, &wrist_});
   SetName("teleop_positioning_command");
@@ -270,7 +236,7 @@ void TeleopPositioningCommand::Execute() {
   bool pre_climb = operator_.readings().left_trigger;
   bool climb = operator_.readings().right_trigger;
 
-  bool ftrap_s = operator_.readings().start_button;
+  bool ftrap_s = operator_.readings().left_bumper;
 
   PivotTarget pivot_target = pivot_.ZeroTarget();
   TelescopeTarget telescope_target = telescope_.ZeroTarget();
@@ -279,8 +245,10 @@ void TeleopPositioningCommand::Execute() {
   if (pivot_up_manual || pivot_down_manual) {
     if (pivot_up_manual) {
       mpiv_adj += 40.0 / 50.0;
+      ms_adj += 40.0 / 50.0;
     } else if (pivot_down_manual) {
       mpiv_adj -= 40.0 / 50.0;
+      ms_adj -= 40.0 / 50.0;
     }
   }
 
@@ -330,14 +298,16 @@ void TeleopPositioningCommand::Execute() {
 
     pivotHasRun = true;
   } else if (climb) {
-    pivot_target.pivot_output = setpoints::kClimb(0).value();
+    pivot_target.pivot_output = units::degree_t(setpoints::kClimb(0).value());
 
     pivotHasRun = true;
   } else if (pre_climb) {
-    pivot_target.pivot_output = setpoints::kPreClimb(0).value();
+    bracer_.SetTarget(bracer_.MakeTarget(BracerState::kExtend));
+
+    pivot_target.pivot_output = units::degree_t(setpoints::kPreClimb(0).value());
 
     pivotHasRun = true;
-  } else if (running_prep_speaker) {
+  } else if (running_prep_speaker && frc846::util::ShareTables::GetDouble("telescope_extension") < 1.0) {
     double nextPivotTarget = setpoints::kShoot(0).value();
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);                                                                                                                                                                                                                                                                                                                                                                         ;
 
@@ -382,7 +352,7 @@ void TeleopPositioningCommand::Execute() {
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     telescopeHasRun = true;
-  } else if (running_intake_position) {
+  } else if (running_intake_position && frc846::util::ShareTables::GetDouble("pivot_position") < 20.0) {
     double nextTelescopeTarget = setpoints::kIntake(1).value();
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
@@ -414,7 +384,7 @@ void TeleopPositioningCommand::Execute() {
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;
-  } else if (running_prep_speaker) {
+  } else if (running_prep_speaker && frc846::util::ShareTables::GetDouble("pivot_position") > 10.0) {
     double shooting_dist = (field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")) - drivetrain_.readings().pose.point).Magnitude().to<double>();
 
     auto robot_velocity = drivetrain_.readings().velocity;
@@ -454,7 +424,7 @@ void TeleopPositioningCommand::Execute() {
     }
 
     wristHasRun = true;
-  } else if (running_intake_position) {
+  } else if (running_intake_position && frc846::util::ShareTables::GetDouble("pivot_position") < 20.0) {
     double nextWristTarget = setpoints::kIntake(2).value();
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
@@ -474,26 +444,30 @@ void TeleopPositioningCommand::Execute() {
   }
 
 
-  // if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
-  //   if (auto* wrist_pos = std::get_if<units::angle::degree_t>(&wrist_target.wrist_output)) {
-  //     if (auto* tele_ext = std::get_if<units::inch_t>(&telescope_target.extension)) {
-  //       CoordinatePositions coordinateConverted = InverseKinematics::toCoordinate({radians(piv_pos->to<double>() + mpiv_adj), 
-  //         radians(wrist_pos->to<double>() + ms_adj), tele_ext->to<double>() + mtele_adj});
+  if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
+    if (auto* wrist_pos = std::get_if<units::angle::degree_t>(&wrist_target.wrist_output)) {
+      if (auto* tele_ext = std::get_if<units::inch_t>(&telescope_target.extension)) {
+        CoordinatePositions coordinateConverted = InverseKinematics::degree_toCoordinate({piv_pos->to<double>() + mpiv_adj, 
+          wrist_pos->to<double>() + ms_adj, tele_ext->to<double>() + mtele_adj});
 
-  //       if (!InverseKinematics::withinBounds(coordinateConverted)) {
-  //         mpiv_adj = pmpiv_adj;
-  //         ms_adj = pms_adj;
-  //         mtele_adj = pmtele_adj;
+        // std::cout << "FA" << coordinateConverted.forward_axis << std::endl;
+        // std::cout << coordinateConverted.upward_axis << std::endl;
 
-  //         std::cout << "OUT of bounds" << std::endl;
-  //       } else {
-  //         pmpiv_adj =  mpiv_adj;
-  //         pms_adj = ms_adj;
-  //         pmtele_adj = mtele_adj;
-  //       }
-  //     } 
-  //   }
-  // }
+        if (!InverseKinematics::withinBounds(coordinateConverted)) {
+          mpiv_adj = pmpiv_adj;
+          ms_adj = pms_adj;
+          mtele_adj = pmtele_adj;
+
+          std::cout << "OUT of bounds" << std::endl;
+        } else {
+          pmpiv_adj =  mpiv_adj;
+          pms_adj = ms_adj;
+          pmtele_adj = mtele_adj;
+          
+        }
+      } 
+    }
+  }
 
   if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
     pivot_target.pivot_output = *piv_pos + units::degree_t(mpiv_adj);

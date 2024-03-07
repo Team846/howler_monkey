@@ -1,6 +1,7 @@
 #include "subsystems/wrist.h"
 #include "frc846/control/control.h"
 #include "frc846/util/share_tables.h"
+#include "units/math.h"
 
 WristSubsystem::WristSubsystem(bool init)
     : frc846::Subsystem<WristReadings, WristTarget>{"wrist", init} {
@@ -55,9 +56,19 @@ WristReadings WristSubsystem::GetNewReadings() {
 }
 
 void WristSubsystem::PositionWrist(WristTarget target) {
-  if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
-    wrist_esc_.Write(frc846::control::ControlMode::Position, *pos);
 
+  if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
+
+    units::degree_t pivot_angle = units::degree_t(frc846::util::ShareTables::GetDouble("pivot_position"))-17_deg;
+    units::degree_t wrist_angle = readings().wrist_position+(180_deg-wrist_home_offset_.value());
+    units::degree_t shooting_angle = 180_deg+pivot_angle-wrist_angle;
+
+    double f = k_.value()*units::math::sin(shooting_angle);
+    double p = p_.value()*(*pos-readings().wrist_position).to<double>();
+
+    wrist_esc_.Write(frc846::control::ControlMode::Percent, f+p);
+    
+    target_wrist_error_graph.Graph(*pos-readings().wrist_position);
     target_wrist_pos_graph.Graph(*pos);
 
   } else if (auto output = std::get_if<double>(&target.wrist_output)) {

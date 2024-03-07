@@ -14,6 +14,7 @@
 #include "autos/five_piece_auto.h"
 #include "autos/three_piece_source_auto.h"
 #include "autos/one_piece_auto.h"
+// #include "autos/_TESTING_ROUTINE.h"
 #include "subsystems/robot_container.h"
 #include "frc/DigitalInput.h"
 #include "frc846/fstore.h"
@@ -85,18 +86,14 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
   frc2::CommandPtr drive_auto_ =
       DriveAuto{container_, true}.ToPtr();
   
-  frc2::CommandPtr five_piece_auto_red_ = 
+  frc2::CommandPtr five_piece_auto_ = 
       FivePieceAuto{container_, false}.ToPtr();
-  frc2::CommandPtr five_piece_auto_blue_ = 
-      FivePieceAuto{container_, true}.ToPtr();
-
-  frc2::CommandPtr three_piece_source_auto_red_ = 
-      ThreePieceSourceAuto{container_, false}.ToPtr();
-  frc2::CommandPtr three_piece_source_auto_blue_ = 
-      ThreePieceSourceAuto{container_, true}.ToPtr();
 
   frc2::CommandPtr one_piece_auto_ = 
       OnePieceAuto{container_, false}.ToPtr();
+
+//   frc2::CommandPtr testing_routine_ = 
+//       TestingArmRoutine{container_, false}.ToPtr();
 
   frc::DigitalInput homing_switch_{0};
   frc::DigitalInput coasting_switch_{1};

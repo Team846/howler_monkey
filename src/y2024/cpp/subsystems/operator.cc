@@ -19,8 +19,8 @@ bool OperatorSubsystem::VerifyHardware() {
 OperatorReadings OperatorSubsystem::GetNewReadings() {
   OperatorReadings readings{xbox_, trigger_threshold_.value()};
 
-  frc846::util::ShareTables::SetBoolean("amp", readings.left_trigger);
-  frc846::util::ShareTables::SetBoolean("coopertition", readings.right_trigger);
+  frc846::util::ShareTables::SetBoolean("amp", readings.left_stick_x > 0.5);
+  frc846::util::ShareTables::SetBoolean("coopertition", readings.left_stick_x < -0.5);
 
   return readings;
 }

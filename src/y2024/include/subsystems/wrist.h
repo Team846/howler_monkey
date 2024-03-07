@@ -56,6 +56,10 @@ class WristSubsystem
  private:
   bool hasZeroed = false;
 
+  frc846::Loggable gains_{*this, "gains"};
+  frc846::Pref<double> k_{gains_, "k", 0.0};
+  frc846::Pref<double> p_{gains_, "p", 0.0};
+
   frc846::Loggable readings_named_{*this, "readings"};
 
   frc846::Grapher<units::degree_t> wrist_pos_graph{target_named_, "wrist_pos"};
@@ -65,6 +69,7 @@ class WristSubsystem
   frc846::Grapher<double> target_wrist_duty_cycle_graph{target_named_, "wrist_duty_cycle"};
 
   frc846::Grapher<units::degree_t> target_wrist_pos_graph{target_named_, "wrist_pos"};
+  frc846::Grapher<units::degree_t> target_wrist_error_graph{target_named_, "wrist_error"};
 
 
   frc846::Loggable wrist_gains_lg = frc846::Loggable(*this, "wrist_gains");

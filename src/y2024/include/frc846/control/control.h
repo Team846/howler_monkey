@@ -256,7 +256,7 @@ class SparkRevController : ElectronicSpeedController<X> {
       if (mode == ControlMode::Percent) {
         auto peak_output = gains_helper->peak_output_.value();
 
-        double value = std::max(output, -peak_output);
+        double value = std::max(output, gains_helper->reverse_peak_output_.value());
         value = std::min(value, +peak_output);
 
         CheckOk(obj, pid_controller_.SetReference(value, LocalRevControlMode(mode)), "Write Duty Cycle");
@@ -554,7 +554,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
       if (mode == ControlMode::Percent) {
         auto peak_output = gains_helper->peak_output_.value();
 
-        double value = std::max(output, -peak_output);
+        double value = std::max(output, gains_helper->reverse_peak_output_.value());
         value = std::min(value, +peak_output);
 
         pid_controller_.SetReference(value, LocalFlexControlMode(mode));
