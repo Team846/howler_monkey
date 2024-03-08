@@ -19,8 +19,7 @@ bool OperatorSubsystem::VerifyHardware() {
 OperatorReadings OperatorSubsystem::GetNewReadings() {
   OperatorReadings readings{xbox_, trigger_threshold_.value()};
 
-  frc846::util::ShareTables::SetBoolean("amp", readings.left_stick_x > 0.5);
-  frc846::util::ShareTables::SetBoolean("coopertition", readings.left_stick_x < -0.5);
+  frc846::util::ShareTables::SetBoolean("amp", std::abs(readings.left_stick_x) > 0.5);
 
   return readings;
 }
@@ -28,7 +27,7 @@ OperatorReadings OperatorSubsystem::GetNewReadings() {
 void OperatorSubsystem::DirectWrite(OperatorTarget target) {
   target_rumble_graph_.Graph(target.rumble);
 
-  auto rumble = target.rumble ? rumble_strength_.value() : 0;
+  auto rumble = target.rumble || frc846::util::ShareTables::GetBoolean("climb_hooks_engaged") ? rumble_strength_.value() : 0;
 
   xbox_.SetRumble(frc::XboxController::RumbleType::kLeftRumble, rumble);
   xbox_.SetRumble(frc::XboxController::RumbleType::kRightRumble, rumble);

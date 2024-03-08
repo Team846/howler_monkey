@@ -135,17 +135,17 @@ static bool withinBounds(CoordinatePositions pos) {
   }
 
   static RawPositions toRaw(CoordinatePositions pos) {
-    if (!withinBounds(pos)) {
-      double angle = atan2(pos.upward_axis, pos.forward_axis);
+    // if (!withinBounds(pos)) {
+    //   double angle = atan2(pos.upward_axis, pos.forward_axis);
 
-      double maxMagnitude = std::abs(std::min(robotWidth / 2.0 + 11.5, -robotWidth / 2.0 - 11.5) / cos(angle));
+    //   double maxMagnitude = std::abs(std::min(robotWidth / 2.0 + 11.5, -robotWidth / 2.0 - 11.5) / cos(angle));
       
 
-      double magnitude = std::min(std::max(0.0, std::min(std::max(0.0, std::hypot(pos.forward_axis, pos.upward_axis)), maxMagnitude)), 47.5);
+    //   double magnitude = std::min(std::max(0.0, std::min(std::max(0.0, std::hypot(pos.forward_axis, pos.upward_axis)), maxMagnitude)), 47.5);
 
-      pos.forward_axis = magnitude * cos(angle);
-      pos.upward_axis = magnitude * sin(angle);
-    }
+    //   pos.forward_axis = magnitude * cos(angle);
+    //   pos.upward_axis = magnitude * sin(angle);
+    // }
 
     RawPositions raw{};
 
@@ -167,7 +167,7 @@ static bool withinBounds(CoordinatePositions pos) {
 
     raw.pivot_angle =  (pivotTotalAngle - pivotAddedAngle + radians(17.0));
 
-    raw.wrist_angle = ((pos.shooting_angle - raw.pivot_angle + radians(17.0) - radians(49))) - wristToIntakeOtherAngle;
+    raw.wrist_angle = -(((pos.shooting_angle - raw.pivot_angle + radians(17.0) - radians(47))) - wristToIntakeOtherAngle);
 
     return raw;
   }
@@ -202,6 +202,28 @@ static bool withinBounds(CoordinatePositions pos) {
   }
 };
 
+class TrapCalculator {
+  public:
+    static std::vector<std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>> interpolateTrapPoints(
+        frc846::util::Vector2D<units::inch_t> starting_coordinate,
+          frc846::util::Vector2D<units::inch_t> ending_coordinate, 
+            units::degree_t starting_angle, units::degree_t ending_angle, int steps = 20) {
+      std::vector<std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>> toReturn{};
+      for (int i = 0; i < steps; i++) {
+        auto x_coord = starting_coordinate.x + (i/steps) * (ending_coordinate.x - starting_coordinate.x);
+        auto y_coord = starting_coordinate.y + (i/steps) * (ending_coordinate.y - starting_coordinate.y);
+        auto angle = starting_angle + (i/steps) * (ending_angle - starting_angle);
+        toReturn.push_back({{x_coord, y_coord}, angle});
+      }
+      return toReturn;
+    }
+
+    static RawPositions getRawsAtPoint(int counter, 
+      std::vector<std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>> trapPoints) {
+        return InverseKinematics::toRaw(CoordinatePositions{radians(trapPoints.at(counter).second.to<double>()), trapPoints.at(counter).first.x.to<double>(), 
+          trapPoints.at(counter).first.y.to<double>()});
+    }
+};
 
 TeleopPositioningCommand::TeleopPositioningCommand(RobotContainer& container)
     : driver_(container.driver_),
@@ -213,7 +235,7 @@ TeleopPositioningCommand::TeleopPositioningCommand(RobotContainer& container)
       scorer_(container.scorer_), 
       bracer_(container.bracer_),
       super_(container.super_structure_) {
-  AddRequirements({&pivot_, &telescope_, &wrist_});
+  AddRequirements({&pivot_, &telescope_, &wrist_, &bracer_});
   SetName("teleop_positioning_command");
 }
 
@@ -250,6 +272,18 @@ void TeleopPositioningCommand::Execute() {
       mpiv_adj -= 40.0 / 50.0;
       ms_adj -= 40.0 / 50.0;
     }
+  }
+
+  RawPositions positions{};
+  
+  if (ftrap_s) {
+    auto k = TrapCalculator::interpolateTrapPoints(
+        {super_.trap_start_x.value(), super_.trap_start_y.value()},
+        {super_.trap_end_x.value(), super_.trap_end_y.value()},
+        super_.trap_start_angle.value(),
+        super_.trap_end_angle.value());
+    positions = TrapCalculator::getRawsAtPoint(std::min(19, trapCounter/trapDivisor), k);
+    trapCounter += 1;
   }
 
   if (telescope_in_manual || telescope_out_manual) {
@@ -293,8 +327,7 @@ void TeleopPositioningCommand::Execute() {
   frc846::util::ShareTables::SetString("shooting_state", "kNone");
 
   if (ftrap_s) {
-    double nextPivotTarget = setpoints::kTrap(0).value();
-    pivot_target.pivot_output = units::degree_t(nextPivotTarget);
+    pivot_target.pivot_output = units::degree_t(degs(positions.pivot_angle));
 
     pivotHasRun = true;
   } else if (climb) {
@@ -339,8 +372,7 @@ void TeleopPositioningCommand::Execute() {
   }
 
   if (ftrap_s) {
-    double nextTelescopeTarget = setpoints::kTrap(1).value();
-    telescope_target.extension = units::inch_t(nextTelescopeTarget);
+    telescope_target.extension = units::inch_t(positions.extension);
 
     telescopeHasRun = true;
   } else if (climb || pre_climb) {
@@ -375,8 +407,7 @@ void TeleopPositioningCommand::Execute() {
   }
 
   if (ftrap_s) {
-    double nextWristTarget = setpoints::kTrap(2).value();
-    wrist_target.wrist_output = units::degree_t(nextWristTarget);
+    wrist_target.wrist_output = units::degree_t(degs(positions.wrist_angle));
 
     telescopeHasRun = true;
   } else if (climb || pre_climb) {
@@ -384,7 +415,7 @@ void TeleopPositioningCommand::Execute() {
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;
-  } else if (running_prep_speaker && frc846::util::ShareTables::GetDouble("pivot_position") > 10.0) {
+  } else if (running_prep_speaker && frc846::util::ShareTables::GetDouble("pivot_position") > 2.0) {
     double shooting_dist = (field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")) - drivetrain_.readings().pose.point).Magnitude().to<double>();
 
     auto robot_velocity = drivetrain_.readings().velocity;
@@ -484,6 +515,10 @@ void TeleopPositioningCommand::Execute() {
   if (!scorer_.GetHasPiece()) {
     DriverTarget driver_target{false};
     driver_.SetTarget(driver_target);
+  }
+
+  if (operator_.readings().start_button) {
+    bracer_.SetTarget(bracer_.MakeTarget(BracerState::kRetract));
   }
 
   pivot_.SetTarget(pivot_target);

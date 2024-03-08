@@ -4,10 +4,10 @@
 
 ScorerSubsystem::ScorerSubsystem(bool init)
     : frc846::Subsystem<ScorerReadings, ScorerTarget>{"scorer", init},
-    note_detection{intake_shooter_esc_.esc_.GetReverseLimitSwitch(rev::SparkLimitSwitch::Type::kNormallyOpen)},
-    note_detection_other{intake_shooter_esc_.esc_.GetForwardLimitSwitch(rev::SparkLimitSwitch::Type::kNormallyOpen)} {
+    note_detection{intake_shooter_esc_.esc_.GetForwardLimitSwitch(rev::SparkLimitSwitch::Type::kNormallyOpen)},
+    note_detection_other{intake_shooter_esc_.esc_.GetReverseLimitSwitch(rev::SparkLimitSwitch::Type::kNormallyOpen)} {
     if (init) {
-        intake_shooter_esc_.Setup(&intake_esc_gains_, true);
+        intake_shooter_esc_.Setup(&intake_esc_gains_, false);
         intake_shooter_esc_.SetupConverter(1_tr);
 
         // shooter_esc_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
@@ -79,7 +79,8 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
       note_detection.EnableLimitSwitch(true);
     };
     frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
-    intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, intake_speed_.value());
+    intake_shooter_esc_.Write(frc846::control::ControlMode::Velocity, intake_speed_.value() +
+       frc846::util::ShareTables::GetDouble("velocity") * 1_tps / (1.8 * 3.1415926 / 12.0));
     shooter_esc_one_.Write(frc846::control::ControlMode::Percent, -0.2);
     shooter_esc_two_.Write(frc846::control::ControlMode::Percent, -0.2);
   } else if (target.target_state == kShoot) {
@@ -91,7 +92,7 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
 
     frc846::util::ShareTables::SetBoolean("scorer_has_piece", false);
 
-    intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, intake_feed_speed_.value());
+    intake_shooter_esc_.Write(frc846::control::ControlMode::Velocity, intake_feed_speed_.value());
 
     shooter_esc_one_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value() * (1 + spin_.value()));
     shooter_esc_two_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value() * (1 - spin_.value()));

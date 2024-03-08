@@ -49,6 +49,9 @@ class TeleopPositioningCommand
   double mu_adj = 0.0;
   double ms_adj = 0.0;
   double pms_adj = 0.0;
+
+  int trapCounter = 0;
+  int trapDivisor = 7;
 };
 
 #endif  // y2024_COMMANDS_TELEOP_POSITIONING_COMMAND_H_

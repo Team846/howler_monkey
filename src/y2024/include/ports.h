@@ -47,8 +47,8 @@ struct ports {
   };
 
   struct bracer_ {
-    static constexpr int kPWM_Servo_Left = 3;
-    static constexpr int kPWM_Servo_Right = 4;
+    static constexpr int kPWM_Left = 3;
+    static constexpr int kPWM_Right = 4;
   };
 
   struct leds_ {

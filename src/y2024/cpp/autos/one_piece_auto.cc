@@ -33,13 +33,20 @@ OnePieceAuto::OnePieceAuto(
       frc2::InstantCommand{[&, flip = should_flip_] {
         auto pose_ = field::points::kOPOrigin(flip);
         container.drivetrain_.SetPoint(pose_.point);
-        container.drivetrain_.SetBearing(pose_.bearing);
+        // container.drivetrain_.SetBearing(pose_.bearing);
+        std::cout << container.drivetrain_.readings().pose.bearing.to<double>() << std::endl;
+        std::cout << (field::points::one_piece_extra_distance_.value() * units::math::sin(container.drivetrain_.readings().pose.bearing)).to<double>() << std::endl;
+        std::cout << (field::points::one_piece_extra_distance_.value() * units::math::cos(container.drivetrain_.readings().pose.bearing)).to<double>() << std::endl;
       }},
       PrepareShootCommand{ container, ((field::points::kSpeakerTeleop(should_flip_) 
         - field::points::kOPOrigin(should_flip_).point).Magnitude()).to<double>() },
       frc2::WaitCommand{ 2.0_s },
       ShootCommand{ container },
       frc2::WaitCommand{ 0.5_s },
-      FollowTrajectoryCommand{ container, {{field::points::kOPEnd(should_flip_), 0_fps}}}
+
+      FollowTrajectoryCommand{ container, {{{{field::points::kOPOrigin(should_flip_).point.x 
+        + field::points::one_piece_extra_distance_.value() * units::math::sin(container.drivetrain_.readings().pose.bearing),
+        field::points::kOPOrigin(should_flip_).point.y + field::points::one_piece_extra_distance_.value() * units::math::cos(container.drivetrain_.readings().pose.bearing)}, 
+          field::points::kOPOrigin(should_flip_).bearing}, 0_fps}}}
      );
 }

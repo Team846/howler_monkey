@@ -10,6 +10,7 @@
 #include "pivot.h"
 #include "telescope.h"
 #include "leds.h"
+#include "bracer.h"
 #include "super_structure.h"
 
 class RobotContainer : public frc846::Loggable {
@@ -22,6 +23,7 @@ class RobotContainer : public frc846::Loggable {
   frc846::Pref<bool> init_pivot_{*this, "init_pivot", true};
   frc846::Pref<bool> init_telescope_{*this, "init_telescope", true};
   frc846::Pref<bool> init_leds_{*this, "init_leds", true};
+  frc846::Pref<bool> init_bracer_{*this, "init_bracer_zero", true};
 
   DriverSubsystem driver_;
   OperatorSubsystem operator_;
@@ -33,8 +35,11 @@ class RobotContainer : public frc846::Loggable {
   TelescopeSubsystem telescope_{init_telescope_.value()};
   LEDsSubsystem leds_{init_leds_.value()};
 
+  BracerSubsystem bracer_{init_bracer_.value()};
+
   std::vector<frc846::SubsystemBase*> all_subsystems_{
-      &driver_,  &operator_, &drivetrain_, &scorer_, &wrist_, &pivot_, &telescope_, &leds_, &super_structure_};
+      &driver_,  &operator_, &drivetrain_, &scorer_, &wrist_, &pivot_, &telescope_, &leds_, 
+        &bracer_, &super_structure_};
 };
 
 #endif  // FRC846_SUBSYSTEMS_ROBOT_CONTAINER_H_
