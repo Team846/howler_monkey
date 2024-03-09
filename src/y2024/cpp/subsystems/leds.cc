@@ -18,6 +18,7 @@ LEDsTarget LEDsSubsystem::ZeroTarget() const {
 bool LEDsSubsystem::VerifyHardware() { return true; }
 
 LEDsReadings LEDsSubsystem::GetNewReadings() { 
+  frc846::util::ShareTables::SetBoolean("is_homed", hasZeroed);
   return {}; 
 }
 

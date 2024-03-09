@@ -57,6 +57,7 @@ class ScorerSubsystem
   frc846::Loggable readings_named_{*this, "readings"};
   frc846::Grapher<bool> readings_has_piece_graph{readings_named_, "readings_has_piece"};
   frc846::Grapher<double> readings_shooting_speed_left_graph{readings_named_, "readings_shooting_speed_left_graph"};
+  frc846::Grapher<double> readings_intake_speed_{readings_named_, "readings_intake_speed"};
 
   frc846::Loggable target_named_{*this, "target"};
   frc846::Grapher<bool> target_is_intaking_graph{target_named_, "target_is_intaking_graph"};

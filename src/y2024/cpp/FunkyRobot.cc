@@ -83,7 +83,8 @@ void FunkyRobot::StartCompetition() {
   auto_chooser_.AddOption("drive_auto",
                                  drive_auto_.get());
   
-  auto_chooser_.SetDefaultOption("five_piece_auto", five_piece_auto_.get());
+  auto_chooser_.SetDefaultOption("four_piece_auto_lr", five_piece_auto_lr.get());
+  auto_chooser_.AddOption("four_piece_auto_rl", five_piece_auto_rl.get());
   auto_chooser_.AddOption("one_piece_auto", one_piece_auto_.get());
   // auto_chooser_.AddOption("testing_routine", testing_routine_.get());
 
@@ -301,6 +302,14 @@ void FunkyRobot::InitTeleopTriggers() {
         && (container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.2) || 
           container_.operator_.readings().pov == frc846::XboxPOV::kLeft
       ); }};
+
+    //87, 157, 3.5
+
+  // frc2::Trigger scorer_out_trigger{
+  //     [&] { return ((container_.driver_.readings().right_bumper && (std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.2 
+  //       || container_.driver_.readings().left_bumper)) || 
+  //         container_.operator_.readings().pov == frc846::XboxPOV::kLeft
+  //     ); }};
 
   frc2::Trigger scorer_manual_intake_trigger{
       [&] { return (container_.operator_.readings().pov == frc846::XboxPOV::kRight); }};
