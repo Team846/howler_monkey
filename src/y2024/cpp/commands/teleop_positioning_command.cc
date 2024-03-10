@@ -131,7 +131,7 @@ class InverseKinematics {
   public:
 static bool withinBounds(CoordinatePositions pos) {
     return (pos.forward_axis < robotWidth / 2.0 + 11.5 && pos.forward_axis > -robotWidth / 2.0 - 11.5
-      &&  pos.upward_axis > 0.0 && pos.upward_axis < 47.5);
+      &&  pos.upward_axis > -10.0 && pos.upward_axis < 47.5);
   }
 
   static RawPositions toRaw(CoordinatePositions pos) {
@@ -292,8 +292,6 @@ void TeleopPositioningCommand::Execute() {
     } else if (telescope_out_manual) {
       mtele_adj += 6.0 / (2.0 * 50.0);
     }
-
-    mtele_adj = std::max(-4.0, std::min(4.0, mtele_adj));
   }
 
   // double translate_x = frc846::util::HorizontalDeadband(
@@ -318,9 +316,9 @@ void TeleopPositioningCommand::Execute() {
 
   if (w_up || w_d) {
     if (w_up) {
-      ms_adj += 40.0 / 50.0;
-    } else if (w_d) {
       ms_adj -= 40.0 / 50.0;
+    } else if (w_d) {
+      ms_adj += 40.0 / 50.0;
     }
   }
 
@@ -333,11 +331,15 @@ void TeleopPositioningCommand::Execute() {
   } else if (climb) {
     pivot_target.pivot_output = units::degree_t(setpoints::kClimb(0).value());
 
+    std::cout << setpoints::kClimb(0).value() << std::endl;
+
     pivotHasRun = true;
   } else if (pre_climb) {
     bracer_.SetTarget(bracer_.MakeTarget(BracerState::kExtend));
 
     pivot_target.pivot_output = units::degree_t(setpoints::kPreClimb(0).value());
+
+    std::cout << setpoints::kPreClimb(0).value() << std::endl;
 
     pivotHasRun = true;
   } else if (running_prep_speaker && frc846::util::ShareTables::GetDouble("telescope_extension") < 1.0) {
@@ -369,6 +371,7 @@ void TeleopPositioningCommand::Execute() {
   } else {
     double nextPivotTarget = setpoints::kStow(0).value();
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);
+
   }
 
   if (ftrap_s) {
@@ -489,7 +492,7 @@ void TeleopPositioningCommand::Execute() {
           ms_adj = pms_adj;
           mtele_adj = pmtele_adj;
 
-          std::cout << "OUT of bounds" << std::endl;
+          std::cout << "OUT of bounds, forward " << coordinateConverted.forward_axis << ", upward" << coordinateConverted.upward_axis << std::endl;
         } else {
           pmpiv_adj =  mpiv_adj;
           pms_adj = ms_adj;
@@ -511,7 +514,6 @@ void TeleopPositioningCommand::Execute() {
   if (auto* w_pos = std::get_if<units::angle::degree_t>(&wrist_target.wrist_output)) {
     wrist_target.wrist_output = *w_pos + units::degree_t(ms_adj);
   }
-
   if (!scorer_.GetHasPiece()) {
     DriverTarget driver_target{false};
     driver_.SetTarget(driver_target);
