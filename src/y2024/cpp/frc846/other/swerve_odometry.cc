@@ -61,11 +61,11 @@ void SwerveOdometry::Update(
   };
 
   pose_.point.x += (top_bottom.y + left_right.y) / 2;
-  if (frc846::util::ShareTables::GetBoolean("is_red_side") || (frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)) {
-    pose_.point.y += (top_bottom.x + left_right.x) / 2;
-  } else {
-    pose_.point.y -= (top_bottom.x + left_right.x) / 2;
-  }
+  // if (frc846::util::ShareTables::GetBoolean("is_red_side") || (frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)) {
+  pose_.point.y += (top_bottom.x + left_right.x) / 2;
+  // } else {
+  //   pose_.point.y -= (top_bottom.x + left_right.x) / 2;
+  // }
   pose_.bearing = bearing;
 }
 

@@ -38,7 +38,7 @@ FivePieceAuto::FivePieceAuto(
       PrepareShootCommand{ container,  (field::points::kSpeaker(should_flip_) - field::points::kFPOrigin(should_flip_).point).Magnitude().to<double>()}, //first_distance.to<double>() },
       // SpeakerAlignCommand{ container, 
       //     field::points::kFPOrigin(should_flip_).point},
-      frc2::WaitCommand{1.5_s},
+      frc2::WaitCommand{2.7_s}, //1.5 FIX
       ShootCommand{ container },
       frc2::WaitCommand{container.super_structure_.post_shoot_wait_.value()},
     

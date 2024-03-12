@@ -44,7 +44,7 @@ BracerReadings BracerSubsystem::GetNewReadings() {
 
 void BracerSubsystem::DirectWrite(BracerTarget target) {
   if (target.state != lastState) {
-    counter = 50;
+    counter = 150;
     lastState = target.state;
   }
   if (target.state == BracerState::kExtend) {
@@ -61,9 +61,10 @@ void BracerSubsystem::DirectWrite(BracerTarget target) {
     }
   } else if (target.state == BracerState::kRetract) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", false);
-      bracer_left_.Set(-0.5);;
+    bracer_left_.Set(-0.5);
+    counter = 150;
   } else {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", false);
-    counter = 50;
+    counter = 150;
   }
 }

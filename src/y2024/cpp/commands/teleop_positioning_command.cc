@@ -421,16 +421,16 @@ void TeleopPositioningCommand::Execute() {
   } else if (running_prep_speaker && frc846::util::ShareTables::GetDouble("pivot_position") > 2.0) {
     double shooting_dist = (field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")) - drivetrain_.readings().pose.point).Magnitude().to<double>();
 
-    auto robot_velocity = drivetrain_.readings().velocity;
-    auto point_target = (field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")) - drivetrain_.readings().pose.point);
+    // auto robot_velocity = drivetrain_.readings().velocity;
+    // auto point_target = (field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")) - drivetrain_.readings().pose.point);
 
-    double robot_velocity_in_component = 
-      (robot_velocity.x.to<double>() * point_target.x.to<double>() + 
-        robot_velocity.y.to<double>() * point_target.y.to<double>())/point_target.Magnitude().to<double>();
+    // double robot_velocity_in_component = 
+    //   (robot_velocity.x.to<double>() * point_target.x.to<double>() + 
+    //     robot_velocity.y.to<double>() * point_target.y.to<double>())/point_target.Magnitude().to<double>();
 
 
-    double robot_velocity_orth_component = std::sqrt(robot_velocity.Magnitude().to<double>()*
-      robot_velocity.Magnitude().to<double>() - robot_velocity_in_component * robot_velocity_in_component);
+    // double robot_velocity_orth_component = std::sqrt(robot_velocity.Magnitude().to<double>()*
+    //   robot_velocity.Magnitude().to<double>() - robot_velocity_in_component * robot_velocity_in_component);
 
 
     shooting_dist =  shooting_dist + super_.teleop_shooter_x_.value().to<double>()/12.0; //(13.0 + 40.0) / 12.0;

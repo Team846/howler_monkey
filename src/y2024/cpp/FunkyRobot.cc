@@ -299,7 +299,7 @@ void FunkyRobot::InitTeleopTriggers() {
 
   frc2::Trigger scorer_out_trigger{
       [&] { return ((container_.driver_.readings().right_bumper
-        && (container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.2) || 
+        && (container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.35) || 
           container_.operator_.readings().pov == frc846::XboxPOV::kLeft
       ); }};
 

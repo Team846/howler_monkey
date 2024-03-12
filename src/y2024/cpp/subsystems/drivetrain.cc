@@ -276,7 +276,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
       robotPoint.x = tagDistance*units::math::cos(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
       robotPoint.y = tagDistance*units::math::sin(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
       robotPoint.x = aprilTagX + robotPoint.x;
-      robotPoint.y = -aprilTagY + robotPoint.y;
+      robotPoint.y = aprilTagY + robotPoint.y;
 
 
       if(aprilTagConfidence>=0.7 && lastRelocalize == 0){
@@ -296,7 +296,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
         frc846::util::ShareTables::SetBoolean("april_tag_seen", true);
         // Debug("updated point");
 
-        lastRelocalize = 80;
+        lastRelocalize = 30;
       } else{
         frc846::util::ShareTables::SetBoolean("april_tag_seen", false);
 
