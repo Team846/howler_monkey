@@ -40,6 +40,21 @@ struct setpoints {
     }
   }
 
+  static frc846::Pref<double> source_pivot_;
+  static frc846::Pref<double> source_telescope_;
+  static frc846::Pref<double> source_wrist_;
+
+  static double kSource(int kIndex) { 
+    switch (kIndex) {
+        case 2:
+            return source_wrist_.value();
+        case 1:
+            return source_telescope_.value();
+        default:
+            return source_pivot_.value();
+    }
+  }
+
   static frc846::Pref<double> stow_pivot_;
   static frc846::Pref<double> stow_telescope_;
   static frc846::Pref<double> stow_wrist_;

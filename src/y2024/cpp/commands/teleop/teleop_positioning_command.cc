@@ -214,6 +214,8 @@ class TrapCalculator {
         auto y_coord = starting_coordinate.y + (i/steps) * (ending_coordinate.y - starting_coordinate.y);
         auto angle = starting_angle + (i/steps) * (ending_angle - starting_angle);
         toReturn.push_back({{x_coord, y_coord}, angle});
+
+        std::cout << x_coord.to<double>() << "X" << y_coord.to<double>() << "Y" << angle.to<double>() << std::endl;
       }
       return toReturn;
     }
@@ -255,6 +257,8 @@ void TeleopPositioningCommand::Execute() {
   bool running_amp_position = driver_.readings().left_bumper;
   bool running_prep_speaker = driver_.readings().right_trigger || driver_.readings().y_button;
 
+  bool running_source = driver_.readings().x_button;
+
   bool pre_climb = operator_.readings().left_trigger;
   bool climb = operator_.readings().right_trigger;
 
@@ -283,7 +287,7 @@ void TeleopPositioningCommand::Execute() {
         super_.trap_start_angle.value(),
         super_.trap_end_angle.value());
     positions = TrapCalculator::getRawsAtPoint(std::min(19, trapCounter/trapDivisor), k);
-    std::cout << trapCounter << std::endl;;
+    std::cout << trapCounter << "Q" << std::min(19, trapCounter/trapDivisor) << std::endl;
     trapCounter += 1;
   }
 
@@ -348,6 +352,11 @@ void TeleopPositioningCommand::Execute() {
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);                                                                                                                                                                                                                                                                                                                                                                         ;
 
     pivotHasRun = true;
+  } else if (running_source) {
+    double nextPivotTarget = setpoints::kSource(0);
+    pivot_target.pivot_output = units::degree_t(nextPivotTarget);
+
+    pivotHasRun = true;
   } else if (running_intake_position) {
     double nextPivotTarget = setpoints::kIntake(0);
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);
@@ -385,6 +394,11 @@ void TeleopPositioningCommand::Execute() {
     telescopeHasRun = true;
   } else if (running_prep_speaker) {
     double nextTelescopeTarget = setpoints::kShoot(1);
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
+
+    telescopeHasRun = true;
+  } else if (running_source) {
+    double nextTelescopeTarget = setpoints::kSource(1);
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     telescopeHasRun = true;
@@ -434,12 +448,14 @@ void TeleopPositioningCommand::Execute() {
     //   robot_velocity.Magnitude().to<double>() - robot_velocity_in_component * robot_velocity_in_component);
 
 
+    shooting_dist = 3.4; //REMOVE, FIX
+
     shooting_dist =  shooting_dist + super_.teleop_shooter_x_.value().to<double>()/12.0; //(13.0 + 40.0) / 12.0;
 
     units::degree_t theta = units::degree_t(TeleopShootingCalculator::calculate(scorer_.shooting_exit_velocity_.value(), shooting_dist - 2.6, 
       0.0, 0.0, super_.teleop_shooter_height_.value().to<double>(), super_.shoot_angle_calc_intial_guess_.value().to<double>(), super_.shoot_angle_calc_tolerance_.value(), super_.shoot_angle_calc_max_iterations_.value()));
 
-
+    std::cout << shooting_dist << "SD" << theta.to<double>() << std::endl;
     if (shooting_dist < super_.shooter_range_.value().to<double>() && std::abs(scorer_.readings().kLeftErrorPercent) < super_.shooter_speed_tolerance_.value()) {
       DriverTarget driver_target{true};
       driver_.SetTarget(driver_target);
@@ -457,6 +473,12 @@ void TeleopPositioningCommand::Execute() {
       wrist_target.wrist_output = 90_deg + units::degree_t(frc846::util::ShareTables::GetDouble("pivot_position")) - 17.0_deg
         - wrist_.wrist_home_offset_.value() + units::degree_t(setpoints::point_blank_wrist_.value());
     }
+
+    wristHasRun = true;
+  } else if (running_source && frc846::util::ShareTables::GetDouble("pivot_position") > 5.0
+    &&  frc846::util::ShareTables::GetDouble("telescope_extension") < 1.0) {
+    double nextWristTarget = setpoints::kSource(2);
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;
   } else if (running_intake_position && frc846::util::ShareTables::GetDouble("pivot_position") < 20.0) {

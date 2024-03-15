@@ -8,6 +8,10 @@ frc846::Pref<double> setpoints::intake_pivot_{frc846::motion::MotionTarget::pref
 frc846::Pref<double> setpoints::intake_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/intake_position", 4.7};
 frc846::Pref<double> setpoints::intake_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/intake_position", 185};
 
+frc846::Pref<double> setpoints::source_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/source_position", 54};
+frc846::Pref<double> setpoints::source_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/source_position", 0};
+frc846::Pref<double> setpoints::source_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/source_position", 36.5};
+
 frc846::Pref<double> setpoints::stow_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/stow_position", 0};
 frc846::Pref<double> setpoints::stow_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/stow_position", 0};
 frc846::Pref<double> setpoints::stow_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/stow_position", 0};
