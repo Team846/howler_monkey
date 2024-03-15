@@ -1,4 +1,4 @@
-#include "commands/teleop_positioning_command.h"
+#include "commands/teleop/teleop_positioning_command.h"
 #include "subsystems/setpoints.h"
 
 #include <utility>
@@ -266,10 +266,10 @@ void TeleopPositioningCommand::Execute() {
 
   if (pivot_up_manual || pivot_down_manual) {
     if (pivot_up_manual) {
-      mpiv_adj += 40.0 / 50.0;
+      mpiv_adj += 30.0 / 50.0;
       ms_adj += 40.0 / 50.0;
     } else if (pivot_down_manual) {
-      mpiv_adj -= 40.0 / 50.0;
+      mpiv_adj -= 30.0 / 50.0;
       ms_adj -= 40.0 / 50.0;
     }
   }
@@ -283,6 +283,7 @@ void TeleopPositioningCommand::Execute() {
         super_.trap_start_angle.value(),
         super_.trap_end_angle.value());
     positions = TrapCalculator::getRawsAtPoint(std::min(19, trapCounter/trapDivisor), k);
+    std::cout << trapCounter << std::endl;;
     trapCounter += 1;
   }
 
@@ -329,36 +330,36 @@ void TeleopPositioningCommand::Execute() {
 
     pivotHasRun = true;
   } else if (climb) {
-    pivot_target.pivot_output = units::degree_t(setpoints::kClimb(0).value());
+    pivot_target.pivot_output = units::degree_t(setpoints::kClimb(0));
 
-    std::cout << setpoints::kClimb(0).value() << std::endl;
+    std::cout << setpoints::kClimb(0) << std::endl;
 
     pivotHasRun = true;
   } else if (pre_climb) {
     bracer_.SetTarget(bracer_.MakeTarget(BracerState::kExtend));
 
-    pivot_target.pivot_output = units::degree_t(setpoints::kPreClimb(0).value());
+    pivot_target.pivot_output = units::degree_t(setpoints::kPreClimb(0));
 
-    std::cout << setpoints::kPreClimb(0).value() << std::endl;
+    std::cout << setpoints::kPreClimb(0) << std::endl;
 
     pivotHasRun = true;
   } else if (running_prep_speaker && frc846::util::ShareTables::GetDouble("telescope_extension") < 1.0) {
-    double nextPivotTarget = setpoints::kShoot(0).value();
+    double nextPivotTarget = setpoints::kShoot(0);
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);                                                                                                                                                                                                                                                                                                                                                                         ;
 
     pivotHasRun = true;
   } else if (running_intake_position) {
-    double nextPivotTarget = setpoints::kIntake(0).value();
+    double nextPivotTarget = setpoints::kIntake(0);
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);
 
     pivotHasRun = true;
   } else if (running_amp_position) {
-    double nextPivotTarget = setpoints::kAmp(0).value();
+    double nextPivotTarget = setpoints::kAmp(0);
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);
 
     pivotHasRun = true;
   } else if (pivotHasRun) {
-    double nextPivotTarget = setpoints::kStow(0).value();
+    double nextPivotTarget = setpoints::kStow(0);
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);
 
     mu_adj = 0.0;
@@ -369,7 +370,7 @@ void TeleopPositioningCommand::Execute() {
 
     pivotHasRun = false;
   } else {
-    double nextPivotTarget = setpoints::kStow(0).value();
+    double nextPivotTarget = setpoints::kStow(0);
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);
 
   }
@@ -383,29 +384,29 @@ void TeleopPositioningCommand::Execute() {
 
     telescopeHasRun = true;
   } else if (running_prep_speaker) {
-    double nextTelescopeTarget = setpoints::kShoot(1).value();
+    double nextTelescopeTarget = setpoints::kShoot(1);
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     telescopeHasRun = true;
   } else if (running_intake_position && frc846::util::ShareTables::GetDouble("pivot_position") < 20.0) {
-    double nextTelescopeTarget = setpoints::kIntake(1).value();
+    double nextTelescopeTarget = setpoints::kIntake(1);
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     telescopeHasRun = true;
   } else if (running_amp_position) {
-    double nextTelescopeTarget = setpoints::kAmp(1).value();
+    double nextTelescopeTarget = setpoints::kAmp(1);
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     telescopeHasRun = true;
   } else if (telescopeHasRun) {
-    double nextTelescopeTarget = setpoints::kStow(1).value();
+    double nextTelescopeTarget = setpoints::kStow(1);
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     mtele_adj = 0.0;
 
     telescopeHasRun = false;
   } else {
-    double nextTelescopeTarget = setpoints::kStow(1).value();
+    double nextTelescopeTarget = setpoints::kStow(1);
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
   }
 
@@ -414,7 +415,7 @@ void TeleopPositioningCommand::Execute() {
 
     telescopeHasRun = true;
   } else if (climb || pre_climb) {
-    double nextWristTarget = setpoints::kStow(2).value();
+    double nextWristTarget = setpoints::kStow(2);
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;
@@ -459,21 +460,21 @@ void TeleopPositioningCommand::Execute() {
 
     wristHasRun = true;
   } else if (running_intake_position && frc846::util::ShareTables::GetDouble("pivot_position") < 20.0) {
-    double nextWristTarget = setpoints::kIntake(2).value();
+    double nextWristTarget = setpoints::kIntake(2);
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;
   } else if (running_amp_position) {
-    double nextWristTarget = setpoints::kAmp(2).value();
+    double nextWristTarget = setpoints::kAmp(2);
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;
   } else if (wristHasRun) {
-    double nextWristTarget = setpoints::kStow(2).value();
+    double nextWristTarget = setpoints::kStow(2);
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
     wristHasRun = false;
   } else {
-    double nextWristTarget = setpoints::kStow(2).value();
+    double nextWristTarget = setpoints::kStow(2);
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
   }
 

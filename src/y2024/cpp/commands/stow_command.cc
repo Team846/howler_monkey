@@ -25,11 +25,11 @@ void StowCommand::Initialize() {
 void StowCommand::Execute() {
   scorer_.SetTarget(scorer_.ZeroTarget());
 
-  double nextPivotTarget = setpoints::kStow(0).value();
+  double nextPivotTarget = setpoints::kStow(0);
   pivot_.SetTarget(pivot_.MakeTarget(units::degree_t(nextPivotTarget)));
-  double nextTelescopeTarget = setpoints::kStow(1).value();
+  double nextTelescopeTarget = setpoints::kStow(1);
   telescope_.SetTarget(telescope_.MakeTarget(units::inch_t(nextTelescopeTarget)));
-  double nextWristTarget = setpoints::kStow(2).value();
+  double nextWristTarget = setpoints::kStow(2);
   wrist_.SetTarget(wrist_.MakeTarget(units::degree_t(nextWristTarget)));
 
   is_done_ = true;

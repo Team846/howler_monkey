@@ -19,11 +19,19 @@ std::vector<util::Position> InterpolatePoints(util::Vector2D<units::foot_t> star
   std::vector<util::Position> points(n);
   for (int i = 0; i < n; ++i) {
     double weight = (double)(i) / n;
+    double bearingWeightMultiplier = 1.15;
     points[i] = {{
                      start.x * (1 - weight) + end.x * weight,
                      start.y * (1 - weight) + end.y * weight,
                  },
-                 start_bearing * (1 - weight) + end_bearing * weight};
+                 start_bearing * (1 - (weight * bearingWeightMultiplier)) 
+                  + end_bearing * (weight * bearingWeightMultiplier)};
+
+    if (start_bearing <= end_bearing) {
+      points[i].bearing = units::math::min(end_bearing, points[i].bearing);
+    } else {
+      points[i].bearing = units::math::max(end_bearing, points[i].bearing);
+    }
   }
 
   return points;

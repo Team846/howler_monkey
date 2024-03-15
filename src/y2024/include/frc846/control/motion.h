@@ -32,10 +32,11 @@ class MotionSnapshot {
 };
 
 class MotionTarget {
+    public:
     static frc846::Loggable preferences_loggable;
 
     private:
-    frc846::Pref<double> pos_pref_;
+    const frc846::Pref<double> pos_pref_;
 
     bool isAngularType;
 
