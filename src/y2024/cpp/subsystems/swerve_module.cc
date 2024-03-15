@@ -115,6 +115,14 @@ SwerveModuleTarget SwerveModuleSubsystem::ZeroTarget() const {
   return target;
 }
 
+SwerveModuleTarget SwerveModuleSubsystem::MakeTarget(units::feet_per_second_t speed, units::degree_t direction, DrivetrainControl control){
+  SwerveModuleTarget target;
+  target.speed=speed;
+  target.direction=direction;
+  target.control=control;
+  return target;
+}
+
 bool SwerveModuleSubsystem::VerifyHardware() {
   bool ok = true;
   FRC846_VERIFY(drive_esc_helper_.VerifyConnected(), ok,
@@ -149,7 +157,7 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
   target_direction_graph_.Graph(target.direction);
   direction_graph_.Graph(steer_esc_helper_.GetPosition());
   cancoder_graph_.Graph(-cancoder_.GetAbsolutePosition().GetValue());
-
+  target_direction=target.direction;
   auto [normalized_angle, reverse_drive] =
       NormalizedDirection(readings().direction, target.direction);
 

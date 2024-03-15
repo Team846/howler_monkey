@@ -103,7 +103,7 @@ die () {
 # OS specific support (must be 'true' or 'false').
 cygwin=false
 msys=false
-darwin=false
+darwin=true
 nonstop=false
 case "$( uname )" in                #(
   CYGWIN* )         cygwin=true  ;; #(

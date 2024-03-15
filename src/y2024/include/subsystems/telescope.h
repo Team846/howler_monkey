@@ -52,6 +52,13 @@ class TelescopeSubsystem
 
   frc846::Pref<units::inch_t> stow_setpoint_tele_{*this, "stow_setpoint_tele_", 0_in};
 
+
+  frc846::Loggable service_loggable{*this, "service_mode"};
+  frc846::Pref<units::inch_t> service_forward_increment{service_loggable, "forward_increment", 0.0_in};
+  frc846::Pref<units::inch_t> service_backward_increment{service_loggable, "backward_increment", 0.0_in};
+
+  units::inch_t target_extension=0_in;
+
  private:
   bool hasZeroed = false;
 

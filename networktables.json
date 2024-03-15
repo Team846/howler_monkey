@@ -1,197 +1,5 @@
 [
   {
-    "name": "/Preferences/Preferences/MotionTargets/Pivot/amp_position",
-    "type": "double",
-    "value": 90.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Telescope/amp_position",
-    "type": "double",
-    "value": 3.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Wrist/amp_position",
-    "type": "double",
-    "value": 30.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Pivot/intake_position",
-    "type": "double",
-    "value": 10.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Telescope/intake_position",
-    "type": "double",
-    "value": 4.7,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Wrist/intake_position",
-    "type": "double",
-    "value": 185.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Pivot/stow_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Telescope/stow_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Wrist/stow_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Pivot/shoot_position",
-    "type": "double",
-    "value": 60.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Telescope/shoot_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Wrist/shoot_point_blank_",
-    "type": "double",
-    "value": 43.55,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Pivot/climb_position",
-    "type": "double",
-    "value": -3.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Telescope/climb_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Wrist/climb_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Pivot/pre_climb_position",
-    "type": "double",
-    "value": 100.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Telescope/pre_climb_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Wrist/pre_climb_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Pivot/trap_position",
-    "type": "double",
-    "value": 112.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Telescope/trap_position",
-    "type": "double",
-    "value": 8.5,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Wrist/trap_position",
-    "type": "double",
-    "value": 144.5,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Pivot/auto_shoot_position",
-    "type": "double",
-    "value": 39.2,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Telescope/auto_shoot_position",
-    "type": "double",
-    "value": 0.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
-    "name": "/Preferences/Preferences/MotionTargets/Wrist/auto_shoot_position",
-    "type": "double",
-    "value": 112.0,
-    "properties": {
-      "persistent": true
-    }
-  },
-  {
     "name": "/Preferences/Preferences/field_points/testing_origin_x (in)",
     "type": "double",
     "value": 0.0,
@@ -483,6 +291,414 @@
     "name": "/Preferences/Preferences/field_points/one_piece_extra_distance (ft)",
     "type": "double",
     "value": 5.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Pivot/amp_position",
+    "type": "double",
+    "value": 90.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Telescope/amp_position",
+    "type": "double",
+    "value": 3.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Wrist/amp_position",
+    "type": "double",
+    "value": 30.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Pivot/intake_position",
+    "type": "double",
+    "value": 10.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Telescope/intake_position",
+    "type": "double",
+    "value": 4.7,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Wrist/intake_position",
+    "type": "double",
+    "value": 185.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Pivot/source_position",
+    "type": "double",
+    "value": 54.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Telescope/source_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Wrist/source_position",
+    "type": "double",
+    "value": 36.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Pivot/stow_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Telescope/stow_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Wrist/stow_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Pivot/shoot_position",
+    "type": "double",
+    "value": 60.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Telescope/shoot_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Wrist/shoot_point_blank_",
+    "type": "double",
+    "value": 43.55,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Pivot/climb_position",
+    "type": "double",
+    "value": -3.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Telescope/climb_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Wrist/climb_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Pivot/pre_climb_position",
+    "type": "double",
+    "value": 100.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Telescope/pre_climb_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Wrist/pre_climb_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Pivot/trap_position",
+    "type": "double",
+    "value": 112.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Telescope/trap_position",
+    "type": "double",
+    "value": 8.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Wrist/trap_position",
+    "type": "double",
+    "value": 144.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Pivot/auto_shoot_position",
+    "type": "double",
+    "value": 39.2,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Telescope/auto_shoot_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences//Wrist/auto_shoot_position",
+    "type": "double",
+    "value": 112.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Pivot/amp_position",
+    "type": "double",
+    "value": 90.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Telescope/amp_position",
+    "type": "double",
+    "value": 3.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Wrist/amp_position",
+    "type": "double",
+    "value": 30.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Pivot/intake_position",
+    "type": "double",
+    "value": 10.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Telescope/intake_position",
+    "type": "double",
+    "value": 4.7,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Wrist/intake_position",
+    "type": "double",
+    "value": 185.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Pivot/stow_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Telescope/stow_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Wrist/stow_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Pivot/shoot_position",
+    "type": "double",
+    "value": 60.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Telescope/shoot_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Wrist/shoot_point_blank_",
+    "type": "double",
+    "value": 43.55,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Pivot/climb_position",
+    "type": "double",
+    "value": -3.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Telescope/climb_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Wrist/climb_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Pivot/pre_climb_position",
+    "type": "double",
+    "value": 100.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Telescope/pre_climb_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Wrist/pre_climb_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Pivot/trap_position",
+    "type": "double",
+    "value": 112.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Telescope/trap_position",
+    "type": "double",
+    "value": 8.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Wrist/trap_position",
+    "type": "double",
+    "value": 144.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Pivot/auto_shoot_position",
+    "type": "double",
+    "value": 39.2,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Telescope/auto_shoot_position",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/MotionTargets/Wrist/auto_shoot_position",
+    "type": "double",
+    "value": 112.0,
     "properties": {
       "persistent": true
     }
@@ -1637,6 +1853,128 @@
     "value": 1.0,
     "properties": {
       "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/service_mode/steer_forward_increment (deg)",
+    "type": "double",
+    "value": 2.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/service_mode/steer_backward_increment (deg)",
+    "type": "double",
+    "value": 2.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/service_mode/drive_forward (fps)",
+    "type": "double",
+    "value": -0.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/service_mode/drive_backward (fps)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  },
+  {
+    "name": "/Preferences/scorer/service_mode/intake_forward",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/scorer/service_mode/intake_backward",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/scorer/service_mode/shooter_forward",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/scorer/service_mode/shooter_backward",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/wrist/service_mode/forward_increment (deg)",
+    "type": "double",
+    "value": 2.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  },
+  {
+    "name": "/Preferences/wrist/service_mode/backward_increment (deg)",
+    "type": "double",
+    "value": 2.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  },
+  {
+    "name": "/Preferences/pivot/service_mode/forward_increment (deg)",
+    "type": "double",
+    "value": 2.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  },
+  {
+    "name": "/Preferences/pivot/service_mode/backward_increment (deg)",
+    "type": "double",
+    "value": 2.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  },
+  {
+    "name": "/Preferences/telescope/service_mode/forward_increment (in)",
+    "type": "double",
+    "value": 2.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
+    }
+  },
+  {
+    "name": "/Preferences/telescope/service_mode/backward_increment (in)",
+    "type": "double",
+    "value": 2.0,
+    "properties": {
+      "persistent": true,
+      "retained": true
     }
   }
 ]

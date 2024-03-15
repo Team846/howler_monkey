@@ -66,7 +66,7 @@ void TelescopeSubsystem::PositionTelescope(TelescopeTarget target) {
 
   if (auto pos = std::get_if<units::inch_t>(&target.extension)) {
     tele_one_.Write(frc846::control::ControlMode::Position, *pos);
-
+    target_extension=*pos;
     target_tele_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.extension)) {
     tele_one_.Write(frc846::control::ControlMode::Percent, *output);

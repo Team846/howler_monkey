@@ -64,6 +64,12 @@ class PivotSubsystem
   frc846::Pref<units::degree_t> ramp_rate_limit{
       *this, "ramp_rate_limit_", 40_deg};
 
+  frc846::Loggable service_loggable{*this, "service_mode"};
+  frc846::Pref<units::degree_t> service_forward_increment{service_loggable, "forward_increment", 0.0_deg};
+  frc846::Pref<units::degree_t> service_backward_increment{service_loggable, "backward_increment", 0.0_deg};
+
+  units::degree_t target_pivot_position=0_deg;
+
  private:
   frc::TrapezoidProfile<units::degree> ramp_rate_{
     frc::TrapezoidProfile<units::degree>::Constraints{ramp_rate_limit.value() / 1_s, 

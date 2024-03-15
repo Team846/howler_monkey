@@ -19,11 +19,14 @@ struct ScorerReadings {
 };
 
 enum ScorerState {
-  kIdle, kIntake, kSpinUp, kShoot, kRelease
+  kIdle, kIntake, kSpinUp, kShoot, kRelease, kScorerTest
 };
 
 struct ScorerTarget {
   ScorerState target_state;
+  double intake_dc;
+  double shooter_one_dc;
+  double shooter_two_dc;
 };
 
 
@@ -33,7 +36,7 @@ class ScorerSubsystem
   ScorerSubsystem(bool init);
 
   ScorerTarget ZeroTarget() const override;
-  ScorerTarget MakeTarget(ScorerState target_state);
+  ScorerTarget MakeTarget(ScorerState target_state, double intake_dc=0.0, double shooter_one_dc=0.0, double shooter_two_dc=0.0);
 
   bool VerifyHardware() override;
 
@@ -50,6 +53,13 @@ class ScorerSubsystem
   frc846::Pref<double> release_speed_{*this, "release_speed", -0.3};
 
   frc846::Pref<double> shooting_exit_velocity_{*this, "shooting_exit_velocity", 47.0};
+
+  frc846::Loggable service_loggable{*this, "service_mode"};
+  frc846::Pref<double> service_intake_forward_dc{service_loggable, "intake_forward", 0.0};
+  frc846::Pref<double> service_intake_backward_dc{service_loggable, "intake_backward", 0.0};
+  frc846::Pref<double> service_shooter_forward_dc{service_loggable, "shooter_forward", 0.0};
+  frc846::Pref<double> service_shooter_backward_dc{service_loggable, "shooter_backward", 0.0};
+
 
  private:
   bool has_piece_;

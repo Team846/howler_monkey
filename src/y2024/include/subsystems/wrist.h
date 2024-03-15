@@ -54,6 +54,12 @@ class WristSubsystem
   frc846::Pref<units::degree_t> wrist_home_offset_{*this, "home_offset_wrist_", 30_deg};
   frc846::Pref<units::degree_t> wrist_cg_offset_{*this, "cg_offset_wrist_", 60_deg};
 
+  frc846::Loggable service_loggable{*this, "service_mode"};
+  frc846::Pref<units::degree_t> service_forward_increment{service_loggable, "forward_increment", 0.0_deg};
+  frc846::Pref<units::degree_t> service_backward_increment{service_loggable, "backward_increment", 0.0_deg};
+
+  units::degree_t target_wrist_position=0_deg;
+
  private:
   bool hasZeroed = false;
 

@@ -74,6 +74,7 @@ void WristSubsystem::PositionWrist(WristTarget target) {
     target_wrist_error_graph.Graph(*pos-readings().wrist_position);
     target_wrist_pos_graph.Graph(*pos);
 
+    target.wrist_output=*pos;
   } else if (auto output = std::get_if<double>(&target.wrist_output)) {
     wrist_esc_.Write(frc846::control::ControlMode::Percent, *output);
 

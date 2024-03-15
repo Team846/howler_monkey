@@ -58,9 +58,14 @@ class SwerveModuleSubsystem
 
   void ZeroCancoder();
 
+  SwerveModuleTarget MakeTarget(units::feet_per_second_t speed, units::degree_t direction, DrivetrainControl control);
+
   SwerveModuleTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;
+
+  units::degree_t target_direction=0_deg;
+
 
  private:
 

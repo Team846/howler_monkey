@@ -13,14 +13,14 @@ ScorerSubsystem::ScorerSubsystem(bool init)
         shooter_esc_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
           rev::CANSparkBase::PeriodicFrame::kStatus4, 
           rev::CANSparkBase::PeriodicFrame::kStatus2, 
-          rev::CANSparkBase::PeriodicFrame::kStatus3,
-          rev::CANSparkBase::PeriodicFrame::kStatus1,
+          rev::CANSparkBase::PeriodicFrame::kStatus3, 
+          rev::CANSparkBase::PeriodicFrame::kStatus1, 
           rev::CANSparkBase::PeriodicFrame::kStatus5});
         shooter_esc_two_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
           rev::CANSparkBase::PeriodicFrame::kStatus4, 
           rev::CANSparkBase::PeriodicFrame::kStatus2, 
-          rev::CANSparkBase::PeriodicFrame::kStatus3,
-          rev::CANSparkBase::PeriodicFrame::kStatus1,
+          rev::CANSparkBase::PeriodicFrame::kStatus3, 
+          rev::CANSparkBase::PeriodicFrame::kStatus1, 
           rev::CANSparkBase::PeriodicFrame::kStatus5});
         intake_shooter_esc_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus2, 
           rev::CANSparkBase::PeriodicFrame::kStatus4, 
@@ -46,9 +46,12 @@ ScorerTarget ScorerSubsystem::ZeroTarget() const {
   return target;
 }
 
-ScorerTarget ScorerSubsystem::MakeTarget(ScorerState target_state) {
+ScorerTarget ScorerSubsystem::MakeTarget(ScorerState target_state, double intake_dc, double shooter_one_dc, double shooter_two_dc) {
   ScorerTarget target;
   target.target_state = target_state;
+  target.intake_dc=intake_dc;
+  target.shooter_one_dc=shooter_one_dc;
+  target.shooter_two_dc=shooter_two_dc;
   return target;
 }
 
@@ -112,6 +115,10 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
     shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0);
 
     // has_piece_ = false;
+  } else if (target.target_state == kScorerTest) {
+    intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, target.intake_dc);
+    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, target.shooter_one_dc);
+    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, target.shooter_two_dc);
   } else {
     frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, 0);

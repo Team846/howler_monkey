@@ -7,6 +7,7 @@
 #include <units/angular_velocity.h>
 #include <units/length.h>
 #include <units/angle.h>
+#include <units/velocity.h>
 
 #include <array>
 #include <variant>
@@ -58,6 +59,7 @@ struct DrivetrainTarget {
 class DrivetrainSubsystem
     : public frc846::Subsystem<DrivetrainReadings, DrivetrainTarget> {
  public:
+ 
   DrivetrainSubsystem(bool initialize = true);
 
   // Number of swerve modules (avoid hardcoding 4 in loops and such).
@@ -83,154 +85,12 @@ class DrivetrainSubsystem
   // Set Map
   void SetMap();
 
-  // Max drivetrain speed (NEO SDS Mk4i L1 -> 12 theoretical).
-  frc846::Pref<units::feet_per_second_t> max_speed_{*this, "max_speed",
-                                                    14.2_fps};
-
-  frc846::Pref<units::feet_per_second_t> vx_ramp_rate_limit{
-      *this, "ramp_rate_vx", 30_fps};
-  frc846::Pref<units::feet_per_second_t> vy_ramp_rate_limit{
-      *this, "ramp_rate_vy", 100_fps};
-
-  frc::SlewRateLimiter<units::fps> vx_ramp_rate_{vx_ramp_rate_limit.value() /
-                                                 1_s};
-  frc::SlewRateLimiter<units::fps> vy_ramp_rate_{vy_ramp_rate_limit.value() /
-                                                 1_s};
-
-  // Closed loop tuned for this
-  frc846::Pref<units::feet_per_second_t> auto_max_speed_{
-      *this, "auto_max_speed", 11.2_fps};
-
-  frc846::Pref<double> slow_mode_percent_{*this, "slow_mode_percent", 0.04};
-  frc846::Pref<double> slow_omega_percent_{*this, "slow_omega_percent", 0.12};
-  frc846::Pref<double> pov_control_speed_{*this, "pov_control_speed_", 1.0};
-  frc846::Pref<double> max_horizontal_strafe_{*this, "pov_control_speed_", 10.0};
-
-  frc846::Pref<units::feet_per_second_t> velocity_error{*this, "velocity_error", 0_fps};
-
-  // Max turning speed.
-  units::degrees_per_second_t max_omega() const {
-    return max_speed_.value() / module_radius_ * 1_rad *
-           percent_max_omega_.value();
-  }
-
-  // Max drivetrain acceleration for trajectory generation.
-  frc846::Pref<units::feet_per_second_squared_t> max_acceleration_{
-      *this, "max_acceleration", 8_fps_sq};
-
-  // Max drivetrain deceleration for trajectory generation.
-  frc846::Pref<units::feet_per_second_squared_t> max_deceleration_{
-      *this, "max_deceleration", 10_fps_sq};
-
-  // Lookahead distance during trajectory following.
-  frc846::Pref<units::inch_t> extrapolation_distance_{
-      *this, "extrapolation_distance", 8_in};
-
-  frc846::Pref<units::degrees_per_second_t> angular_velocity_threshold_{
-      *this, "angular_velocity_threshold", 1_deg_per_s};
-
-  frc846::Loggable align_gains_loggable_{*this, "align_gains"};
-  frc846::Pref<double> align_gains_p_{align_gains_loggable_, "p", 3.5};
-
-  // Auto align tolerance
-  frc846::Pref<units::inch_t> align_tolerance_{align_gains_loggable_,
-                                               "align_tolerance", 0.3_in};
-
-
-    //April Tag 
-    units::second_t aprilTagFrameTime;
-    frc846::util::Position poseAtFrameCapture;
-    bool updatedTagPos=false;
-    frc846::Loggable april_tags_named_{*this, "april_tags"};
-    frc846::Pref<double> confidence_factor_{april_tags_named_, "april_confidence_factor",1.0};
-    frc846::Pref<double> velocity_factor_{april_tags_named_, "april_velocity_factor", 1.0};
-    frc846::Pref<double> distance_factor_{april_tags_named_, "april_distance_factor", 1.0};
-    frc846::Pref<double> angle_offset_factor_{april_tags_named_, "april_angle_factor", 1.0};
-
-    bool aprilFrameRequested=false;
-    long aprilFrameRequest=0;
-    frc846::util::Position poseAtLastRequest;
-
-    nt::NetworkTableInstance nt_table =
-        nt::NetworkTableInstance::GetDefault();
-    std::shared_ptr<nt::NetworkTable> aprilTag_table =
-        nt::NetworkTableInstance::GetDefault().GetTable("AprilTags");
-    frc846::Pref<bool> april_tags_enabled_{april_tags_named_, "init_april_tags", true};
-    
-    std::shared_ptr<nt::NetworkTable> leftcam =
-        nt::NetworkTableInstance::GetDefault().GetTable("leftcamgpd");
-
-    std::shared_ptr<nt::NetworkTable> backcam = 
-        nt::NetworkTableInstance::GetDefault().GetTable("backcamgpd");
-
-
-  // Convert a translation vector and the drivetrain angular velocity to the
-  // individual module outputs.
-  static std::array<frc846::util::Vector2D<units::feet_per_second_t>, kModuleCount>
-  SwerveControl(frc846::util::Vector2D<units::feet_per_second_t> translation,
-                units::degrees_per_second_t rotation_speed, units::inch_t width,
-                units::inch_t height, units::inch_t radius,
-                units::feet_per_second_t max_speed);
-    
-  DrivetrainTarget ZeroTarget() const override;
-
-  bool VerifyHardware() override;
-
- private:
-  int lastRelocalize = 0;
-
-  // Drivetrain dimensions.
-  frc846::Pref<units::inch_t> width_{*this, "width", 21.75_in};
-  frc846::Pref<units::inch_t> height_{*this, "height", 26.75_in};
-
-  // How much to scale the max turning speed by.
-  frc846::Pref<double> percent_max_omega_{*this, "percent_max_omega", 0.45};
-
-  // Distance from center of robot to module.
-  units::inch_t module_radius_ =
-      units::math::sqrt(units::math::pow<2>(width_.value() / 2) +
-                        units::math::pow<2>(height_.value() / 2));
-
-  // Wheel radius for odometry. 4" wheels.
-  frc846::Pref<units::inch_t> wheel_radius_{*this, "wheel_radius", 1.93_in};
-
-  // Rotation position gains.
-  frc846::Loggable bearing_gains_loggable_{*this, "bearing_gains"};
-  frc846::Pref<double> bearing_gains_p_{bearing_gains_loggable_, "p", 8.3};
-  frc846::Pref<double> bearing_gains_d_{bearing_gains_loggable_, "d", -4.7};
-
-  // Pose graphers.
-  frc846::Loggable pose_loggable_{*this, "pose"};
-  frc846::Grapher<units::foot_t> pose_x_graph_{pose_loggable_, "x"};
-  frc846::Grapher<units::foot_t> pose_y_graph_{pose_loggable_, "y"};
-  frc846::Grapher<units::degree_t> pose_bearing_graph{pose_loggable_, "bearing"};
-
-  // Velocity graphers.
-  frc846::Loggable velocity_loggable_{*this, "velocity"};
-  frc846::Grapher<units::feet_per_second_t> v_x_graph_{velocity_loggable_, "v_x"};
-  frc846::Grapher<units::feet_per_second_t> v_y_graph_{velocity_loggable_, "v_y"};
-
-  // Target graphers.
-  frc846::Loggable target_loggable_{*this, "target"};
-  frc846::Grapher<units::feet_per_second_t> target_v_x_graph_{target_loggable_,
-                                                              "v_x"};
-  frc846::Grapher<units::feet_per_second_t> target_v_y_graph_{target_loggable_,
-                                                              "v_y"};
-  frc846::Grapher<std::string> target_translation_reference_graph_{
-      target_loggable_,
-      "translation_reference",
-  };
-  frc846::Grapher<units::degree_t> target_rotation_position_graph_{
-      target_loggable_, "rotation_position"};
-  frc846::Grapher<units::degrees_per_second_t> target_rotation_velocity_graph_{
-      target_loggable_, "rotation_velocity"};
-
-  frc846::SwerveOdometry odometry_;
-  units::angle::degree_t bearing_offset_;
-
   frc846::Loggable drive_esc_loggable_{*this, "drive_esc"};
   frc846::Loggable steer_esc_loggable_{*this, "steer_esc"};
   frc::Field2d m_field;
+
+  // Wheel radius for odometry. 4" wheels.
+  frc846::Pref<units::inch_t> wheel_radius_{*this, "wheel_radius", 1.93_in};
 
   frc846::control::ControlGainsHelper* drive_esc_gains_helper_ =
       new frc846::control::ControlGainsHelper{
@@ -321,6 +181,155 @@ class DrivetrainSubsystem
       ports::drivetrain_::kBRSteer_CANID,
       ports::drivetrain_::kBRCANCoder_CANID,
   };
+
+  // Max drivetrain speed (NEO SDS Mk4i L1 -> 12 theoretical).
+  frc846::Pref<units::feet_per_second_t> max_speed_{*this, "max_speed",
+                                                    14.2_fps};
+
+  frc846::Pref<units::feet_per_second_t> vx_ramp_rate_limit{
+      *this, "ramp_rate_vx", 30_fps};
+  frc846::Pref<units::feet_per_second_t> vy_ramp_rate_limit{
+      *this, "ramp_rate_vy", 100_fps};
+
+  frc::SlewRateLimiter<units::fps> vx_ramp_rate_{vx_ramp_rate_limit.value() /
+                                                 1_s};
+  frc::SlewRateLimiter<units::fps> vy_ramp_rate_{vy_ramp_rate_limit.value() /
+                                                 1_s};
+
+  // Closed loop tuned for this
+  frc846::Pref<units::feet_per_second_t> auto_max_speed_{
+      *this, "auto_max_speed", 11.2_fps};
+
+  frc846::Pref<double> slow_mode_percent_{*this, "slow_mode_percent", 0.04};
+  frc846::Pref<double> slow_omega_percent_{*this, "slow_omega_percent", 0.12};
+  frc846::Pref<double> pov_control_speed_{*this, "pov_control_speed_", 1.0};
+  frc846::Pref<double> max_horizontal_strafe_{*this, "pov_control_speed_", 10.0};
+
+  frc846::Pref<units::feet_per_second_t> velocity_error{*this, "velocity_error", 0_fps};
+
+  // Max turning speed.
+  units::degrees_per_second_t max_omega() const {
+    return max_speed_.value() / module_radius_ * 1_rad *
+           percent_max_omega_.value();
+  }
+
+  // Max drivetrain acceleration for trajectory generation.
+  frc846::Pref<units::feet_per_second_squared_t> max_acceleration_{
+      *this, "max_acceleration", 8_fps_sq};
+
+  // Max drivetrain deceleration for trajectory generation.
+  frc846::Pref<units::feet_per_second_squared_t> max_deceleration_{
+      *this, "max_deceleration", 10_fps_sq};
+
+  // Lookahead distance during trajectory following.
+  frc846::Pref<units::inch_t> extrapolation_distance_{
+      *this, "extrapolation_distance", 8_in};
+
+  frc846::Pref<units::degrees_per_second_t> angular_velocity_threshold_{
+      *this, "angular_velocity_threshold", 1_deg_per_s};
+
+  frc846::Loggable align_gains_loggable_{*this, "align_gains"};
+  frc846::Pref<double> align_gains_p_{align_gains_loggable_, "p", 3.5};
+
+  // Auto align tolerance
+  frc846::Pref<units::inch_t> align_tolerance_{align_gains_loggable_,
+                                               "align_tolerance", 0.3_in};
+
+
+    //April Tag 
+    units::second_t aprilTagFrameTime;
+    frc846::util::Position poseAtFrameCapture;
+    bool updatedTagPos=false;
+    frc846::Loggable april_tags_named_{*this, "april_tags"};
+    frc846::Pref<double> confidence_factor_{april_tags_named_, "april_confidence_factor",1.0};
+    frc846::Pref<double> velocity_factor_{april_tags_named_, "april_velocity_factor", 1.0};
+    frc846::Pref<double> distance_factor_{april_tags_named_, "april_distance_factor", 1.0};
+    frc846::Pref<double> angle_offset_factor_{april_tags_named_, "april_angle_factor", 1.0};
+
+    bool aprilFrameRequested=false;
+    double aprilFrameRequest=0;
+    frc846::util::Position poseAtLastRequest;
+
+    nt::NetworkTableInstance nt_table =
+        nt::NetworkTableInstance::GetDefault();
+    std::shared_ptr<nt::NetworkTable> aprilTag_table =
+        nt::NetworkTableInstance::GetDefault().GetTable("AprilTags");
+    frc846::Pref<bool> april_tags_enabled_{april_tags_named_, "init_april_tags", true};
+    
+    std::shared_ptr<nt::NetworkTable> leftcam =
+        nt::NetworkTableInstance::GetDefault().GetTable("leftcamgpd");
+
+    std::shared_ptr<nt::NetworkTable> backcam = 
+        nt::NetworkTableInstance::GetDefault().GetTable("backcamgpd");
+
+
+  frc846::Loggable service_loggable{*this, "service_mode"};
+  frc846::Pref<units::degree_t> service_steer_forward_increment{service_loggable, "steer_forward_increment", 0.0_deg};
+  frc846::Pref<units::degree_t> service_steer_backward_increment{service_loggable, "steer_backward_increment", 0.0_deg};
+  frc846::Pref<units::feet_per_second_t> service_drive_forward{service_loggable, "drive_forward", 0_fps};
+  frc846::Pref<units::feet_per_second_t> service_drive_backward{service_loggable, "drive_backward", 0_fps};
+
+
+  // Convert a translation vector and the drivetrain angular velocity to the
+  // individual module outputs.
+  static std::array<frc846::util::Vector2D<units::feet_per_second_t>, kModuleCount>
+  SwerveControl(frc846::util::Vector2D<units::feet_per_second_t> translation,
+                units::degrees_per_second_t rotation_speed, units::inch_t width,
+                units::inch_t height, units::inch_t radius,
+                units::feet_per_second_t max_speed);
+    
+  DrivetrainTarget ZeroTarget() const override;
+
+  bool VerifyHardware() override;
+
+ private:
+  int lastRelocalize = 0;
+
+  // Drivetrain dimensions.
+  frc846::Pref<units::inch_t> width_{*this, "width", 21.75_in};
+  frc846::Pref<units::inch_t> height_{*this, "height", 26.75_in};
+
+  // How much to scale the max turning speed by.
+  frc846::Pref<double> percent_max_omega_{*this, "percent_max_omega", 0.45};
+
+  // Distance from center of robot to module.
+  units::inch_t module_radius_ =
+      units::math::sqrt(units::math::pow<2>(width_.value() / 2) +
+                        units::math::pow<2>(height_.value() / 2));
+
+  // Rotation position gains.
+  frc846::Loggable bearing_gains_loggable_{*this, "bearing_gains"};
+  frc846::Pref<double> bearing_gains_p_{bearing_gains_loggable_, "p", 8.3};
+  frc846::Pref<double> bearing_gains_d_{bearing_gains_loggable_, "d", -4.7};
+
+  // Pose graphers.
+  frc846::Loggable pose_loggable_{*this, "pose"};
+  frc846::Grapher<units::foot_t> pose_x_graph_{pose_loggable_, "x"};
+  frc846::Grapher<units::foot_t> pose_y_graph_{pose_loggable_, "y"};
+  frc846::Grapher<units::degree_t> pose_bearing_graph{pose_loggable_, "bearing"};
+
+  // Velocity graphers.
+  frc846::Loggable velocity_loggable_{*this, "velocity"};
+  frc846::Grapher<units::feet_per_second_t> v_x_graph_{velocity_loggable_, "v_x"};
+  frc846::Grapher<units::feet_per_second_t> v_y_graph_{velocity_loggable_, "v_y"};
+
+  // Target graphers.
+  frc846::Loggable target_loggable_{*this, "target"};
+  frc846::Grapher<units::feet_per_second_t> target_v_x_graph_{target_loggable_,
+                                                              "v_x"};
+  frc846::Grapher<units::feet_per_second_t> target_v_y_graph_{target_loggable_,
+                                                              "v_y"};
+  frc846::Grapher<std::string> target_translation_reference_graph_{
+      target_loggable_,
+      "translation_reference",
+  };
+  frc846::Grapher<units::degree_t> target_rotation_position_graph_{
+      target_loggable_, "rotation_position"};
+  frc846::Grapher<units::degrees_per_second_t> target_rotation_velocity_graph_{
+      target_loggable_, "rotation_velocity"};
+
+  frc846::SwerveOdometry odometry_;
+  units::angle::degree_t bearing_offset_;
 
   SwerveModuleSubsystem* modules_all_[kModuleCount]{&module_fl_, &module_fr_,
                                                     &module_bl_, &module_br_};

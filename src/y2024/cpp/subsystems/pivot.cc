@@ -93,7 +93,8 @@ void PivotSubsystem::PositionPivot(PivotTarget target) {
       pivot_four_.Write(frc846::control::ControlMode::Position, *pos); //progress.position);
 
       intermediate_pivot_pos_graph.Graph(progress.position);
-    // }
+
+    target_pivot_position=*pos;
 
     target_pivot_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.pivot_output)) {
