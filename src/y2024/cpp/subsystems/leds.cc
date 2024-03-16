@@ -24,7 +24,27 @@ LEDsReadings LEDsSubsystem::GetNewReadings() {
 
 void LEDsSubsystem::DirectWrite(LEDsTarget target) {
   if (hasZeroed) {
-    if (frc846::util::ShareTables::GetString("mode").compare("disabled") == 0){ 
+
+    if (frc846::util::ShareTables::GetBoolean("zero sequence")){
+      //JUST ZEROED
+      if (loops % 18 < 9){
+        for (int i = 0; i < kLength; i++){
+          leds_buffer_[i].SetRGB(255, 255, 0);
+        }
+      }
+      else {
+        for (int i = 0; i < kLength; i++){
+          leds_buffer_[i].SetRGB(0, 0, 0);
+        }
+      }
+
+      loops++;
+      if (loops > 36) {
+        loops = 0;
+        frc846::util::ShareTables::SetBoolean("zero sequence", false);
+      } 
+    }
+    else if (frc846::util::ShareTables::GetString("mode").compare("disabled") == 0){ 
       for (int i = 0; i < kLength; i++){
         leds_buffer_[i].SetRGB(255, 0, 0);
       }
@@ -84,6 +104,7 @@ void LEDsSubsystem::DirectWrite(LEDsTarget target) {
     }
     leds_.SetData(leds_buffer_);
   } else {
+    zeroSequence = false;
     if (loops % 30 < 15){
       for (int i = 0; i < kLength; i++){
         leds_buffer_[i].SetRGB(255, 0, 0);

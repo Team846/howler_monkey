@@ -22,7 +22,7 @@ void DeployIntakeCommand::Initialize() {
 }
 
 void DeployIntakeCommand::Execute() {
-  scorer_.SetTarget(scorer_.MakeTarget(kIntake));
+  scorer_.SetTarget(scorer_.MakeTarget(kIntakeAndSpinUp)); //TODO make separate command for just kIntake?
 
   double nextPivotTarget = setpoints::kIntake(0).value();
   pivot_.SetTarget(pivot_.MakeTarget(units::degree_t(nextPivotTarget)));

@@ -12,6 +12,7 @@
 #include "frc846/util/pref.h"
 #include "autos/drive_auto.h"
 #include "autos/five_piece_auto.h"
+#include "autos/four_piece_auto.h"
 #include "autos/three_piece_source_auto.h"
 #include "autos/one_piece_auto.h"
 // #include "autos/_TESTING_ROUTINE.h"
@@ -86,12 +87,18 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
   frc2::CommandPtr drive_auto_ =
       DriveAuto{container_, true}.ToPtr();
   
+  frc2::CommandPtr four_piece_auto_lr = 
+      FourPieceAuto{container_, false}.ToPtr();
+
+  frc2::CommandPtr four_piece_auto_rl = 
+      FourPieceAuto{container_, true}.ToPtr();
+
   frc2::CommandPtr five_piece_auto_lr = 
       FivePieceAuto{container_, false}.ToPtr();
 
   frc2::CommandPtr five_piece_auto_rl = 
       FivePieceAuto{container_, true}.ToPtr();
-
+  
   frc2::CommandPtr one_piece_auto_ = 
       OnePieceAuto{container_, false}.ToPtr();
 

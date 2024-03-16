@@ -14,8 +14,10 @@
 #include "commands/shoot_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/shoot_command.h"
+#include "commands/stow_command.h"
 #include "commands/speaker_align_command.h"
 #include "commands/auto_intake_and_shoot_command.h"
+#include "commands/auto_sweep_command.h"
 #include "subsystems/field.h"
 #include "subsystems/drivetrain.h"
 #include "subsystems/robot_container.h"
@@ -38,23 +40,27 @@ FivePieceAuto::FivePieceAuto(
       PrepareShootCommand{ container,  (field::points::kSpeaker(should_flip_) - field::points::kFPOrigin(should_flip_).point).Magnitude().to<double>()}, //first_distance.to<double>() },
       // SpeakerAlignCommand{ container, 
       //     field::points::kFPOrigin(should_flip_).point},
+
       frc2::WaitCommand{1.5_s},
       ShootCommand{ container },
       frc2::WaitCommand{container.super_structure_.post_shoot_wait_.value()},
-    
       
-      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeOne(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootOne(should_flip_), 0_fps}, should_flip_),
+      AutoSweepCommand( container, {field::points::kFPIntakeOne(should_flip_), 0_fps}, 
+                                  {field::points::kFPShootOne(should_flip_), 1_fps}, should_flip_, 0.5),
       
-      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeTwo(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootTwo(should_flip_), 0_fps}, should_flip_),
-      
-      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeThree(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootThree(should_flip_), 0_fps}, should_flip_),
+      // AutoIntakeAndShootCommand( container, {field::points::kFPIntakeCenter(should_flip_), 0_fps}, 
+      //                             {field::points::kFPShootCenter(should_flip_), 0_fps}, should_flip_),
 
-      // AutoIntakeAndShootCommand( container, {field::points::kFPIntakeFour(should_flip_), 0_fps}, 
-      //                             {field::points::kFPShootFour(should_flip_), 0_fps}, should_flip_),
+      AutoSweepCommand( container, {field::points::kFPIntakeTwo(should_flip_), 0_fps}, 
+                                  {field::points::kFPShootTwo(should_flip_), 0_fps}, should_flip_, 0.5),
+      
+      AutoSweepCommand( container, {field::points::kFPIntakeThree(should_flip_), 0_fps}, 
+                                  {field::points::kFPShootThree(should_flip_), 0_fps}, should_flip_, 0.5),
 
+      AutoSweepCommand( container, {field::points::kFPIntakeFour(should_flip_), 0_fps}, 
+                                  {field::points::kFPShootFour(should_flip_), 0_fps}, should_flip_, 0.5),
+
+      StowCommand (container ),
       FollowTrajectoryCommand{ container, {{field::points::kFPFinalPosition(should_flip_), 0_fps}}}
      );
 }

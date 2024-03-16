@@ -19,7 +19,7 @@ struct ScorerReadings {
 };
 
 enum ScorerState {
-  kIdle, kIntake, kSpinUp, kShoot, kRelease
+  kIdle, kIntake, kSpinUp, kShoot, kRelease, kIntakeAndSpinUp
 };
 
 struct ScorerTarget {

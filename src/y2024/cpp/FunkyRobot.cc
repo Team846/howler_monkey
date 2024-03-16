@@ -83,8 +83,10 @@ void FunkyRobot::StartCompetition() {
   auto_chooser_.AddOption("drive_auto",
                                  drive_auto_.get());
   
-  auto_chooser_.SetDefaultOption("four_piece_auto_lr", five_piece_auto_lr.get());
-  auto_chooser_.AddOption("four_piece_auto_rl", five_piece_auto_rl.get());
+  auto_chooser_.SetDefaultOption("four_piece_auto_lr", four_piece_auto_lr.get());
+  auto_chooser_.AddOption("four_piece_auto_rl", four_piece_auto_rl.get());
+  auto_chooser_.SetDefaultOption("five_piece_auto_lr", five_piece_auto_lr.get());
+  auto_chooser_.AddOption("five_piece_auto_rl", five_piece_auto_rl.get());
   auto_chooser_.AddOption("one_piece_auto", one_piece_auto_.get());
   // auto_chooser_.AddOption("testing_routine", testing_routine_.get());
 
@@ -213,6 +215,7 @@ void FunkyRobot::StartCompetition() {
 
     if (!homing_switch_.Get() && word.IsDisabled()) {
       std::cout << "Zeroing all subsystems" << std::endl;
+      frc846::util::ShareTables::SetBoolean("zero sequence", true);
       container_.pivot_.ZeroSubsystem();
       container_.telescope_.ZeroSubsystem();
       container_.wrist_.ZeroSubsystem();
@@ -284,6 +287,9 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger scorer_in_trigger{
       [&] { return container_.driver_.readings().left_trigger; }};
 
+  frc2::Trigger scorer_in_source_trigger{
+      [&] { return container_.driver_.readings().x_button; }};
+
   frc2::Trigger scorer_spin_up_trigger{
       [&] { return container_.driver_.readings().right_trigger 
         || container_.driver_.readings().y_button
@@ -326,6 +332,16 @@ void FunkyRobot::InitTeleopTriggers() {
       }).ToPtr());
 
   scorer_in_trigger.OnFalse(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+      }).ToPtr());
+
+  scorer_in_source_trigger.WhileTrue(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIntake));
+      }).ToPtr());
+  
+  scorer_in_source_trigger.OnFalse(
       frc2::InstantCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());

@@ -47,6 +47,7 @@ class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
  private:
   
   bool hasZeroed = false;
+  bool zeroSequence = false;
   
   // Number of LEDs.
   static constexpr int kLength = 30;

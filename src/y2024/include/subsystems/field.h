@@ -77,13 +77,15 @@ struct field {
       return fp_shoot_three.flip(should_flip);
     };
     
-    // static frc846::util::Position kFPIntakeFour(bool should_flip) {
-    //   return frc846::util::FieldPoint("FP_intake_four", -30.0_in, 324.5_in, 0_deg).flip(should_flip);
-    // };
+    static frc846::util::FieldPoint fp_intake_four;
+    static frc846::util::Position kFPIntakeFour(bool should_flip) {
+      return fp_intake_four.flip(should_flip);
+    };
 
-    // static frc846::util::Position kFPShootFour(bool should_flip) {
-    //   return frc846::util::FieldPoint("FP_shoot_four", -80.7_in, 84.4_in, 0_deg).flip(should_flip);
-    // };
+    static frc846::util::FieldPoint fp_shoot_four;
+    static frc846::util::Position kFPShootFour(bool should_flip) {
+      return fp_shoot_four.flip(should_flip);
+    };
 
     static frc846::util::FieldPoint fp_final_position;
     static frc846::util::Position kFPFinalPosition(bool should_flip) {
