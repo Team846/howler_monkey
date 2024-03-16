@@ -144,6 +144,22 @@ struct setpoints {
             return trap_pivot_.value();
     }
   }
+
+  static frc846::Pref<double> zero_bubble_pivot_;
+  static frc846::Pref<double> zero_bubble_telescope_;
+  static frc846::Pref<double> zero_bubble_wrist_;
+
+  static double kZeroBubble(int kIndex) { 
+    switch (kIndex) {
+        case 2:
+            return zero_bubble_wrist_.value();
+        case 1:
+            return zero_bubble_telescope_.value();
+        default:
+            return zero_bubble_pivot_.value();
+    }
+  }
+  
 };
 
 #endif  // y2024_SETPOINTS_H_
