@@ -43,8 +43,8 @@ class SuperStructureSubsystem : public frc846::Subsystem<SuperStructureReadings,
 
   frc846::Pref<units::inch_t> trap_start_x{shooting_named_, "trap_start_x", 17_in};
   frc846::Pref<units::inch_t> trap_start_y{shooting_named_, "trap_start_y", 25_in};
-  frc846::Pref<units::inch_t> trap_end_x{shooting_named_, "trap_end_x", 25_in};
-  frc846::Pref<units::inch_t> trap_end_y{shooting_named_, "trap_end_y", 47_in};
+  frc846::Pref<units::inch_t> trap_end_x{shooting_named_, "trap_fin_x", 25_in};
+  frc846::Pref<units::inch_t> trap_end_y{shooting_named_, "trap_fin_y", 47_in};
   frc846::Pref<units::degree_t> trap_start_angle{shooting_named_, "trap_start_a", 60_deg};
   frc846::Pref<units::degree_t> trap_end_angle{shooting_named_, "trap_end_a", -10_deg};
 
