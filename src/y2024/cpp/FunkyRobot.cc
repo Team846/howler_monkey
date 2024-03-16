@@ -6,6 +6,7 @@
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/FunctionalCommand.h>
+#include <frc2/command/RunCommand.h>
 #include <frc2/command/ParallelRaceGroup.h>
 #include <frc2/command/button/Trigger.h>
 #include <hal/Notifier.h>
@@ -321,62 +322,62 @@ void FunkyRobot::InitTeleopTriggers() {
   
   // // Bind Triggers to commands
   drivetrain_zero_bearing_trigger.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.drivetrain_.ZeroBearing();
       }).ToPtr());
 
   scorer_in_trigger.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIntake));
       }).ToPtr());
 
   scorer_in_trigger.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
   scorer_spin_up_trigger.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kSpinUp));
       }).ToPtr());
 
   scorer_spin_up_trigger.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
   scorer_out_trigger.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kShoot));
       }).ToPtr());
 
   scorer_out_trigger.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
   scorer_manual_intake_trigger.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIntake));
       }).ToPtr());
 
   scorer_manual_intake_trigger.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
   scorer_eject_trigger.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kRelease));
       }).ToPtr());
 
   scorer_eject_trigger.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
   on_piece_trigger.OnTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         DriverTarget driver_target{};
         driver_target.rumble = true;
         container_.driver_.SetTarget(driver_target);
@@ -466,243 +467,243 @@ void FunkyRobot::InitTestTriggers() {
       [&] { return container_.driver_.readings().start_button;}};
 
   pivot_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.pivot_.SetTarget(container_.pivot_.MakeTarget(container_.pivot_.target_pivot_position+container_.pivot_.service_forward_increment.value()));
   }).ToPtr());
   pivot_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.pivot_.SetTarget(container_.pivot_.MakeTarget(container_.pivot_.target_pivot_position));
   }).ToPtr());
   pivot_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.pivot_.SetTarget(container_.pivot_.MakeTarget(container_.pivot_.target_pivot_position-container_.pivot_.service_backward_increment.value()));
   }).ToPtr());
   pivot_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.pivot_.SetTarget(container_.pivot_.MakeTarget(container_.pivot_.target_pivot_position));
   }).ToPtr());
 
   // Shooter_one
   shooter_one_forward.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kScorerTest, container_.scorer_.service_shooter_forward_dc.value(), 0.0, 0.0));
   }).ToPtr());
   shooter_one_forward.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget({kIdle});
   }).ToPtr());
   shooter_one_backward.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kScorerTest, container_.scorer_.service_shooter_backward_dc.value(), 0.0, 0.0));
   }).ToPtr());
   shooter_one_backward.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
   }).ToPtr());
 
   //Shooter_two
   shooter_two_forward.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kScorerTest, 0.0, container_.scorer_.service_shooter_forward_dc.value(), 0.0));
   }).ToPtr());
   shooter_two_forward.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
   }).ToPtr());
   shooter_two_backward.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kScorerTest, 0.0, container_.scorer_.service_shooter_backward_dc.value(), 0.0));
   }).ToPtr());
   shooter_two_backward.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
   }).ToPtr());
 
   //Intake
   intake_forward.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kScorerTest, 0.0, 0.0, container_.scorer_.service_intake_forward_dc.value()));
   }).ToPtr());
   intake_forward.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
   }).ToPtr());
   intake_backward.WhileTrue(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kScorerTest, 0.0, 0.0, container_.scorer_.service_intake_backward_dc.value()));
   }).ToPtr());
   intake_backward.OnFalse(
-      frc2::InstantCommand([this] {
+      frc2::RunCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
   }).ToPtr());
 
   //Telescope
   telescope_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.telescope_.SetTarget(container_.telescope_.MakeTarget(container_.telescope_.target_extension+container_.telescope_.service_forward_increment.value()));
   }).ToPtr());
   telescope_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.telescope_.SetTarget(container_.telescope_.MakeTarget(container_.telescope_.target_extension));
   }).ToPtr());
   telescope_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.telescope_.SetTarget(container_.telescope_.MakeTarget(container_.telescope_.target_extension-container_.telescope_.service_backward_increment.value()));
   }).ToPtr());
   telescope_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.telescope_.SetTarget(container_.telescope_.MakeTarget(container_.telescope_.target_extension));
   }).ToPtr());
 
   //Wrist
   wrist_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.wrist_.SetTarget(container_.wrist_.MakeTarget(container_.wrist_.target_wrist_position+container_.wrist_.service_forward_increment.value()));
   }).ToPtr());
   wrist_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.wrist_.SetTarget(container_.wrist_.MakeTarget(container_.wrist_.target_wrist_position));
   }).ToPtr());
   wrist_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.wrist_.SetTarget(container_.wrist_.MakeTarget(container_.wrist_.target_wrist_position-container_.wrist_.service_backward_increment.value()));
   }).ToPtr());
   wrist_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.wrist_.SetTarget(container_.wrist_.MakeTarget(container_.wrist_.target_wrist_position));
   }).ToPtr());
 
   //FL
   FLS_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         std::cout<<"FLS_Forward"<<std::endl;;
         container_.drivetrain_.module_fl_.SetTarget(container_.drivetrain_.module_fl_.MakeTarget(0_fps, container_.drivetrain_.module_fl_.target_direction+container_.drivetrain_.service_steer_forward_increment.value(), kClosedLoop));
   }).ToPtr());
   FLS_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fl_.SetTarget(container_.drivetrain_.module_fl_.MakeTarget(0_fps, container_.drivetrain_.module_fl_.target_direction, kClosedLoop));
   }).ToPtr());
   FLS_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fl_.SetTarget(container_.drivetrain_.module_fl_.MakeTarget(0_fps, container_.drivetrain_.module_fl_.target_direction+container_.drivetrain_.service_steer_backward_increment.value(), kClosedLoop));
   }).ToPtr());
   FLS_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fl_.SetTarget(container_.drivetrain_.module_fl_.MakeTarget(0_fps, container_.drivetrain_.module_fl_.target_direction, kClosedLoop));
   }).ToPtr());
   FLD_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fl_.SetTarget(container_.drivetrain_.module_fl_.MakeTarget(container_.drivetrain_.service_drive_forward.value(), container_.drivetrain_.module_fl_.target_direction, kClosedLoop));
   }).ToPtr());
   FLD_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fl_.SetTarget(container_.drivetrain_.module_fl_.MakeTarget(0_fps, container_.drivetrain_.module_fl_.target_direction, kClosedLoop));
   }).ToPtr());
   FLD_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fl_.SetTarget(container_.drivetrain_.module_fl_.MakeTarget(container_.drivetrain_.service_drive_backward.value(), container_.drivetrain_.module_fl_.target_direction, kClosedLoop));
   }).ToPtr());
   FLD_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fl_.SetTarget(container_.drivetrain_.module_fl_.MakeTarget(0_fps, container_.drivetrain_.module_fl_.target_direction, kClosedLoop));
   }).ToPtr());
     //FR
   FRS_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fr_.SetTarget(container_.drivetrain_.module_fr_.MakeTarget(0_fps, container_.drivetrain_.module_fr_.target_direction+container_.drivetrain_.service_steer_forward_increment.value(), kClosedLoop));
   }).ToPtr());
   FRS_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fr_.SetTarget(container_.drivetrain_.module_fr_.MakeTarget(0_fps, container_.drivetrain_.module_fr_.target_direction, kClosedLoop));
   }).ToPtr());
   FRS_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fr_.SetTarget(container_.drivetrain_.module_fr_.MakeTarget(0_fps, container_.drivetrain_.module_fr_.target_direction+container_.drivetrain_.service_steer_backward_increment.value(), kClosedLoop));
   }).ToPtr());
   FRS_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fr_.SetTarget(container_.drivetrain_.module_fr_.MakeTarget(0_fps, container_.drivetrain_.module_fr_.target_direction, kClosedLoop));
   }).ToPtr());
   FRD_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fr_.SetTarget(container_.drivetrain_.module_fr_.MakeTarget(container_.drivetrain_.service_drive_forward.value(), container_.drivetrain_.module_fr_.target_direction, kClosedLoop));
   }).ToPtr());
   FRD_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fr_.SetTarget(container_.drivetrain_.module_fr_.MakeTarget(0_fps, container_.drivetrain_.module_fr_.target_direction, kClosedLoop));
   }).ToPtr());
   FRD_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fr_.SetTarget(container_.drivetrain_.module_fr_.MakeTarget(container_.drivetrain_.service_drive_backward.value(), container_.drivetrain_.module_fr_.target_direction, kClosedLoop));
   }).ToPtr());
   FRD_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_fr_.SetTarget(container_.drivetrain_.module_fr_.MakeTarget(0_fps, container_.drivetrain_.module_fr_.target_direction, kClosedLoop));
   }).ToPtr());
     //BL
   BLS_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_bl_.SetTarget(container_.drivetrain_.module_bl_.MakeTarget(0_fps, container_.drivetrain_.module_bl_.target_direction+container_.drivetrain_.service_steer_forward_increment.value(), kClosedLoop));
   }).ToPtr());
   BLS_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_bl_.SetTarget(container_.drivetrain_.module_bl_.MakeTarget(0_fps, container_.drivetrain_.module_bl_.target_direction, kClosedLoop));
   }).ToPtr());
   BLS_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_bl_.SetTarget(container_.drivetrain_.module_bl_.MakeTarget(0_fps, container_.drivetrain_.module_bl_.target_direction+container_.drivetrain_.service_steer_backward_increment.value(), kClosedLoop));
   }).ToPtr());
   BLS_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_bl_.SetTarget(container_.drivetrain_.module_bl_.MakeTarget(0_fps, container_.drivetrain_.module_bl_.target_direction, kClosedLoop));
   }).ToPtr());
   BLD_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_bl_.SetTarget(container_.drivetrain_.module_bl_.MakeTarget(container_.drivetrain_.service_drive_forward.value(), container_.drivetrain_.module_bl_.target_direction, kClosedLoop));
   }).ToPtr());
   BLD_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_bl_.SetTarget(container_.drivetrain_.module_bl_.MakeTarget(0_fps, container_.drivetrain_.module_bl_.target_direction, kClosedLoop));
   }).ToPtr());
   BLD_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_bl_.SetTarget(container_.drivetrain_.module_bl_.MakeTarget(container_.drivetrain_.service_drive_backward.value(), container_.drivetrain_.module_bl_.target_direction, kClosedLoop));
   }).ToPtr());
   BLD_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_bl_.SetTarget(container_.drivetrain_.module_bl_.MakeTarget(0_fps, container_.drivetrain_.module_bl_.target_direction, kClosedLoop));
   }).ToPtr());
     //BR
   BRS_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_br_.SetTarget(container_.drivetrain_.module_br_.MakeTarget(0_fps, container_.drivetrain_.module_br_.target_direction+container_.drivetrain_.service_steer_forward_increment.value(), kClosedLoop));
   }).ToPtr());
   BRS_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_br_.SetTarget(container_.drivetrain_.module_br_.MakeTarget(0_fps, container_.drivetrain_.module_br_.target_direction, kClosedLoop));
   }).ToPtr());
   BRS_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_br_.SetTarget(container_.drivetrain_.module_br_.MakeTarget(0_fps, container_.drivetrain_.module_br_.target_direction+container_.drivetrain_.service_steer_backward_increment.value(), kClosedLoop));
   }).ToPtr());
   BRS_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_br_.SetTarget(container_.drivetrain_.module_br_.MakeTarget(0_fps, container_.drivetrain_.module_br_.target_direction, kClosedLoop));
   }).ToPtr());
   BRD_forward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_br_.SetTarget(container_.drivetrain_.module_br_.MakeTarget(container_.drivetrain_.service_drive_forward.value(), container_.drivetrain_.module_br_.target_direction, kClosedLoop));
   }).ToPtr());
   BRD_forward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_br_.SetTarget(container_.drivetrain_.module_br_.MakeTarget(0_fps, container_.drivetrain_.module_br_.target_direction, kClosedLoop));
   }).ToPtr());
   BRD_backward.WhileTrue(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_br_.SetTarget(container_.drivetrain_.module_br_.MakeTarget(container_.drivetrain_.service_drive_backward.value(), container_.drivetrain_.module_br_.target_direction, kClosedLoop));
   }).ToPtr());
   BRD_backward.OnFalse(
-    frc2::InstantCommand([this] {
+    frc2::RunCommand([this] {
         container_.drivetrain_.module_br_.SetTarget(container_.drivetrain_.module_br_.MakeTarget(0_fps, container_.drivetrain_.module_br_.target_direction, kClosedLoop));
   }).ToPtr());
 }
