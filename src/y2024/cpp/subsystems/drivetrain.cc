@@ -250,6 +250,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
   if (april_tags_enabled_.value() && !(frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)){
     if (!aprilFrameRequested){
       aprilFrameRequest++;
+      aprilFrameRequest%=1000;
       poseAtLastRequest=odometry_.pose();
       double data [2] = {aprilFrameRequest, readings.pose.bearing.to<double>()};
       aprilTag_table->PutNumberArray("roboRioFrameRequest", data);
