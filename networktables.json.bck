@@ -1858,7 +1858,7 @@
   {
     "name": "/Preferences/drivetrain/service_mode/steer_forward_increment (deg)",
     "type": "double",
-    "value": 2.0,
+    "value": -0.2,
     "properties": {
       "persistent": true,
       "retained": true
@@ -1867,7 +1867,7 @@
   {
     "name": "/Preferences/drivetrain/service_mode/steer_backward_increment (deg)",
     "type": "double",
-    "value": 2.0,
+    "value": 0.2,
     "properties": {
       "persistent": true,
       "retained": true
@@ -1876,7 +1876,7 @@
   {
     "name": "/Preferences/drivetrain/service_mode/drive_forward (fps)",
     "type": "double",
-    "value": -0.0,
+    "value": -1.0,
     "properties": {
       "persistent": true,
       "retained": true
@@ -1885,7 +1885,7 @@
   {
     "name": "/Preferences/drivetrain/service_mode/drive_backward (fps)",
     "type": "double",
-    "value": 0.0,
+    "value": 1.0,
     "properties": {
       "persistent": true,
       "retained": true
@@ -1894,47 +1894,52 @@
   {
     "name": "/Preferences/scorer/service_mode/intake_forward",
     "type": "double",
-    "value": 0.0,
+    "value": 0.2,
     "properties": {
-      "persistent": true
+      "persistent": true,
+      "retained": true
     }
   },
   {
     "name": "/Preferences/scorer/service_mode/intake_backward",
     "type": "double",
-    "value": 0.0,
+    "value": 0.2,
     "properties": {
-      "persistent": true
+      "persistent": true,
+      "retained": true
     }
   },
   {
     "name": "/Preferences/scorer/service_mode/shooter_forward",
     "type": "double",
-    "value": 0.0,
+    "value": 0.2,
     "properties": {
-      "persistent": true
+      "persistent": true,
+      "retained": true
     }
   },
   {
     "name": "/Preferences/scorer/service_mode/shooter_backward",
     "type": "double",
-    "value": 0.0,
+    "value": 0.2,
     "properties": {
-      "persistent": true
+      "persistent": true,
+      "retained": true
     }
   },
   {
     "name": "/Preferences/wrist/service_mode/forward_increment (deg)",
     "type": "double",
-    "value": 0.0,
+    "value": 0.2,
     "properties": {
-      "persistent": true
+      "persistent": true,
+      "retained": true
     }
   },
   {
     "name": "/Preferences/wrist/service_mode/backward_increment (deg)",
     "type": "double",
-    "value": 2.0,
+    "value": 0.2,
     "properties": {
       "persistent": true,
       "retained": true
@@ -1943,7 +1948,7 @@
   {
     "name": "/Preferences/pivot/service_mode/forward_increment (deg)",
     "type": "double",
-    "value": 2.0,
+    "value": 0.2,
     "properties": {
       "persistent": true,
       "retained": true
@@ -1952,7 +1957,7 @@
   {
     "name": "/Preferences/pivot/service_mode/backward_increment (deg)",
     "type": "double",
-    "value": 2.0,
+    "value": 0.2,
     "properties": {
       "persistent": true,
       "retained": true
@@ -1961,7 +1966,7 @@
   {
     "name": "/Preferences/telescope/service_mode/forward_increment (in)",
     "type": "double",
-    "value": 2.0,
+    "value": 0.2,
     "properties": {
       "persistent": true,
       "retained": true
@@ -1970,7 +1975,7 @@
   {
     "name": "/Preferences/telescope/service_mode/backward_increment (in)",
     "type": "double",
-    "value": 2.0,
+    "value": 0.2,
     "properties": {
       "persistent": true,
       "retained": true

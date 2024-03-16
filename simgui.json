@@ -89,7 +89,8 @@
             "target": {
               "open": true
             }
-          }
+          },
+          "open": true
         },
         "open": true,
         "operator": {
@@ -104,6 +105,7 @@
           }
         },
         "scorer": {
+          "open": true,
           "readings": {
             "open": true
           }

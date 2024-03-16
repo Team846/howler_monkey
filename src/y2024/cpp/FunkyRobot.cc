@@ -143,7 +143,7 @@ void FunkyRobot::StartCompetition() {
     } else if (word.IsTest()) {
       HAL_ObserveUserProgramTest();
       mode = Mode::kTest;
-      frc846::util::ShareTables::SetString("mode", "kTeleop");
+      frc846::util::ShareTables::SetString("mode", "kTest");
     }
 
     // If mode changed
@@ -576,7 +576,7 @@ void FunkyRobot::InitTestTriggers() {
   //FL
   FLS_forward.WhileTrue(
     frc2::RunCommand([this] {
-        std::cout<<"FLS_Forward"<<std::endl;;
+        std::cout<<container_.drivetrain_.module_fl_.target_direction.to<double>()<<std::endl;;
         container_.drivetrain_.module_fl_.SetTarget(container_.drivetrain_.module_fl_.MakeTarget(0_fps, container_.drivetrain_.module_fl_.target_direction+container_.drivetrain_.service_steer_forward_increment.value(), kClosedLoop));
   }).ToPtr());
   FLS_forward.OnFalse(

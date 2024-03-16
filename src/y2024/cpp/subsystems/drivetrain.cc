@@ -332,6 +332,7 @@ void DrivetrainSubsystem::SetMap() {
 void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
   if (!is_initialized()) return;
   
+  if (frc846::util::ShareTables::GetString("mode")!="kTest"){
   // Graph target
   target_v_x_graph_.Graph(target.v_x);
   target_v_y_graph_.Graph(target.v_y);
@@ -395,5 +396,11 @@ void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
   for (int i = 0; i < kModuleCount; ++i) {
     modules_all_[i]->WriteToHardware(
         {targets[i].Magnitude(), targets[i].Bearing(), target.control});
+  }
+  }
+  else{
+    for (int i=0; i<kModuleCount; ++i){
+      modules_all_[i]->UpdateHardware();
+    }
   }
 }
