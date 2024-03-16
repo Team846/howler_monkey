@@ -39,7 +39,7 @@ class BracerSubsystem
   bool VerifyHardware() override;
 
  private:
-  int counter = 50;
+  int counter = 150;
 
   frc846::Grapher<bool> left_climb_{*this, "left_hook_engaged"};
   frc846::Grapher<bool> right_climb_{*this, "right_hook_engaged"};

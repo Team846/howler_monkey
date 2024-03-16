@@ -99,7 +99,7 @@ void LEDsSubsystem::DirectWrite(LEDsTarget target) {
       }
     } else {
       for (int i = 0; i < kLength; i++){
-        leds_buffer_[i].SetRGB(255, 15, 0);
+        leds_buffer_[i].SetRGB(255, 30, 0);
       }
     }
     leds_.SetData(leds_buffer_);

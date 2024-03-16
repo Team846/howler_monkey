@@ -1,33 +1,37 @@
 #include "subsystems/setpoints.h"
 
-frc846::motion::MotionTarget setpoints::amp_pivot_{"Pivot", "amp_position", 90_deg};
-frc846::motion::MotionTarget setpoints::amp_telescope_{"Telescope", "amp_position", 3_in};
-frc846::motion::MotionTarget setpoints::amp_wrist_{"Wrist", "amp_position", 30_deg};
+frc846::Pref<double> setpoints::amp_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/amp_position", 90};
+frc846::Pref<double> setpoints::amp_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/amp_position", 3};
+frc846::Pref<double> setpoints::amp_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/amp_position", 30};
 
-frc846::motion::MotionTarget setpoints::intake_pivot_{"Pivot", "intake_position", 10_deg};
-frc846::motion::MotionTarget setpoints::intake_telescope_{"Telescope", "intake_position", 4.7_in};
-frc846::motion::MotionTarget setpoints::intake_wrist_{"Wrist", "intake_position", 185_deg};
+frc846::Pref<double> setpoints::intake_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/intake_position", 10};
+frc846::Pref<double> setpoints::intake_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/intake_position", 4.7};
+frc846::Pref<double> setpoints::intake_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/intake_position", 185};
 
-frc846::motion::MotionTarget setpoints::stow_pivot_{"Pivot", "stow_position", 0_deg};
-frc846::motion::MotionTarget setpoints::stow_telescope_{"Telescope", "stow_position", 0_in};
-frc846::motion::MotionTarget setpoints::stow_wrist_{"Wrist", "stow_position", 0_deg};
+frc846::Pref<double> setpoints::source_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/source_position", 54};
+frc846::Pref<double> setpoints::source_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/source_position", 0};
+frc846::Pref<double> setpoints::source_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/source_position", 36.5};
 
-frc846::motion::MotionTarget setpoints::shoot_pivot_{"Pivot", "shoot_position", 60_deg};
-frc846::motion::MotionTarget setpoints::shoot_telescope_{"Telescope", "shoot_position", 0_in};
-frc846::motion::MotionTarget setpoints::point_blank_wrist_{"Wrist", "shoot_point_blank_", 43.55_deg};
+frc846::Pref<double> setpoints::stow_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/stow_position", 0};
+frc846::Pref<double> setpoints::stow_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/stow_position", 0};
+frc846::Pref<double> setpoints::stow_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/stow_position", 0};
 
-frc846::motion::MotionTarget setpoints::climb_pivot_{"Pivot", "climb_position", -3_deg};
-frc846::motion::MotionTarget setpoints::climb_telescope_{"Telescope", "climb_position", 0_in};
-frc846::motion::MotionTarget setpoints::climb_wrist_{"Wrist", "climb_position", 0_in};
+frc846::Pref<double> setpoints::shoot_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/shoot_position", 60};
+frc846::Pref<double> setpoints::shoot_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/shoot_position", 0};
+frc846::Pref<double> setpoints::point_blank_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/shoot_point_blank_", 43.55};
 
-frc846::motion::MotionTarget setpoints::pre_climb_pivot_{"Pivot", "pre_climb_position", 100_deg};
-frc846::motion::MotionTarget setpoints::pre_climb_telescope_{"Telescope", "pre_climb_position", 0_in};
-frc846::motion::MotionTarget setpoints::pre_climb_wrist_{"Wrist", "pre_climb_position", 0_in};
+frc846::Pref<double> setpoints::climb_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/climb_position", -3};
+frc846::Pref<double> setpoints::climb_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/climb_position", 0};
+frc846::Pref<double> setpoints::climb_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/climb_position", 0};
 
-frc846::motion::MotionTarget setpoints::trap_pivot_{"Pivot", "trap_position", 112_deg};
-frc846::motion::MotionTarget setpoints::trap_telescope_{"Telescope", "trap_position", 8.5_in};
-frc846::motion::MotionTarget setpoints::trap_wrist_{"Wrist", "trap_position", 144.5_deg};
+frc846::Pref<double> setpoints::pre_climb_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/pre_climb_position", 100};
+frc846::Pref<double> setpoints::pre_climb_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/pre_climb_position", 0};
+frc846::Pref<double> setpoints::pre_climb_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/pre_climb_position", 0};
 
-frc846::motion::MotionTarget setpoints::auto_shoot_pivot_{"Pivot", "auto_shoot_position", 39.2_deg};
-frc846::motion::MotionTarget setpoints::auto_shoot_telescope_{"Telescope", "auto_shoot_position", 0_in};
-frc846::motion::MotionTarget setpoints::auto_shoot_wrist_{"Wrist", "auto_shoot_position", 112_deg};
+frc846::Pref<double> setpoints::trap_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/trap_position", 112};
+frc846::Pref<double> setpoints::trap_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/trap_position", 8.5};
+frc846::Pref<double> setpoints::trap_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/trap_position", 144.5};
+
+frc846::Pref<double> setpoints::auto_shoot_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/auto_shoot_position", 39.2};
+frc846::Pref<double> setpoints::auto_shoot_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/auto_shoot_position", 0};
+frc846::Pref<double> setpoints::auto_shoot_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/auto_shoot_position", 112};

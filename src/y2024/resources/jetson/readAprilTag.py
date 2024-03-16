@@ -23,18 +23,18 @@ aprilAngle[4]=0
 aprilHeights[4]=53.88
 
 aprilTagX[3]=-126.65/12 #RED
-aprilTagY[3]=4.4/12+12/12.0
+aprilTagY[3]=0/12.0
 aprilAngle[3]=0
 aprilHeights[3]=53.88
 
 aprilTagX[7]=-104.4/12 #BLUE
-aprilTagY[7]=635.8/12+1/12.0
-aprilAngle[7]=180
+aprilTagY[7]=651.25/12.0
+aprilAngle[7]=0
 aprilHeights[7]=53.88
 
 aprilTagX[8]=-127.08/12 #BLUE
 aprilTagY[8]=651.25/12
-aprilAngle[8]=180
+aprilAngle[8]=0
 aprilHeights[8]=53.88
 
 

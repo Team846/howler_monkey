@@ -18,8 +18,8 @@
 #include "frc846/other/sendable_callback.h"
 #include "frc846/wpilib/time.h"
 #include "frc846/other/xbox.h"
-#include "commands/drive_command.h"
-#include "commands/teleop_positioning_command.h"
+#include "commands/teleop/drive_command.h"
+#include "commands/teleop/teleop_positioning_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "subsystems/scorer.h"
 #include "subsystems/pivot.h"
@@ -189,7 +189,7 @@ void FunkyRobot::StartCompetition() {
         // Different defaults as Teleop
         InitTestDefaults();
         // Same triggers as Teleop
-        InitTeleopTriggers();
+        InitTestTriggers();
       }
 
       last_mode_ = mode;
@@ -285,7 +285,7 @@ void FunkyRobot::InitTeleopTriggers() {
       [&] { return frc846::util::ShareTables::GetBoolean("scorer_has_piece"); }};
 
   frc2::Trigger scorer_in_trigger{
-      [&] { return container_.driver_.readings().left_trigger; }};
+      [&] { return container_.driver_.readings().left_trigger || container_.driver_.readings().x_button; }};
 
   frc2::Trigger scorer_in_source_trigger{
       [&] { return container_.driver_.readings().x_button; }};
@@ -305,7 +305,7 @@ void FunkyRobot::InitTeleopTriggers() {
 
   frc2::Trigger scorer_out_trigger{
       [&] { return ((container_.driver_.readings().right_bumper
-        && (container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.2) || 
+        && (container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.35) || 
           container_.operator_.readings().pov == frc846::XboxPOV::kLeft
       ); }};
 
@@ -386,22 +386,25 @@ void FunkyRobot::InitTeleopTriggers() {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
-  // on_piece_trigger.OnTrue(
-  //   frc2::InstantCommand([this] {
-  //       DriverTarget driver_target{};
-  //       driver_target.rumble = true;
-  //       container_.driver_.SetTarget(driver_target);
-  //     }).WithTimeout(1_s).AndThen(
-  //       frc2::InstantCommand([this] {
-  //         DriverTarget driver_target{};
-  //         driver_target.rumble = false;
-  //         container_.driver_.SetTarget(driver_target);
-  //       }).ToPtr()
-  //     ));
+  on_piece_trigger.OnTrue(
+    frc2::InstantCommand([this] {
+        DriverTarget driver_target{};
+        driver_target.rumble = true;
+        container_.driver_.SetTarget(driver_target);
+      }).WithTimeout(1_s).AndThen(
+        frc2::InstantCommand([this] {
+          DriverTarget driver_target{};
+          driver_target.rumble = false;
+          container_.driver_.SetTarget(driver_target);
+        }).ToPtr()
+      ));
 }
 
 void FunkyRobot::InitTestDefaults() {
-  container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
+}
+
+void FunkyRobot::InitTestTriggers() {
+
 }
 
 void FunkyRobot::VerifyHardware() {

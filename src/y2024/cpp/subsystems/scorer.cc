@@ -10,14 +10,18 @@ ScorerSubsystem::ScorerSubsystem(bool init)
         intake_shooter_esc_.Setup(&intake_esc_gains_, false);
         intake_shooter_esc_.SetupConverter(1_tr);
 
-        // shooter_esc_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
-        //   rev::CANSparkBase::PeriodicFrame::kStatus4, 
-        //   rev::CANSparkBase::PeriodicFrame::kStatus2, 
-        //   rev::CANSparkBase::PeriodicFrame::kStatus3});
-        // shooter_esc_two_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
-        //   rev::CANSparkBase::PeriodicFrame::kStatus4, 
-        //   rev::CANSparkBase::PeriodicFrame::kStatus2, 
-        //   rev::CANSparkBase::PeriodicFrame::kStatus3});
+        shooter_esc_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
+          rev::CANSparkBase::PeriodicFrame::kStatus4, 
+          rev::CANSparkBase::PeriodicFrame::kStatus2, 
+          rev::CANSparkBase::PeriodicFrame::kStatus3,
+          rev::CANSparkBase::PeriodicFrame::kStatus1,
+          rev::CANSparkBase::PeriodicFrame::kStatus5});
+        shooter_esc_two_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
+          rev::CANSparkBase::PeriodicFrame::kStatus4, 
+          rev::CANSparkBase::PeriodicFrame::kStatus2, 
+          rev::CANSparkBase::PeriodicFrame::kStatus3,
+          rev::CANSparkBase::PeriodicFrame::kStatus1,
+          rev::CANSparkBase::PeriodicFrame::kStatus5});
         intake_shooter_esc_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus2, 
           rev::CANSparkBase::PeriodicFrame::kStatus4, 
           rev::CANSparkBase::PeriodicFrame::kStatus3});

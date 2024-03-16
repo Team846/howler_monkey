@@ -49,9 +49,9 @@ class Pref {
         full_key, NT_EVENT_PROPERTIES | NT_EVENT_PUBLISH | NT_EVENT_VALUE_ALL,
         [=, this]([[maybe_unused]] auto&&... unused) {
           if (value_ != get(full_key, fallback)) {
-            value_ = get(full_key, fallback);
-            parent.Log("`{}` updated to {}", name, value_);
-            set(f_ptr_, value_);
+          value_ = get(full_key, fallback);
+          parent.Log("`{}` updated to {}", name, value_);
+          set(f_ptr_, value_);
           }
         });
   }

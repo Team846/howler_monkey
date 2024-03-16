@@ -1,7 +1,6 @@
 #ifndef FRC846_ESC_CONTROL_H_
 #define FRC846_ESC_CONTROL_H_
 
-#include <asm-generic/errno.h>
 
 #include <rev/CANSparkMax.h>
 #include <rev/CANSparkFlex.h>
@@ -751,9 +750,11 @@ class TalonFXController : ElectronicSpeedController<X> {
 
         deviceConfigs.WithMotorOutput(motorConfs);
 
-        currentConfs.SupplyCurrentLimit = gains_helper->current_limit_.value();
-        currentConfs.SupplyCurrentThreshold = 50;
-        currentConfs.SupplyCurrentLimitEnable = true;
+        currentConfs.WithSupplyCurrentLimit(gains_helper->current_limit_.value() / 2.0);
+        currentConfs.WithSupplyCurrentThreshold(gains_helper->current_limit_.value());
+        currentConfs.WithSupplyTimeThreshold(0.02);
+        currentConfs.WithStatorCurrentLimit(gains_helper->current_limit_.value());
+        currentConfs.WithStatorCurrentLimitEnable(true);
 
         voltageConfs.PeakForwardVoltage = 12.0;
         voltageConfs.PeakReverseVoltage = -12.0;
@@ -772,9 +773,9 @@ class TalonFXController : ElectronicSpeedController<X> {
         esc_.GetPosition().SetUpdateFrequency(50_Hz);
         esc_.GetVelocity().SetUpdateFrequency(50_Hz);
         esc_.GetSupplyCurrent().SetUpdateFrequency(10_Hz);
-        esc_.GetSupplyVoltage().SetUpdateFrequency(10_Hz);
-        esc_.GetForwardLimit().SetUpdateFrequency(50_Hz);
-        esc_.GetReverseLimit().SetUpdateFrequency(50_Hz);
+        // esc_.GetSupplyVoltage().SetUpdateFrequency(10_Hz);
+        // esc_.GetForwardLimit().SetUpdateFrequency(50_Hz);
+        // esc_.GetReverseLimit().SetUpdateFrequency(50_Hz);
         
         return 0;
     };
@@ -802,9 +803,11 @@ class TalonFXController : ElectronicSpeedController<X> {
 
         deviceConfigs.WithMotorOutput(motorConfs);
 
-        currentConfs.SupplyCurrentLimit = gains_helper->current_limit_.value();
-        currentConfs.SupplyCurrentThreshold = 50;
-        currentConfs.SupplyCurrentLimitEnable = true;
+        currentConfs.WithSupplyCurrentLimit(gains_helper->current_limit_.value() / 2.0);
+        currentConfs.WithSupplyCurrentThreshold(gains_helper->current_limit_.value());
+        currentConfs.WithSupplyTimeThreshold(0.02);
+        currentConfs.WithStatorCurrentLimit(gains_helper->current_limit_.value());
+        currentConfs.WithStatorCurrentLimitEnable(true);
 
         voltageConfs.PeakForwardVoltage = 12.0;
         voltageConfs.PeakReverseVoltage = -12.0;
@@ -824,9 +827,9 @@ class TalonFXController : ElectronicSpeedController<X> {
         esc_.GetPosition().SetUpdateFrequency(50_Hz);
         esc_.GetVelocity().SetUpdateFrequency(50_Hz);
         esc_.GetSupplyCurrent().SetUpdateFrequency(10_Hz);
-        esc_.GetSupplyVoltage().SetUpdateFrequency(10_Hz);
-        esc_.GetForwardLimit().SetUpdateFrequency(50_Hz);
-        esc_.GetReverseLimit().SetUpdateFrequency(50_Hz);
+        // esc_.GetSupplyVoltage().SetUpdateFrequency(10_Hz);
+        // esc_.GetForwardLimit().SetUpdateFrequency(50_Hz);
+        // esc_.GetReverseLimit().SetUpdateFrequency(50_Hz);
 
         return 0;
     };
@@ -837,12 +840,11 @@ class TalonFXController : ElectronicSpeedController<X> {
       ctre::configs::VoltageConfigs voltageConfs{};
       ctre::configs::CurrentLimitsConfigs currentConfs{};
 
-      currentConfs.SupplyCurrentLimit = gains_helper->current_limit_.value();
-      currentConfs.SupplyCurrentThreshold = 50;
-      currentConfs.SupplyCurrentLimitEnable = true;
-
-      voltageConfs.PeakForwardVoltage = 12.0;
-      voltageConfs.PeakReverseVoltage = -12.0;
+      currentConfs.WithSupplyCurrentLimit(gains_helper->current_limit_.value() / 2.0);
+      currentConfs.WithSupplyCurrentThreshold(gains_helper->current_limit_.value());
+      currentConfs.WithSupplyTimeThreshold(0.02);
+      currentConfs.WithStatorCurrentLimit(gains_helper->current_limit_.value());
+      currentConfs.WithStatorCurrentLimitEnable(true);
 
       deviceConfigs.WithVoltage(voltageConfs);
       deviceConfigs.WithCurrentLimits(currentConfs);
@@ -858,9 +860,9 @@ class TalonFXController : ElectronicSpeedController<X> {
       esc_.GetPosition().SetUpdateFrequency(50_Hz);
       esc_.GetVelocity().SetUpdateFrequency(50_Hz);
       esc_.GetSupplyCurrent().SetUpdateFrequency(10_Hz);
-      esc_.GetSupplyVoltage().SetUpdateFrequency(10_Hz);
-      esc_.GetForwardLimit().SetUpdateFrequency(50_Hz);
-      esc_.GetReverseLimit().SetUpdateFrequency(50_Hz);
+      // esc_.GetSupplyVoltage().SetUpdateFrequency(10_Hz);
+      // esc_.GetForwardLimit().SetUpdateFrequency(50_Hz);
+      // esc_.GetReverseLimit().SetUpdateFrequency(50_Hz);
       
       return 0;
     };

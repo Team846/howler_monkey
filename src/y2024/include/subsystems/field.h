@@ -17,7 +17,7 @@ struct field {
       if (!flip) {
         return frc846::util::Vector2D<units::foot_t>(-104.4_in, -10.4_in);
       } else {
-        return frc846::util::Vector2D<units::foot_t>(-104.4_in, -659.8_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 659.8_in);
       }
     }
 
@@ -25,7 +25,7 @@ struct field {
       if (!flip) {
         return frc846::util::Vector2D<units::foot_t>(-104.4_in, -10.4_in);
       } else {
-        return frc846::util::Vector2D<units::foot_t>(-104.4_in, -659.8_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 659.8_in);
       }
     }
 

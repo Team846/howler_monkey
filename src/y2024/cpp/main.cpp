@@ -4,15 +4,15 @@
 #include "FunkyRobot.h"
 
 #include <signal.h>
-#include <execinfo.h>
-#include <dirent.h>
-#include <algorithm> 
-#include <cctype>
-#include <locale>
-#include <unistd.h>
-#include <sys/stat.h>
+// #include <execinfo.h>
+// #include <dirent.h>
+// #include <algorithm> 
+// #include <cctype>
+// #include <locale>
+// #include <unistd.h>
+// #include <sys/stat.h>
 #include <chrono>
-
+/*
 inline void ltrim(std::string &s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
         return !std::isspace(ch);
@@ -73,11 +73,11 @@ void handler(int sig) {
     std::cerr << "? Unknown Exception Occured" << std::endl;
   }
   // exit(1);
-}
+}*/
 
 
 int main() {
-  for (int i = 1; i < NSIG; ++i) {
+  /*for (int i = 1; i < NSIG; ++i) {
     signal(i, handler);
   }
 
@@ -126,7 +126,7 @@ int main() {
     } else {
         std::cout << "Error getting file status: "  << std::endl;
     }
-  }
+  }*/
 
   std::cout << "Starting robot code [2024]..." << std::endl;
   return frc::StartRobot<FunkyRobot>();

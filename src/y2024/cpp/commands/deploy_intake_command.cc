@@ -24,11 +24,11 @@ void DeployIntakeCommand::Initialize() {
 void DeployIntakeCommand::Execute() {
   scorer_.SetTarget(scorer_.MakeTarget(kIntakeAndSpinUp)); //TODO make separate command for just kIntake?
 
-  double nextPivotTarget = setpoints::kIntake(0).value();
+  double nextPivotTarget = setpoints::kIntake(0);
   pivot_.SetTarget(pivot_.MakeTarget(units::degree_t(nextPivotTarget)));
-  double nextTelescopeTarget = setpoints::kIntake(1).value();
+  double nextTelescopeTarget = setpoints::kIntake(1);
   telescope_.SetTarget(telescope_.MakeTarget(units::inch_t(nextTelescopeTarget)));
-  double nextWristTarget = setpoints::kIntake(2).value();
+  double nextWristTarget = setpoints::kIntake(2);
   wrist_.SetTarget(wrist_.MakeTarget(units::degree_t(nextWristTarget)));
 
   is_done_ = true;
