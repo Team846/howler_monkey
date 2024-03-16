@@ -69,6 +69,7 @@ void FunkyRobot::StartCompetition() {
                                new frc846::other::SendableCallback([this] {
                                  container_.drivetrain_.SetBearing(0_deg);
                                }));
+
   frc::SmartDashboard::PutData(
       "zero_odometry", new frc846::other::SendableCallback(
                            [this] { container_.drivetrain_.ZeroOdometry(); }));
@@ -76,6 +77,30 @@ void FunkyRobot::StartCompetition() {
   frc::SmartDashboard::PutData(
       "verify_hardware",
       new frc846::other::SendableCallback([this] { VerifyHardware(); }));
+
+
+  frc::SmartDashboard::PutData("zero_subsystems",
+                               new frc846::other::SendableCallback([this] {
+                                 container_.pivot_.ZeroSubsystem();
+                                 container_.telescope_.ZeroSubsystem();
+                                 container_.wrist_.ZeroSubsystem();
+                                 container_.leds_.ZeroSubsystem();
+                                 container_.drivetrain_.ZeroBearing();
+                               }));
+
+  frc::SmartDashboard::PutData("coast_subsystems",
+                               new frc846::other::SendableCallback([this] {
+                                 container_.pivot_.Coast();
+                                 container_.telescope_.Coast();
+                                 container_.wrist_.Coast();
+                               }));
+
+  frc::SmartDashboard::PutData("brake_subsystems",
+                               new frc846::other::SendableCallback([this] {
+                                 container_.pivot_.Brake();
+                                 container_.telescope_.Brake();
+                                 container_.wrist_.Brake();
+                               }));
 
   // Add autos here
   // Default
@@ -171,6 +196,10 @@ void FunkyRobot::StartCompetition() {
           auto_command_->Cancel();
           auto_command_ = nullptr;
         }
+
+        container_.pivot_.Brake();
+        container_.telescope_.Brake();
+        container_.wrist_.Brake();
 
         Log("Setting up teleop default/triggers");
         InitTeleopDefaults();

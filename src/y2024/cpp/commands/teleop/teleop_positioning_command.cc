@@ -242,8 +242,6 @@ TeleopPositioningCommand::TeleopPositioningCommand(RobotContainer& container)
 }
 
 void TeleopPositioningCommand::Execute() {
-  DrivetrainTarget drivetrain_target;
-
   // -----BUTTON MAPPINGS-----
 
 
@@ -427,7 +425,7 @@ void TeleopPositioningCommand::Execute() {
   if (ftrap_s) {
     wrist_target.wrist_output = units::degree_t(degs(positions.wrist_angle));
 
-    telescopeHasRun = true;
+    wristHasRun = true;
   } else if (climb || pre_climb) {
     double nextWristTarget = setpoints::kStow(2);
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
@@ -448,7 +446,7 @@ void TeleopPositioningCommand::Execute() {
     //   robot_velocity.Magnitude().to<double>() - robot_velocity_in_component * robot_velocity_in_component);
 
 
-    shooting_dist = 3.4; //REMOVE, FIX
+    // shooting_dist = 3.4; //REMOVE, FIX
 
     shooting_dist =  shooting_dist + super_.teleop_shooter_x_.value().to<double>()/12.0; //(13.0 + 40.0) / 12.0;
 

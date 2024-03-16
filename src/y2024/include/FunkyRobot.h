@@ -55,6 +55,7 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
   void InitTeleopTriggers();
 
   void InitTestDefaults();
+  void InitTestTriggers();
 
   void VerifyHardware();
 

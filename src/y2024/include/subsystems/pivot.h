@@ -65,13 +65,6 @@ class PivotSubsystem
       *this, "ramp_rate_limit_", 40_deg};
 
  private:
-  frc::TrapezoidProfile<units::degree> ramp_rate_{
-    frc::TrapezoidProfile<units::degree>::Constraints{ramp_rate_limit.value() / 1_s, 
-      2.0 * ramp_rate_limit.value() / (1_s * 1_s)}};
-
-  frc::TrapezoidProfile<units::degree>::State goal;
-  frc::TrapezoidProfile<units::degree>::State progress;
-
 
   bool hasZeroed = false;
 
@@ -85,7 +78,6 @@ class PivotSubsystem
   frc846::Grapher<double> target_pivot_duty_cycle_graph{target_named_, "pivot_duty_cycle"};
 
   frc846::Grapher<units::degree_t> target_pivot_pos_graph{target_named_, "pivot_pos"};
-  frc846::Grapher<units::degree_t> intermediate_pivot_pos_graph{target_named_, "intermediate_pivot_pos"};
 
 
   frc846::Loggable pivot_gains_lg = frc846::Loggable(*this, "pivot_gains");

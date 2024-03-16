@@ -85,14 +85,11 @@ void PivotSubsystem::PositionPivot(PivotTarget target) {
     //   pivot_three_.Write(frc846::control::ControlMode::Percent, 0.0);
     //   pivot_four_.Write(frc846::control::ControlMode::Percent, 0.0);
     // } else {
-      // goal = {*pos, units::degrees_per_second_t(0)};
-      // progress = ramp_rate_.Calculate(20_ms, progress, goal);
-      pivot_one_.Write(frc846::control::ControlMode::Position, *pos); //progress.position);
-      pivot_two_.Write(frc846::control::ControlMode::Position, *pos); //progress.position);
-      pivot_three_.Write(frc846::control::ControlMode::Position, *pos); //progress.position);
-      pivot_four_.Write(frc846::control::ControlMode::Position, *pos); //progress.position);
+      pivot_one_.Write(frc846::control::ControlMode::Position, *pos);
+      pivot_two_.Write(frc846::control::ControlMode::Position, *pos);
+      pivot_three_.Write(frc846::control::ControlMode::Position, *pos);
+      pivot_four_.Write(frc846::control::ControlMode::Position, *pos);
 
-      intermediate_pivot_pos_graph.Graph(progress.position);
     // }
 
     target_pivot_pos_graph.Graph(*pos);

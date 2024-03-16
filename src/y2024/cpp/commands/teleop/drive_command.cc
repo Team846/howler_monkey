@@ -106,6 +106,8 @@ void DriveCommand::Execute() {
   bool is_robot_centric = false;
   bool is_slow_drive = driver_.readings().right_bumper;
   bool prep_align_speaker = driver_.readings().right_trigger;
+  bool amping = driver_.readings().left_bumper;
+  bool sourcing = driver_.readings().x_button;
 
 
   // -----TRANSLATION CONTROL-----
@@ -190,12 +192,24 @@ void DriveCommand::Execute() {
       // double robot_velocity_orth_component = std::sqrt(robot_velocity.Magnitude().to<double>()*
       //   robot_velocity.Magnitude().to<double>() - robot_velocity_in_component * robot_velocity_in_component);
 
-      units::degree_t theta_adjust = 0_deg;//units::degree_t(DriveShootingCalculator::calculate(shooting_dist, 
+      units::degree_t theta_adjust = 0_deg;//units::degree_t(DriveShootingCalculator::calculate(shootin g_dist, 
         //0.0, 0.0, super_.teleop_shooter_height_.value().to<double>(), super_.shoot_drive_angle_calc_intial_guess_.value().to<double>(), super_.shoot_drive_angle_calc_tolerance_.value(), super_.shoot_drive_angle_calc_max_iterations_.value()));
       if (frc846::util::ShareTables::GetBoolean("is_red_side")){
-        target_angle*=-1;
+       target_angle *= -1;
       }
       drivetrain_target.rotation = DrivetrainRotationPosition(target_angle + theta_adjust);
+    }
+  } else if (amping) {
+    if (frc846::util::ShareTables::GetBoolean("is_red_side")){
+      drivetrain_target.rotation = DrivetrainRotationPosition(90_deg);
+    } else {
+      drivetrain_target.rotation = DrivetrainRotationPosition(-90_deg);
+    }
+  } else if (sourcing) {
+    if (frc846::util::ShareTables::GetBoolean("is_red_side")){
+      drivetrain_target.rotation = DrivetrainRotationPosition(-51.4_deg);
+    } else {
+      drivetrain_target.rotation = DrivetrainRotationPosition(51.4_deg);
     }
   }
 
