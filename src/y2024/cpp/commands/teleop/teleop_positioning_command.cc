@@ -255,6 +255,9 @@ void TeleopPositioningCommand::Execute() {
   bool running_amp_position = driver_.readings().left_bumper;
   bool running_prep_speaker = driver_.readings().right_trigger || driver_.readings().y_button;
 
+  bool running_zero_bubble_position = operator_.readings().back_button;
+  bool running_pass_position = driver_.readings().a_button;
+
   bool running_source = driver_.readings().x_button;
 
   bool pre_climb = operator_.readings().left_trigger;
@@ -365,6 +368,16 @@ void TeleopPositioningCommand::Execute() {
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);
 
     pivotHasRun = true;
+  } else if (running_pass_position) {
+    double nextPivotTarget = setpoints::kIntake(0);
+    pivot_target.pivot_output = units::degree_t(nextPivotTarget);
+
+    pivotHasRun = true;
+  } else if (running_zero_bubble_position) {
+    double nextPivotTarget = setpoints::kZeroBubble(0);
+    pivot_target.pivot_output = units::degree_t(nextPivotTarget);
+
+    pivotHasRun = true;
   } else if (pivotHasRun) {
     double nextPivotTarget = setpoints::kStow(0);
     pivot_target.pivot_output = units::degree_t(nextPivotTarget);
@@ -409,6 +422,16 @@ void TeleopPositioningCommand::Execute() {
     telescopeHasRun = true;
   } else if (running_amp_position) {
     double nextTelescopeTarget = setpoints::kAmp(1);
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
+
+    telescopeHasRun = true;
+  } else if (running_zero_bubble_position) {
+    double nextTelescopeTarget = setpoints::kZeroBubble(1);
+    telescope_target.extension = units::inch_t(nextTelescopeTarget);
+
+    telescopeHasRun = true;
+  } else if (running_pass_position) {
+    double nextTelescopeTarget = setpoints::kIntake(1);
     telescope_target.extension = units::inch_t(nextTelescopeTarget);
 
     telescopeHasRun = true;
@@ -488,6 +511,16 @@ void TeleopPositioningCommand::Execute() {
     wristHasRun = true;
   } else if (running_amp_position) {
     double nextWristTarget = setpoints::kAmp(2);
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
+
+    wristHasRun = true;
+  } else if (running_pass_position) {
+    double nextWristTarget = setpoints::kIntake(2);
+    wrist_target.wrist_output = units::degree_t(nextWristTarget);
+
+    wristHasRun = true;
+  } else if (running_zero_bubble_position) {
+    double nextWristTarget = setpoints::kZeroBubble(2);
     wrist_target.wrist_output = units::degree_t(nextWristTarget);
 
     wristHasRun = true;

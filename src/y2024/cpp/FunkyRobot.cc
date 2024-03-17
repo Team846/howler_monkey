@@ -319,6 +319,9 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger scorer_in_source_trigger{
       [&] { return container_.driver_.readings().x_button; }};
 
+  frc2::Trigger scorer_pass_trigger{
+      [&] { return container_.driver_.readings().a_button; }};
+
   frc2::Trigger scorer_spin_up_trigger{
       [&] { return container_.driver_.readings().right_trigger 
         || container_.driver_.readings().y_button
@@ -381,6 +384,16 @@ void FunkyRobot::InitTeleopTriggers() {
       }).ToPtr());
 
   scorer_spin_up_trigger.OnFalse(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+      }).ToPtr());
+  
+  scorer_pass_trigger.WhileTrue(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kPass));
+      }).ToPtr());
+
+  scorer_pass_trigger.OnFalse(
       frc2::InstantCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());

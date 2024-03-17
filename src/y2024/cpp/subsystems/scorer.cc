@@ -87,7 +87,17 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
        frc846::util::ShareTables::GetDouble("velocity") * 1_tps / (1.8 * 3.1415926 / 12.0));
     shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0);
     shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0);
-  } else if (target.target_state == kShoot) {
+  } else if (target.target_state == kIntakeAndSpinUp) {
+    if (!note_detection.IsLimitSwitchEnabled()) {
+      note_detection.EnableLimitSwitch(true);
+    };
+    frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
+    intake_shooter_esc_.Write(frc846::control::ControlMode::Velocity, intake_speed_.value() +
+       frc846::util::ShareTables::GetDouble("velocity") * 1_tps / (1.8 * 3.1415926 / 12.0));
+    shooter_esc_one_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value() * (1 + spin_.value()));
+    shooter_esc_two_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value() * (1 - spin_.value()));
+  } 
+  else if (target.target_state == kShoot) {
     if (has_piece_ == true || note_detection.IsLimitSwitchEnabled()) {
       note_detection.EnableLimitSwitch(false);
       // has_piece_ = false;
@@ -112,6 +122,12 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
     shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0);
 
     // has_piece_ = false;
+  } else if (target.target_state == kPass) {
+    // note_detection.EnableLimitSwitch(false);
+    
+    intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, release_speed_.value());
+    shooter_esc_one_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value() * (1 + spin_.value()));
+    shooter_esc_two_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value() * (1 - spin_.value()));
   } else {
     frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, 0);

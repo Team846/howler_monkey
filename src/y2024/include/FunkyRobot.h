@@ -6,8 +6,8 @@
 #include <frc/smartdashboard/SendableChooser.h>
 #include <hal/Types.h>
 #include <units/time.h>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/core/core.hpp>
+// #include <opencv2/imgproc.hpp>
+// #include <opencv2/core.hpp>
 #include <cameraserver/CameraServer.h>
 #include "frc846/util/pref.h"
 #include "autos/drive_auto.h"
