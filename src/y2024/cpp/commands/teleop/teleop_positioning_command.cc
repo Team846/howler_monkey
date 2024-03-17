@@ -210,9 +210,9 @@ class TrapCalculator {
             units::degree_t starting_angle, units::degree_t ending_angle, int steps = 20) {
       std::vector<std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>> toReturn{};
       for (int i = 0; i < steps; i++) {
-        auto x_coord = starting_coordinate.x + (i/steps) * (ending_coordinate.x - starting_coordinate.x);
-        auto y_coord = starting_coordinate.y + (i/steps) * (ending_coordinate.y - starting_coordinate.y);
-        auto angle = starting_angle + (i/steps) * (ending_angle - starting_angle);
+        auto x_coord = starting_coordinate.x + (i * 1.0 / steps) * (ending_coordinate.x - starting_coordinate.x);
+        auto y_coord = starting_coordinate.y + (i * 1.0 / steps) * (ending_coordinate.y - starting_coordinate.y);
+        auto angle = starting_angle + (i * 1.0 / steps) * (ending_angle - starting_angle);
         toReturn.push_back({{x_coord, y_coord}, angle});
 
         std::cout << x_coord.to<double>() << "X" << y_coord.to<double>() << "Y" << angle.to<double>() << std::endl;
@@ -374,6 +374,8 @@ void TeleopPositioningCommand::Execute() {
     ms_adj = 0.0;
 
     mpiv_adj = 0.0;
+
+    trapCounter = 0;
 
     pivotHasRun = false;
   } else {
