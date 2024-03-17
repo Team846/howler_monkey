@@ -194,7 +194,7 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
   readings.tilt =
       units::degree_t{pitch_initial * units::math::cos(readings.pose.bearing) +
                       roll_initial * units::math::sin(readings.pose.bearing)};
-  auto current_time_ = frc846::wpilib::CurrentFPGATime();
+  // auto current_time_ = frc846::wpilib::CurrentFPGATime();
 
   // Gets the position difference vector for each module, to update odometry
   // with
@@ -250,7 +250,6 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
   if (april_tags_enabled_.value() && !(frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)){
     if (!aprilFrameRequested){
       aprilFrameRequest++;
-      aprilFrameRequest%=1000;
       poseAtLastRequest=odometry_.pose();
       double data [2] = {aprilFrameRequest, readings.pose.bearing.to<double>()};
       aprilTag_table->PutNumberArray("roboRioFrameRequest", data);
@@ -345,6 +344,7 @@ void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
     target_rotation_position_graph_.Graph(readings().pose.bearing -
                                           *target_rotation);
     target_rotation_velocity_graph_.Graph(0_deg_per_s);
+    // bearing_error.Graph(*target_rotation-readings().pose.bearing);
   } else if (auto* target_rotation =
                  std::get_if<DrivetrainRotationVelocity>(&target.rotation)) {
     target_rotation_position_graph_.Graph(0_deg);

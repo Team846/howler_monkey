@@ -10,7 +10,7 @@
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
 #include "frc846/util/math.h"
-#include "commands/prepare_shoot_command.h"
+#include "commands/prepare_short_shoot_command.h"
 #include "commands/shoot_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/shoot_command.h"
@@ -30,12 +30,12 @@ FourPieceAuto::FourPieceAuto(
 
     AddCommands(
       frc2::InstantCommand{[&, flip = should_flip_] {
-        auto pose_ = field::points::kFPOrigin(flip);
+        auto pose_ = field::points::kFourPieceOrigin(flip);
         container.drivetrain_.SetPoint(pose_.point);
         container.drivetrain_.SetBearing(pose_.bearing);
         first_distance = (field::points::kSpeaker(flip) - pose_.point).Magnitude();
       }},
-      PrepareShootCommand{ container,  (field::points::kSpeaker(should_flip_) - field::points::kFPOrigin(should_flip_).point).Magnitude().to<double>()}, //first_distance.to<double>() },
+      PrepareShortShootCommand{ container,  (field::points::kSpeaker(should_flip_) - field::points::kFourPieceOrigin(should_flip_).point).Magnitude().to<double>()}, //first_distance.to<double>() },
       // SpeakerAlignCommand{ container, 
       //     field::points::kFPOrigin(should_flip_).point},
       frc2::WaitCommand{1.5_s},
@@ -43,18 +43,15 @@ FourPieceAuto::FourPieceAuto(
       frc2::WaitCommand{container.super_structure_.post_shoot_wait_.value()},
     
       
-      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeOne(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootOne(should_flip_), 0_fps}, should_flip_),
+      AutoIntakeAndShootCommand( container, {field::points::kFourPieceIntakeOne(should_flip_), 0_fps}, 
+                                  {field::points::kFourPieceShootOne(should_flip_), 0_fps}, should_flip_),
       
-      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeTwo(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootTwo(should_flip_), 0_fps}, should_flip_),
+      AutoIntakeAndShootCommand( container, {field::points::kFourPieceIntakeTwo(should_flip_), 0_fps}, 
+                                  {field::points::kFourPieceShootTwo(should_flip_), 0_fps}, should_flip_),
       
-      AutoIntakeAndShootCommand( container, {field::points::kFPIntakeThree(should_flip_), 0_fps}, 
-                                  {field::points::kFPShootThree(should_flip_), 0_fps}, should_flip_),
+      AutoIntakeAndShootCommand( container, {field::points::kFourPieceIntakeThree(should_flip_), 0_fps}, 
+                                  {field::points::kFourPieceShootThree(should_flip_), 0_fps}, should_flip_),
 
-      // AutoIntakeAndShootCommand( container, {field::points::kFPIntakeFour(should_flip_), 0_fps}, 
-      //                             {field::points::kFPShootFour(should_flip_), 0_fps}, should_flip_),
-
-      FollowTrajectoryCommand{ container, {{field::points::kFPFinalPosition(should_flip_), 0_fps}}}
+      FollowTrajectoryCommand{ container, {{field::points::kFourPieceFinalPosition(should_flip_), 0_fps}}}
      );
 }

@@ -15,7 +15,7 @@ struct field {
 
     static frc846::util::Vector2D<units::foot_t> kSpeaker(bool flip = false) {
       if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(-104.4_in, -10.4_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 0_in);
       } else {
         return frc846::util::Vector2D<units::foot_t>(-104.4_in, 659.8_in);
       }
@@ -40,56 +40,103 @@ struct field {
       return testing_point.flip(should_flip);
     };
 
+    //FOUR PIECE AUTO
+    static frc846::util::FieldPoint four_piece_origin;
+    static frc846::util::Position kFourPieceOrigin(bool should_flip) {
+      return four_piece_origin.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint four_piece_intake_one;
+    static frc846::util::Position kFourPieceIntakeOne(bool should_flip) {
+      return four_piece_intake_one.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint four_piece_shoot_one;
+    static frc846::util::Position kFourPieceShootOne(bool should_flip) {
+      return four_piece_shoot_one.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint four_piece_intake_two;
+    static frc846::util::Position kFourPieceIntakeTwo(bool should_flip) {
+      return four_piece_intake_two.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint four_piece_shoot_two;
+    static frc846::util::Position kFourPieceShootTwo(bool should_flip) {
+      return four_piece_shoot_two.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint four_piece_intake_three;
+    static frc846::util::Position kFourPieceIntakeThree(bool should_flip) {
+      return four_piece_intake_three.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint four_piece_shoot_three;
+    static frc846::util::Position kFourPieceShootThree(bool should_flip) {
+      return four_piece_shoot_three.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint four_piece_final_position;
+    static frc846::util::Position kFourPieceFinalPosition(bool should_flip) {
+      return four_piece_final_position.flip(should_flip);
+    };
+
+
     //FIVE PIECE AUTO
-    static frc846::util::FieldPoint fp_start;
-    static frc846::util::Position kFPOrigin(bool should_flip) {
-      return fp_start.flip(should_flip);
-    };
-
-
-    static frc846::util::FieldPoint fp_intake_one;
-    static frc846::util::Position kFPIntakeOne(bool should_flip) {
-      return fp_intake_one.flip(should_flip);
-    };
-
-    static frc846::util::FieldPoint fp_shoot_one;
-    static frc846::util::Position kFPShootOne(bool should_flip) {
-      return fp_shoot_one.flip(should_flip);
-    };
-
-    static frc846::util::FieldPoint fp_intake_two;
-    static frc846::util::Position kFPIntakeTwo(bool should_flip) {
-      return fp_intake_two.flip(should_flip);
-    };
-
-    static frc846::util::FieldPoint fp_shoot_two;
-    static frc846::util::Position kFPShootTwo(bool should_flip) {
-      return fp_shoot_two.flip(should_flip);
-    };
-
-    static frc846::util::FieldPoint fp_intake_three;
-    static frc846::util::Position kFPIntakeThree(bool should_flip) {
-      return fp_intake_three.flip(should_flip);
-    };
-
-    static frc846::util::FieldPoint fp_shoot_three;
-    static frc846::util::Position kFPShootThree(bool should_flip) {
-      return fp_shoot_three.flip(should_flip);
-    };
     
-    static frc846::util::FieldPoint fp_intake_four;
-    static frc846::util::Position kFPIntakeFour(bool should_flip) {
-      return fp_intake_four.flip(should_flip);
+    static frc846::util::FieldPoint five_piece_origin;
+    static frc846::util::Position kFivePieceOrigin(bool should_flip) {
+      return five_piece_origin.flip(should_flip);
     };
 
-    static frc846::util::FieldPoint fp_shoot_four;
-    static frc846::util::Position kFPShootFour(bool should_flip) {
-      return fp_shoot_four.flip(should_flip);
+    static frc846::util::FieldPoint five_piece_intake_one;
+    static frc846::util::Position kFivePieceIntakeOne(bool should_flip) {
+      return five_piece_intake_one.flip(should_flip);
     };
 
-    static frc846::util::FieldPoint fp_final_position;
-    static frc846::util::Position kFPFinalPosition(bool should_flip) {
-      return fp_final_position.flip(should_flip);
+    static frc846::util::FieldPoint five_piece_shoot_one;
+    static frc846::util::Position kFivePieceShootOne(bool should_flip) {
+      return five_piece_shoot_one.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint five_piece_intake_center;
+    static frc846::util::Position kFivePieceIntakeCenter(bool should_flip) {
+      return five_piece_intake_center.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint five_piece_center_intermediate;
+    static frc846::util::Position kFivePieceCenterIntermediate(bool should_flip) {
+      return five_piece_center_intermediate.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint five_piece_shoot_center;
+    static frc846::util::Position kFivePieceShootCenter(bool should_flip) {
+      return five_piece_shoot_center.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint five_piece_intake_two;
+    static frc846::util::Position kFivePieceIntakeTwo(bool should_flip) {
+      return five_piece_intake_two.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint five_piece_shoot_two;
+    static frc846::util::Position kFivePieceShootTwo(bool should_flip) {
+      return five_piece_shoot_two.flip(should_flip);
+  };
+
+    static frc846::util::FieldPoint five_piece_three_intermediate;
+    static frc846::util::Position kFivePieceThreeIntermediate(bool should_flip) {
+      return five_piece_three_intermediate.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint five_piece_intake_three;
+    static frc846::util::Position kFivePieceIntakeThree(bool should_flip) {
+      return five_piece_intake_three.flip(should_flip);
+    };
+
+    static frc846::util::FieldPoint five_piece_shoot_three;
+    static frc846::util::Position kFivePieceShootThree(bool should_flip) {
+      return five_piece_shoot_three.flip(should_flip);
     };
 
     // THREE PIECE SOURCE AUTO

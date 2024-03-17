@@ -85,18 +85,33 @@ struct setpoints {
     }
   }
 
-  static frc846::Pref<double> auto_shoot_pivot_;
-  static frc846::Pref<double> auto_shoot_telescope_;
-  static frc846::Pref<double> auto_shoot_wrist_;
+  static frc846::Pref<double> auto_short_shoot_pivot_;
+  static frc846::Pref<double> auto_short_shoot_telescope_;
+  static frc846::Pref<double> auto_short_shoot_wrist_;
 
-  static double kAutoShoot(int kIndex) { 
+  static double kAutoShortShoot(int kIndex) { 
     switch (kIndex) {
         case 2:
-            return auto_shoot_wrist_.value();
+            return auto_short_shoot_wrist_.value();
         case 1:
-            return auto_shoot_telescope_.value();
+            return auto_short_shoot_telescope_.value();
         default:
-            return auto_shoot_pivot_.value();
+            return auto_short_shoot_pivot_.value();
+    }
+  }
+
+  static frc846::Pref<double> auto_far_shoot_pivot_;
+  static frc846::Pref<double> auto_far_shoot_telescope_;
+  static frc846::Pref<double> auto_far_shoot_wrist_;
+
+  static double kAutoFarShoot(int kIndex) { 
+    switch (kIndex) {
+        case 2:
+            return auto_far_shoot_wrist_.value();
+        case 1:
+            return auto_far_shoot_telescope_.value();
+        default:
+            return auto_far_shoot_pivot_.value();
     }
   }
 

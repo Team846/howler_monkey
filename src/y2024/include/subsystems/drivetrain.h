@@ -224,6 +224,7 @@ class DrivetrainSubsystem
       target_loggable_, "rotation_position"};
   frc846::Grapher<units::degrees_per_second_t> target_rotation_velocity_graph_{
       target_loggable_, "rotation_velocity"};
+//   frc846::Grapher<units::degree_t> bearing_error{target_loggable_, "bearing_error"};
 
   frc846::SwerveOdometry odometry_;
   units::angle::degree_t bearing_offset_;

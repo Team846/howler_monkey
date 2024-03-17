@@ -50,7 +50,7 @@ class DriveShootingCalculator {
   }
 
   static double f_prime(double x, double d, double r_v, double r_o, double h_shooter) {
-    double h = h_speaker-h_shooter/12.0;
+    // double h = h_speaker-h_shooter/12.0;
     double cosx = cos(x);
     double sinx = sin(x);
 
@@ -61,14 +61,14 @@ class DriveShootingCalculator {
       t = (d-l*cosx/2)/(v*cosx*sqrt(1-(r_o/v*cosx))*(r_o/v*cosx)+r_v);
       t_prime = (l*r_v*v*sqrt(1-(r_o*cosx/v)*(r_o*cosx/v)) + l*r_o*r_o*cosx*cosx*cosx - 4*d*r_o*r_o*cosx*cosx + 2*d*v*v)*sinx /
                       (2*v*sqrt(1-(r_o*cosx/v)*(r_o*cosx/v))*(r_v+v*cosx*sqrt(1-(r_o*cosx/v)*(r_o*cosx/v))));
-    } catch (std::exception exc) {}
+    } catch (std::exception const&) {}
 
     return v*cosx*t + v*sinx*t_prime + l*cosx/2 - 1.0/2.0*g*2*t*t_prime;
   }
 
   static double calculate(double d, double r_v, double r_o, double h_shooter,
     double initial_guess = radians(1.01), double tolerance=0.04, double max_iterations=600) {
-    double h = h_speaker-h_shooter/12.0;
+    // double h = h_speaker-h_shooter/12.0;
     double x = initial_guess;
     for (int i = 0; i < max_iterations; i++) {
         auto fx = f_of_x(x, d, r_v, r_o, h_shooter);
@@ -179,9 +179,9 @@ void DriveCommand::Execute() {
     if (units::math::abs(dist_x) > 0.5_ft || units::math::abs(dist_y) > 0.5_ft) {
       auto target_angle = units::math::atan2(dist_x, units::math::abs(dist_y));
 
-      double shooting_dist = (field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")) - drivetrain_.readings().pose.point).Magnitude().to<double>();
+      // double shooting_dist = (field::points::kSpeakerTeleop(!frc846::util::ShareTables::GetBoolean("is_red_side")) - drivetrain_.readings().pose.point).Magnitude().to<double>();
 
-      auto robot_velocity = drivetrain_.readings().velocity;
+      // auto robot_velocity = drivetrain_.readings().velocity;
       // auto point_target = (field::points::kSpeaker() - drivetrain_.readings().pose.point);
 
       // double robot_velocity_in_component = 

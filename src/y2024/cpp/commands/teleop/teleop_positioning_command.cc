@@ -207,7 +207,7 @@ class TrapCalculator {
     static std::vector<std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>> interpolateTrapPoints(
         frc846::util::Vector2D<units::inch_t> starting_coordinate,
           frc846::util::Vector2D<units::inch_t> ending_coordinate, 
-            units::degree_t starting_angle, units::degree_t ending_angle, int steps = 20) {
+            units::degree_t starting_angle, units::degree_t ending_angle, int steps = 40) {
       std::vector<std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>> toReturn{};
       for (int i = 0; i < steps; i++) {
         auto x_coord = starting_coordinate.x + (i * 1.0 / steps) * (ending_coordinate.x - starting_coordinate.x);
@@ -215,7 +215,7 @@ class TrapCalculator {
         auto angle = starting_angle + (i * 1.0 / steps) * (ending_angle - starting_angle);
         toReturn.push_back({{x_coord, y_coord}, angle});
 
-        std::cout << x_coord.to<double>() << "X" << y_coord.to<double>() << "Y" << angle.to<double>() << std::endl;
+        // std::cout << x_coord.to<double>() << "X" << y_coord.to<double>() << "Y" << angle.to<double>() << std::endl;
       }
       return toReturn;
     }
@@ -287,8 +287,8 @@ void TeleopPositioningCommand::Execute() {
         {super_.trap_end_x.value(), super_.trap_end_y.value()},
         super_.trap_start_angle.value(),
         super_.trap_end_angle.value());
-    positions = TrapCalculator::getRawsAtPoint(std::min(19, trapCounter/trapDivisor), k);
-    std::cout << trapCounter << "Q" << std::min(19, trapCounter/trapDivisor) << std::endl;
+    positions = TrapCalculator::getRawsAtPoint(std::min(39, trapCounter/trapDivisor), k);
+    // std::cout << trapCounter << "Q" << std::min(39, trapCounter/trapDivisor) << std::endl;
     trapCounter += 1;
   }
 

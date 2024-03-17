@@ -9,9 +9,10 @@
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
 #include "frc846/util/math.h"
-#include "commands/prepare_shoot_command.h"
+#include "commands/prepare_short_shoot_command.h"
 #include "commands/shoot_command.h"
 #include "commands/follow_trajectory_command.h"
+#include "commands/deploy_intake_command.h"
 #include "commands/shoot_command.h"
 #include "commands/speaker_align_command.h"
 #include "commands/auto_intake_and_shoot_command.h"
@@ -34,18 +35,33 @@ ThreePieceSourceAuto::ThreePieceSourceAuto(
         container.drivetrain_.SetBearing(pose_.bearing);
         first_distance = (field::points::kSpeaker(flip) - pose_.point).Magnitude();
       }},
-      PrepareShootCommand{ container, 0.0}, //first_distance.to<double>() },
-      SpeakerAlignCommand{ container, 
-          field::points::kSSOrigin(should_flip_).point},
+      PrepareShortShootCommand{ container, 0.0}, //first_distance.to<double>() },
+      // SpeakerAlignCommand{ container, 
+      //     field::points::kSSOrigin(should_flip_).point},
       ShootCommand{ container },
     
       
-      AutoIntakeAndShootCommand( container, {field::points::kSSIntakeOne(should_flip_), 0_fps}, 
-                                  {field::points::kSSShootOne(should_flip_), 0_fps}, should_flip_),
-      
-      AutoIntakeAndShootCommand( container, {field::points::kSSIntakeTwo(should_flip_), 0_fps}, 
-                                  {field::points::kSSShootTwo(should_flip_), 0_fps}, should_flip_),
+      // AutoIntakeAndShootCommand( container, {field::points::kSSIntakeOne(should_flip_), 0_fps}, 
+      //                             {field::points::kSSShootOne(should_flip_), 0_fps}, should_flip_),
 
+      // FollowTrajectoryCommand{ container, {{field::points::kSSIntakeTwo(should_flip_), 0_fps}}},
+      
+      // DeployIntakeCommand{container},
+
+      // FollowTrajectoryCommand{ container, {{field::points::kSSIntakeTwo(should_flip_), 0_fps}}},
+
+      // PrepareShortShootCommand{container, 0.0},
+
+      // FollowTrajectoryCommand{ container, {{field::points::kSSShootTwo(should_flip_), 0_fps}}},
+
+      // // SpeakerAlignCommand{container, shoot_point.pos.point},
+      // frc2::WaitCommand(container.super_structure_.pre_shoot_wait_.value()),
+
+      // ShootCommand{container},
+
+      // frc2::WaitCommand(container.super_structure_.post_shoot_wait_.value()),
+
+      // StowCommand{container},
 
       FollowTrajectoryCommand{ container, {{field::points::kSSFinalPosition(should_flip_), 0_fps}}}
      );
