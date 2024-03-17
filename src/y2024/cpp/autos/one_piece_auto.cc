@@ -10,7 +10,7 @@
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
 #include "frc846/util/math.h"
-#include "commands/prepare_shoot_command.h"
+#include "commands/prepare_short_shoot_command.h"
 #include "commands/shoot_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/shoot_command.h"
@@ -38,7 +38,7 @@ OnePieceAuto::OnePieceAuto(
         std::cout << (field::points::one_piece_extra_distance_.value() * units::math::sin(container.drivetrain_.readings().pose.bearing)).to<double>() << std::endl;
         std::cout << (field::points::one_piece_extra_distance_.value() * units::math::cos(container.drivetrain_.readings().pose.bearing)).to<double>() << std::endl;
       }},
-      PrepareShootCommand{ container, ((field::points::kSpeakerTeleop(should_flip_) 
+      PrepareShortShootCommand{ container, ((field::points::kSpeakerTeleop(should_flip_) 
         - field::points::kOPOrigin(should_flip_).point).Magnitude()).to<double>() },
       frc2::WaitCommand{ 2.0_s },
       ShootCommand{ container },

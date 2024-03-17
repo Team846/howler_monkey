@@ -8,7 +8,7 @@
 #include "frc2/command/WaitCommand.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/deploy_intake_command.h"
-#include "commands/prepare_shoot_command.h"
+#include "commands/prepare_short_shoot_command.h"
 #include "commands/stow_command.h"
 #include "commands/speaker_align_command.h"
 #include "commands/shoot_command.h"
@@ -28,7 +28,7 @@ frc2::SequentialCommandGroup AutoSweepCommand(
         frc2::ParallelDeadlineGroup {
             FollowTrajectoryCommand{ container, {shoot_point}},
             frc2::SequentialCommandGroup{
-                PrepareShootCommand{container, distance.to<double>()},
+                PrepareShortShootCommand{container, distance.to<double>()},
                 frc2::WaitCommand(container.super_structure_.pre_shoot_wait_.value()),
                 frc2::WaitCommand(units::time::second_t{shoot_time}),
                 ShootCommand{container},

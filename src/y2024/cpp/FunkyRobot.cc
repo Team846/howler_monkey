@@ -110,8 +110,8 @@ void FunkyRobot::StartCompetition() {
   
   auto_chooser_.SetDefaultOption("four_piece_auto_lr", four_piece_auto_lr.get());
   auto_chooser_.AddOption("four_piece_auto_rl", four_piece_auto_rl.get());
-  auto_chooser_.SetDefaultOption("five_piece_auto_lr", five_piece_auto_lr.get());
-  auto_chooser_.AddOption("five_piece_auto_rl", five_piece_auto_rl.get());
+  auto_chooser_.SetDefaultOption("five_piece_auto_lr", five_piece_auto_blue.get());
+  auto_chooser_.AddOption("five_piece_auto_rl", five_piece_auto_red.get());
   auto_chooser_.AddOption("one_piece_auto", one_piece_auto_.get());
   // auto_chooser_.AddOption("testing_routine", testing_routine_.get());
 
@@ -395,7 +395,7 @@ void FunkyRobot::InitTeleopTriggers() {
 
   scorer_pass_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kSpinUp));
       }).ToPtr());
 
   scorer_out_trigger.WhileTrue(

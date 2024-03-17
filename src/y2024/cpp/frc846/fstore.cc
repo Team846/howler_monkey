@@ -92,7 +92,7 @@ namespace frc846 {
                     double doubleValue;
                     std::istringstream(*val) >> doubleValue;
                     return doubleValue;
-                } catch (std::exception err) {}
+                } catch (std::exception const&) {}
             }
         }
 

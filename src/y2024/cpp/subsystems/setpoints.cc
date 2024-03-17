@@ -32,9 +32,13 @@ frc846::Pref<double> setpoints::trap_pivot_{frc846::motion::MotionTarget::prefer
 frc846::Pref<double> setpoints::trap_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/trap_position", 8.5};
 frc846::Pref<double> setpoints::trap_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/trap_position", 144.5};
 
-frc846::Pref<double> setpoints::auto_shoot_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/auto_shoot_position", 39.2};
-frc846::Pref<double> setpoints::auto_shoot_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/auto_shoot_position", 0};
-frc846::Pref<double> setpoints::auto_shoot_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/auto_shoot_position", 112};
+frc846::Pref<double> setpoints::auto_short_shoot_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/auto_short_shoot_position", 39.2};
+frc846::Pref<double> setpoints::auto_short_shoot_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/auto_short_shoot_position", 0};
+frc846::Pref<double> setpoints::auto_short_shoot_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/auto_short_shoot_position", 112};
+
+frc846::Pref<double> setpoints::auto_far_shoot_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/auto_far_shoot_position", 39.2};
+frc846::Pref<double> setpoints::auto_far_shoot_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/auto_far_shoot_position", 0};
+frc846::Pref<double> setpoints::auto_far_shoot_wrist_{frc846::motion::MotionTarget::preferences_loggable, "Wrist/auto_far_shoot_position", 112};
 
 frc846::Pref<double> setpoints::zero_bubble_pivot_{frc846::motion::MotionTarget::preferences_loggable, "Pivot/zero_bubble_position", 19.3};
 frc846::Pref<double> setpoints::zero_bubble_telescope_{frc846::motion::MotionTarget::preferences_loggable, "Telescope/zero_bubble_position", 0};
