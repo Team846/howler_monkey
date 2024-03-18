@@ -51,7 +51,7 @@ class TeleopPositioningCommand
   double pms_adj = 0.0;
 
   int trapCounter = 0;
-  int trapDivisor = 3;
+  int trapDivisor = 1;
 };
 
 #endif  // y2024_COMMANDS_TELEOP_POSITIONING_COMMAND_H_

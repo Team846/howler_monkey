@@ -149,10 +149,14 @@ static bool withinBounds(CoordinatePositions pos) {
 
     RawPositions raw{};
 
-    double pivotForwardComponent = (pos.forward_axis - (wristToIntake)*std::cos(pos.shooting_angle)) 
-      + pivotToCenter;
+    // double pivotForwardComponent = (pos.forward_axis - (wristToIntake)*std::cos(pos.shooting_angle)) 
+    //   + pivotToCenter;
 
-    double pivotUpwardComponent = (pos.upward_axis - (wristToIntake)*std::sin(pos.shooting_angle)) - pivotToGround;
+    // double pivotUpwardComponent = (pos.upward_axis - (wristToIntake)*std::sin(pos.shooting_angle)) - pivotToGround;
+
+    double pivotForwardComponent = (pos.forward_axis + pivotToCenter);
+
+    double pivotUpwardComponent = (pos.upward_axis - pivotToGround);
     
     raw.extension = std::sqrt(pow(pivotForwardComponent, 2) + pow(pivotUpwardComponent, 2) - pow(pivotToWristOffset, 2)) 
         - pivotToWrist;
@@ -207,7 +211,7 @@ class TrapCalculator {
     static std::vector<std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>> interpolateTrapPoints(
         frc846::util::Vector2D<units::inch_t> starting_coordinate,
           frc846::util::Vector2D<units::inch_t> ending_coordinate, 
-            units::degree_t starting_angle, units::degree_t ending_angle, int steps = 40) {
+            units::degree_t starting_angle, units::degree_t ending_angle, int steps = 140) {
       std::vector<std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>> toReturn{};
       for (int i = 0; i < steps; i++) {
         auto x_coord = starting_coordinate.x + (i * 1.0 / steps) * (ending_coordinate.x - starting_coordinate.x);
@@ -215,15 +219,17 @@ class TrapCalculator {
         auto angle = starting_angle + (i * 1.0 / steps) * (ending_angle - starting_angle);
         toReturn.push_back({{x_coord, y_coord}, angle});
 
-        // std::cout << x_coord.to<double>() << "X" << y_coord.to<double>() << "Y" << angle.to<double>() << std::endl;
+        // std::cout << angle.to<double>() << std::endl;
       }
       return toReturn;
     }
 
     static RawPositions getRawsAtPoint(int counter, 
       std::vector<std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>> trapPoints) {
-        return InverseKinematics::toRaw(CoordinatePositions{radians(trapPoints.at(counter).second.to<double>()), trapPoints.at(counter).first.x.to<double>(), 
+        auto toReturn =  InverseKinematics::toRaw(CoordinatePositions{radians(trapPoints.at(counter).second.to<double>()), trapPoints.at(counter).first.x.to<double>(), 
           trapPoints.at(counter).first.y.to<double>()});
+        toReturn.wrist_angle = radians(trapPoints.at(counter).second.to<double>());
+        return toReturn;
     }
 };
 
@@ -287,7 +293,7 @@ void TeleopPositioningCommand::Execute() {
         {super_.trap_end_x.value(), super_.trap_end_y.value()},
         super_.trap_start_angle.value(),
         super_.trap_end_angle.value());
-    positions = TrapCalculator::getRawsAtPoint(std::min(39, trapCounter/trapDivisor), k);
+    positions = TrapCalculator::getRawsAtPoint(std::min(139, trapCounter/trapDivisor), k);
     // std::cout << trapCounter << "Q" << std::min(39, trapCounter/trapDivisor) << std::endl;
     trapCounter += 1;
   }
@@ -543,7 +549,7 @@ void TeleopPositioningCommand::Execute() {
         // std::cout << "FA" << coordinateConverted.forward_axis << std::endl;
         // std::cout << coordinateConverted.upward_axis << std::endl;
 
-        if (!InverseKinematics::withinBounds(coordinateConverted)) {
+        if (!(InverseKinematics::withinBounds(coordinateConverted) || ftrap_s)) {
           mpiv_adj = pmpiv_adj;
           ms_adj = pms_adj;
           mtele_adj = pmtele_adj;
@@ -560,7 +566,7 @@ void TeleopPositioningCommand::Execute() {
   }
 
   if (auto* piv_pos = std::get_if<units::angle::degree_t>(&pivot_target.pivot_output)) {
-    pivot_target.pivot_output = *piv_pos + units::degree_t(mpiv_adj);
+    if (!ftrap_s) pivot_target.pivot_output = *piv_pos + units::degree_t(mpiv_adj);
   }
 
   if (auto* tele_ext = std::get_if<units::inch_t>(&telescope_target.extension)) {

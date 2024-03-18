@@ -18,10 +18,10 @@ PivotSubsystem::PivotSubsystem(bool init)
         pivot_three_.ZeroEncoder();
         pivot_four_.ZeroEncoder();
 
-        pivot_one_.ConfigurePositionLimits(120_deg, -8_deg);
-        pivot_two_.ConfigurePositionLimits(120_deg, -8_deg);
-        pivot_three_.ConfigurePositionLimits(120_deg, -8_deg);
-        pivot_four_.ConfigurePositionLimits(120_deg, -8_deg);
+        pivot_one_.ConfigurePositionLimits(130_deg, -8_deg);
+        pivot_two_.ConfigurePositionLimits(130_deg, -8_deg);
+        pivot_three_.ConfigurePositionLimits(130_deg, -8_deg);
+        pivot_four_.ConfigurePositionLimits(130_deg, -8_deg);
 
         pivot_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
           rev::CANSparkBase::PeriodicFrame::kStatus4, 
