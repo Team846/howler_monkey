@@ -72,13 +72,14 @@ FivePieceAuto::FivePieceAuto(
                                   {field::points::kFivePieceShootTwo(should_flip_), 0_fps}, should_flip_),
 
       DeployIntakeCommand {container},
-      FollowTrajectoryCommand {container, {{field::points::kFivePieceThreeIntermediate(should_flip_), 0_fps}, 
-                                          {field::points::kFivePieceIntakeThree(should_flip_), 0_fps}}},
+      FollowTrajectoryCommand {container, {{field::points::kFivePieceThreeIntermediate(should_flip_), 4_fps}, 
+                                          {field::points::kFivePieceIntakeThree(should_flip_), 4_fps}}},
 
       // AutoIntakeShootStillCommand( container, {field::points::kFivePieceIntakeThree(should_flip_), 0_fps}, 
       //                             {field::points::kFivePieceShootThree(should_flip_), 0_fps}, should_flip_),
-
+      
       PrepareFarShootCommand{container, 0},
+      FollowTrajectoryCommand{container, {{field::points::kFivePieceShootThree(should_flip_), 0_fps}}},
       SpeakerAlignCommand{container, {field::points::kFivePieceShootThree(should_flip_), 0_fps}},
       ShootCommand{container},
       frc2::WaitCommand(container.super_structure_.post_shoot_wait_.value()),
