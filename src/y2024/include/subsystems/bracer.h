@@ -39,7 +39,7 @@ class BracerSubsystem
   bool VerifyHardware() override;
 
  private:
-  int counter = 150;
+  int counter = 75;
 
   frc846::Grapher<bool> left_climb_{*this, "left_hook_engaged"};
   frc846::Grapher<bool> right_climb_{*this, "right_hook_engaged"};
@@ -48,10 +48,10 @@ class BracerSubsystem
 
   frc846::Grapher<bool> target_extend_{target_named_, "extend"};
   
-  // frc::Servo bracer_left_{ports::bracer_::kPWM_Left};
+  // frc::Servo bracer_{ports::bracer_::kPWM_Left};
   // frc::Servo bracer_right_{ports::bracer_::kPWM_Right};
 
-  frc::Spark bracer_left_{ports::bracer_::kPWM_Left};
+  frc::Spark bracer_{ports::bracer_::kPWM_Left};
   // frc::Spark bracer_right_{ports::bracer_::kPWM_Right};
 
   frc::DigitalInput left_switch_{3};

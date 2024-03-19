@@ -34,11 +34,17 @@ namespace frc846 {
         w_record = true;
       }
 
+      float twodp(float num) const {
+        float value = (int) (num * 100 + 0.5);
+        return (float) value / 100;
+      }
+
       template <typename... T>
       void Log(std::string level, fmt::format_string<T...> fmt, T&&... args) const {
         //last_timestamp = frc::Timer::GetFPGATimestamp().to<double>();
 
-        auto t_log = "LOG [" + level + "] (" + fmt::format("{}", frc::Timer::GetFPGATimestamp().to<double>()) + ") " + fmt::format(std::forward<fmt::format_string<T...>>(fmt),
+        auto t_log = "LOG [" + level + "] (" + fmt::format("{}", twodp(frc::Timer::GetFPGATimestamp().to<double>())) + ", " + 
+            fmt::format("{}", twodp(frc::Timer::GetMatchTime().to<double>())) +  ") " + fmt::format(std::forward<fmt::format_string<T...>>(fmt),
                            std::forward<T>(args)...);
 
         //last_log = t_log;
@@ -52,7 +58,7 @@ namespace frc846 {
           if (!std::filesystem::exists(filename) || std::filesystem::file_size(filename) > 1000000)  {
 
             std::ofstream t_file(filename,  std::fstream::in | std::fstream::out | std::fstream::trunc);
-            t_file << "Logger Overwrite " << fmt::format("{}", frc::Timer::GetFPGATimestamp().to<double>()) << "\n";
+            t_file << "Logger Overwrite " << (fmt::format("{}", twodp(frc::Timer::GetFPGATimestamp().to<double>()))) << "\n";
             t_file << "Logger " << t_log << "\n";
             t_file.close();
 
@@ -68,7 +74,8 @@ namespace frc846 {
       void Warn(std::string level, fmt::format_string<T...> fmt, T&&... args) const {
         //last_timestamp = frc::Timer::GetFPGATimestamp().to<double>();
 
-        auto t_log = "WARN [" + level + "] (" + fmt::format("{}", frc::Timer::GetFPGATimestamp().to<double>()) + ") " + fmt::format(std::forward<fmt::format_string<T...>>(fmt),
+        auto t_log = "WARN [" + level + "] (" + fmt::format("{}", twodp(frc::Timer::GetFPGATimestamp().to<double>())) + ", " + 
+            fmt::format("{}", twodp(frc::Timer::GetMatchTime().to<double>())) + ") " + fmt::format(std::forward<fmt::format_string<T...>>(fmt),
                            std::forward<T>(args)...);
 
         //last_log = t_log;
@@ -81,7 +88,7 @@ namespace frc846 {
           if (!std::filesystem::exists(filename) || std::filesystem::file_size(filename) > 1000000) {
 
             std::ofstream t_file(filename,  std::fstream::in | std::fstream::out | std::fstream::trunc);
-            t_file << "Logger Overwrite " << fmt::format("{}", frc::Timer::GetFPGATimestamp().to<double>()) << "\n";
+            t_file << "Logger Overwrite " << fmt::format("{}", twodp(frc::Timer::GetFPGATimestamp().to<double>())) << "\n";
             t_file << "Logger " << t_log << "\n";
             t_file.close();
 
@@ -97,7 +104,8 @@ namespace frc846 {
       void Error(std::string level, fmt::format_string<T...> fmt, T&&... args) const {
         //last_timestamp = frc::Timer::GetFPGATimestamp().to<double>();
 
-        auto t_log = "ERROR [" + level + "] (" + fmt::format("{}", frc::Timer::GetFPGATimestamp().to<double>()) + ") " + fmt::format(std::forward<fmt::format_string<T...>>(fmt),
+        auto t_log = "ERROR [" + level + "] (" + fmt::format("{}", twodp(frc::Timer::GetFPGATimestamp().to<double>())) + ", " + 
+            fmt::format("{}", twodp(frc::Timer::GetMatchTime().to<double>())) + ") " + fmt::format(std::forward<fmt::format_string<T...>>(fmt),
                            std::forward<T>(args)...);
 
         //last_log = t_log;
@@ -111,7 +119,7 @@ namespace frc846 {
           if (!std::filesystem::exists(filename) || std::filesystem::file_size(filename) > 1000000) {
 
             std::ofstream t_file(filename,  std::fstream::in | std::fstream::out | std::fstream::trunc);
-            t_file << "Logger Overwrite " << fmt::format("{}", frc::Timer::GetFPGATimestamp().to<double>()) << "\n";
+            t_file << "Logger Overwrite " << fmt::format("{}", twodp(frc::Timer::GetFPGATimestamp().to<double>())) << "\n";
             t_file << "Logger " << t_log << "\n";
             t_file.close();
 

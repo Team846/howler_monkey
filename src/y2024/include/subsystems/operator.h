@@ -32,6 +32,8 @@ class OperatorSubsystem
   frc846::Loggable target_loggable_{*this, "target"};
   frc846::Grapher<bool> target_rumble_graph_{target_loggable_, "rumble"};
 
+  OperatorReadings previous_readings_;
+
   OperatorReadings GetNewReadings() override;
 
   void DirectWrite(OperatorTarget target) override;

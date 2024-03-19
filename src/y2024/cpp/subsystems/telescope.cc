@@ -11,7 +11,7 @@ TelescopeSubsystem::TelescopeSubsystem(bool init)
         
         tele_one_.ZeroEncoder();
        
-        tele_one_.ConfigurePositionLimits(11_in, 0_in);
+        tele_one_.ConfigurePositionLimits(6_in, 0_in);
 
         tele_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
           rev::CANSparkBase::PeriodicFrame::kStatus4, 
@@ -58,10 +58,10 @@ TelescopeReadings TelescopeSubsystem::GetNewReadings() {
 void TelescopeSubsystem::PositionTelescope(TelescopeTarget target) {
   if (frc846::util::ShareTables::GetDouble("pivot_position") <= 10.0) {
     tele_one_.ConfigurePositionLimits(2.0_in, 0_in);
-  } else if (frc846::util::ShareTables::GetDouble("pivot_position") <= 40.0) {
+  } else if (frc846::util::ShareTables::GetDouble("pivot_position") <= 70.0) {
     tele_one_.ConfigurePositionLimits(0.01_in, 0_in);
   } else {
-    tele_one_.ConfigurePositionLimits(11_in, 0.0_in);
+    tele_one_.ConfigurePositionLimits(6_in, 0.0_in);
   }
 
   if (auto pos = std::get_if<units::inch_t>(&target.extension)) {

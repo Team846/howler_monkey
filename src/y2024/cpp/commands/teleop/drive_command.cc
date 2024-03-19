@@ -200,17 +200,25 @@ void DriveCommand::Execute() {
       drivetrain_target.rotation = DrivetrainRotationPosition(target_angle + theta_adjust);
     }
   } else if (amping) {
+    driver_adjust_ += driver_.readings().right_stick_x / 5.0;
+    driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
+
     if (frc846::util::ShareTables::GetBoolean("is_red_side")){
-      drivetrain_target.rotation = DrivetrainRotationPosition(90_deg);
+      drivetrain_target.rotation = DrivetrainRotationPosition(90_deg + units::degree_t(driver_adjust_));
     } else {
-      drivetrain_target.rotation = DrivetrainRotationPosition(-90_deg);
+      drivetrain_target.rotation = DrivetrainRotationPosition(-90_deg + units::degree_t(driver_adjust_));
     }
   } else if (sourcing) {
+    driver_adjust_ += driver_.readings().right_stick_x / 5.0;
+    driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
+
     if (frc846::util::ShareTables::GetBoolean("is_red_side")){
-      drivetrain_target.rotation = DrivetrainRotationPosition(-51.4_deg);
+      drivetrain_target.rotation = DrivetrainRotationPosition(-51.4_deg + units::degree_t(driver_adjust_));
     } else {
-      drivetrain_target.rotation = DrivetrainRotationPosition(51.4_deg);
+      drivetrain_target.rotation = DrivetrainRotationPosition(51.4_deg + units::degree_t(driver_adjust_));
     }
+  } else {
+    driver_adjust_ = 0.0;
   }
 
 

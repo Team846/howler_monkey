@@ -38,6 +38,8 @@ class DriverSubsystem : public frc846::Subsystem<DriverReadings, DriverTarget> {
   frc846::Loggable target_loggable_{*this, "target"};
   frc846::Grapher<bool> target_rumble_graph_{target_loggable_, "rumble"};
 
+  DriverReadings previous_readings_;
+
   DriverReadings GetNewReadings() override;
 
   void DirectWrite(DriverTarget target) override;

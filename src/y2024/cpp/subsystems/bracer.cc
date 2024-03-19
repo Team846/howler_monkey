@@ -44,27 +44,29 @@ BracerReadings BracerSubsystem::GetNewReadings() {
 
 void BracerSubsystem::DirectWrite(BracerTarget target) {
   if (target.state != lastState) {
-    counter = 150;
+    counter = 75;
     lastState = target.state;
   }
   if (target.state == BracerState::kExtend) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", true);
     if (counter > 0) {
-      bracer_left_.Set(1.0);
+      bracer_.Set(1.0);
       // bracer_right_.SetVoltage(6_V);
       counter -= 1;
     } else {
-      bracer_left_.Set(0.0);
+      bracer_.Set(0.0);
 
-      // bracer_left_.SetAngle(180);
+      // bracer_.SetAngle(180);
       // bracer_right_.SetAngle(180);
     }
   } else if (target.state == BracerState::kRetract) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", false);
-    bracer_left_.Set(-0.5);
-    counter = 150;
+    bracer_.Set(-0.5);
+    counter = 75;
   } else {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", false);
-    counter = 150;
+    counter = 75;
+
+    bracer_.Set(0.0);
   }
 }

@@ -21,6 +21,8 @@ class DriveCommand
   DriverSubsystem& driver_;
   DrivetrainSubsystem& drivetrain_;
   SuperStructureSubsystem& super_;
+
+  double driver_adjust_ = 0.0;
 };
 
 #endif  // y2024_COMMANDS_DRIVE_COMMAND_H_
