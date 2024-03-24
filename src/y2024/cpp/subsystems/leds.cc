@@ -48,13 +48,22 @@ void LEDsSubsystem::DirectWrite(LEDsTarget target) {
       for (int i = 0; i < kLength; i++){
         leds_buffer_[i].SetRGB(255, 0, 0);
       }
+    } else if (frc846::util::ShareTables::GetBoolean("is_passing")){
+      if (loops % 10 < 5){
+        for (int i = 0; i < kLength; i++){
+          leds_buffer_[i].SetRGB(255, 0, 255);
+        }
+      }
+      else {
+        for (int i = 0; i < kLength; i++){
+          leds_buffer_[i].SetRGB(0, 0, 0);
+        }
+      }
+      loops++;
+      loops%=100;
     } else if (frc846::util::ShareTables::GetBoolean("amp")){
       for (int i = 0; i < kLength; i++){
         leds_buffer_[i].SetRGB(255, 255, 255);
-      }
-    } else if (frc846::util::ShareTables::GetBoolean("coopertition")){
-      for (int i = 0; i < kLength; i++){
-        leds_buffer_[i].SetRGB(255, 0, 255);
       }
     } else if (frc846::util::ShareTables::GetBoolean("is_climb_sequence")){
       for (int i = 0; i < kLength; i++){

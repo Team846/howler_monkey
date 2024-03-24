@@ -15,17 +15,17 @@ struct field {
 
     static frc846::util::Vector2D<units::foot_t> kSpeaker(bool flip = false) {
       if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(-100.4_in, 0_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 0_in);
       } else {
-        return frc846::util::Vector2D<units::foot_t>(-100.4_in, 659.8_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 659.8_in);
       }
     }
 
     static frc846::util::Vector2D<units::foot_t> kSpeakerTeleop(bool flip = false) {
       if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(-100.4_in, -10.4_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, -10.4_in);
       } else {
-        return frc846::util::Vector2D<units::foot_t>(-100.4_in, 659.8_in);
+        return frc846::util::Vector2D<units::foot_t>(-104.4_in, 659.8_in);
       }
     }
 
@@ -140,29 +140,41 @@ struct field {
     };
 
     // THREE PIECE SOURCE AUTO
-    static frc846::util::Position kSSOrigin(bool should_flip) {
-      return frc846::util::FieldPoint("SS_start", -163.5_in, 55_in, 0_deg).flip(should_flip);
+    static frc846::util::FieldPoint source_side_origin;
+    static frc846::util::Position kSourceSideOrigin(bool should_flip) {
+      return source_side_origin.flip(should_flip);
     };
 
-    static frc846::util::Position kSSIntakeOne(bool should_flip) {
-      return frc846::util::FieldPoint("SS_intake_one", -30.0_in, 324.5_in, 0_deg).flip(should_flip);
+    static frc846::util::FieldPoint source_side_shoot_one;
+    static frc846::util::Position kSourceSideShootOne(bool should_flip) {
+      return source_side_shoot_one.flip(should_flip);
     };
 
-    static frc846::util::Position kSSShootOne(bool should_flip) {
-      return frc846::util::FieldPoint("SS_shoot_one", -80.7_in, 84.4_in, 0_deg).flip(should_flip);
+    static frc846::util::FieldPoint source_side_intermediate_one;
+    static frc846::util::Position kSourceSideIntermediateOne(bool should_flip) {
+      return source_side_intermediate_one.flip(should_flip);
     };
 
-    static frc846::util::Position kSSIntakeTwo(bool should_flip) {
-      return frc846::util::FieldPoint("SS_intake_two", -63.0_in, 324.5_in, 0_deg).flip(should_flip);
+    static frc846::util::FieldPoint source_side_intake_one;
+    static frc846::util::Position kSourceSideIntakeOne(bool should_flip) {
+      return source_side_intake_one.flip(should_flip);
     };
 
-    static frc846::util::Position kSSShootTwo(bool should_flip) {
-      return frc846::util::FieldPoint("SS_shoot_twp", -80.7_in, 84.4_in, 0_deg).flip(should_flip);
+    static frc846::util::FieldPoint source_side_shoot_two;
+    static frc846::util::Position kSourceSideShootTwo(bool should_flip) {
+      return source_side_shoot_two.flip(should_flip);
     };
 
-    static frc846::util::Position kSSFinalPosition(bool should_flip) {
-      return frc846::util::FieldPoint("SS_final_position", -139.2_in, 266.4_in, 0_deg).flip(should_flip);
+    static frc846::util::FieldPoint source_side_intermediate_two;
+    static frc846::util::Position kSourceSideIntermediateTwo(bool should_flip) {
+      return source_side_intermediate_two.flip(should_flip);
     };
+    
+    static frc846::util::FieldPoint source_side_intake_two;
+    static frc846::util::Position kSourceSideIntakeTwo(bool should_flip) {
+      return source_side_intake_two.flip(should_flip);
+    };
+
 
     static frc846::Pref<units::foot_t> one_piece_extra_distance_;
     

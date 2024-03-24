@@ -28,6 +28,13 @@ frc846::util::FieldPoint field::points::five_piece_three_intermediate{"five_piec
 frc846::util::FieldPoint field::points::five_piece_intake_three{"five_piece_intake_three_", 159.4_in, -4.4_in, -25_deg};
 frc846::util::FieldPoint field::points::five_piece_shoot_three{"five_piece_shoot_three_", 159.4_in, -4.4_in, -25_deg};
 
+frc846::util::FieldPoint field::points::source_side_origin{"source_side_origin_", 104.4_in, 44.4_in, 0_deg};
+frc846::util::FieldPoint field::points::source_side_shoot_one{"source_side_shoot_", 159.4_in, -4.4_in, -30_deg};
+frc846::util::FieldPoint field::points::source_side_intermediate_one{"source_side_intermediate", 159.4_in, -4.4_in, -25_deg};
+frc846::util::FieldPoint field::points::source_side_intake_one{"source_side_intake_one", 177.4_in, 206.2_in, 0_deg};
+frc846::util::FieldPoint field::points::source_side_shoot_two{"source_side_shoot_two_", 159.4_in, -4.4_in, -30_deg};
+frc846::util::FieldPoint field::points::source_side_intermediate_two{"source_side_intermediate_two", 159.4_in, -4.4_in, -25_deg};
+frc846::util::FieldPoint field::points::source_side_intake_two{"source_side_intake_two", 159.4_in, -4.4_in, -25_deg};
 
 frc846::Loggable& point_names_ = *(new frc846::Loggable("Preferences/field_points"));
 frc846::Pref<units::foot_t> field::points::one_piece_extra_distance_{point_names_, "one_piece_extra_distance", 5_ft};

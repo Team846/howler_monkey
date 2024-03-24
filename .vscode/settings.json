@@ -93,7 +93,8 @@
     "variant": "cpp",
     "*.inc": "cpp",
     "csignal": "cpp",
-    "filesystem": "cpp"
+    "filesystem": "cpp",
+    "charconv": "cpp"
   },
   "wpilib.useWindbgX": true,
   "C_Cpp.errorSquiggles": "enabled"

@@ -52,6 +52,8 @@ class TelescopeSubsystem
 
   frc846::Pref<units::inch_t> stow_setpoint_tele_{*this, "stow_setpoint_tele_", 0_in};
 
+  // frc846::Pref<double> telescope_home_speed_{*this, "telescope_home_speed", -0.1};
+
  private:
   bool hasZeroed = false;
 

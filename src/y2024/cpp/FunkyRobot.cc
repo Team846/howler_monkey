@@ -21,6 +21,7 @@
 #include "commands/teleop/drive_command.h"
 #include "commands/teleop/teleop_positioning_command.h"
 #include "commands/follow_trajectory_command.h"
+#include "commands/zero/zero_wrist_command.h"
 #include "subsystems/scorer.h"
 #include "subsystems/pivot.h"
 #include "subsystems/wrist.h"
@@ -108,10 +109,12 @@ void FunkyRobot::StartCompetition() {
   auto_chooser_.AddOption("drive_auto",
                                  drive_auto_.get());
   
-  auto_chooser_.SetDefaultOption("four_piece_auto_lr", four_piece_auto_lr.get());
+  auto_chooser_.SetDefaultOption("five_piece_auto_blue", five_piece_auto_blue.get());
+  auto_chooser_.AddOption("five_piece_auto_red", five_piece_auto_red.get());
+  auto_chooser_.AddOption("four_piece_auto_lr", four_piece_auto_lr.get());
   auto_chooser_.AddOption("four_piece_auto_rl", four_piece_auto_rl.get());
-  auto_chooser_.SetDefaultOption("five_piece_auto_lr", five_piece_auto_blue.get());
-  auto_chooser_.AddOption("five_piece_auto_rl", five_piece_auto_red.get());
+  auto_chooser_.AddOption("three_piece_source_side_auto_blue", three_piece_source_auto_blue.get());
+  auto_chooser_.AddOption("three_piece_source_side_auto_red", three_piece_source_auto_red.get());
   auto_chooser_.AddOption("one_piece_auto", one_piece_auto_.get());
   // auto_chooser_.AddOption("testing_routine", testing_routine_.get());
 
@@ -319,6 +322,7 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger scorer_in_source_trigger{
       [&] { return container_.driver_.readings().x_button; }};
 
+
   frc2::Trigger scorer_pass_trigger{
       [&] { return container_.driver_.readings().a_button; }};
 
@@ -337,9 +341,12 @@ void FunkyRobot::InitTeleopTriggers() {
 
   frc2::Trigger scorer_out_trigger{
       [&] { return ((container_.driver_.readings().right_bumper
-        && (container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.35) || 
-          container_.operator_.readings().pov == frc846::XboxPOV::kLeft
+        && (container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && 
+                std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.35)
       ); }};
+  
+  frc2::Trigger scorer_lodge_trigger{
+      [&] {return ((container_.operator_.readings().pov == frc846::XboxPOV::kLeft));}};
 
     //87, 157, 3.5
 
@@ -349,8 +356,14 @@ void FunkyRobot::InitTeleopTriggers() {
   //         container_.operator_.readings().pov == frc846::XboxPOV::kLeft
   //     ); }};
 
-  frc2::Trigger scorer_manual_intake_trigger{
+  frc2::Trigger scorer_roller_in_trigger{
       [&] { return (container_.operator_.readings().pov == frc846::XboxPOV::kRight); }};
+
+  frc2::Trigger zero_wrist_trigger{
+      [&] { return container_.driver_.readings().b_button;}};
+
+  frc2::Trigger amp_trigger{
+      [&] {return container_.driver_.readings().left_bumper;}};
   
   // // Bind Triggers to commands
   drivetrain_zero_bearing_trigger.WhileTrue(
@@ -387,6 +400,17 @@ void FunkyRobot::InitTeleopTriggers() {
       frc2::InstantCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
+
+
+  scorer_lodge_trigger.WhileTrue(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kLodge));
+      }).ToPtr());
+
+  scorer_lodge_trigger.OnFalse(
+      frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+      }).ToPtr());
   
   scorer_pass_trigger.WhileTrue(
       frc2::InstantCommand([this] {
@@ -408,12 +432,12 @@ void FunkyRobot::InitTeleopTriggers() {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
 
-  scorer_manual_intake_trigger.WhileTrue(
+  scorer_roller_in_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIntake));
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kRollerIn));
       }).ToPtr());
 
-  scorer_manual_intake_trigger.OnFalse(
+  scorer_roller_in_trigger.OnFalse(
       frc2::InstantCommand([this] {
         container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
       }).ToPtr());
@@ -440,6 +464,20 @@ void FunkyRobot::InitTeleopTriggers() {
           container_.driver_.SetTarget(driver_target);
         }).ToPtr()
       ));
+  
+  amp_trigger.OnTrue(
+        frc2::InstantCommand([this] {
+        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kRollerIn));
+      }).WithTimeout(1_s).AndThen(
+        frc2::InstantCommand([this] {
+          container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        }).ToPtr()
+
+  ));
+  
+  zero_wrist_trigger.OnTrue(
+    ZeroWristCommand{container_}.ToPtr()
+  );
 }
 
 void FunkyRobot::InitTestDefaults() {

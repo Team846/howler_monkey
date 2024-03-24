@@ -47,7 +47,7 @@ class TeleopShootingCalculator {
   }
 
   static double f_prime(double v, double x, double d, double r_v, double r_o, double h_shooter)  {
-    double h=h_speaker-h_shooter/12.0;
+    // double h=h_speaker-h_shooter/12.0;
     double cosx = cos(x);
     double sinx = sin(x);
 
@@ -58,7 +58,7 @@ class TeleopShootingCalculator {
       t = (d-l*cosx/2)/(v*cosx*sqrt(1-(r_o/v*cosx))*(r_o/v*cosx)+r_v);
       t_prime = (l*r_v*v*sqrt(1-(r_o*cosx/v)*(r_o*cosx/v)) + l*r_o*r_o*cosx*cosx*cosx - 4*d*r_o*r_o*cosx*cosx + 2*d*v*v)*sinx /
                       (2*v*sqrt(1-(r_o*cosx/v)*(r_o*cosx/v))*(r_v+v*cosx*sqrt(1-(r_o*cosx/v)*(r_o*cosx/v))));
-    } catch (std::exception exc) {
+    } catch (std::exception const&) {
       std::cout << "Out of Range" << std::endl;
     }
 
@@ -67,7 +67,7 @@ class TeleopShootingCalculator {
 
   static double calculate(double v, double d, double r_v, double r_o, double h_shooter,
     double initial_guess = radians(1.01), double tolerance=0.06, double max_iterations=5000) {
-    double h = h_speaker-h_shooter/12.0;
+    // double h = h_speaker-h_shooter/12.0;
     double x = initial_guess;
     for (int i = 0; i < max_iterations; i++) {
         auto fx = f_of_x(v, x, d, r_v, r_o, h_shooter);
@@ -162,8 +162,8 @@ static bool withinBounds(CoordinatePositions pos) {
     raw.extension = std::sqrt(pow(pivotForwardComponent, 2) + pow(pivotUpwardComponent, 2) - pow(pivotToWristOffset, 2)) 
         - pivotToWrist;
 
-    double pivotDistanceHypotenuse = (std::sqrt(pow(pivotToWristOffset, 2) 
-      + pow(pivotToWrist + raw.extension, 2)));
+    // double pivotDistanceHypotenuse = (std::sqrt(pow(pivotToWristOffset, 2) 
+    //   + pow(pivotToWrist + raw.extension, 2)));
 
 
     double pivotTotalAngle = (std::atan2(pivotUpwardComponent, pivotForwardComponent));
@@ -373,7 +373,7 @@ void TeleopPositioningCommand::Execute() {
   } else if (climb) {
     pivot_target.pivot_output = units::degree_t(setpoints::kClimb(0));
 
-    std::cout << setpoints::kClimb(0) << std::endl;
+    // std::cout << setpoints::kClimb(0) << std::endl;
 
     pivotHasRun = true;
   } else if (pre_climb) {
@@ -381,7 +381,7 @@ void TeleopPositioningCommand::Execute() {
 
     pivot_target.pivot_output = units::degree_t(setpoints::kPreClimb(0));
 
-    std::cout << setpoints::kPreClimb(0) << std::endl;
+    // std::cout << setpoints::kPreClimb(0) << std::endl;
 
     pivotHasRun = true;
   } else if (running_prep_speaker && frc846::util::ShareTables::GetDouble("telescope_extension") < 1.0) {
@@ -524,7 +524,7 @@ void TeleopPositioningCommand::Execute() {
       frc846::util::ShareTables::SetString("shooting_state", "kUnready");
     }
 
-    if (!driver_.readings().y_button) {
+    if (!driver_.readings().right_trigger) {
       wrist_target.wrist_output = 90_deg + units::degree_t(frc846::util::ShareTables::GetDouble("pivot_position")) - 17.0_deg
         - wrist_.wrist_home_offset_.value() + units::degree_t(theta); //units::degree_t(setpoints::point_blank_wrist_.value());
     } else {
@@ -607,7 +607,7 @@ void TeleopPositioningCommand::Execute() {
   }
 
   if (auto* w_pos = std::get_if<units::angle::degree_t>(&wrist_target.wrist_output)) {
-    wrist_target.wrist_output = *w_pos + units::degree_t(ms_adj);
+    wrist_target.wrist_output = std::max(0_deg, *w_pos + units::degree_t(ms_adj));
   }
   if (!scorer_.GetHasPiece()) {
     DriverTarget driver_target{false};

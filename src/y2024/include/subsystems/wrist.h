@@ -54,6 +54,11 @@ class WristSubsystem
   frc846::Pref<units::degree_t> wrist_home_offset_{*this, "home_offset_wrist_", 30_deg};
   frc846::Pref<units::degree_t> wrist_cg_offset_{*this, "cg_offset_wrist_", 60_deg};
 
+  frc846::Pref<units::degree_t> wrist_lower_limit_{*this, "wrist_upper_limit", 0_deg};
+  
+frc846::Pref<double> wrist_home_speed_{*this, "wrist_home_speed", -0.1};
+
+
  private:
   bool hasZeroed = false;
 
@@ -72,7 +77,7 @@ class WristSubsystem
 
   frc846::Grapher<units::degree_t> target_wrist_pos_graph{target_named_, "wrist_pos"};
   frc846::Grapher<units::degree_t> target_wrist_error_graph{target_named_, "wrist_error"};
-
+  
 
   frc846::Loggable wrist_gains_lg = frc846::Loggable(*this, "wrist_gains");
   frc846::control::ControlGainsHelper wrist_esc_gains_{wrist_gains_lg,

@@ -19,7 +19,7 @@ struct ScorerReadings {
 };
 
 enum ScorerState {
-  kIdle, kIntake, kSpinUp, kShoot, kRelease, kIntakeAndSpinUp, kPass
+  kIdle, kIntake, kSpinUp, kShoot, kRelease, kIntakeAndSpinUp, kPass, kLodge, kRollerIn
 };
 
 struct ScorerTarget {
@@ -48,6 +48,8 @@ class ScorerSubsystem
   frc846::Pref<double> spin_{*this, "shooter_spin", 0.33};
 
   frc846::Pref<double> release_speed_{*this, "release_speed", -0.3};
+  frc846::Pref<double> lodge_speed_{*this, "lodge_speed", 0.05};
+  frc846::Pref<double> roller_in_speed_{*this, "roller_in_speed", 0.6};
 
   frc846::Pref<double> shooting_exit_velocity_{*this, "shooting_exit_velocity", 47.0};
 

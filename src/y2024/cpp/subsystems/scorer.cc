@@ -129,6 +129,19 @@ void ScorerSubsystem::DirectWrite(ScorerTarget target) {
        frc846::util::ShareTables::GetDouble("velocity") * 1_tps / (1.8 * 3.1415926 / 12.0));
     shooter_esc_one_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value() * (1 + spin_.value()));
     shooter_esc_two_.Write(frc846::control::ControlMode::Velocity, shooter_speed_.value() * (1 - spin_.value()));
+  } else if (target.target_state == kLodge) {
+    note_detection.EnableLimitSwitch(false);
+    
+    intake_shooter_esc_.Write(frc846::control::ControlMode::Velocity, intake_speed_.value() * lodge_speed_.value());
+    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0);
+    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0);
+
+  } else if (target.target_state == kRollerIn) {
+    note_detection.EnableLimitSwitch(false);
+    
+    intake_shooter_esc_.Write(frc846::control::ControlMode::Velocity, intake_speed_.value() * roller_in_speed_.value());
+    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0);
+    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0);
   } else {
     frc846::util::ShareTables::SetBoolean("scorer_has_piece", note_detection.Get());
     intake_shooter_esc_.Write(frc846::control::ControlMode::Percent, 0);

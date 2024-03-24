@@ -100,10 +100,10 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
   frc2::CommandPtr five_piece_auto_red = 
       FivePieceAuto{container_, true}.ToPtr();
 
-  frc2::CommandPtr three_piece_source_lr = 
+  frc2::CommandPtr three_piece_source_auto_blue = 
       ThreePieceSourceAuto{container_, false}.ToPtr();
 
-  frc2::CommandPtr three_piece_auto_rl = 
+  frc2::CommandPtr three_piece_source_auto_red = 
       ThreePieceSourceAuto{container_, true}.ToPtr();
   
   frc2::CommandPtr one_piece_auto_ = 
