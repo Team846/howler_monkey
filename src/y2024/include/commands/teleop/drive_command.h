@@ -3,13 +3,15 @@
 
 #include <frc2/command/CommandHelper.h>
 
+#include "constants.h"
 #include "subsystems/driver.h"
 #include "subsystems/drivetrain.h"
-#include "subsystems/super_structure.h"
 #include "subsystems/robot_container.h"
+#include "subsystems/scorer.h"
+#include "subsystems/super_structure.h"
+#include "subsystems/vision.h"
 
-class DriveCommand
-    : public frc2::CommandHelper<frc2::Command, DriveCommand> {
+class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
  public:
   DriveCommand(RobotContainer& container);
 
@@ -21,6 +23,10 @@ class DriveCommand
   DriverSubsystem& driver_;
   DrivetrainSubsystem& drivetrain_;
   SuperStructureSubsystem& super_;
+  VisionSubsystem& vision_;
+  ScorerSubsystem& scorer_;
+
+  ShootingCalculator shooting_calculator{};
 
   double driver_adjust_ = 0.0;
 };

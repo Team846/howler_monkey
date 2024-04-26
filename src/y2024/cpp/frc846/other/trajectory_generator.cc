@@ -2,17 +2,15 @@
 
 #include <algorithm>
 
-#include "frc846/util/math.h"
 #include "frc846/loggable.h"
+#include "frc846/util/math.h"
 
 namespace frc846 {
 
-
-std::vector<util::Position> InterpolatePoints(util::Vector2D<units::foot_t> start,
-                                        util::Vector2D<units::foot_t> end,
-                                        units::degree_t start_bearing,
-                                        units::degree_t end_bearing,
-                                        units::foot_t cut) {
+std::vector<util::Position> InterpolatePoints(
+    util::Vector2D<units::foot_t> start, util::Vector2D<units::foot_t> end,
+    units::degree_t start_bearing, units::degree_t end_bearing,
+    units::foot_t cut) {
   auto distance = (end - start).Magnitude();
   int n = std::max(units::math::ceil(distance / cut).to<int>(), 1);
 
@@ -24,8 +22,8 @@ std::vector<util::Position> InterpolatePoints(util::Vector2D<units::foot_t> star
                      start.x * (1 - weight) + end.x * weight,
                      start.y * (1 - weight) + end.y * weight,
                  },
-                 start_bearing * (1 - (weight * bearingWeightMultiplier)) 
-                  + end_bearing * (weight * bearingWeightMultiplier)};
+                 start_bearing * (1 - (weight * bearingWeightMultiplier)) +
+                     end_bearing * (weight * bearingWeightMultiplier)};
 
     if (start_bearing <= end_bearing) {
       points[i].bearing = units::math::min(end_bearing, points[i].bearing);
@@ -47,7 +45,7 @@ Trajectory GenerateTrajectory(
 
   if (input_points.size() < 2) {
     loggable.Error("Not enough input points! {} points given",
-                input_points.size());
+                   input_points.size());
     return {};
   }
 
@@ -92,11 +90,11 @@ Trajectory GenerateTrajectory(
       // v₂² = v₁² + 2aΔx
       // v₂² = sqrt(v₁² + 2aΔx)
 
-      // this code was replaced with calculateW because it makes the incorrect assumption that the values are positive
+      // this code was replaced with calculateW because it makes the incorrect
+      // assumption that the values are positive
       trajectory[i].v =
           units::math::sqrt(units::math::pow<2>(trajectory[i - 1].v) +
                             2 * robot_max_deceleration * delta_pos);
-
     }
   }
 
@@ -119,7 +117,10 @@ Trajectory GenerateTrajectory(
           units::math::sqrt(units::math::pow<2>(trajectory[i - 1].v) +
                             2 * robot_max_acceleration * delta_pos);
 
-      //trajectory[i].v = units::velocity::feet_per_second_t(Find_Vsub2(units::unit_cast<double>(trajectory[i].v), units::unit_cast<double>(robot_max_acceleration), units::unit_cast<double>(delta_pos)));
+      // trajectory[i].v =
+      // units::velocity::feet_per_second_t(Find_Vsub2(units::unit_cast<double>(trajectory[i].v),
+      // units::unit_cast<double>(robot_max_acceleration),
+      // units::unit_cast<double>(delta_pos)));
     }
   }
 

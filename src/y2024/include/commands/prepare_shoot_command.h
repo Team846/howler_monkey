@@ -1,20 +1,22 @@
-#ifndef y2024_COMMANDS_PREPARE_FAR_SHOOT_COMMAND_H_
-#define y2024_COMMANDS_PREPARE_FAR_SHOOT_COMMAND_H_
+#ifndef y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_
+#define y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_
 
 #include <frc2/command/CommandHelper.h>
 
+#include "constants.h"
 #include "frc846/util/math.h"
-#include "subsystems/scorer.h"
 #include "subsystems/pivot.h"
-#include "subsystems/telescope.h"
-#include "subsystems/wrist.h"
 #include "subsystems/robot_container.h"
+#include "subsystems/scorer.h"
+#include "subsystems/telescope.h"
+#include "subsystems/vision.h"
+#include "subsystems/wrist.h"
 
-class PrepareFarShootCommand
-    : public frc2::CommandHelper<frc2::Command, PrepareFarShootCommand>,
+class PrepareShootCommand
+    : public frc2::CommandHelper<frc2::Command, PrepareShootCommand>,
       public frc846::Loggable {
  public:
-  PrepareFarShootCommand(RobotContainer& container, double shooting_distance);
+  PrepareShootCommand(RobotContainer& container);
 
   void Initialize() override;
 
@@ -29,8 +31,10 @@ class PrepareFarShootCommand
   PivotSubsystem& pivot_;
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;
+  VisionSubsystem& vision_;
+  SuperStructureSubsystem& super_;
 
-  double dist_;
+  ShootingCalculator shooting_calculator_;
 
   bool is_done_ = false;
 };

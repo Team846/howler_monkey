@@ -6,7 +6,6 @@ namespace frc846::other {
 
 SendableCallback::SendableCallback(std::function<void()> callback)
     : callback_(callback) {}
-
 void SendableCallback::InitSendable(wpi::SendableBuilder& builder) {
   builder.SetSmartDashboardType("Command");
   builder.AddStringProperty(
@@ -20,4 +19,4 @@ void SendableCallback::InitSendable(wpi::SendableBuilder& builder) {
       });
 }
 
-}  // namespace frc846
+}  // namespace frc846::other

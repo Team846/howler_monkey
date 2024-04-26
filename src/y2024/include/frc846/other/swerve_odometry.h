@@ -17,8 +17,9 @@ class SwerveOdometry {
 
   util::Position pose() const { return pose_; }
 
-  void Update(std::array<util::Vector2D<units::foot_t>, kModuleCount> wheel_vecs,
-              units::radian_t omega);
+  void Update(
+      std::array<util::Vector2D<units::foot_t>, kModuleCount> wheel_vecs,
+      units::radian_t omega);
 
   void SetPoint(util::Vector2D<units::foot_t> point);
 

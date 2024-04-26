@@ -1,4 +1,5 @@
 #include "subsystems/driver.h"
+#include "frc846/util/share_tables.h"
 
 DriverSubsystem::DriverSubsystem()
     : frc846::Subsystem<DriverReadings, DriverTarget>{"driver", true} {}
@@ -86,7 +87,8 @@ DriverReadings DriverSubsystem::GetNewReadings() {
 void DriverSubsystem::DirectWrite(DriverTarget target) {
   target_rumble_graph_.Graph(target.rumble);
 
-  auto rumble = target.rumble ? rumble_strength_.value() : 0;
+  auto rumble = (target.rumble 
+    || frc846::util::ShareTables::GetString("shooting_state").compare("kReady") == 0) ? rumble_strength_.value() : 0;
 
   xbox_.SetRumble(frc::XboxController::RumbleType::kLeftRumble, rumble);
   xbox_.SetRumble(frc::XboxController::RumbleType::kRightRumble, rumble);

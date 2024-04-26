@@ -4,11 +4,12 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/util/math.h"
-#include "subsystems/scorer.h"
 #include "subsystems/pivot.h"
+#include "subsystems/robot_container.h"
+#include "subsystems/scorer.h"
+#include "subsystems/super_structure.h"
 #include "subsystems/telescope.h"
 #include "subsystems/wrist.h"
-#include "subsystems/robot_container.h"
 
 class DeployIntakeCommand
     : public frc2::CommandHelper<frc2::Command, DeployIntakeCommand>,
@@ -29,6 +30,7 @@ class DeployIntakeCommand
   PivotSubsystem& pivot_;
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;
+  SuperStructureSubsystem& super_;
 
   bool is_done_ = false;
 };

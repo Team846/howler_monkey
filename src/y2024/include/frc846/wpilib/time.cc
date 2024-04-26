@@ -3,7 +3,6 @@
 namespace frc846::wpilib {
 
 units::second_t CurrentFPGATime() {
-  // TODO lol
   int err;
   return units::microsecond_t(HAL_GetFPGATime(&err));
 }

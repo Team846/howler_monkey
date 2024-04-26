@@ -2,20 +2,24 @@
 
 namespace frc846::control {
 
-void GCheckOk(Loggable& loggable, rev::REVLibError err, std::string field = "?") {
+void GCheckOk(Loggable& loggable, rev::REVLibError err,
+              std::string field = "?") {
   if (err != rev::REVLibError::kOk) {
     loggable.Warn("Unable to update {}", field);
     return;
   }
 };
 
-void GCheckOk(Loggable& loggable, ctre::phoenix::StatusCode err, std::string field = "TalonFX Config") {
+void GCheckOk(Loggable& loggable, ctre::phoenix::StatusCode err,
+              std::string field = "TalonFX Config") {
   if (!(err.IsOK() || err.IsWarning())) {
     loggable.Warn("Unable to update {}", field);
   }
 };
 
-ControlGainsHelper::ControlGainsHelper(Loggable& parent, ControlGains gains, units::ampere_t currentLimit, double peakOutput, double rampRate)
+ControlGainsHelper::ControlGainsHelper(Loggable& parent, ControlGains gains,
+                                       units::ampere_t currentLimit,
+                                       double peakOutput, double rampRate)
     : Loggable{parent, "gains"},
       p_{*this, "p", gains.p},
       i_{*this, "i", gains.i},
@@ -29,7 +33,7 @@ ControlGainsHelper::ControlGainsHelper(Loggable& parent, ControlGains gains, uni
       ramp_rate_{*this, "ramp_rate", rampRate} {}
 
 void ControlGainsHelper::Write(rev::SparkPIDController& pid_controller,
-                        ControlGains& cache, bool ignore_cache) {
+                               ControlGains& cache, bool ignore_cache) {
   if (ignore_cache || cache.p != p_.value()) {
     auto err = pid_controller.SetP(p_.value());
     GCheckOk(*this, err, "p");
@@ -55,12 +59,12 @@ void ControlGainsHelper::Write(rev::SparkPIDController& pid_controller,
   UpdateCache(cache);
 }
 
-void ControlGainsHelper::Write(ctre::phoenix6::configs::TalonFXConfigurator& configurator,
-        ctre::phoenix6::configs::TalonFXConfiguration& configs, ControlGains& cache,
-            bool ignore_cache) {
-  
+void ControlGainsHelper::Write(
+    ctre::phoenix6::configs::TalonFXConfigurator& configurator,
+    ctre::phoenix6::configs::TalonFXConfiguration& configs, ControlGains& cache,
+    bool ignore_cache) {
   bool anyChanged = false;
-  
+
   ctre::configs::Slot0Configs pidConfs{};
   if (ignore_cache || cache.p != p_.value()) {
     pidConfs.WithKP(p_.value());

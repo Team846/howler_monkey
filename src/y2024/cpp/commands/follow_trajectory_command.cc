@@ -4,8 +4,8 @@
 
 #include <cmath>
 
-#include "frc846/util/math.h"
 #include "frc846/other/trajectory_generator.h"
+#include "frc846/util/math.h"
 #include "frc846/wpilib/time.h"
 #include "subsystems/swerve_module.h"
 
@@ -21,9 +21,11 @@ FollowTrajectoryCommand::FollowTrajectoryCommand(
 void FollowTrajectoryCommand::Initialize() {
   Log("Starting Trajectory");
   for (frc846::InputWaypoint i : input_points_) {
-    Log("points x{} y{} bearing {}", i.pos.point.x, i.pos.point.y, i.pos.bearing);
+    Log("points x{} y{} bearing {}", i.pos.point.x, i.pos.point.y,
+        i.pos.bearing);
   }
-  Log("initial pose x{}, y{}, bearing {}", drivetrain_.readings().pose.point.x, drivetrain_.readings().pose.point.y, drivetrain_.readings().pose.bearing);
+  Log("initial pose x{}, y{}, bearing {}", drivetrain_.readings().pose.point.x,
+      drivetrain_.readings().pose.point.y, drivetrain_.readings().pose.bearing);
   target_idx_ = 1;
   is_done_ = false;
 

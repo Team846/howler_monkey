@@ -20,8 +20,7 @@ namespace frc846 {
 class SubsystemBase : public Loggable {
  public:
   SubsystemBase(std::string name) : Loggable{name} {}
-  SubsystemBase(Loggable parent, std::string name)
-      : Loggable{parent, name} {}
+  SubsystemBase(Loggable parent, std::string name) : Loggable{parent, name} {}
 
   virtual ~SubsystemBase() = default;
 
@@ -34,10 +33,10 @@ class SubsystemBase : public Loggable {
 // Base class for robot subsystems.
 template <class Readings, class Target>
 class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
-
  public:
   // Construct a new subsystem.
-  explicit Subsystem(std::string name, bool init = false) : frc846::SubsystemBase{name}, init_{init} {
+  explicit Subsystem(std::string name, bool init = false)
+      : frc846::SubsystemBase{name}, init_{init} {
     if (init_) Init();
   }
 
@@ -47,8 +46,8 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
     if (init_) Init();
   }
 
-  void enable() { 
-    init_ = true; 
+  void enable() {
+    init_ = true;
     if (!initialized) Init();
   }
 
@@ -59,7 +58,6 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
   Subsystem& operator=(const Subsystem&) = delete;
 
   virtual ~Subsystem() = default;
-
 
  private:
   // Common constructor.
@@ -77,11 +75,18 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
   virtual Target ZeroTarget() const = 0;
 
   // Fetches new readings and update subsystem readings state.
-  void UpdateReadings() override { if (init_) { readings_ = GetNewReadings(); 
-    } else { readings_ = Readings{}; } }
+  void UpdateReadings() override {
+    if (init_) {
+      readings_ = GetNewReadings();
+    } else {
+      readings_ = Readings{};
+    }
+  }
 
   // Writes to subsystem hardware with the latest target output.
-  void UpdateHardware() override { if (init_) DirectWrite(target_); }
+  void UpdateHardware() override {
+    if (init_) DirectWrite(target_);
+  }
 
   virtual bool VerifyHardware() override = 0;
 
@@ -103,10 +108,11 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
     }
   }
 
- private:
+ protected:
   Readings readings_;
   Target target_;
 
+ private:
   // Fetches and return new readings.
   virtual Readings GetNewReadings() = 0;
 
@@ -114,6 +120,6 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
   virtual void DirectWrite(Target target) = 0;
 };
 
-} // namespace frc846
+}  // namespace frc846
 
-#endif //subsystem
+#endif  // subsystem

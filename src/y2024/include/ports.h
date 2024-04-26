@@ -2,7 +2,7 @@
 #define y2024_PORTS_H_
 
 struct ports {
-  //2..13 dt, 16...19 p, 24? t, SET PDP 1  
+  // 2..13 dt, 16...19 p, 24? t, SET PDP 1
 
   struct driver_ {
     static constexpr int kXbox_DSPort = 0;
@@ -12,7 +12,8 @@ struct ports {
     static constexpr int kXbox_DSPort = 1;
   };
 
-  struct drivetrain_ { //TODO: change all ports (preferably, when setting them, make them ascending in this order)
+  struct drivetrain_ {  // TODO: change all ports (preferably, when setting
+                        // them, make them ascending in this order)
     static constexpr int kFRDrive_CANID = 2;
     static constexpr int kFLDrive_CANID = 5;
     static constexpr int kBLDrive_CANID = 8;
@@ -43,7 +44,7 @@ struct ports {
 
     static constexpr int kWrist_CANID = 27;
 
-    static constexpr int kTele1_CANID = 24;
+    static constexpr int kTele_CANID = 24;
   };
 
   struct bracer_ {

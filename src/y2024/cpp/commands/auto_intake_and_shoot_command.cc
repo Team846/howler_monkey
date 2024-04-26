@@ -5,31 +5,28 @@
 #include <frc2/command/ParallelRaceGroup.h>
 #include <frc2/command/SequentialCommandGroup.h>
 
-#include "frc2/command/WaitCommand.h"
-#include "commands/follow_trajectory_command.h"
 #include "commands/deploy_intake_command.h"
-#include "commands/prepare_short_shoot_command.h"
-#include "commands/stow_command.h"
-#include "commands/speaker_align_command.h"
+#include "commands/follow_trajectory_command.h"
+#include "commands/prepare_shoot_command.h"
 #include "commands/shoot_command.h"
-#include "subsystems/field.h"
-
+#include "commands/speaker_trajectory_command.h"
+#include "commands/stow_command.h"
+#include "field.h"
+#include "frc2/command/WaitCommand.h"
 
 frc2::SequentialCommandGroup AutoIntakeAndShootCommand(
     RobotContainer& container, frc846::InputWaypoint intake_point,
-    frc846::InputWaypoint shoot_point, bool flip) {
-    
-  units::foot_t distance = (field::points::kSpeaker(flip) - shoot_point.pos.point).Magnitude();
-        
+    frc846::InputWaypoint shoot_point) {
   return frc2::SequentialCommandGroup{
-        DeployIntakeCommand{container},
-        FollowTrajectoryCommand{ container, {intake_point}},
-        PrepareShortShootCommand{container, distance.to<double>()},
-        FollowTrajectoryCommand{ container, {shoot_point}},
-        // SpeakerAlignCommand{container, shoot_point.pos.point},
-        frc2::WaitCommand(container.super_structure_.pre_shoot_wait_.value()),
-        ShootCommand{container},
-        frc2::WaitCommand(container.super_structure_.post_shoot_wait_.value()),
-        StowCommand{container}
-  };
+      DeployIntakeCommand{container},
+      FollowTrajectoryCommand{container, {intake_point}},
+      frc2::ParallelDeadlineGroup{
+          frc2::SequentialCommandGroup{
+              SpeakerTrajectoryCommand{container, {shoot_point}},
+              frc2::WaitCommand(
+                  container.super_structure_.pre_shoot_wait_.value())},
+          PrepareShootCommand{container}},
+      ShootCommand{container},
+      frc2::WaitCommand(container.super_structure_.post_shoot_wait_.value()),
+      StowCommand{container}};
 }

@@ -1,12 +1,11 @@
 #include <frc/RobotBase.h>
-#include "frc/Filesystem.h"
+#include <signal.h>
 
 #include "FunkyRobot.h"
-
-#include <signal.h>
+#include "frc/Filesystem.h"
 // #include <execinfo.h>
 // #include <dirent.h>
-// #include <algorithm> 
+// #include <algorithm>
 // #include <cctype>
 // #include <locale>
 // #include <unistd.h>
@@ -75,7 +74,6 @@ void handler(int sig) {
   // exit(1);
 }*/
 
-
 int main() {
   /*for (int i = 1; i < NSIG; ++i) {
     signal(i, handler);
@@ -104,7 +102,7 @@ int main() {
           devIdFound = true;
         }
       }
-  } catch (std::exception exc) {
+  } catch (std::exception& exc) {
     std::cout << "Error processing dev.id." << std::endl;
   }
 
@@ -119,12 +117,11 @@ int main() {
 
     if (stat(file_path.c_str(), &file_stat) == 0) {
         char time_buffer[256];
-        strftime(time_buffer, sizeof(time_buffer), "%F %T", localtime(&file_stat.st_mtime));
-        std::cout << time_buffer << std::endl;
-        auto current_time = time(0);
-        std::cout << "Current Time: " << std::ctime(&current_time) << std::endl;
-    } else {
-        std::cout << "Error getting file status: "  << std::endl;
+        strftime(time_buffer, sizeof(time_buffer), "%F %T",
+  localtime(&file_stat.st_mtime)); std::cout << time_buffer << std::endl; auto
+  current_time = time(0); std::cout << "Current Time: " <<
+  std::ctime(&current_time) << std::endl; } else { std::cout << "Error getting
+  file status: "  << std::endl;
     }
   }*/
 

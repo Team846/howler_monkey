@@ -5,9 +5,10 @@
 #include <units/constants.h>
 #include <units/length.h>
 #include <units/math.h>
-#include "pref.h"
 
 #include <cmath>
+
+#include "pref.h"
 
 namespace frc846::util {
 
@@ -90,60 +91,61 @@ struct Position {
 };
 
 class FieldPoint {
-  public:
-
-  Position to_position(FieldPoint point) {
+ public:
+  static Position to_position(FieldPoint point) {
     return Position{{point.x.value(), point.y.value()}, point.bearing.value()};
   }
 
-  Position flip(
-      FieldPoint point, bool should_flip) {
-
+  static Position flip(FieldPoint point, bool should_flip) {
     if (should_flip) {
-      return Position{{-point.x.value(), point.y.value()}, flip(point.bearing.value(), should_flip)};
+      return Position{{-point.x.value(), point.y.value()},
+                      -point.bearing.value()};
     } else {
-      return Position{{point.x.value(), point.y.value()}, flip(point.bearing.value(), should_flip)};
+      return Position{{point.x.value(), point.y.value()},
+                      point.bearing.value()};
     }
   }
 
-
-  units::degree_t flip(units::degree_t bearing, bool should_flip) {
+  static Position realFlip(Position point, bool should_flip) {
     if (should_flip) {
-      return -bearing;
+      return Position{{units::inch_t(field_size_x) - point.point.x,
+                       units::inch_t(field_size_y) - point.point.y},
+                      180_deg - point.bearing};
     } else {
-      return bearing;
+      return Position{{point.point.x, point.point.y}, point.bearing};
     }
   }
 
-  Position flip(bool should_flip) {
+  Position flip(bool should_flip, bool real_flip = false) {
+    if (real_flip) return realFlip(to_position(*this), should_flip);
     return flip(*this, should_flip);
   }
 
   Loggable& point_names_ = *(new Loggable("Preferences/field_points"));
 
-  FieldPoint(std::string name) : 
-    x{point_names_, name + "_x", 0.0_in},
-    y{point_names_, name + "_y", 0.0_in},
-    bearing{point_names_, name + "_deg", 0.0_deg},
-    name_(name) {}
-  
-  FieldPoint(std::string name, units::inch_t x, units::inch_t y, units::degree_t deg) : 
-    x{point_names_, name + "_x", x},
-    y{point_names_, name + "_y", y},
-    bearing{point_names_, name + "_deg", deg},
-    name_(name) {}
+  FieldPoint(std::string name)
+      : x{point_names_, name + "_x", 0.0_in},
+        y{point_names_, name + "_y", 0.0_in},
+        bearing{point_names_, name + "_deg", 0.0_deg},
+        name_(name) {}
+
+  FieldPoint(std::string name, units::inch_t x, units::inch_t y,
+             units::degree_t deg)
+      : x{point_names_, name + "_x", x},
+        y{point_names_, name + "_y", y},
+        bearing{point_names_, name + "_deg", deg},
+        name_(name) {}
 
   Pref<units::inch_t> x;
   Pref<units::inch_t> y;
   Pref<units::degree_t> bearing;
   std::string name_;
 
-  private:
-
+ private:
+  static constexpr double field_size_x = 319.0;
+  static constexpr double field_size_y = 49.0;
 };
 
-
-
-}  // namespace frc846
+}  // namespace frc846::util
 
 #endif  // FRC846_MATH_H_

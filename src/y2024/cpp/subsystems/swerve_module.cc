@@ -6,33 +6,39 @@ static constexpr auto kMotorType = rev::CANSparkMax::MotorType::kBrushless;
 
 SwerveModuleSubsystem::SwerveModuleSubsystem(
     const frc846::Loggable& drivetrain, bool init, std::string location,
-      units::degree_t fallback_cancoder_offset,
-      frc846::control::ControlGainsHelper* drive_esc_gains_helper,
-      frc846::control::ControlGainsHelper* steer_esc_gains_helper,
-      units::foot_t drive_conversion,
-      units::degree_t steer_conversion, int drive_esc_id,
-      int steer_esc_id, int cancoder_id
-  ) : frc846::Subsystem<SwerveModuleReadings, SwerveModuleTarget>{
-          drivetrain,
-          "module_" + location,
-          init
-      },
+    units::degree_t fallback_cancoder_offset,
+    frc846::control::ControlGainsHelper* drive_esc_gains_helper,
+    frc846::control::ControlGainsHelper* steer_esc_gains_helper,
+    units::foot_t drive_conversion, units::degree_t steer_conversion,
+    int drive_esc_id, int steer_esc_id, int cancoder_id,
+    frc846::Pref<units::ampere_t>& current_limit,
+    frc846::Pref<units::ampere_t>& motor_stall_current,
+    frc846::Pref<units::feet_per_second_t>& max_speed)
+    : frc846::Subsystem<SwerveModuleReadings, SwerveModuleTarget>{drivetrain,
+                                                                  "module_" +
+                                                                      location,
+                                                                  init},
       cancoder_offset_{*this, "cancoder_offset", fallback_cancoder_offset},
       drive_esc_helper_{*this, location + "D", drive_esc_id},
       steer_esc_helper_{*this, location + "S", steer_esc_id},
-      cancoder_{cancoder_id} {
-    drive_esc_helper_.Setup(drive_esc_gains_helper, false, frc846::control::kBrake);
-    drive_esc_helper_.SetInverted(true);
-    drive_esc_helper_.SetupConverter(drive_conversion);
+      cancoder_{cancoder_id},
+      current_limit_{current_limit},
+      motor_stall_current_{motor_stall_current},
+      max_speed_{max_speed} {
+  drive_esc_helper_.Setup(drive_esc_gains_helper, false,
+                          frc846::control::kBrake);
+  drive_esc_helper_.SetInverted(true);
+  drive_esc_helper_.SetupConverter(drive_conversion);
 
-    // Disable applied output frame
-    // drive_esc_helper_.DisableStatusFrames(
-    //     {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
+  // Disable applied output frame
+  // drive_esc_helper_.DisableStatusFrames(
+  //     {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
 
-    steer_esc_helper_.Setup(steer_esc_gains_helper, false, frc846::control::kCoast);
-    steer_esc_helper_.SetupConverter(steer_conversion);
-    // steer_esc_helper_.DisableStatusFrames(
-    //     {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
+  steer_esc_helper_.Setup(steer_esc_gains_helper, false,
+                          frc846::control::kCoast);
+  steer_esc_helper_.SetupConverter(steer_conversion);
+  // steer_esc_helper_.DisableStatusFrames(
+  //     {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
 
   // // Invert so that clockwise is positive when looking down on the robot
   // cancoder_.ConfigSensorDirection(true);
@@ -47,7 +53,9 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
 void SwerveModuleSubsystem::ZeroCancoder() {
   std::shared_ptr<nt::NetworkTable> table_ =
       nt::NetworkTableInstance::GetDefault().GetTable(name());
-  table_->SetDefaultNumber("cancoder_offset", cancoder_.GetAbsolutePosition().GetValue().to<double>() * 360);
+  table_->SetDefaultNumber(
+      "cancoder_offset",
+      cancoder_.GetAbsolutePosition().GetValue().to<double>() * 360);
   ZeroWithCANcoder();
 }
 
@@ -101,9 +109,8 @@ void SwerveModuleSubsystem::ZeroWithCANcoder() {
     }
   }
 
-  zero_offset_ =
-      module_direction - cancoder_offset_.value() -
-          steer_esc_helper_.GetPosition();
+  zero_offset_ = module_direction - cancoder_offset_.value() -
+                 steer_esc_helper_.GetPosition();
 
   last_direction_ = module_direction;
 }
@@ -162,33 +169,32 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
   units::feet_per_second_t target_velocity =
       target.speed * (reverse_drive ? -1 : 1);
 
-  auto speed_difference = -target_velocity + current_speed_;
-
   double drive_output;
   if (target.control == kClosedLoop) {
-    drive_esc_helper_.Write(
-        frc846::control::ControlMode::Velocity, target_velocity);
+    drive_esc_helper_.Write(frc846::control::ControlMode::Velocity,
+                            target_velocity);
   } else if (target.control == kOpenLoop) {
-    if (units::unit_cast<double>(units::math::abs(speed_difference)) > units::unit_cast<double>(kControlChangeThresh)) {
-      units::feet_per_second_t adjusted_target_velocity = units::feet_per_second_t(units::unit_cast<double>(current_speed_) - (units::unit_cast<double>(speed_difference) * kSpeedAdjustingFactor));
-      drive_output = adjusted_target_velocity / kMaxSpeed;
+    drive_output = target_velocity / max_speed_.value();
 
-      swerve_target_graph_.Graph(std::abs(units::unit_cast<double>(adjusted_target_velocity)));
+    double generatedEMF = 12.0 * readings().speed / max_speed_.value();
 
-      if (drive_output > 1.0) {
-        drive_output = 1.0;
-      } else if (drive_output < -1.0) {
-        drive_output = -1.0;
-      }
+    double upperTargetEMF =
+        12.0 * current_limit_.value() / motor_stall_current_.value() +
+        generatedEMF;
+    double lowerTargetEMF =
+        12.0 * current_limit_.value() / motor_stall_current_.value() +
+        generatedEMF;
 
-      drive_esc_helper_.Write(
-          frc846::control::ControlMode::Percent, drive_output);
-    } else {
-      drive_output = target_velocity / kMaxSpeed;
+    double upperDCBound = upperTargetEMF / 12.0;
+    double lowerDCBound = lowerTargetEMF / 12.0;
 
-      drive_esc_helper_.Write(
-          frc846::control::ControlMode::Percent, drive_output);
-    }
+    upper_dc_current_limiting_.Graph(upperDCBound);
+    lower_dc_current_limiting_.Graph(lowerDCBound);
+
+    drive_output = std::min(upperDCBound, std::max(lowerDCBound, drive_output));
+
+    drive_esc_helper_.Write(frc846::control::ControlMode::Percent,
+                            drive_output);
   } else {
     Warn("No Control Strategy Set");
   }

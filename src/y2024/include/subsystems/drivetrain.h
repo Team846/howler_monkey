@@ -4,21 +4,21 @@
 #include <AHRS.h>
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <units/angle.h>
 #include <units/angular_velocity.h>
 #include <units/length.h>
-#include <units/angle.h>
 
 #include <array>
 #include <variant>
 
 #include "frc/filter/SlewRateLimiter.h"
+#include "frc846/control/controlgains.h"
+#include "frc846/other/swerve_odometry.h"
+#include "frc846/subsystem.h"
 #include "frc846/util/conversions.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
-#include "frc846/control/controlgains.h"
 #include "frc846/util/pref.h"
-#include "frc846/subsystem.h"
-#include "frc846/other/swerve_odometry.h"
 #include "frc846/wpilib/time.h"
 #include "ports.h"
 #include "subsystems/swerve_module.h"
@@ -30,8 +30,6 @@ struct DrivetrainReadings {
   units::degree_t tilt;
   frc846::util::Vector2D<units::feet_per_second_t> velocity;
 };
-
-
 
 // Robot vs field oriented translation control.
 enum DrivetrainTranslationReference { kRobot, kField };
@@ -79,13 +77,17 @@ class DrivetrainSubsystem
 
   // Set bearing.
   void SetBearing(units::degree_t bearing);
-  
+
   // Set Map
   void SetMap();
 
   // Max drivetrain speed (NEO SDS Mk4i L1 -> 12 theoretical).
   frc846::Pref<units::feet_per_second_t> max_speed_{*this, "max_speed",
                                                     14.2_fps};
+
+  frc846::Pref<units::ampere_t> current_limit_{*this, "current_limit", 50_A};
+  frc846::Pref<units::ampere_t> motor_stall_current_{
+      *this, "motor_stall_current", 366_A};
 
   frc846::Pref<units::feet_per_second_t> vx_ramp_rate_limit{
       *this, "ramp_rate_vx", 30_fps};
@@ -104,9 +106,11 @@ class DrivetrainSubsystem
   frc846::Pref<double> slow_mode_percent_{*this, "slow_mode_percent", 0.04};
   frc846::Pref<double> slow_omega_percent_{*this, "slow_omega_percent", 0.12};
   frc846::Pref<double> pov_control_speed_{*this, "pov_control_speed_", 1.0};
-  frc846::Pref<double> max_horizontal_strafe_{*this, "pov_control_speed_", 10.0};
+  frc846::Pref<double> max_horizontal_strafe_{*this, "pov_control_speed_",
+                                              10.0};
 
-  frc846::Pref<units::feet_per_second_t> velocity_error{*this, "velocity_error", 0_fps};
+  frc846::Pref<units::feet_per_second_t> velocity_error{*this, "velocity_error",
+                                                        0_fps};
 
   // Max turning speed.
   units::degrees_per_second_t max_omega() const {
@@ -136,42 +140,15 @@ class DrivetrainSubsystem
   frc846::Pref<units::inch_t> align_tolerance_{align_gains_loggable_,
                                                "align_tolerance", 0.3_in};
 
-
-    //April Tag 
-    units::second_t aprilTagFrameTime;
-    frc846::util::Position poseAtFrameCapture;
-    bool updatedTagPos=false;
-    frc846::Loggable april_tags_named_{*this, "april_tags"};
-    frc846::Pref<double> confidence_factor_{april_tags_named_, "april_confidence_factor",1.0};
-    frc846::Pref<double> velocity_factor_{april_tags_named_, "april_velocity_factor", 1.0};
-    frc846::Pref<double> distance_factor_{april_tags_named_, "april_distance_factor", 1.0};
-    frc846::Pref<double> angle_offset_factor_{april_tags_named_, "april_angle_factor", 1.0};
-
-    bool aprilFrameRequested=false;
-    long aprilFrameRequest=0;
-    frc846::util::Position poseAtLastRequest;
-
-    nt::NetworkTableInstance nt_table =
-        nt::NetworkTableInstance::GetDefault();
-    std::shared_ptr<nt::NetworkTable> aprilTag_table =
-        nt::NetworkTableInstance::GetDefault().GetTable("AprilTags");
-    frc846::Pref<bool> april_tags_enabled_{april_tags_named_, "init_april_tags", true};
-    
-    std::shared_ptr<nt::NetworkTable> leftcam =
-        nt::NetworkTableInstance::GetDefault().GetTable("leftcamgpd");
-
-    std::shared_ptr<nt::NetworkTable> backcam = 
-        nt::NetworkTableInstance::GetDefault().GetTable("backcamgpd");
-
-
   // Convert a translation vector and the drivetrain angular velocity to the
   // individual module outputs.
-  static std::array<frc846::util::Vector2D<units::feet_per_second_t>, kModuleCount>
+  static std::array<frc846::util::Vector2D<units::feet_per_second_t>,
+                    kModuleCount>
   SwerveControl(frc846::util::Vector2D<units::feet_per_second_t> translation,
                 units::degrees_per_second_t rotation_speed, units::inch_t width,
                 units::inch_t height, units::inch_t radius,
                 units::feet_per_second_t max_speed);
-    
+
   DrivetrainTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;
@@ -203,12 +180,15 @@ class DrivetrainSubsystem
   frc846::Loggable pose_loggable_{*this, "pose"};
   frc846::Grapher<units::foot_t> pose_x_graph_{pose_loggable_, "x"};
   frc846::Grapher<units::foot_t> pose_y_graph_{pose_loggable_, "y"};
-  frc846::Grapher<units::degree_t> pose_bearing_graph{pose_loggable_, "bearing"};
+  frc846::Grapher<units::degree_t> pose_bearing_graph{pose_loggable_,
+                                                      "bearing"};
 
   // Velocity graphers.
   frc846::Loggable velocity_loggable_{*this, "velocity"};
-  frc846::Grapher<units::feet_per_second_t> v_x_graph_{velocity_loggable_, "v_x"};
-  frc846::Grapher<units::feet_per_second_t> v_y_graph_{velocity_loggable_, "v_y"};
+  frc846::Grapher<units::feet_per_second_t> v_x_graph_{velocity_loggable_,
+                                                       "v_x"};
+  frc846::Grapher<units::feet_per_second_t> v_y_graph_{velocity_loggable_,
+                                                       "v_y"};
 
   // Target graphers.
   frc846::Loggable target_loggable_{*this, "target"};
@@ -224,7 +204,8 @@ class DrivetrainSubsystem
       target_loggable_, "rotation_position"};
   frc846::Grapher<units::degrees_per_second_t> target_rotation_velocity_graph_{
       target_loggable_, "rotation_velocity"};
-//   frc846::Grapher<units::degree_t> bearing_error{target_loggable_, "bearing_error"};
+  //   frc846::Grapher<units::degree_t> bearing_error{target_loggable_,
+  //   "bearing_error"};
 
   frc846::SwerveOdometry odometry_;
   units::angle::degree_t bearing_offset_;
@@ -243,28 +224,28 @@ class DrivetrainSubsystem
               0.0001769, /* f */
               0,         /* max_integral_accumulator */
           },
-          80_A, // NEO smart current limit
-          1.0,  // peak output
+          80_A,  // NEO smart current limit
+          1.0,   // peak output
       };
 
   frc846::control::ControlGainsHelper* steer_esc_gains_helper_ =
       new frc846::control::ControlGainsHelper{
           steer_esc_loggable_,
           {
-              0.12,      /* p */
-              0,         /* i */
-              0,         /* d */
-              0,         /* f */
-              0,         /* max_integral_accumulator */
+              0.12, /* p */
+              0,    /* i */
+              0,    /* d */
+              0,    /* f */
+              0,    /* max_integral_accumulator */
           },
-          40_A, // NEO smart current limit
-          1.0,  // peak output
+          40_A,  // NEO smart current limit
+          1.0,   // peak output
       };
 
-  units::foot_t drive_conversion_ = 
+  units::foot_t drive_conversion_ =
       (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) *
-          frc846::util::Circumference(wheel_radius_.value());
-  
+      frc846::util::Circumference(wheel_radius_.value());
+
   units::degree_t steer_conversion_ = (7.0 / 150.0) * 1_tr;
 
   SwerveModuleSubsystem module_fl_{
@@ -279,6 +260,9 @@ class DrivetrainSubsystem
       ports::drivetrain_::kFLDrive_CANID,
       ports::drivetrain_::kFLSteer_CANID,
       ports::drivetrain_::kFLCANCoder_CANID,
+      current_limit_,
+      motor_stall_current_,
+      max_speed_,
   };
 
   SwerveModuleSubsystem module_fr_{
@@ -293,6 +277,9 @@ class DrivetrainSubsystem
       ports::drivetrain_::kFRDrive_CANID,
       ports::drivetrain_::kFRSteer_CANID,
       ports::drivetrain_::kFRCANCoder_CANID,
+      current_limit_,
+      motor_stall_current_,
+      max_speed_,
   };
 
   SwerveModuleSubsystem module_bl_{
@@ -307,6 +294,9 @@ class DrivetrainSubsystem
       ports::drivetrain_::kBLDrive_CANID,
       ports::drivetrain_::kBLSteer_CANID,
       ports::drivetrain_::kBLCANCoder_CANID,
+      current_limit_,
+      motor_stall_current_,
+      max_speed_,
   };
 
   SwerveModuleSubsystem module_br_{
@@ -321,6 +311,9 @@ class DrivetrainSubsystem
       ports::drivetrain_::kBRDrive_CANID,
       ports::drivetrain_::kBRSteer_CANID,
       ports::drivetrain_::kBRCANCoder_CANID,
+      current_limit_,
+      motor_stall_current_,
+      max_speed_,
   };
 
   SwerveModuleSubsystem* modules_all_[kModuleCount]{&module_fl_, &module_fr_,

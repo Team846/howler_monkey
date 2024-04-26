@@ -8,13 +8,12 @@
 
 namespace frc846 {
 
-SwerveOdometry::SwerveOdometry(util::Position initial_pose) : pose_(initial_pose) {}
+SwerveOdometry::SwerveOdometry(util::Position initial_pose)
+    : pose_(initial_pose) {}
 
 void SwerveOdometry::Update(
     std::array<util::Vector2D<units::foot_t>, kModuleCount> wheel_vecs,
     units::radian_t bearing) {
-
-  
   // change in distance from the last odometry update
   for (int i = 0; i < kModuleCount; i++) {
     units::foot_t wheel_dist = wheel_vecs[i].Magnitude();
@@ -60,13 +59,9 @@ void SwerveOdometry::Update(
       (top + bottom) * -sin_theta,
   };
 
-  if (frc846::util::ShareTables::GetBoolean("is_red_side") || (frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)) {
-    pose_.point.x += (top_bottom.y + left_right.y) / 2;
-    pose_.point.y += (top_bottom.x + left_right.x) / 2;
-  } else {
-    pose_.point.x -= (top_bottom.y + left_right.y) / 2;
-    pose_.point.y -= (top_bottom.x + left_right.x) / 2;
-  }
+  pose_.point.x += (top_bottom.y + left_right.y) / 2;
+  pose_.point.y += (top_bottom.x + left_right.x) / 2;
+
   pose_.bearing = bearing;
 }
 

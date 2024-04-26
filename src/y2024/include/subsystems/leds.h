@@ -3,31 +3,13 @@
 
 #include <frc/AddressableLED.h>
 
-#include "frc846/util/grapher.h"
 #include "frc846/subsystem.h"
+#include "frc846/util/grapher.h"
 #include "ports.h"
 
 struct LEDsReadings {};
 
-enum LEDsHumanPlayerState {
-  kCoopertition, //purple TODO pick better color
-  kAmplify, //white
-  kHumanPlayerIdle
-};
-
-enum LEDsAutoState {
-  kTransit, //flashing red
-  kFinished, //green
-  kAutoIdle
-};
-
-enum LEDsPieceState {
-  kHasPiece, //rainbow
-  kNoPieceIdle //yellow
-};
-
-struct LEDsTarget {
-};
+struct LEDsTarget {};
 
 class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
  public:
@@ -45,10 +27,9 @@ class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
   bool GetHasZeroed() { return hasZeroed; }
 
  private:
-  
   bool hasZeroed = false;
   bool zeroSequence = false;
-  
+
   // Number of LEDs.
   static constexpr int kLength = 30;
 

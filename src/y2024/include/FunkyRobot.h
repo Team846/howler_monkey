@@ -9,16 +9,14 @@
 // #include <opencv2/imgproc.hpp>
 // #include <opencv2/core.hpp>
 #include <cameraserver/CameraServer.h>
-#include "frc846/util/pref.h"
+
 #include "autos/drive_auto.h"
-#include "autos/five_piece_auto.h"
 #include "autos/four_piece_auto.h"
-#include "autos/three_piece_source_auto.h"
-#include "autos/one_piece_auto.h"
+#include "frc846/util/pref.h"
 // #include "autos/_TESTING_ROUTINE.h"
-#include "subsystems/robot_container.h"
 #include "frc/DigitalInput.h"
 #include "frc846/fstore.h"
+#include "subsystems/robot_container.h"
 
 enum Mode { kNone, kDisabled, kAutonomous, kTeleop, kTest };
 
@@ -81,41 +79,24 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
   frc::SendableChooser<frc2::Command*> auto_chooser_;
 
   // TODO: Find fix for this
-  // Seperate blue vs red because command is generated prior to the alliance
+  // Separate blue vs red because command is generated prior to the alliance
   // color being changed
 
   // Autos
-  frc2::CommandPtr drive_auto_ =
-      DriveAuto{container_, true}.ToPtr();
-  
-  frc2::CommandPtr four_piece_auto_lr = 
+  frc2::CommandPtr drive_auto_ = DriveAuto{container_, true}.ToPtr();
+
+  frc2::CommandPtr four_piece_auto_lr =
       FourPieceAuto{container_, false}.ToPtr();
 
-  frc2::CommandPtr four_piece_auto_rl = 
-      FourPieceAuto{container_, true}.ToPtr();
+  frc2::CommandPtr four_piece_auto_rl = FourPieceAuto{container_, true}.ToPtr();
 
-  frc2::CommandPtr five_piece_auto_blue = 
-      FivePieceAuto{container_, false}.ToPtr();
-
-  frc2::CommandPtr five_piece_auto_red = 
-      FivePieceAuto{container_, true}.ToPtr();
-
-  frc2::CommandPtr three_piece_source_lr = 
-      ThreePieceSourceAuto{container_, false}.ToPtr();
-
-  frc2::CommandPtr three_piece_auto_rl = 
-      ThreePieceSourceAuto{container_, true}.ToPtr();
-  
-  frc2::CommandPtr one_piece_auto_ = 
-      OnePieceAuto{container_, false}.ToPtr();
-
-//   frc2::CommandPtr testing_routine_ = 
-//       TestingArmRoutine{container_, false}.ToPtr();
+  //   frc2::CommandPtr testing_routine_ =
+  //       TestingArmRoutine{container_, false}.ToPtr();
 
   frc::DigitalInput homing_switch_{0};
   frc::DigitalInput coasting_switch_{1};
 
-  frc846::FunkyStore robotStore {};
+  frc846::FunkyStore robotStore{};
 
   int coast_counter_ = 0;
 };

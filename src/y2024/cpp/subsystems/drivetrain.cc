@@ -2,18 +2,17 @@
 
 #include <stdexcept>
 
+#include "frc846/util/share_tables.h"
 #include "frc846/wpilib/time.h"
 #include "subsystems/swerve_module.h"
-
-#include "frc846/util/share_tables.h"
-
 
 units::feet_per_second_t vel_readings_composite;
 double vel_readings_composite_x;
 double vel_readings_composite_y;
 
 DrivetrainSubsystem::DrivetrainSubsystem(bool initialize)
-    : frc846::Subsystem<DrivetrainReadings, DrivetrainTarget>{"drivetrain", initialize} {
+    : frc846::Subsystem<DrivetrainReadings, DrivetrainTarget>{"drivetrain",
+                                                              initialize} {
   bearing_offset_ = 0_deg;
   ZeroOdometry();
   frc::SmartDashboard::PutData("Field", &m_field);
@@ -72,7 +71,8 @@ void DrivetrainSubsystem::ZeroOdometry() {
   odometry_.Zero();
 }
 
-void DrivetrainSubsystem::SetPoint(frc846::util::Vector2D<units::foot_t> point) {
+void DrivetrainSubsystem::SetPoint(
+    frc846::util::Vector2D<units::foot_t> point) {
   if (!is_initialized()) return;
 
   Log("set point x {} y {}", point.x, point.y);
@@ -128,7 +128,6 @@ DrivetrainSubsystem::SwerveControl(
         rotation_speed * units::math::sin(90_deg - direction) * radius / 1_rad,
     };
 
-
     module_targets[i] = translation + rotation;
     if (module_targets[i].Magnitude() <= max_speed * 4) {
       max_magnitude =
@@ -179,10 +178,9 @@ bool DrivetrainSubsystem::VerifyHardware() {
 }
 
 DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
-  DrivetrainReadings readings;
+  DrivetrainReadings readings{};
 
   if (!is_initialized()) return readings;
-
 
   readings.is_gyro_connected = gyro_.IsConnected();
 
@@ -232,106 +230,50 @@ DrivetrainReadings DrivetrainSubsystem::GetNewReadings() {
   v_x_graph_.Graph(readings.velocity.x);
   v_y_graph_.Graph(readings.velocity.y);
 
+  frc846::util::ShareTables::SetDouble("robot_bearing_",
+                                       readings.pose.bearing.to<double>());
+  frc846::util::ShareTables::SetDouble("odometry_x_",
+                                       odometry_.pose().point.x.to<double>());
+  frc846::util::ShareTables::SetDouble("odometry_y_",
+                                       odometry_.pose().point.y.to<double>());
+  frc846::util::ShareTables::SetDouble("velocity_x_",
+                                       readings.velocity.x.to<double>());
+  frc846::util::ShareTables::SetDouble("velocity_y_",
+                                       readings.velocity.y.to<double>());
+
   readings.pose.point = odometry_.pose().point;
 
   SetMap();
 
+  vel_readings_composite_x = units::unit_cast<double>(readings.velocity.x);
 
-  vel_readings_composite_x=units::unit_cast<double>(readings.velocity.x);
-
-  if (vel_readings_composite_x < 0.0) {vel_readings_composite_x=-vel_readings_composite_x;}
-
-  vel_readings_composite_y=units::unit_cast<double>(readings.velocity.y);
-
-  if (vel_readings_composite_y < 0.0) {vel_readings_composite_y=-vel_readings_composite_y;}
-
-  vel_readings_composite=units::feet_per_second_t(sqrt(vel_readings_composite_x*vel_readings_composite_x+vel_readings_composite_y*vel_readings_composite_y));
-
-  if (april_tags_enabled_.value() && !(frc846::util::ShareTables::GetString("mode").compare("kAutonomous") == 0)){
-    if (!aprilFrameRequested){
-      aprilFrameRequest++;
-      poseAtLastRequest=odometry_.pose();
-      double data [2] = {aprilFrameRequest, readings.pose.bearing.to<double>()};
-      aprilTag_table->PutNumberArray("roboRioFrameRequest", data);
-      aprilTag_table->PutNumber("robotBearing", readings.pose.bearing.to<double>());
-      nt_table.Flush();
-      aprilFrameRequested=true;
-    }
-
-    if (aprilFrameRequested && aprilTag_table->GetNumber("processorFrameSent", -1)==aprilFrameRequest){
-      frc846::util::Vector2D<units::foot_t> robotPoint;
-      robotPoint.x = units::foot_t(aprilTag_table->GetEntry("robotX").GetDouble(-1.0)) + 5.5_in;
-      robotPoint.y = units::foot_t(aprilTag_table->GetEntry("robotY").GetDouble(-1.0)) + 11.0_in;
-      units::foot_t tagDistance=robotPoint.Magnitude();
-
-      auto aprilTagX = units::foot_t(aprilTag_table->GetEntry("aprilTagX").GetDouble(-1.0));
-      auto aprilTagY = units::foot_t(aprilTag_table->GetEntry("aprilTagY").GetDouble(-1.0));
-      auto aprilTagAngle = units::degree_t(aprilTag_table->GetEntry("aprilTagAngle").GetDouble(0.0));
-      bool isRed = frc846::util::ShareTables::GetBoolean("is_red_side");
-      if (!isRed){
-        aprilTagAngle+=180_deg;
-      }
-      double aprilTagConfidence = aprilTag_table->GetEntry("aprilTagConfidence").GetDouble(0.0);
-      units::degree_t tx = units::math::atan(robotPoint.x/robotPoint.y);
-      robotPoint.x = tagDistance*units::math::cos(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
-      robotPoint.y = tagDistance*units::math::sin(aprilTagAngle+90_deg-poseAtLastRequest.bearing-tx);
-      robotPoint.x = aprilTagX + robotPoint.x;
-      robotPoint.y = aprilTagY + robotPoint.y;
-
-
-      if(aprilTagConfidence>=0.7 && lastRelocalize == 0){
-        double aprilTagFactor = aprilTagConfidence * confidence_factor_.value() *
-                        (1 - (readings.velocity.Magnitude()/max_speed_.value())) * velocity_factor_.value() * 
-                        (1-readings.angular_velocity.to<double>()/50) * velocity_factor_.value() *
-                        (15-(tagDistance.to<double>())) * distance_factor_.value() * 
-                        pow((1-(units::math::abs(readings.pose.bearing-aprilTagAngle)/40_deg)).to<double>(),6) * angle_offset_factor_.value();
-
-        frc846::util::Vector2D<units::foot_t> point;
-        // Debug("factor is  {}", aprilTagFactor);
-        point.x = ((poseAtLastRequest.point.x + (aprilTagFactor * robotPoint.x)) / (1+aprilTagFactor)) + odometry_.pose().point.x-poseAtLastRequest.point.x;
-        point.y = ((poseAtLastRequest.point.y + aprilTagFactor * robotPoint.y) / (1+ aprilTagFactor)) + odometry_.pose().point.y-poseAtLastRequest.point.y;
-        // Debug("point.x is  {}", point.x);
-        // Debug("point.y is  {}", point.y);
-        odometry_.SetPoint({point.x, point.y});
-        frc846::util::ShareTables::SetBoolean("april_tag_seen", true);
-        // Debug("updated point");
-
-        lastRelocalize = 30;
-      } else{
-        frc846::util::ShareTables::SetBoolean("april_tag_seen", false);
-
-        if (lastRelocalize > 0) {
-          lastRelocalize -= 1;
-        }
-      }
-      updatedTagPos=true;
-
-      aprilFrameRequested=false;
-    }
+  if (vel_readings_composite_x < 0.0) {
+    vel_readings_composite_x = -vel_readings_composite_x;
   }
 
+  vel_readings_composite_y = units::unit_cast<double>(readings.velocity.y);
+
+  if (vel_readings_composite_y < 0.0) {
+    vel_readings_composite_y = -vel_readings_composite_y;
+  }
+
+  vel_readings_composite = units::feet_per_second_t(
+      sqrt(vel_readings_composite_x * vel_readings_composite_x +
+           vel_readings_composite_y * vel_readings_composite_y));
 
   return readings;
 }
 
 void DrivetrainSubsystem::SetMap() {
-
   // set odometry
   m_field.SetRobotPose(frc::Pose2d(odometry_.pose().point.y,
                                    -odometry_.pose().point.x,
                                    odometry_.pose().bearing));
-
-  // auto piece_x = std::min(abs(leftcam->GetEntry("leftcam x").GetDouble(-1)), abs(backcam->GetEntry("backcam x").GetDouble(-1)));
-  // auto piece_y = std::min(abs(leftcam->GetEntry("leftcam y").GetDouble(-1)), abs(backcam->GetEntry("backcam y").GetDouble(-1)));
-
-
-
-  // m_field.GetObject("game_piece")->SetPose(50_m, 50_m, frc::Rotation2d(0_deg));
 }
 
 void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
   if (!is_initialized()) return;
-  
+
   // Graph target
   target_v_x_graph_.Graph(target.v_x);
   target_v_y_graph_.Graph(target.v_y);
@@ -353,8 +295,8 @@ void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
     throw std::runtime_error{"unhandled case"};
   }
 
-  frc846::util::Vector2D<units::feet_per_second_t> target_translation = {target.v_x,
-                                                                   target.v_y};
+  frc846::util::Vector2D<units::feet_per_second_t> target_translation = {
+      target.v_x, target.v_y};
   // rotate translation vector if field oriented
   if (target.translation_reference == DrivetrainTranslationReference::kField) {
     units::degree_t offset = readings().pose.bearing;
@@ -386,12 +328,17 @@ void DrivetrainSubsystem::DirectWrite(DrivetrainTarget target) {
   auto max_speed = target.control == kOpenLoop ? max_speed_.value()
                                                : auto_max_speed_.value();
 
-
   auto targets = SwerveControl(target_translation, target_omega, width_.value(),
                                height_.value(), module_radius_, max_speed);
 
-  frc::SmartDashboard::PutNumber("velocity_error", (sqrt(units::unit_cast<double>(target.v_x)*units::unit_cast<double>(target.v_x)+units::unit_cast<double>(target.v_y)*units::unit_cast<double>(target.v_y)))-units::unit_cast<double>(vel_readings_composite));
-  frc846::util::ShareTables::SetDouble("velocity", (units::unit_cast<double>(vel_readings_composite)));
+  frc::SmartDashboard::PutNumber(
+      "velocity_error", (sqrt(units::unit_cast<double>(target.v_x) *
+                                  units::unit_cast<double>(target.v_x) +
+                              units::unit_cast<double>(target.v_y) *
+                                  units::unit_cast<double>(target.v_y))) -
+                            units::unit_cast<double>(vel_readings_composite));
+  frc846::util::ShareTables::SetDouble(
+      "velocity", (units::unit_cast<double>(vel_readings_composite)));
 
   for (int i = 0; i < kModuleCount; ++i) {
     modules_all_[i]->WriteToHardware(

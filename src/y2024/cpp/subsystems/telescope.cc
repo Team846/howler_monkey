@@ -1,22 +1,24 @@
 #include "subsystems/telescope.h"
+
 #include "frc846/control/control.h"
 #include "frc846/util/share_tables.h"
 
 TelescopeSubsystem::TelescopeSubsystem(bool init)
     : frc846::Subsystem<TelescopeReadings, TelescopeTarget>{"telescope", init} {
-    if (init) {
-        tele_one_.Setup(&tele_esc_gains_, false);
+  if (init) {
+    telescope_esc_.Setup(&tele_esc_gains_, false);
 
-        tele_one_.SetupConverter(0.25_in);
-        
-        tele_one_.ZeroEncoder();
-       
-        tele_one_.ConfigurePositionLimits(6_in, 0_in);
+    telescope_esc_.SetupConverter(0.25_in);
 
-        tele_one_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus0, 
-          rev::CANSparkBase::PeriodicFrame::kStatus4, 
-          rev::CANSparkBase::PeriodicFrame::kStatus3});
-    }
+    telescope_esc_.ZeroEncoder();
+
+    telescope_esc_.ConfigurePositionLimits(6_in, 0_in);
+
+    telescope_esc_.DisableStatusFrames(
+        {rev::CANSparkBase::PeriodicFrame::kStatus0,
+         rev::CANSparkBase::PeriodicFrame::kStatus4,
+         rev::CANSparkBase::PeriodicFrame::kStatus3});
+  }
 }
 
 TelescopeTarget TelescopeSubsystem::ZeroTarget() const {
@@ -25,18 +27,21 @@ TelescopeTarget TelescopeSubsystem::ZeroTarget() const {
   return target;
 }
 
-TelescopeTarget TelescopeSubsystem::MakeTarget(std::variant<units::inch_t, double> tele_out) {
-      TelescopeTarget target;
-      target.extension = tele_out;
-      return target;
+TelescopeTarget TelescopeSubsystem::MakeTarget(
+    std::variant<units::inch_t, double> tele_out) {
+  TelescopeTarget target;
+  target.extension = tele_out;
+  return target;
 }
 
 bool TelescopeSubsystem::VerifyHardware() {
   if (is_initialized()) {
     bool ok = true;
 
-    FRC846_VERIFY(tele_one_.VerifyConnected(), ok, "Telescope ESC not connected");
-    FRC846_VERIFY(!tele_one_.GetInverted(), ok, "Telescope ESC incorrect inversion");
+    FRC846_VERIFY(telescope_esc_.VerifyConnected(), ok,
+                  "Telescope ESC not connected");
+    FRC846_VERIFY(!telescope_esc_.GetInverted(), ok,
+                  "Telescope ESC incorrect inversion");
 
     return ok;
   }
@@ -46,30 +51,27 @@ bool TelescopeSubsystem::VerifyHardware() {
 TelescopeReadings TelescopeSubsystem::GetNewReadings() {
   TelescopeReadings readings;
 
-  readings.extension = tele_one_.GetPosition();
+  readings.extension = telescope_esc_.GetPosition();
 
-  frc846::util::ShareTables::SetDouble("telescope_extension", readings.extension.to<double>());
+  frc846::util::ShareTables::SetDouble("telescope_extension",
+                                       readings.extension.to<double>());
 
   tele_pos_graph.Graph(readings.extension);
+
+  if (auto target_ext = std::get_if<units::inch_t>(&target_.extension)) {
+    tele_error_graph.Graph(*target_ext - readings.extension);
+  }
 
   return readings;
 }
 
 void TelescopeSubsystem::PositionTelescope(TelescopeTarget target) {
-  if (frc846::util::ShareTables::GetDouble("pivot_position") <= 10.0) {
-    tele_one_.ConfigurePositionLimits(2.0_in, 0_in);
-  } else if (frc846::util::ShareTables::GetDouble("pivot_position") <= 70.0) {
-    tele_one_.ConfigurePositionLimits(0.01_in, 0_in);
-  } else {
-    tele_one_.ConfigurePositionLimits(6_in, 0.0_in);
-  }
-
   if (auto pos = std::get_if<units::inch_t>(&target.extension)) {
-    tele_one_.Write(frc846::control::ControlMode::Position, *pos);
+    telescope_esc_.Write(frc846::control::ControlMode::Position, *pos);
 
     target_tele_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.extension)) {
-    tele_one_.Write(frc846::control::ControlMode::Percent, *output);
+    telescope_esc_.Write(frc846::control::ControlMode::Percent, *output);
 
     target_tele_duty_cycle_graph.Graph(*output);
   }

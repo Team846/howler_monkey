@@ -20,11 +20,10 @@ struct Waypoint {
 
 using Trajectory = std::vector<Waypoint>;
 
-std::vector<util::Position> InterpolatePoints(util::Vector2D<units::foot_t> start,
-                                        util::Vector2D<units::foot_t> end,
-                                        units::degree_t start_bearing,
-                                        units::degree_t end_bearing,
-                                        units::foot_t cut);
+std::vector<util::Position> InterpolatePoints(
+    util::Vector2D<units::foot_t> start, util::Vector2D<units::foot_t> end,
+    units::degree_t start_bearing, units::degree_t end_bearing,
+    units::foot_t cut);
 
 Trajectory GenerateTrajectory(
     std::vector<InputWaypoint> input_points,
