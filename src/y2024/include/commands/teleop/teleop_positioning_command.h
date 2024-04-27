@@ -30,7 +30,8 @@ class TeleopPositioningCommand
   PivotSubsystem& pivot_;
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;
-  ScorerSubsystem& scorer_;
+  ShooterSubsystem& shooter_;
+  IntakeSubsystem& intake_;
   BracerSubsystem& bracer_;
   SuperStructureSubsystem& super_;
 

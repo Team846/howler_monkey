@@ -71,6 +71,7 @@ PivotReadings PivotSubsystem::GetNewReadings() {
   readings.pivot_position = pivot_one_.GetPosition();
 
   frc846::util::ShareTables::SetDouble("pivot_position", readings.pivot_position.to<double>());
+  frc846::util::ShareTables::SetDouble("pivot_home_offset", pivot_home_offset.value().to<double>());
 
   pivot_pos_graph.Graph(readings.pivot_position);
 
@@ -90,6 +91,9 @@ void PivotSubsystem::PositionPivot(PivotTarget target) {
       pivot_three_.Write(frc846::control::ControlMode::Position, *pos);
       pivot_four_.Write(frc846::control::ControlMode::Position, *pos);
 
+    //  double dc = k* (l+ extension)(pivot + r*w(in terms of pivot, home offset - wrist angle))
+//first make wrist flat and find k*l, with wrist flat find another htink with k and l differently
+//then do experiemnt with wrist at 90
     // }
 
     target_pivot_pos_graph.Graph(*pos);

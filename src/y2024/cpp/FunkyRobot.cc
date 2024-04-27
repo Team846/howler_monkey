@@ -6,8 +6,11 @@
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/FunctionalCommand.h>
-#include <frc2/command/ParallelRaceGroup.h>
+#include <frc2/command/ParallelCommandGroup.h>
+#include <frc2/command/SequentialCommandGroup.h>
+#include <frc2/command/ParallelDeadlineGroup.h>
 #include <frc2/command/button/Trigger.h>
+#include <frc2/command/WaitCommand.h>
 #include <hal/Notifier.h>
 #include <cameraserver/CameraServer.h>
 
@@ -22,12 +25,25 @@
 #include "commands/teleop/teleop_positioning_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/zero/zero_wrist_command.h"
-#include "subsystems/scorer.h"
+#include "commands/positioning/amp_command.h"
+#include "commands/positioning/auto_shoot_command.h"
+#include "commands/positioning/climb_command.h"
+#include "commands/positioning/intake_command.h"
+#include "commands/positioning/odometry_shoot_command.h"
+#include "commands/positioning/passing_command.h"
+#include "commands/positioning/pre_climb_command.h"
+#include "commands/positioning/source_command.h"
+#include "commands/positioning/stow_command.h"
+#include "commands/positioning/subwoofer_shot_command.h"
+#include "commands/positioning/trap_command.h"
+#include "commands/positioning/zero_bubble_command.h"
+#include "subsystems/shooter.h"
+#include "subsystems/intake.h"
 #include "subsystems/pivot.h"
 #include "subsystems/wrist.h"
 #include "subsystems/telescope.h"
-#include "commands/stow_command.h"
-#include "commands/deploy_intake_command.h"
+// #include "commands/positioning/stow_command.h"
+// #include "commands/deploy_intake_command.h"
 
 FunkyRobot::FunkyRobot() : frc846::Loggable{"funky_robot"} {
   next_loop_time_ = frc846::wpilib::CurrentFPGATime();
@@ -312,16 +328,54 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger drivetrain_zero_bearing_trigger{
       [&] { return container_.driver_.readings().back_button; }};
 
+  frc2::Trigger amp_trigger{
+      [&] { return container_.driver_.readings().left_bumper;}};
+
+  frc2::Trigger climb_trigger{
+      [&] { return container_.operator_.readings().right_trigger;}};
+
+  frc2::Trigger intake_trigger{
+      [&] { return container_.driver_.readings().left_trigger;}};
+
+  frc2::Trigger odometry_shoot_trigger{
+      [&] { return container_.driver_.readings().right_trigger;}};
+
+  frc2::Trigger passing_trigger{
+      [&] { return container_.driver_.readings().a_button;}};
+
+  frc2::Trigger pre_climb_trigger{
+      [&] { return container_.operator_.readings().left_trigger;}};
+
+  frc2::Trigger source_trigger{
+      [&] { return container_.driver_.readings().x_button;}};
+
+  frc2::Trigger subwoofer_shot_trigger{
+      [&] { return container_.driver_.readings().y_button;}};
+
+  frc2::Trigger trap_trigger{
+      [&] { return container_.operator_.readings().left_bumper;}};
+
+  frc2::Trigger zero_bubble_trigger{
+      [&] { return container_.operator_.readings().back_button;}};
+
+  frc2::Trigger stow_trigger{ //none of the above
+      [&] { return !(container_.driver_.readings().left_bumper || 
+                     container_.operator_.readings().right_trigger ||
+                     container_.driver_.readings().left_trigger ||
+                     container_.driver_.readings().right_trigger ||
+                     container_.driver_.readings().a_button ||
+                     container_.operator_.readings().left_trigger ||
+                     container_.driver_.readings().x_button ||
+                     container_.driver_.readings().y_button ||
+                     container_.operator_.readings().left_bumper ||
+                     container_.operator_.readings().back_button);}};
+
 
   frc2::Trigger on_piece_trigger{
-      [&] { return frc846::util::ShareTables::GetBoolean("scorer_has_piece"); }};
+      [&] { return frc846::util::ShareTables::GetBoolean("intake_has_piece"); }};
 
   frc2::Trigger scorer_in_trigger{
       [&] { return container_.driver_.readings().left_trigger || container_.driver_.readings().x_button; }};
-
-  frc2::Trigger scorer_in_source_trigger{
-      [&] { return container_.driver_.readings().x_button; }};
-
 
   frc2::Trigger scorer_pass_trigger{
       [&] { return container_.driver_.readings().a_button; }};
@@ -342,7 +396,7 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger scorer_out_trigger{
       [&] { return ((container_.driver_.readings().right_bumper
         && (container_.driver_.readings().right_trigger || container_.driver_.readings().y_button) && 
-                std::abs(container_.scorer_.readings().kLeftErrorPercent) < 0.35)
+                std::abs(container_.shooter_.readings().kLeftErrorPercent) < 0.35)
       ); }};
   
   frc2::Trigger scorer_lodge_trigger{
@@ -361,9 +415,6 @@ void FunkyRobot::InitTeleopTriggers() {
 
   frc2::Trigger zero_wrist_trigger{
       [&] { return container_.driver_.readings().b_button;}};
-
-  frc2::Trigger amp_trigger{
-      [&] {return container_.driver_.readings().left_bumper;}};
   
   // // Bind Triggers to commands
   drivetrain_zero_bearing_trigger.WhileTrue(
@@ -373,83 +424,87 @@ void FunkyRobot::InitTeleopTriggers() {
 
   scorer_in_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIntake));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kIntake});
       }).ToPtr());
 
   scorer_in_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
-      }).ToPtr());
-
-  scorer_in_source_trigger.WhileTrue(
-      frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIntake));
-      }).ToPtr());
-  
-  scorer_in_source_trigger.OnFalse(
-      frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kIntakeIdle});
       }).ToPtr());
 
   scorer_spin_up_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kSpinUp));
+        container_.shooter_.SetTarget({kShoot});
+        container_.intake_.SetTarget({kIntakeIdle});
       }).ToPtr());
 
   scorer_spin_up_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kIntakeIdle});
       }).ToPtr());
 
 
   scorer_lodge_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kLodge));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kLodge});
       }).ToPtr());
 
   scorer_lodge_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kIntakeIdle});
       }).ToPtr());
   
   scorer_pass_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kPass));
+        container_.shooter_.SetTarget({kShoot});
+        container_.intake_.SetTarget({kFeed});
       }).ToPtr());
 
   scorer_pass_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kSpinUp));
+        container_.shooter_.SetTarget({kShoot});
+        container_.intake_.SetTarget({kIntakeIdle});
       }).ToPtr());
 
   scorer_out_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kShoot));
+        container_.shooter_.SetTarget({kShoot});
+        container_.intake_.SetTarget({kIntakeIdle});
       }).ToPtr());
 
   scorer_out_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kIntakeIdle});
       }).ToPtr());
 
   scorer_roller_in_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kRollerIn));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kRollerIn});
       }).ToPtr());
 
   scorer_roller_in_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kIntakeIdle});
       }).ToPtr());
 
   scorer_eject_trigger.WhileTrue(
     frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kRelease));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kRelease});
       }).ToPtr());
 
   scorer_eject_trigger.OnFalse(
       frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
+        container_.shooter_.SetTarget({kShooterIdle});
+        container_.intake_.SetTarget({kIntakeIdle});
       }).ToPtr());
 
   on_piece_trigger.OnTrue(
@@ -465,19 +520,138 @@ void FunkyRobot::InitTeleopTriggers() {
         }).ToPtr()
       ));
   
-  amp_trigger.OnTrue(
-        frc2::InstantCommand([this] {
-        container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kRollerIn));
-      }).WithTimeout(1_s).AndThen(
-        frc2::InstantCommand([this] {
-          container_.scorer_.SetTarget(container_.scorer_.MakeTarget(kIdle));
-        }).ToPtr()
-
-  ));
+  on_piece_trigger.WhileFalse(
+    frc2::InstantCommand([this] {
+      container_.driver_.SetTarget({true});
+    }).ToPtr());
   
-  zero_wrist_trigger.OnTrue(
+  amp_trigger.WhileTrue(
+    frc2::ParallelCommandGroup{
+      frc2::SequentialCommandGroup{
+        frc2::ParallelDeadlineGroup{
+          frc2::WaitCommand{1_s}, 
+          frc2::InstantCommand([this] {
+            container_.shooter_.SetTarget({kShooterIdle});
+            container_.intake_.SetTarget({kIntakeIdle});
+          })
+        }, 
+        frc2::InstantCommand([this] {
+          container_.shooter_.SetTarget({kShooterIdle});
+          container_.intake_.SetTarget({kIntakeIdle});
+        })
+      },
+
+      AmpCommand{container_}
+      
+    }.ToPtr()
+  );
+  amp_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  climb_trigger.WhileTrue(
+    ClimbCommand{container_}.ToPtr()
+  );
+  climb_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  intake_trigger.WhileTrue(
+    IntakeCommand{container_}.ToPtr()
+  );
+  intake_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  odometry_shoot_trigger.WhileTrue(
+    OdometryShootCommand{container_}.ToPtr()
+  );
+  odometry_shoot_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  passing_trigger.WhileTrue(
+    PassingCommand{container_}.ToPtr()
+  );
+  passing_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  pre_climb_trigger.WhileTrue(
+    PreClimbCommand{container_}.ToPtr()
+  );
+  pre_climb_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  source_trigger.WhileTrue(
+    SourceCommand{container_}.ToPtr()
+  );
+  source_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  stow_trigger.WhileTrue(
+    StowCommand{container_}.ToPtr()
+  );
+  stow_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  subwoofer_shot_trigger.WhileTrue(
+    SubwooferShotCommand{container_}.ToPtr()
+  );
+  subwoofer_shot_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  trap_trigger.WhileTrue(
+    TrapCommand{container_}.ToPtr()
+  );
+  trap_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  zero_bubble_trigger.WhileTrue(
+    ZeroBubbleCommand{container_}.ToPtr()
+  );
+  zero_bubble_trigger.OnFalse(
+    frc2::InstantCommand([this] {
+      frc846::util::ShareTables::SetString("arm_position", "");
+    }).ToPtr()
+  );
+
+  
+  zero_wrist_trigger.WhileTrue(
     ZeroWristCommand{container_}.ToPtr()
   );
+
+
+
+  //Positioning!
+  
+
+
 }
 
 void FunkyRobot::InitTestDefaults() {

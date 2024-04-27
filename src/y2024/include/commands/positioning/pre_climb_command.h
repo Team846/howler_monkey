@@ -1,20 +1,20 @@
-#ifndef y2024_COMMANDS_STOW_COMMAND_H_
-#define y2024_COMMANDS_STOW_COMMAND_H_
+#ifndef y2024_COMMANDS_PRE_CLIMB_COMMAND_H_
+#define y2024_COMMANDS_PRE_CLIMB_COMMAND_H_
 
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/util/math.h"
-#include "subsystems/scorer.h"
 #include "subsystems/pivot.h"
 #include "subsystems/telescope.h"
 #include "subsystems/wrist.h"
+#include "subsystems/operator.h"
 #include "subsystems/robot_container.h"
 
-class StowCommand
-    : public frc2::CommandHelper<frc2::Command, StowCommand>,
+class PreClimbCommand
+    : public frc2::CommandHelper<frc2::Command, PreClimbCommand>,
       public frc846::Loggable {
  public:
-  StowCommand(RobotContainer& container);
+  PreClimbCommand(RobotContainer& container);
 
   void Initialize() override;
 
@@ -25,12 +25,21 @@ class StowCommand
   bool IsFinished() override;
 
  private:
-  ScorerSubsystem& scorer_;
   PivotSubsystem& pivot_;
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;
 
+  OperatorSubsystem& operator_;
+
+  double pmpiv_adj=0;
+  double pmtele_adj=0;
+  double pms_adj=0;
+
+  double mpiv_adj=0;
+  double mtele_adj=0;
+  double ms_adj=0;
+
   bool is_done_ = false;
 };
 
-#endif  // y2024_COMMANDS_STOW_COMMAND_H_
+#endif  // y2024_COMMANDS_PRE_CLIMB_COMMAND_H_

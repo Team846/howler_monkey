@@ -95,7 +95,7 @@ void LEDsSubsystem::DirectWrite(LEDsTarget target) {
       }
       loops++;
       loops%=100;
-    } else if (frc846::util::ShareTables::GetBoolean("scorer_has_piece")){
+    } else if (frc846::util::ShareTables::GetBoolean("intake_has_piece")){
       for (int i = 0; i < kLength; i++) {
         const auto pixelHue = (first_pixel_hue_ + (i * 180 / kLength)) % 180;
         leds_buffer_[i].SetHSV(pixelHue, 255, 128);

@@ -11,8 +11,8 @@
 ShootCommand::ShootCommand(
     RobotContainer& container)
     : frc846::Loggable{"shoot_command"},
-      scorer_(container.scorer_) {
-  AddRequirements({&scorer_});
+      shooter_(container.shooter_), intake_(container.intake_) {
+  AddRequirements({&shooter_, &intake_});
   SetName("shoot_command");
 }
 
@@ -21,9 +21,10 @@ void ShootCommand::Initialize() {
 }
 
 void ShootCommand::Execute() {
-  scorer_.SetTarget(scorer_.MakeTarget(kShoot));
+  shooter_.SetTarget({kShoot});
+  intake_.SetTarget({kFeed});
 
-  is_done_ = !frc846::util::ShareTables::GetBoolean("scorer_has_piece");
+  is_done_ = !frc846::util::ShareTables::GetBoolean("intake_has_piece");
 }
 
 void ShootCommand::End(bool interrupted) {

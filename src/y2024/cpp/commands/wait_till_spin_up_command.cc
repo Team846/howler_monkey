@@ -10,9 +10,9 @@
 WaitTillSpinUpCommand::WaitTillSpinUpCommand(
     RobotContainer& container)
     : frc846::Loggable{"wait_till_spin_up_command"},
-      scorer_(container.scorer_), 
+      shooter_(container.shooter_), 
       super_ (container.super_structure_) {
-  AddRequirements({&scorer_});
+  AddRequirements({&shooter_});
   SetName("wait_till_spin_up_command");
 }
 
@@ -28,5 +28,5 @@ void WaitTillSpinUpCommand::End(bool interrupted) {
 }
 
 bool WaitTillSpinUpCommand::IsFinished() {
-return std::abs(scorer_.readings().kLeftErrorPercent) < super_.shooter_speed_tolerance_.value();
+return std::abs(shooter_.readings().kLeftErrorPercent) < super_.shooter_speed_tolerance_.value();
 }

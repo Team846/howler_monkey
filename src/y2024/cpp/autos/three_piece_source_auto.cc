@@ -2,6 +2,7 @@
 
 #include <frc2/command/Commands.h>
 #include <frc2/command/ParallelDeadlineGroup.h>
+#include <frc2/command/ParallelCommandGroup.h>
 #include <frc2/command/ParallelRaceGroup.h>
 #include <frc2/command/SequentialCommandGroup.h>
 #include <memory>
@@ -9,15 +10,15 @@
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
 #include "frc846/util/math.h"
-#include "commands/prepare_short_shoot_command.h"
-#include "commands/prepare_far_shoot_command.h"
 #include "commands/shoot_command.h"
 #include "commands/follow_trajectory_command.h"
-#include "commands/deploy_intake_command.h"
 #include "commands/shoot_command.h"
-#include "commands/stow_command.h"
+#include "commands/positioning/stow_command.h"
 #include "commands/speaker_align_command.h"
 #include "commands/auto_intake_and_shoot_command.h"
+#include "commands/positioning/intake_command.h"
+#include "commands/positioning/auto_shoot_command.h"
+#include "subsystems/setpoints.h"
 #include "subsystems/field.h"
 #include "subsystems/drivetrain.h"
 #include "subsystems/robot_container.h"
@@ -38,27 +39,32 @@ ThreePieceSourceAuto::ThreePieceSourceAuto(
         first_distance = (field::points::kSpeaker(flip) - pose_.point).Magnitude();
       }},
 
-      PrepareShortShootCommand{ container, 0.0}, //first_distance.to<double>() },
+      AutoShootCommand{container, setpoints::kAutoShortShoot(0), setpoints::kAutoShortShoot(2), 0}, //PrepareShort
       // SpeakerAlignCommand{ container, 
       //     field::points::kSSOrigin(should_flip_).point},
       frc2::WaitCommand{1_s},
       ShootCommand{ container },
-
-      DeployIntakeCommand{container},
+      frc2::ParallelCommandGroup{
+        IntakeCommand{container},
+        frc2::InstantCommand([&] {
+          container.shooter_.SetTarget({kShooterIdle});
+          container.intake_.SetTarget({kIntake});
+        })
+      },
       FollowTrajectoryCommand{ container, {{field::points::kSourceSideIntermediateOne(should_flip_), 0_fps}, 
                                             {field::points::kSourceSideIntakeOne(should_flip_), 0_fps}}},
-      PrepareFarShootCommand {container, 0},
+      AutoShootCommand{container, setpoints::kAutoFarShoot(0), setpoints::kAutoFarShoot(2), 0}, //PrepareFar,
 
       FollowTrajectoryCommand{container, {{field::points::kSourceSideIntermediateOne(should_flip_), 0_fps},
                                             {field::points::kSourceSideShootOne(should_flip_), 0_fps}}},
       
       ShootCommand{ container }, 
 
-      DeployIntakeCommand{container},
+      AutoShootCommand{container, setpoints::kAutoFarShoot(0), setpoints::kAutoFarShoot(2), 0}, //PrepareFar,
       FollowTrajectoryCommand {container, {{field::points::kSourceSideIntermediateTwo(should_flip_), 0_fps},
                                             {field::points::kSourceSideIntakeTwo(should_flip_), 0_fps}}},
       
-      PrepareFarShootCommand {container, 0},
+      AutoShootCommand{container, setpoints::kAutoFarShoot(0), setpoints::kAutoFarShoot(2), 0}, //PrepareFar,
       FollowTrajectoryCommand {container, {{field::points::kSourceSideIntermediateTwo(should_flip_), 0_fps},
                                             {field::points::kSourceSideShootTwo(
                                               
@@ -66,7 +72,13 @@ ThreePieceSourceAuto::ThreePieceSourceAuto(
                                               should_flip_), 0_fps}}},
       
       ShootCommand{ container }, 
-      StowCommand { container }, 
+      frc2::ParallelCommandGroup{
+        StowCommand{container}, 
+        frc2::InstantCommand([&] {
+          container.shooter_.SetTarget({kShooterIdle});
+          container.intake_.SetTarget({kIntakeIdle});
+        })
+      },
       
       FollowTrajectoryCommand{ container, {{field::points::kSourceSideIntermediateTwo(should_flip_), 4_fps}}}
      );

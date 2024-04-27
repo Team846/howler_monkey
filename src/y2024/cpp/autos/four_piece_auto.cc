@@ -10,12 +10,13 @@
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
 #include "frc846/util/math.h"
-#include "commands/prepare_short_shoot_command.h"
 #include "commands/shoot_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/shoot_command.h"
 #include "commands/speaker_align_command.h"
 #include "commands/auto_intake_and_shoot_command.h"
+#include "commands/positioning/auto_shoot_command.h"
+#include "subsystems/setpoints.h"
 #include "subsystems/field.h"
 #include "subsystems/drivetrain.h"
 #include "subsystems/robot_container.h"
@@ -35,7 +36,7 @@ FourPieceAuto::FourPieceAuto(
         container.drivetrain_.SetBearing(pose_.bearing);
         first_distance = (field::points::kSpeaker(flip) - pose_.point).Magnitude();
       }},
-      PrepareShortShootCommand{ container,  (field::points::kSpeaker(should_flip_) - field::points::kFourPieceOrigin(should_flip_).point).Magnitude().to<double>()}, //first_distance.to<double>() },
+      AutoShootCommand{container, setpoints::kAutoShortShoot(0), setpoints::kAutoShortShoot(2), 0}, //PrepareShort
       // SpeakerAlignCommand{ container, 
       //     field::points::kFPOrigin(should_flip_).point},
       frc2::WaitCommand{1.5_s},

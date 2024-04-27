@@ -4,7 +4,8 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/util/math.h"
-#include "subsystems/scorer.h"
+#include "subsystems/shooter.h"
+#include "subsystems/intake.h"
 #include "subsystems/super_structure.h"
 #include "subsystems/robot_container.h"
 
@@ -23,7 +24,7 @@ class WaitTillSpinUpCommand
   bool IsFinished() override;
 
  private:
-  ScorerSubsystem& scorer_;
+  ShooterSubsystem& shooter_;
   SuperStructureSubsystem& super_;
 };
 

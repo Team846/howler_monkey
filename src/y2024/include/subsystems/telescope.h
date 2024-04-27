@@ -52,6 +52,10 @@ class TelescopeSubsystem
 
   frc846::Pref<units::inch_t> stow_setpoint_tele_{*this, "stow_setpoint_tele_", 0_in};
 
+  frc846::Pref<units::inch_t> telescope_position_tolerance_{*this, "telescope_position_tolerance", 0.1_in};
+
+  frc846::Pref<double> telescope_adj_inc_{*this, "telescope_adj_inc_", 0.06};
+
   // frc846::Pref<double> telescope_home_speed_{*this, "telescope_home_speed", -0.1};
 
  private:

@@ -148,7 +148,7 @@ class DrivetrainSubsystem
     frc846::Pref<double> angle_offset_factor_{april_tags_named_, "april_angle_factor", 1.0};
 
     bool aprilFrameRequested=false;
-    long aprilFrameRequest=0;
+    double aprilFrameRequest=0;
     frc846::util::Position poseAtLastRequest;
 
     nt::NetworkTableInstance nt_table =

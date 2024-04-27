@@ -59,10 +59,15 @@ class PivotSubsystem
 
   frc846::Pref<units::degree_t> intake_setpoint_pivot{*this, "intake_setpoint_pivot", 0_deg};
 
+  frc846::Pref<units::degree_t> pivot_position_tolerance_{*this, "pivot_position_tolerance", 0.2_deg};
+
+  frc846::Pref<units::degree_t> pivot_home_offset{*this, "home_offset_pivot_", -17_deg};
   frc846::Pref<units::degree_t> stow_setpoint_pivot{*this, "stow_setpoint_pivot", 0_deg};
 
   frc846::Pref<units::degree_t> ramp_rate_limit{
       *this, "ramp_rate_limit_", 40_deg};
+
+  frc846::Pref<double> pivot_adj_inc_{*this, "pivot_adj_inc_", 0.6};
 
  private:
 

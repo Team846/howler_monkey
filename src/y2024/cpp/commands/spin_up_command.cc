@@ -11,8 +11,8 @@
 SpinUpCommand::SpinUpCommand(
     RobotContainer& container)
     : frc846::Loggable{"spin_up_command"},
-      scorer_(container.scorer_) {
-  AddRequirements({&scorer_});
+      shooter_(container.shooter_), intake_(container.intake_) {
+  AddRequirements({&shooter_, &intake_});
   SetName("shoot_command");
 }
 
@@ -21,7 +21,8 @@ void SpinUpCommand::Initialize() {
 }
 
 void SpinUpCommand::Execute() {
-  scorer_.SetTarget(scorer_.MakeTarget(kSpinUp));
+  shooter_.SetTarget({kShoot});
+  intake_.SetTarget({kIntake});
 
   is_done_ = true;
 }

@@ -59,7 +59,7 @@ void WristSubsystem::PositionWrist(WristTarget target) {
 
   if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
 
-    units::degree_t pivot_angle = units::degree_t(frc846::util::ShareTables::GetDouble("pivot_position"))-17_deg;
+    units::degree_t pivot_angle = units::degree_t(frc846::util::ShareTables::GetDouble("pivot_position")+frc846::util::ShareTables::GetDouble("pivot_home_offset"));
     units::degree_t wrist_angle = readings().wrist_position+(180_deg-(wrist_home_offset_.value()+wrist_cg_offset_.value()));
     units::degree_t shooting_angle = 180_deg+pivot_angle-wrist_angle;
 

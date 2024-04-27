@@ -56,7 +56,11 @@ class WristSubsystem
 
   frc846::Pref<units::degree_t> wrist_lower_limit_{*this, "wrist_upper_limit", 0_deg};
   
-frc846::Pref<double> wrist_home_speed_{*this, "wrist_home_speed", -0.1};
+  frc846::Pref<double> wrist_home_speed_{*this, "wrist_home_speed", -0.1};
+
+  frc846::Pref<units::degree_t> wrist_position_tolerance_{*this, "wrist_position_tolerance", 0.2_deg};
+
+  frc846::Pref<double> wrist_adj_inc_{*this, "wrist_adj_inc_", 0.80};
 
 
  private:
