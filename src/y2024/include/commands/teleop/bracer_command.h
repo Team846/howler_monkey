@@ -4,10 +4,10 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/control/motion.h"
-#include "subsystems/bracer.h"
-#include "subsystems/control_input.h"
+#include "subsystems/abstract/control_input.h"
+#include "subsystems/abstract/super_structure.h"
+#include "subsystems/hardware/bracer.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/super_structure.h"
 
 class BracerCommand : public frc2::CommandHelper<frc2::Command, BracerCommand> {
  public:

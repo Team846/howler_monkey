@@ -6,7 +6,7 @@
 #include "field.h"
 #include "frc846/loggable.h"
 #include "frc846/util/math.h"
-#include "subsystems/swerve_module.h"
+#include "subsystems/hardware/swerve_module.h"
 
 TelescopeCommand::TelescopeCommand(RobotContainer &container)
     : control_input_(container.control_input_),
@@ -21,52 +21,84 @@ void TelescopeCommand::Execute() {
 
   TelescopeTarget telescope_target = telescope_.ZeroTarget();
 
+  units::inch_t adj = 0_in;
+
   if (std::abs(ci_readings_.telescope_manual_adjust) >
       super_.manual_control_deadband_.value()) {
-    mtele_adj += telescope_.max_adjustment_rate_.value() / 50.0_Hz *
-                 ci_readings_.telescope_manual_adjust;
+    adj = telescope_.max_adjustment_rate_.value() / 50.0_Hz *
+          ci_readings_.telescope_manual_adjust;
   }
 
   if (ci_readings_.stageOfTrap != 0) {
     // TRAP LOGIC TODO
 
-    if (prev_ci_readings_.stageOfTrap == 0) mtele_adj = 0_in;
-    telescopeHasRun = true;
   } else if (ci_readings_.running_prep_shoot ||
              ci_readings_.running_super_shoot) {
-    telescope_target.extension = super_.getShootSetpoint().telescope;
-
-    if (!prev_ci_readings_.running_prep_shoot) mtele_adj = 0_in;
-    telescopeHasRun = true;
+    msequencer_.execute("prep_shoot",
+                        {{[&]() -> void {
+                            telescope_target.extension =
+                                super_.getShootSetpoint().telescope;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { mtele_adj = 0_in; });
   } else if (ci_readings_.running_source) {
-    telescope_target.extension = super_.getSourceSetpoint().telescope;
-
-    if (!prev_ci_readings_.running_source) mtele_adj = 0_in;
-    telescopeHasRun = true;
+    msequencer_.execute("source",
+                        {{[&]() -> void {
+                            telescope_target.extension =
+                                super_.getSourceSetpoint().telescope;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { mtele_adj = 0_in; });
   } else if (ci_readings_.running_intake) {
-    telescope_target.extension = super_.getIntakeSetpoint().telescope;
-
-    if (!prev_ci_readings_.running_intake) mtele_adj = 0_in;
-    telescopeHasRun = true;
+    msequencer_.execute("intake",
+                        {{[&]() -> void {
+                            telescope_target.extension =
+                                super_.getIntakeSetpoint().telescope;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { mtele_adj = 0_in; });
   } else if (ci_readings_.running_amp) {
-    telescope_target.extension = super_.getAmpSetpoint().telescope;
-
-    if (!prev_ci_readings_.running_amp) mtele_adj = 0_in;
-    telescopeHasRun = true;
+    msequencer_.execute("amp",
+                        {{[&]() -> void {
+                            telescope_target.extension =
+                                super_.getAmpSetpoint().telescope;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { mtele_adj = 0_in; });
   } else if (ci_readings_.running_pass) {
-    telescope_target.extension = super_.getIntakeSetpoint().telescope;
-
-    if (!prev_ci_readings_.running_pass) mtele_adj = 0_in;
-    telescopeHasRun = true;
+    msequencer_.execute("pass",
+                        {{[&]() -> void {
+                            telescope_target.extension =
+                                super_.getIntakeSetpoint().telescope;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { mtele_adj = 0_in; });
   } else {
-    telescope_target.extension = super_.getStowSetpoint().telescope;
-
-    if (telescopeHasRun) mtele_adj = 0.0_in;
-    telescopeHasRun = false;
+    msequencer_.execute("stow",
+                        {{[&]() -> void {
+                            telescope_target.extension =
+                                super_.getStowSetpoint().telescope;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { mtele_adj = 0_in; });
   }
 
   if (auto *telescopeTarget =
           std::get_if<units::inch_t>(&telescope_target.extension)) {
+    auto nextSumOutOfBounds = InverseKinematics::sumOutOfBounds(
+        InverseKinematics::degree_toCoordinate(
+            {frc846::util::ShareTables::GetDouble("pivot_position"),
+             frc846::util::ShareTables::GetDouble("wrist_position"),
+             (*telescopeTarget + mtele_adj + adj).to<double>()}));
+    auto currentSumOutOfBounds = InverseKinematics::sumOutOfBounds(
+        InverseKinematics::degree_toCoordinate(
+            {frc846::util::ShareTables::GetDouble("pivot_position"),
+             frc846::util::ShareTables::GetDouble("wrist_position"),
+             (*telescopeTarget + mtele_adj).to<double>()}));
+    if (nextSumOutOfBounds < 0.05 ||
+        nextSumOutOfBounds <= currentSumOutOfBounds) {
+      mtele_adj += adj;
+    }
     telescope_target.extension = *telescopeTarget + mtele_adj;
   }
 

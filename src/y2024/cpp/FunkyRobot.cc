@@ -17,8 +17,9 @@
 #include "commands/teleop/bracer_command.h"
 #include "commands/teleop/control_input_command.h"
 #include "commands/teleop/drive_command.h"
+#include "commands/teleop/intake_command.h"
 #include "commands/teleop/pivot_command.h"
-#include "commands/teleop/scorer_command.h"
+#include "commands/teleop/shooter_command.h"
 #include "commands/teleop/telescope_command.h"
 #include "commands/teleop/wrist_command.h"
 #include "frc/DataLogManager.h"
@@ -28,10 +29,11 @@
 #include "frc846/other/sendable_callback.h"
 #include "frc846/other/xbox.h"
 #include "frc846/wpilib/time.h"
-#include "subsystems/pivot.h"
-#include "subsystems/scorer.h"
-#include "subsystems/telescope.h"
-#include "subsystems/wrist.h"
+#include "subsystems/hardware/intake.h"
+#include "subsystems/hardware/pivot.h"
+#include "subsystems/hardware/shooter.h"
+#include "subsystems/hardware/telescope.h"
+#include "subsystems/hardware/wrist.h"
 
 FunkyRobot::FunkyRobot() : frc846::Loggable{"funky_robot"} {
   next_loop_time_ = frc846::wpilib::CurrentFPGATime();
@@ -300,7 +302,8 @@ void FunkyRobot::InitTeleopDefaults() {
   container_.pivot_.SetDefaultCommand(PivotCommand{container_});
   container_.wrist_.SetDefaultCommand(WristCommand{container_});
   container_.telescope_.SetDefaultCommand(TelescopeCommand{container_});
-  container_.scorer_.SetDefaultCommand(ScorerCommand{container_});
+  container_.intake_.SetDefaultCommand(IntakeCommand{container_});
+  container_.shooter_.SetDefaultCommand(ShooterCommand{container_});
   container_.bracer_.SetDefaultCommand(BracerCommand{container_});
   container_.control_input_.SetDefaultCommand(ControlInputCommand{container_});
 }
@@ -309,14 +312,14 @@ void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger drivetrain_zero_bearing_trigger{
       [&] { return container_.driver_.readings().back_button; }};
 
-  frc2::Trigger on_piece_trigger{[&] {
-    return frc846::util::ShareTables::GetBoolean("scorer_has_piece");
-  }};
-
   drivetrain_zero_bearing_trigger.WhileTrue(
       frc2::InstantCommand([this] {
         container_.drivetrain_.ZeroBearing();
       }).ToPtr());
+
+  frc2::Trigger on_piece_trigger{[&] {
+    return frc846::util::ShareTables::GetBoolean("scorer_has_piece");
+  }};
 
   on_piece_trigger.OnTrue(frc2::InstantCommand([this] {
                             DriverTarget driver_target{};
@@ -330,6 +333,13 @@ void FunkyRobot::InitTeleopTriggers() {
                                          container_.driver_.SetTarget(
                                              driver_target);
                                        }).ToPtr()));
+
+  frc2::Trigger zero_wrist_trigger{
+      [&] { return container_.operator_.readings().back_button; }};
+
+  zero_wrist_trigger.OnTrue(frc2::InstantCommand([this] {
+                              container_.wrist_.ZeroSubsystem();
+                            }).ToPtr());
 }
 
 void FunkyRobot::InitTestDefaults() {}

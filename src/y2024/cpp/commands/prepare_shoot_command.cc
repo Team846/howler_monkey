@@ -6,11 +6,12 @@
 
 #include "frc846/util/math.h"
 #include "frc846/wpilib/time.h"
-#include "subsystems/super_structure.h"
+#include "subsystems/abstract/super_structure.h"
 
 PrepareShootCommand::PrepareShootCommand(RobotContainer& container)
     : frc846::Loggable{"prepare_shoot_command"},
-      scorer_(container.scorer_),
+      intake_(container.intake_),
+      shooter_(container.shooter_),
       pivot_(container.pivot_),
       telescope_(container.telescope_),
       wrist_(container.wrist_),
@@ -29,14 +30,15 @@ void PrepareShootCommand::Execute() {
 
   auto theta = shooting_calculator_
                    .calculateLaunchAngles(
-                       scorer_.shooting_exit_velocity_.value(),
+                       shooter_.shooting_exit_velocity_.value(),
                        vis_readings_.est_dist_from_speaker.to<double>(),
                        vis_readings_.velocity_in_component,
                        vis_readings_.velocity_orth_component,
                        super_.auto_shooter_height_.value().to<double>() / 12.0)
                    .launch_angle;
 
-  scorer_.SetTarget(scorer_.MakeTarget(kSpinUp));
+  intake_.SetTarget(intake_.MakeTarget(IntakeState::kHold));
+  shooter_.SetTarget(shooter_.MakeTarget(ShooterState::kRun));
 
   pivot_.SetTarget(pivot_.MakeTarget(super_.getAutoShootSetpoint().pivot));
   telescope_.SetTarget(

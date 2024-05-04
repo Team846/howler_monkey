@@ -9,15 +9,18 @@
 #include "frc846/wpilib/time.h"
 
 ShootCommand::ShootCommand(RobotContainer& container)
-    : frc846::Loggable{"shoot_command"}, scorer_(container.scorer_) {
-  AddRequirements({&scorer_});
+    : frc846::Loggable{"shoot_command"},
+      intake_(container.intake_),
+      shooter_(container.shooter_) {
+  AddRequirements({&intake_, &shooter_});
   SetName("shoot_command");
 }
 
 void ShootCommand::Initialize() { Log("Shoot Command Initialize"); }
 
 void ShootCommand::Execute() {
-  scorer_.SetTarget(scorer_.MakeTarget(kShoot));
+  intake_.SetTarget(intake_.MakeTarget(kFeed));
+  shooter_.SetTarget(shooter_.MakeTarget(kRun));
 
   is_done_ = !frc846::util::ShareTables::GetBoolean("scorer_has_piece");
 }

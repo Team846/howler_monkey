@@ -4,12 +4,13 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/util/math.h"
-#include "subsystems/pivot.h"
+#include "subsystems/abstract/super_structure.h"
+#include "subsystems/hardware/intake.h"
+#include "subsystems/hardware/pivot.h"
+#include "subsystems/hardware/shooter.h"
+#include "subsystems/hardware/telescope.h"
+#include "subsystems/hardware/wrist.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/scorer.h"
-#include "subsystems/super_structure.h"
-#include "subsystems/telescope.h"
-#include "subsystems/wrist.h"
 
 class StowCommand : public frc2::CommandHelper<frc2::Command, StowCommand>,
                     public frc846::Loggable {
@@ -25,7 +26,8 @@ class StowCommand : public frc2::CommandHelper<frc2::Command, StowCommand>,
   bool IsFinished() override;
 
  private:
-  ScorerSubsystem& scorer_;
+  IntakeSubsystem& intake_;
+  ShooterSubsystem& shooter_;
   PivotSubsystem& pivot_;
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;

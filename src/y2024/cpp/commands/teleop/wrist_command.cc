@@ -6,14 +6,14 @@
 #include "field.h"
 #include "frc846/loggable.h"
 #include "frc846/util/math.h"
-#include "subsystems/swerve_module.h"
+#include "subsystems/hardware/swerve_module.h"
 
 WristCommand::WristCommand(RobotContainer &container)
     : control_input_(container.control_input_),
       wrist_(container.wrist_),
       pivot_(container.pivot_),
       drivetrain_(container.drivetrain_),
-      scorer_(container.scorer_),
+      shooter_(container.shooter_),
       super_(container.super_structure_),
       vision_(container.vision_) {
   AddRequirements({&wrist_});
@@ -25,10 +25,12 @@ void WristCommand::Execute() {
 
   WristTarget wrist_target = wrist_.ZeroTarget();
 
+  units::degree_t adj = 0_deg;
+
   if (std::abs(ci_readings_.wrist_manual_adjust) >
       super_.manual_control_deadband_.value()) {
-    ms_adj += wrist_.max_adjustment_rate_.value() / 50.0_Hz *
-              ci_readings_.wrist_manual_adjust;
+    adj = wrist_.max_adjustment_rate_.value() / 50.0_Hz *
+          ci_readings_.wrist_manual_adjust;
   }
 
   frc846::util::ShareTables::SetString("shooting_state", "kNone");
@@ -36,8 +38,6 @@ void WristCommand::Execute() {
   if (ci_readings_.stageOfTrap != 0) {
     // TRAP LOGIC TODO FIX
 
-    if (prev_ci_readings_.stageOfTrap == 0) ms_adj = 0_deg;
-    wristHasRun = true;
   } else if (ci_readings_.running_prep_shoot) {
     units::degree_t pivotAngle = pivot_.readings().pivot_position;
     auto pivotTarget = pivot_.GetTarget();
@@ -46,12 +46,16 @@ void WristCommand::Execute() {
       pivotAngle = *pivotTargetAngle;
     }
 
-    wrist_target.wrist_output =
-        90_deg + pivotAngle - pivot_.pivot_home_offset_.value() -
-        wrist_.wrist_home_offset_.value() + super_.getShootSetpoint().wrist;
-
-    if (!prev_ci_readings_.running_prep_shoot) ms_adj = 0_deg;
-    wristHasRun = true;
+    msequencer_.execute("prep_shoot",
+                        {{[&]() -> void {
+                            wrist_target.wrist_output =
+                                90_deg + pivotAngle -
+                                pivot_.pivot_home_offset_.value() -
+                                wrist_.wrist_home_offset_.value() +
+                                super_.getShootSetpoint().wrist;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { ms_adj = 0_deg; });
   } else if (ci_readings_.running_super_shoot) {
     VisionReadings vision_readings = vision_.readings();
     double shooting_dist = vision_readings.est_dist_from_speaker.to<double>();
@@ -62,7 +66,7 @@ void WristCommand::Execute() {
     units::degree_t theta =
         shooting_calculator
             .calculateLaunchAngles(
-                scorer_.shooting_exit_velocity_.value(), shooting_dist,
+                shooter_.shooting_exit_velocity_.value(), shooting_dist,
                 vision_readings.velocity_in_component,
                 vision_readings.velocity_orth_component,
                 super_.teleop_shooter_height_.value().to<double>() / 12.0)
@@ -74,44 +78,81 @@ void WristCommand::Execute() {
       frc846::util::ShareTables::SetString("shooting_state", "kUnready");
     }
 
-    wrist_target.wrist_output =
-        90_deg +
-        units::degree_t(
-            frc846::util::ShareTables::GetDouble("pivot_position")) -
-        pivot_.pivot_home_offset_.value() - wrist_.wrist_home_offset_.value() +
-        units::degree_t(theta);
-
-    if (!prev_ci_readings_.running_super_shoot) ms_adj = 0_deg;
-    wristHasRun = true;
+    msequencer_.execute(
+        "super_shoot",
+        {{[&]() -> void {
+            wrist_target.wrist_output =
+                90_deg +
+                units::degree_t(
+                    frc846::util::ShareTables::GetDouble("pivot_position")) -
+                pivot_.pivot_home_offset_.value() -
+                wrist_.wrist_home_offset_.value() + units::degree_t(theta);
+          },
+          [&]() -> bool { return false; }}},
+        [&]() -> void { ms_adj = 0_deg; });
   } else if (ci_readings_.running_source) {
-    wrist_target.wrist_output = super_.getSourceSetpoint().wrist;
-
-    if (!prev_ci_readings_.running_source) ms_adj = 0_deg;
-    wristHasRun = true;
+    msequencer_.execute("source",
+                        {{[&]() -> void {
+                            wrist_target.wrist_output =
+                                super_.getSourceSetpoint().wrist;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { ms_adj = 0_deg; });
   } else if (ci_readings_.running_intake) {
-    wrist_target.wrist_output = super_.getIntakeSetpoint().wrist;
-
-    if (!prev_ci_readings_.running_intake) ms_adj = 0_deg;
-    wristHasRun = true;
+    msequencer_.execute("intake",
+                        {{[&]() -> void {
+                            wrist_target.wrist_output =
+                                super_.getIntakeSetpoint().wrist;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { ms_adj = 0_deg; });
   } else if (ci_readings_.running_amp) {
-    wrist_target.wrist_output = super_.getAmpSetpoint().wrist;
-
-    if (!prev_ci_readings_.running_amp) ms_adj = 0_deg;
-    wristHasRun = true;
+    msequencer_.execute("amp",
+                        {{[&]() -> void {
+                            wrist_target.wrist_output =
+                                super_.getAmpSetpoint().wrist;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { ms_adj = 0_deg; });
   } else if (ci_readings_.running_pass) {
-    wrist_target.wrist_output = super_.getIntakeSetpoint().wrist;
-
-    if (!prev_ci_readings_.running_pass) ms_adj = 0_deg;
-    wristHasRun = true;
+    msequencer_.execute("pass",
+                        {{[&]() -> void {
+                            wrist_target.wrist_output =
+                                super_.getIntakeSetpoint().wrist;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { ms_adj = 0_deg; });
   } else {
-    wrist_target.wrist_output = super_.getStowSetpoint().wrist;
-
-    if (wristHasRun) ms_adj = 0_deg;
-    wristHasRun = false;
+    msequencer_.execute("stow",
+                        {{[&]() -> void {
+                            wrist_target.wrist_output =
+                                super_.getStowSetpoint().wrist;
+                          },
+                          [&]() -> bool { return false; }}},
+                        [&]() -> void { ms_adj = 0_deg; });
   }
 
   if (auto *wristTarget =
           std::get_if<units::degree_t>(&wrist_target.wrist_output)) {
+    wrist_target.wrist_output = *wristTarget + ms_adj;
+  }
+
+  if (auto *wristTarget =
+          std::get_if<units::degree_t>(&wrist_target.wrist_output)) {
+    auto nextSumOutOfBounds = InverseKinematics::sumOutOfBounds(
+        InverseKinematics::degree_toCoordinate(
+            {frc846::util::ShareTables::GetDouble("pivot_position"),
+             (*wristTarget + ms_adj + adj).to<double>(),
+             frc846::util::ShareTables::GetDouble("telescope_extension")}));
+    auto currentSumOutOfBounds = InverseKinematics::sumOutOfBounds(
+        InverseKinematics::degree_toCoordinate(
+            {frc846::util::ShareTables::GetDouble("pivot_position"),
+             (*wristTarget + ms_adj).to<double>(),
+             frc846::util::ShareTables::GetDouble("telescope_extension")}));
+    if (nextSumOutOfBounds < 0.05 ||
+        nextSumOutOfBounds <= currentSumOutOfBounds) {
+      ms_adj += adj;
+    }
     wrist_target.wrist_output = *wristTarget + ms_adj;
   }
 

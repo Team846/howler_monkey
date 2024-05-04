@@ -106,9 +106,20 @@ class InverseKinematics {
 
  public:
   static bool withinBounds(CoordinatePositions pos) {
-    return (pos.forward_axis < robotWidth / 2.0 + 10.5 &&
-            pos.forward_axis > -robotWidth / 2.0 - 10.5 &&
-            pos.upward_axis > -10.0 && pos.upward_axis < 45);
+    return (pos.forward_axis < robotWidth / 2.0 + 12 &&
+            pos.forward_axis > -robotWidth / 2.0 - 12 && pos.upward_axis > 0 &&
+            pos.upward_axis < 48);
+  }
+
+  static double sumOutOfBounds(CoordinatePositions pos) {
+    double sumOut = 0.0;
+    if (pos.forward_axis >= robotWidth / 2.0) {
+      sumOut += pos.forward_axis - robotWidth / 2.0;
+    }
+    if (pos.upward_axis >= 48) {
+      sumOut += pos.upward_axis - 48;
+    }
+    return sumOut;
   }
 
   static RawPositions toRaw(CoordinatePositions pos, int point = 0) {

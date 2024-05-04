@@ -47,6 +47,7 @@ class SwerveModuleSubsystem
       int drive_esc_id, int steer_esc_id, int cancoder_id,
       frc846::Pref<units::ampere_t>& current_limit,
       frc846::Pref<units::ampere_t>& motor_stall_current,
+      frc846::Pref<double>& braking_constant,
       frc846::Pref<units::feet_per_second_t>& max_speed);
 
   // Calculate the normalized target angle for the module to minimize rotations.
@@ -106,6 +107,8 @@ class SwerveModuleSubsystem
 
   frc846::Pref<units::ampere_t>& current_limit_;
   frc846::Pref<units::ampere_t>& motor_stall_current_;
+
+  frc846::Pref<double>& braking_constant_;
 
   frc846::Pref<units::feet_per_second_t>& max_speed_;
 

@@ -1,12 +1,13 @@
 #ifndef y2024_SUBSYSTEMS_CONTROL_INPUT_H_
 #define y2024_SUBSYSTEMS_CONTROL_INPUT_H_
 
-#include "subsystems/driver.h"
-#include "subsystems/operator.h"
+#include "frc846/subsystem.h"
+#include "subsystems/abstract/driver.h"
+#include "subsystems/abstract/operator.h"
 
 struct ControlInputReadings {
   int stageOfTrap;
-  
+
   bool running_intake;
   bool running_source;
   bool running_pass;
@@ -30,7 +31,8 @@ struct ControlInputReadings {
 
 struct ControlInputTarget {};
 
-class ControlInputSubsystem : public frc846::Subsystem<ControlInputReadings, ControlInputTarget> {
+class ControlInputSubsystem
+    : public frc846::Subsystem<ControlInputReadings, ControlInputTarget> {
  public:
   ControlInputSubsystem();
 

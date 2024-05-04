@@ -7,7 +7,7 @@
 #include "frc846/other/trajectory_generator.h"
 #include "frc846/util/math.h"
 #include "frc846/wpilib/time.h"
-#include "subsystems/swerve_module.h"
+#include "subsystems/hardware/swerve_module.h"
 
 SpeakerTrajectoryCommand::SpeakerTrajectoryCommand(
     RobotContainer& container, std::vector<frc846::InputWaypoint> input_points)

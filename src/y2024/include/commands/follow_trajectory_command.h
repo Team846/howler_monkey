@@ -5,7 +5,7 @@
 
 #include "frc846/other/trajectory_generator.h"
 #include "frc846/util/math.h"
-#include "subsystems/drivetrain.h"
+#include "subsystems/hardware/drivetrain.h"
 #include "subsystems/robot_container.h"
 
 class FollowTrajectoryCommand

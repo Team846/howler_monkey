@@ -4,12 +4,12 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "constants.h"
-#include "subsystems/driver.h"
-#include "subsystems/drivetrain.h"
+#include "subsystems/abstract/driver.h"
+#include "subsystems/abstract/super_structure.h"
+#include "subsystems/abstract/vision.h"
+#include "subsystems/hardware/drivetrain.h"
+#include "subsystems/hardware/shooter.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/scorer.h"
-#include "subsystems/super_structure.h"
-#include "subsystems/vision.h"
 
 class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
  public:
@@ -24,7 +24,7 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
   DrivetrainSubsystem& drivetrain_;
   SuperStructureSubsystem& super_;
   VisionSubsystem& vision_;
-  ScorerSubsystem& scorer_;
+  ShooterSubsystem& shooter_;
 
   ShootingCalculator shooting_calculator{};
 

@@ -21,7 +21,7 @@
 #include "frc846/util/pref.h"
 #include "frc846/wpilib/time.h"
 #include "ports.h"
-#include "subsystems/swerve_module.h"
+#include "subsystems/hardware/swerve_module.h"
 
 struct DrivetrainReadings {
   bool is_gyro_connected;
@@ -88,6 +88,8 @@ class DrivetrainSubsystem
   frc846::Pref<units::ampere_t> current_limit_{*this, "current_limit", 50_A};
   frc846::Pref<units::ampere_t> motor_stall_current_{
       *this, "motor_stall_current", 366_A};
+
+  frc846::Pref<double> braking_constant_{*this, "braking_constant", 0.15};
 
   frc846::Pref<units::feet_per_second_t> vx_ramp_rate_limit{
       *this, "ramp_rate_vx", 30_fps};
@@ -262,6 +264,7 @@ class DrivetrainSubsystem
       ports::drivetrain_::kFLCANCoder_CANID,
       current_limit_,
       motor_stall_current_,
+      braking_constant_,
       max_speed_,
   };
 
@@ -279,6 +282,7 @@ class DrivetrainSubsystem
       ports::drivetrain_::kFRCANCoder_CANID,
       current_limit_,
       motor_stall_current_,
+      braking_constant_,
       max_speed_,
   };
 
@@ -296,6 +300,7 @@ class DrivetrainSubsystem
       ports::drivetrain_::kBLCANCoder_CANID,
       current_limit_,
       motor_stall_current_,
+      braking_constant_,
       max_speed_,
   };
 
@@ -313,6 +318,7 @@ class DrivetrainSubsystem
       ports::drivetrain_::kBRCANCoder_CANID,
       current_limit_,
       motor_stall_current_,
+      braking_constant_,
       max_speed_,
   };
 

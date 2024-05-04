@@ -5,9 +5,9 @@
 
 #include "frc846/other/trajectory_generator.h"
 #include "frc846/util/math.h"
-#include "subsystems/drivetrain.h"
+#include "subsystems/abstract/vision.h"
+#include "subsystems/hardware/drivetrain.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/vision.h"
 
 class SpeakerTrajectoryCommand
     : public frc2::CommandHelper<frc2::Command, SpeakerTrajectoryCommand>,

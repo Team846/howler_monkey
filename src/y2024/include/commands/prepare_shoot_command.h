@@ -5,12 +5,13 @@
 
 #include "constants.h"
 #include "frc846/util/math.h"
-#include "subsystems/pivot.h"
+#include "subsystems/abstract/vision.h"
+#include "subsystems/hardware/intake.h"
+#include "subsystems/hardware/pivot.h"
+#include "subsystems/hardware/shooter.h"
+#include "subsystems/hardware/telescope.h"
+#include "subsystems/hardware/wrist.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/scorer.h"
-#include "subsystems/telescope.h"
-#include "subsystems/vision.h"
-#include "subsystems/wrist.h"
 
 class PrepareShootCommand
     : public frc2::CommandHelper<frc2::Command, PrepareShootCommand>,
@@ -27,7 +28,8 @@ class PrepareShootCommand
   bool IsFinished() override;
 
  private:
-  ScorerSubsystem& scorer_;
+  IntakeSubsystem& intake_;
+  ShooterSubsystem& shooter_;
   PivotSubsystem& pivot_;
   TelescopeSubsystem& telescope_;
   WristSubsystem& wrist_;

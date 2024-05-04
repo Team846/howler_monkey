@@ -3,10 +3,10 @@
 
 #include <frc2/command/CommandHelper.h>
 
-#include "subsystems/control_input.h"
-#include "subsystems/driver.h"
+#include "subsystems/abstract/control_input.h"
+#include "subsystems/abstract/driver.h"
+#include "subsystems/abstract/super_structure.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/super_structure.h"
 
 class ControlInputCommand
     : public frc2::CommandHelper<frc2::Command, ControlInputCommand> {

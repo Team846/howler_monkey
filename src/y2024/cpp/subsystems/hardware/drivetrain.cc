@@ -1,10 +1,10 @@
-#include "subsystems/drivetrain.h"
+#include "subsystems/hardware/drivetrain.h"
 
 #include <stdexcept>
 
 #include "frc846/util/share_tables.h"
 #include "frc846/wpilib/time.h"
-#include "subsystems/swerve_module.h"
+#include "subsystems/hardware/swerve_module.h"
 
 units::feet_per_second_t vel_readings_composite;
 double vel_readings_composite_x;

@@ -7,8 +7,8 @@
 #include "frc846/loggable.h"
 #include "frc846/util/math.h"
 #include "frc846/util/share_tables.h"
-#include "subsystems/drivetrain.h"
-#include "subsystems/swerve_module.h"
+#include "subsystems/hardware/drivetrain.h"
+#include "subsystems/hardware/swerve_module.h"
 
 ControlInputCommand::ControlInputCommand(RobotContainer& container)
     : driver_(container.driver_),

@@ -4,8 +4,9 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/util/math.h"
+#include "subsystems/hardware/intake.h"
+#include "subsystems/hardware/shooter.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/scorer.h"
 
 class ShootCommand : public frc2::CommandHelper<frc2::Command, ShootCommand>,
                      public frc846::Loggable {
@@ -21,7 +22,8 @@ class ShootCommand : public frc2::CommandHelper<frc2::Command, ShootCommand>,
   bool IsFinished() override;
 
  private:
-  ScorerSubsystem& scorer_;
+  IntakeSubsystem& intake_;
+  ShooterSubsystem& shooter_;
 
   bool is_done_ = false;
 };

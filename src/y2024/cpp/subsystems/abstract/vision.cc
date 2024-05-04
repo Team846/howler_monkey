@@ -1,5 +1,6 @@
-#include "subsystems/vision.h"
+#include "subsystems/abstract/vision.h"
 
+#include <frc/DriverStation.h>
 #include <units/math.h>
 
 #include "frc846/util/math.h"
@@ -19,6 +20,17 @@ VisionTarget VisionSubsystem::ZeroTarget() const {
 bool VisionSubsystem::VerifyHardware() { return true; }
 
 VisionReadings VisionSubsystem::GetNewReadings() {
+  if (auto alliance = frc::DriverStation::GetAlliance()) {
+    if (alliance.value() == frc::DriverStation::Alliance::kRed) {
+      frc846::util::ShareTables::SetBoolean("is_red_side", true);
+    }
+    if (alliance.value() == frc::DriverStation::Alliance::kBlue) {
+      frc846::util::ShareTables::SetBoolean("is_red_side", false);
+    }
+  } else {
+    frc846::util::ShareTables::SetBoolean("is_red_side", false);
+  }
+
   VisionReadings newReadings{};
 
   double targetOffsetAngle_Horizontal = table->GetNumber("tx", 0.0);

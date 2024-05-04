@@ -4,10 +4,11 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/control/motion.h"
-#include "subsystems/control_input.h"
-#include "subsystems/pivot.h"
+#include "frc846/control/sequencer.h"
+#include "subsystems/abstract/control_input.h"
+#include "subsystems/abstract/super_structure.h"
+#include "subsystems/hardware/pivot.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/super_structure.h"
 
 class PivotCommand : public frc2::CommandHelper<frc2::Command, PivotCommand> {
  public:
@@ -22,9 +23,9 @@ class PivotCommand : public frc2::CommandHelper<frc2::Command, PivotCommand> {
   PivotSubsystem& pivot_;
   SuperStructureSubsystem& super_;
 
-  ControlInputReadings prev_ci_readings_{};
+  frc846::control::Sequencer msequencer_{"pivot_command_sequencer"};
 
-  bool pivotHasRun = false;
+  ControlInputReadings prev_ci_readings_{};
 
   units::degree_t mpiv_adj = 0.0_deg;
 };

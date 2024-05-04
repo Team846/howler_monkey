@@ -4,14 +4,15 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/control/motion.h"
-#include "subsystems/control_input.h"
-#include "subsystems/drivetrain.h"
-#include "subsystems/pivot.h"
+#include "frc846/control/sequencer.h"
+#include "subsystems/abstract/control_input.h"
+#include "subsystems/abstract/super_structure.h"
+#include "subsystems/abstract/vision.h"
+#include "subsystems/hardware/drivetrain.h"
+#include "subsystems/hardware/pivot.h"
+#include "subsystems/hardware/shooter.h"
+#include "subsystems/hardware/wrist.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/scorer.h"
-#include "subsystems/super_structure.h"
-#include "subsystems/vision.h"
-#include "subsystems/wrist.h"
 
 class WristCommand : public frc2::CommandHelper<frc2::Command, WristCommand> {
  public:
@@ -26,7 +27,7 @@ class WristCommand : public frc2::CommandHelper<frc2::Command, WristCommand> {
   WristSubsystem& wrist_;
   PivotSubsystem& pivot_;
   DrivetrainSubsystem& drivetrain_;
-  ScorerSubsystem& scorer_;
+  ShooterSubsystem& shooter_;
   SuperStructureSubsystem& super_;
   VisionSubsystem& vision_;
 
@@ -34,7 +35,7 @@ class WristCommand : public frc2::CommandHelper<frc2::Command, WristCommand> {
 
   ShootingCalculator shooting_calculator{};
 
-  bool wristHasRun = false;
+  frc846::control::Sequencer msequencer_{"wrist_command_sequencer"};
 
   units::degree_t ms_adj = 0.0_deg;
 };

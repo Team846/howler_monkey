@@ -7,15 +7,15 @@
 #include "frc846/loggable.h"
 #include "frc846/util/math.h"
 #include "frc846/util/share_tables.h"
-#include "subsystems/drivetrain.h"
-#include "subsystems/swerve_module.h"
+#include "subsystems/hardware/drivetrain.h"
+#include "subsystems/hardware/swerve_module.h"
 
 DriveCommand::DriveCommand(RobotContainer& container)
     : driver_(container.driver_),
       drivetrain_(container.drivetrain_),
       super_(container.super_structure_),
       vision_(container.vision_),
-      scorer_(container.scorer_) {
+      shooter_(container.shooter_) {
   AddRequirements({&drivetrain_});
   SetName("drive_command");
 }
@@ -106,7 +106,7 @@ void DriveCommand::Execute() {
     units::degree_t theta_adjust =
         shooting_calculator
             .calculateLaunchAngles(
-                scorer_.shooting_exit_velocity_.value(), shooting_dist,
+                shooter_.shooting_exit_velocity_.value(), shooting_dist,
                 vision_readings.velocity_in_component,
                 vision_readings.velocity_orth_component,
                 super_.teleop_shooter_height_.value().to<double>())

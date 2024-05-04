@@ -1,4 +1,4 @@
-#include "subsystems/swerve_module.h"
+#include "subsystems/hardware/swerve_module.h"
 
 #include <thread>
 
@@ -13,6 +13,7 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
     int drive_esc_id, int steer_esc_id, int cancoder_id,
     frc846::Pref<units::ampere_t>& current_limit,
     frc846::Pref<units::ampere_t>& motor_stall_current,
+    frc846::Pref<double>& braking_constant,
     frc846::Pref<units::feet_per_second_t>& max_speed)
     : frc846::Subsystem<SwerveModuleReadings, SwerveModuleTarget>{drivetrain,
                                                                   "module_" +
@@ -24,6 +25,7 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
       cancoder_{cancoder_id},
       current_limit_{current_limit},
       motor_stall_current_{motor_stall_current},
+      braking_constant_{braking_constant},
       max_speed_{max_speed} {
   drive_esc_helper_.Setup(drive_esc_gains_helper, false,
                           frc846::control::kBrake);
@@ -175,6 +177,11 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
                             target_velocity);
   } else if (target.control == kOpenLoop) {
     drive_output = target_velocity / max_speed_.value();
+
+    double braking_force = (target_velocity - readings().speed) /
+                           max_speed_.value() * braking_constant_.value();
+
+    drive_output += braking_force;
 
     double generatedEMF = 12.0 * readings().speed / max_speed_.value();
 

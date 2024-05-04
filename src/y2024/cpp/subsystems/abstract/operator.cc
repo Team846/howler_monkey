@@ -1,4 +1,4 @@
-#include "subsystems/operator.h"
+#include "subsystems/abstract/operator.h"
 
 #include "frc846/util/share_tables.h"
 
@@ -50,6 +50,9 @@ OperatorReadings OperatorSubsystem::GetNewReadings() {
 
       case (frc846::XboxPOV::kDown):
         k = "down";
+        break;
+
+      default:
         break;
     }
     Log("Operator [POV] state changed to {}", k);

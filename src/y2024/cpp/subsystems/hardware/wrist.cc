@@ -1,4 +1,4 @@
-#include "subsystems/wrist.h"
+#include "subsystems/hardware/wrist.h"
 
 #include "frc846/control/control.h"
 #include "frc846/util/share_tables.h"

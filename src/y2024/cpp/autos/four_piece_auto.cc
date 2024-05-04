@@ -15,9 +15,9 @@
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
 #include "frc846/util/math.h"
-#include "subsystems/drivetrain.h"
+#include "subsystems/hardware/drivetrain.h"
+#include "subsystems/hardware/swerve_module.h"
 #include "subsystems/robot_container.h"
-#include "subsystems/swerve_module.h"
 
 FourPieceAuto::FourPieceAuto(RobotContainer& container, bool should_flip)
     : should_flip_(should_flip) {
