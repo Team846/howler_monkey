@@ -2,14 +2,6 @@
 
 namespace frc846::control {
 
-void GCheckOk(Loggable& loggable, rev::REVLibError err,
-              std::string field = "?") {
-  if (err != rev::REVLibError::kOk) {
-    loggable.Warn("Unable to update {}", field);
-    return;
-  }
-};
-
 void GCheckOk(Loggable& loggable, ctre::phoenix::StatusCode err,
               std::string field = "TalonFX Config") {
   if (!(err.IsOK() || err.IsWarning())) {
@@ -32,31 +24,34 @@ ControlGainsHelper::ControlGainsHelper(Loggable& parent, ControlGains gains,
       reverse_peak_output_{*this, "peak_output_reverse_", -peakOutput},
       ramp_rate_{*this, "ramp_rate", rampRate} {}
 
-void ControlGainsHelper::Write(rev::SparkPIDController& pid_controller,
-                               ControlGains& cache, bool ignore_cache) {
+rev::REVLibError ControlGainsHelper::Write(
+    rev::SparkPIDController& pid_controller, ControlGains& cache,
+    bool ignore_cache) {
   if (ignore_cache || cache.p != p_.value()) {
     auto err = pid_controller.SetP(p_.value());
-    GCheckOk(*this, err, "p");
+    if (err != rev::REVLibError::kOk) return err;
   }
   if (ignore_cache || cache.i != i_.value()) {
     auto err = pid_controller.SetI(i_.value());
-    GCheckOk(*this, err, "i");
+    if (err != rev::REVLibError::kOk) return err;
   }
   if (ignore_cache || cache.d != d_.value()) {
     auto err = pid_controller.SetD(d_.value());
-    GCheckOk(*this, err, "d");
+    if (err != rev::REVLibError::kOk) return err;
   }
   if (ignore_cache || cache.f != f_.value()) {
     auto err = pid_controller.SetFF(f_.value());
-    GCheckOk(*this, err, "f");
+    if (err != rev::REVLibError::kOk) return err;
   }
   if (ignore_cache ||
       cache.max_integral_accumulator != max_integral_accumulator_.value()) {
     auto err = pid_controller.SetIMaxAccum(max_integral_accumulator_.value());
-    GCheckOk(*this, err, "max integral accumulator");
+    if (err != rev::REVLibError::kOk) return err;
   }
 
   UpdateCache(cache);
+
+  return rev::REVLibError::kOk;
 }
 
 void ControlGainsHelper::Write(

@@ -1,17 +1,17 @@
-#ifndef y2024_COMMANDS_INTAKE_COMMAND_H_
-#define y2024_COMMANDS_INTAKE_COMMAND_H_
+#ifndef y2024_COMMANDS_LEDS_COMMAND_H_
+#define y2024_COMMANDS_LEDS_COMMAND_H_
 
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/control/motion.h"
 #include "subsystems/abstract/control_input.h"
 #include "subsystems/abstract/super_structure.h"
-#include "subsystems/hardware/intake.h"
+#include "subsystems/hardware/leds.h"
 #include "subsystems/robot_container.h"
 
-class IntakeCommand : public frc2::CommandHelper<frc2::Command, IntakeCommand> {
+class LEDsCommand : public frc2::CommandHelper<frc2::Command, LEDsCommand> {
  public:
-  IntakeCommand(RobotContainer& container);
+  LEDsCommand(RobotContainer& container);
 
   void Execute() override;
 
@@ -19,10 +19,8 @@ class IntakeCommand : public frc2::CommandHelper<frc2::Command, IntakeCommand> {
 
  private:
   ControlInputSubsystem& control_input_;
-  IntakeSubsystem& intake_;
+  LEDsSubsystem& leds_;
   SuperStructureSubsystem& super_;
-
-  ControlInputReadings prev_ci_readings_{};
 };
 
-#endif  // y2024_COMMANDS_TELESCOPE_COMMAND_H_
+#endif  // y2024_COMMANDS_LEDS_COMMAND_H_

@@ -27,13 +27,6 @@ WristTarget WristSubsystem::ZeroTarget() const {
   return target;
 }
 
-WristTarget WristSubsystem::MakeTarget(
-    std::variant<units::degree_t, double> wrist_out) {
-  WristTarget target;
-  target.wrist_output = wrist_out;
-  return target;
-}
-
 bool WristSubsystem::VerifyHardware() {
   if (is_initialized()) {
     bool ok = true;

@@ -10,6 +10,7 @@
 #include "ports.h"
 #include "units/angular_velocity.h"
 #include "units/length.h"
+#include "units/math.h"
 
 struct WristReadings {
   units::degree_t wrist_position;
@@ -25,11 +26,14 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
 
   WristTarget ZeroTarget() const override;
 
-  WristTarget MakeTarget(std::variant<units::degree_t, double> wrist_out);
-
   bool VerifyHardware() override;
 
   bool GetHasZeroed() { return hasZeroed; }
+
+  bool WithinTolerance(units::degree_t pos) {
+    return (units::math::abs(pos - readings().wrist_position) <
+            wrist_tolerance_.value());
+  }
 
   void Coast() {
     wrist_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
@@ -45,9 +49,12 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
     SetTarget(ZeroTarget());
   }
 
-  frc846::Pref<units::degree_t> wrist_home_offset_{*this, "home_offset_wrist_",
+  frc846::Pref<units::degree_t> wrist_tolerance_{*this, "wrist_tolerance",
+                                                 1.2_deg};
+
+  frc846::Pref<units::degree_t> wrist_home_offset_{*this, "home_offset_wrist",
                                                    30_deg};
-  frc846::Pref<units::degree_t> wrist_cg_offset_{*this, "cg_offset_wrist_",
+  frc846::Pref<units::degree_t> wrist_cg_offset_{*this, "cg_offset_wrist",
                                                  60_deg};
 
   frc846::Pref<units::degrees_per_second_t> max_adjustment_rate_{

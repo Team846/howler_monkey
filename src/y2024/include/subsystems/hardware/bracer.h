@@ -28,8 +28,6 @@ class BracerSubsystem : public frc846::Subsystem<BracerReadings, BracerTarget> {
 
   BracerTarget ZeroTarget() const override;
 
-  BracerTarget MakeTarget(BracerState extend);
-
   bool VerifyHardware() override;
 
  private:

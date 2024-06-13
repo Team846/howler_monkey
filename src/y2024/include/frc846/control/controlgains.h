@@ -43,8 +43,8 @@ class ControlGainsHelper : public Loggable {
              ctre::phoenix6::configs::TalonFXConfiguration& configs,
              ControlGains& cache, bool ignore_cache = false);
 
-  void Write(rev::SparkPIDController& pid_controller, ControlGains& cache,
-             bool ignore_cache = false);
+  rev::REVLibError Write(rev::SparkPIDController& pid_controller,
+                         ControlGains& cache, bool ignore_cache = false);
 
  private:
   static const int idx = 0;

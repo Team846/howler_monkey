@@ -57,13 +57,6 @@ PivotTarget PivotSubsystem::ZeroTarget() const {
   return target;
 }
 
-PivotTarget PivotSubsystem::MakeTarget(
-    std::variant<units::degree_t, double> pivot_out) {
-  PivotTarget target;
-  target.pivot_output = pivot_out;
-  return target;
-}
-
 bool PivotSubsystem::VerifyHardware() {
   if (is_initialized()) {
     bool ok = true;

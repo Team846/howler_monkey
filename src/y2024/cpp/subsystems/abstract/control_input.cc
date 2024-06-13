@@ -9,10 +9,7 @@ ControlInputTarget ControlInputSubsystem::ZeroTarget() const {
   return target;
 }
 
-bool ControlInputSubsystem::VerifyHardware() {
-  bool ok = true;
-  return ok;
-}
+bool ControlInputSubsystem::VerifyHardware() { return true; }
 
 ControlInputReadings ControlInputSubsystem::GetNewReadings() {
   ControlInputReadings readings{readings_};

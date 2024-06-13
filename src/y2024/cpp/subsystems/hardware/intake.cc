@@ -29,12 +29,6 @@ IntakeTarget IntakeSubsystem::ZeroTarget() const {
   return target;
 }
 
-IntakeTarget IntakeSubsystem::MakeTarget(IntakeState target_state) {
-  IntakeTarget target;
-  target.target_state = target_state;
-  return target;
-}
-
 bool IntakeSubsystem::VerifyHardware() {
   if (is_initialized()) {
     bool ok = true;

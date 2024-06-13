@@ -11,17 +11,19 @@
 #include <frc2/command/button/Trigger.h>
 #include <hal/Notifier.h>
 
-#include "commands/deploy_intake_command.h"
+#include "commands/basic/amp_command.h"
+#include "commands/basic/deploy_intake_command.h"
+#include "commands/basic/idle_command.h"
+#include "commands/basic/shoot_command.h"
+#include "commands/basic/spin_up_command.h"
+#include "commands/basic/stow_command.h"
 #include "commands/follow_trajectory_command.h"
-#include "commands/stow_command.h"
 #include "commands/teleop/bracer_command.h"
 #include "commands/teleop/control_input_command.h"
 #include "commands/teleop/drive_command.h"
-#include "commands/teleop/intake_command.h"
-#include "commands/teleop/pivot_command.h"
-#include "commands/teleop/shooter_command.h"
-#include "commands/teleop/telescope_command.h"
-#include "commands/teleop/wrist_command.h"
+#include "commands/teleop/leds_command.h"
+#include "commands/teleop/operator_control.h"
+#include "control_triggers.h"
 #include "frc/DataLogManager.h"
 #include "frc2/command/ParallelDeadlineGroup.h"
 #include "frc2/command/WaitCommand.h"
@@ -130,6 +132,8 @@ void FunkyRobot::StartCompetition() {
   // Report to driver station that robot is ready
   Log("\n********** Funky robot initialized **********\n");
   HAL_ObserveUserProgramStarting();
+
+  container_.leds_.SetDefaultCommand(LEDsCommand{container_});
 
   for (;;) {
     frc::DriverStation::RefreshData();
@@ -299,11 +303,8 @@ void FunkyRobot::EndCompetition() {
 
 void FunkyRobot::InitTeleopDefaults() {
   container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
-  container_.pivot_.SetDefaultCommand(PivotCommand{container_});
-  container_.wrist_.SetDefaultCommand(WristCommand{container_});
-  container_.telescope_.SetDefaultCommand(TelescopeCommand{container_});
-  container_.intake_.SetDefaultCommand(IntakeCommand{container_});
-  container_.shooter_.SetDefaultCommand(ShooterCommand{container_});
+  container_.super_structure_.SetDefaultCommand(
+      OperatorControlCommand{container_});
   container_.bracer_.SetDefaultCommand(BracerCommand{container_});
   container_.control_input_.SetDefaultCommand(ControlInputCommand{container_});
 }
@@ -340,6 +341,8 @@ void FunkyRobot::InitTeleopTriggers() {
   zero_wrist_trigger.OnTrue(frc2::InstantCommand([this] {
                               container_.wrist_.ZeroSubsystem();
                             }).ToPtr());
+
+  ControlTriggerInitializer::InitTeleopTriggers(container_);
 }
 
 void FunkyRobot::InitTestDefaults() {}

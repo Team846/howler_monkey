@@ -27,13 +27,6 @@ TelescopeTarget TelescopeSubsystem::ZeroTarget() const {
   return target;
 }
 
-TelescopeTarget TelescopeSubsystem::MakeTarget(
-    std::variant<units::inch_t, double> tele_out) {
-  TelescopeTarget target;
-  target.extension = tele_out;
-  return target;
-}
-
 bool TelescopeSubsystem::VerifyHardware() {
   if (is_initialized()) {
     bool ok = true;

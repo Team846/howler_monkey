@@ -29,17 +29,19 @@ class ShooterSubsystem
   ShooterSubsystem(bool init);
 
   ShooterTarget ZeroTarget() const override;
-  ShooterTarget MakeTarget(ShooterState target_state);
 
   bool VerifyHardware() override;
 
   frc846::Pref<units::turns_per_second_t> shooter_speed_{
-      *this, "shooter_speed_", -50_tps};
+      *this, "shooter_speed_", 50_tps};
 
   frc846::Pref<double> spin_{*this, "shooter_spin", 0.33};
 
   frc846::Pref<double> shooting_exit_velocity_{*this, "shooting_exit_velocity",
                                                47.0};
+
+  frc846::Pref<double> shooter_speed_tolerance_{
+      *this, "shooter_speed_tolerance", 0.05};
 
  private:
   frc846::Loggable readings_named_{*this, "readings"};

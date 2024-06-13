@@ -1,4 +1,4 @@
-#include "commands/prepare_shoot_command.h"
+#include "commands/basic/prepare_shoot_command.h"
 
 #include <frc/RobotBase.h>
 
@@ -8,16 +8,17 @@
 #include "frc846/wpilib/time.h"
 #include "subsystems/abstract/super_structure.h"
 
-PrepareShootCommand::PrepareShootCommand(RobotContainer& container)
+PrepareShootCommand::PrepareShootCommand(RobotContainer& container,
+                                         bool super_shot)
     : frc846::Loggable{"prepare_shoot_command"},
       intake_(container.intake_),
       shooter_(container.shooter_),
-      pivot_(container.pivot_),
-      telescope_(container.telescope_),
-      wrist_(container.wrist_),
       vision_(container.vision_),
-      super_(container.super_structure_) {
-  AddRequirements({&pivot_, &telescope_, &wrist_});
+      super_(container.super_structure_),
+      control_input_(container.control_input_),
+      super_shot_(super_shot) {
+  AddRequirements({&container.pivot_, &container.wrist_, &container.telescope_,
+                   &intake_, &shooter_});
   SetName("prepare_shoot_command");
 }
 
@@ -37,20 +38,28 @@ void PrepareShootCommand::Execute() {
                        super_.auto_shooter_height_.value().to<double>() / 12.0)
                    .launch_angle;
 
-  intake_.SetTarget(intake_.MakeTarget(IntakeState::kHold));
-  shooter_.SetTarget(shooter_.MakeTarget(ShooterState::kRun));
+  intake_.SetTarget({IntakeState::kHold});
+  shooter_.SetTarget({ShooterState::kRun});
 
-  pivot_.SetTarget(pivot_.MakeTarget(super_.getAutoShootSetpoint().pivot));
-  telescope_.SetTarget(
-      telescope_.MakeTarget(super_.getAutoShootSetpoint().telescope));
+  auto shootSetpoint = super_.getShootSetpoint();
 
-  wrist_.SetTarget(wrist_.MakeTarget(theta));
+  if (super_shot_) {
+    shootSetpoint.wrist =
+        90_deg + (theta - super_.wrist_->wrist_home_offset_.value()) +
+        (shootSetpoint.pivot - super_.pivot_->pivot_home_offset_.value());
+  }
 
-  is_done_ = false;
+  super_.SetTargetSetpoint(shootSetpoint);
 }
 
 void PrepareShootCommand::End(bool interrupted) {
   Log("Prepare Shoot Command Finished");
 }
 
-bool PrepareShootCommand::IsFinished() { return is_done_; }
+bool PrepareShootCommand::IsFinished() {
+  if (super_shot_) return !control_input_.readings().running_super_shoot;
+
+  return super_.hasReachedSetpoint(super_.getShootSetpoint()) &&
+         shooter_.readings().error_percent <=
+             shooter_.shooter_speed_tolerance_.value();
+}

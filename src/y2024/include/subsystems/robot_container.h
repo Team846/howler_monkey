@@ -33,7 +33,6 @@ class RobotContainer : public frc846::Loggable {
   DriverSubsystem driver_;
   OperatorSubsystem operator_;
   ControlInputSubsystem control_input_;
-  SuperStructureSubsystem super_structure_{true};
   DrivetrainSubsystem drivetrain_{init_drivetrain_.value()};
   IntakeSubsystem intake_{init_intake_.value()};
   ShooterSubsystem shooter_{init_shooter_.value()};
@@ -42,6 +41,7 @@ class RobotContainer : public frc846::Loggable {
   TelescopeSubsystem telescope_{init_telescope_.value()};
   BracerSubsystem bracer_{init_bracer_.value()};
   LEDsSubsystem leds_{init_leds_.value()};
+  SuperStructureSubsystem super_structure_{&pivot_, &wrist_, &telescope_};
   VisionSubsystem vision_{init_vision_.value()};
 
   std::vector<frc846::SubsystemBase*> all_subsystems_{

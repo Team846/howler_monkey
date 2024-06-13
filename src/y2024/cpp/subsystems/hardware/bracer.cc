@@ -16,12 +16,6 @@ BracerTarget BracerSubsystem::ZeroTarget() const {
   return target;
 }
 
-BracerTarget BracerSubsystem::MakeTarget(BracerState state) {
-  BracerTarget target;
-  target.state = state;
-  return target;
-}
-
 bool BracerSubsystem::VerifyHardware() {
   if (is_initialized()) {
     bool ok = true;

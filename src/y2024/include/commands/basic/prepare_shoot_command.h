@@ -17,7 +17,7 @@ class PrepareShootCommand
     : public frc2::CommandHelper<frc2::Command, PrepareShootCommand>,
       public frc846::Loggable {
  public:
-  PrepareShootCommand(RobotContainer& container);
+  PrepareShootCommand(RobotContainer& container, bool super_shot);
 
   void Initialize() override;
 
@@ -30,15 +30,13 @@ class PrepareShootCommand
  private:
   IntakeSubsystem& intake_;
   ShooterSubsystem& shooter_;
-  PivotSubsystem& pivot_;
-  TelescopeSubsystem& telescope_;
-  WristSubsystem& wrist_;
   VisionSubsystem& vision_;
   SuperStructureSubsystem& super_;
+  ControlInputSubsystem& control_input_;
+
+  bool super_shot_;
 
   ShootingCalculator shooting_calculator_;
-
-  bool is_done_ = false;
 };
 
 #endif  // y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_

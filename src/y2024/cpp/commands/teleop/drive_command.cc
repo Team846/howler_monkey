@@ -54,11 +54,13 @@ void DriveCommand::Execute() {
   // Slow down translation if slow mode is active
   if (is_slow_drive) {
     translate_x = frc846::util::HorizontalDeadband(
-        driver_.readings().left_stick_x * abs(driver_.readings().left_stick_x),
+        driver_.readings().left_stick_x *
+            std::abs(driver_.readings().left_stick_x),
         driver_.translation_deadband_.value(), 1,
         driver_.translation_exponent_.value(), 1);
     translate_y = frc846::util::HorizontalDeadband(
-        driver_.readings().left_stick_y * abs(driver_.readings().left_stick_y),
+        driver_.readings().left_stick_y *
+            std::abs(driver_.readings().left_stick_y),
         driver_.translation_deadband_.value(), 1,
         driver_.translation_exponent_.value(), 1);
     drivetrain_target.v_x = translate_x * drivetrain_.max_speed_.value() *

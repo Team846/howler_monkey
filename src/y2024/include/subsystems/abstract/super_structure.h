@@ -6,19 +6,27 @@
 #include "frc846/subsystem.h"
 #include "frc846/util/pref.h"
 #include "frc846/util/share_tables.h"
+#include "subsystems/hardware/pivot.h"
+#include "subsystems/hardware/telescope.h"
+#include "subsystems/hardware/wrist.h"
 #include "units/angle.h"
 #include "units/length.h"
 #include "units/time.h"
 
-struct PWTSetpoint {
+struct PTWSetpoint {
   units::degree_t pivot;
   units::inch_t telescope;
   units::degree_t wrist;
+
+  PTWSetpoint operator+(const PTWSetpoint& other) const {
+    return {other.pivot + this->pivot, other.telescope + this->telescope,
+            other.wrist + this->wrist};
+  }
 };
 
-class PWTSetPref {
+class PTWSetPref {
  public:
-  PWTSetPref(std::string setpointName, PWTSetpoint backup)
+  PTWSetPref(std::string setpointName, PTWSetpoint backup)
       : pivot{frc846::motion::MotionTarget::preferences_loggable,
               "Pivot/" + setpointName, 0_deg},
         wrist{frc846::motion::MotionTarget::preferences_loggable,
@@ -26,7 +34,7 @@ class PWTSetPref {
         telescope{frc846::motion::MotionTarget::preferences_loggable,
                   "Telescope/" + setpointName, 0_in} {}
 
-  PWTSetpoint get() {
+  PTWSetpoint get() {
     return {pivot.value(), telescope.value(), wrist.value()};
   }
 
@@ -41,8 +49,22 @@ struct SuperStructureTarget {};
 
 class SuperStructureSubsystem
     : public frc846::Subsystem<SuperStructureReadings, SuperStructureTarget> {
+ private:
+  PTWSetpoint currentSetpoint;
+  PTWSetpoint manualAdjustments;
+
  public:
-  SuperStructureSubsystem(bool init);
+  PivotSubsystem* pivot_;
+  WristSubsystem* wrist_;
+  TelescopeSubsystem* telescope_;
+
+  SuperStructureSubsystem(PivotSubsystem* pivot, WristSubsystem* wrist,
+                          TelescopeSubsystem* telescope)
+      : frc846::Subsystem<SuperStructureReadings,
+                          SuperStructureTarget>{"SuperStructure", true},
+        pivot_{pivot},
+        wrist_{wrist},
+        telescope_{telescope} {};
 
   SuperStructureTarget ZeroTarget() const override;
 
@@ -51,6 +73,54 @@ class SuperStructureSubsystem
   void ZeroSubsystem() { hasZeroed = true; }
 
   bool GetHasZeroed() { return hasZeroed; }
+
+  void SetTargetSetpoint(PTWSetpoint newSetpoint) {
+    if (currentSetpoint.pivot != newSetpoint.pivot ||
+        currentSetpoint.wrist != newSetpoint.wrist ||
+        currentSetpoint.telescope != newSetpoint.telescope) {
+      currentSetpoint = newSetpoint;
+      ClearAdjustments();
+    }
+  }
+
+  bool CheckValidAdjustment(PTWSetpoint adj) {
+    auto nextSumOutOfBounds = InverseKinematics::sumOutOfBounds(
+        InverseKinematics::degree_toCoordinate(
+            {(currentSetpoint.pivot + manualAdjustments.pivot + adj.pivot)
+                 .to<double>(),
+             (currentSetpoint.wrist + manualAdjustments.wrist + adj.wrist)
+                 .to<double>(),
+             (currentSetpoint.wrist + manualAdjustments.wrist + adj.wrist)
+                 .to<double>()}));
+
+    auto currentSumOutOfBounds = InverseKinematics::sumOutOfBounds(
+        InverseKinematics::degree_toCoordinate(
+            {(currentSetpoint.pivot + manualAdjustments.pivot).to<double>(),
+             (currentSetpoint.wrist + manualAdjustments.wrist).to<double>(),
+             (currentSetpoint.wrist + manualAdjustments.wrist).to<double>()}));
+
+    return (nextSumOutOfBounds < 0.05 ||
+            nextSumOutOfBounds <= currentSumOutOfBounds);
+  };
+
+  void AdjustSetpoint(PTWSetpoint newAdj) {
+    if (CheckValidAdjustment(newAdj)) {
+      manualAdjustments = manualAdjustments + newAdj;
+    }
+  }
+
+  void ClearAdjustments() {
+    manualAdjustments = PTWSetpoint{0.0_deg, 0.0_in, 0.0_deg};
+  }
+
+  bool hasReachedSetpoint(PTWSetpoint setpoint) {
+    return pivot_->WithinTolerance(setpoint.pivot) &&
+           wrist_->WithinTolerance(setpoint.wrist) &&
+           telescope_->WithinTolerance(setpoint.telescope);
+  }
+
+  /*
+   */
 
   frc846::Pref<double> manual_control_deadband_{
       *this, "manual_control_deadband", 0.05};
@@ -69,6 +139,9 @@ class SuperStructureSubsystem
   frc846::Pref<units::inch_t> auto_shooter_height_{
       shooting_named_, "auto_shooter_height", 21_in};
 
+  /*
+   */
+
   frc846::Pref<units::inch_t> trap_start_x{shooting_named_, "trap_start_x",
                                            17_in};
   frc846::Pref<units::inch_t> trap_start_y{shooting_named_, "trap_start_y",
@@ -80,27 +153,30 @@ class SuperStructureSubsystem
   frc846::Pref<units::degree_t> trap_end_angle{shooting_named_, "trap_end_a",
                                                -10_deg};
 
+  /*
+   */
+
   // SETPOINTS
-  PWTSetPref amp_position_{"amp_position", {0_deg, 0_in, 0_deg}};
-  PWTSetpoint getAmpSetpoint() { return amp_position_.get(); }
+  PTWSetPref amp_position_{"amp_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getAmpSetpoint() { return amp_position_.get(); }
 
-  PWTSetPref intake_position_{"intake_position", {0_deg, 0_in, 0_deg}};
-  PWTSetpoint getIntakeSetpoint() { return intake_position_.get(); }
+  PTWSetPref intake_position_{"intake_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getIntakeSetpoint() { return intake_position_.get(); }
 
-  PWTSetPref source_position_{"source_position", {0_deg, 0_in, 0_deg}};
-  PWTSetpoint getSourceSetpoint() { return source_position_.get(); }
+  PTWSetPref source_position_{"source_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getSourceSetpoint() { return source_position_.get(); }
 
-  PWTSetPref stow_position_{"stow_position", {0_deg, 0_in, 0_deg}};
-  PWTSetpoint getStowSetpoint() { return stow_position_.get(); }
+  PTWSetPref stow_position_{"stow_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getStowSetpoint() { return stow_position_.get(); }
 
-  PWTSetPref shoot_position_{"shoot_position", {0_deg, 0_in, 0_deg}};
-  PWTSetpoint getShootSetpoint() { return shoot_position_.get(); }
+  PTWSetPref shoot_position_{"shoot_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getShootSetpoint() { return shoot_position_.get(); }
 
-  PWTSetPref auto_shoot_position_{"auto_shoot_position", {0_deg, 0_in, 0_deg}};
-  PWTSetpoint getAutoShootSetpoint() { return auto_shoot_position_.get(); }
+  PTWSetPref auto_shoot_position_{"auto_shoot_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getAutoShootSetpoint() { return auto_shoot_position_.get(); }
 
-  PWTSetPref preclimb_position_{"preclimb_position", {0_deg, 0_in, 0_deg}};
-  PWTSetpoint getPreClimbSetpoint() { return preclimb_position_.get(); }
+  PTWSetPref preclimb_position_{"preclimb_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getPreClimbSetpoint() { return preclimb_position_.get(); }
 
  private:
   bool hasZeroed = false;

@@ -7,9 +7,25 @@
 #include "frc846/util/grapher.h"
 #include "ports.h"
 
+enum LEDsState {
+  kLEDSNotReady,
+  kLEDSZeroing,
+  kLEDSTeleop,
+  kLEDSAutonomous,
+  kLEDSHasPiece,
+  kLEDSPreparingShoot,
+  kLEDSReadyToShoot,
+  kLEDSClimbing,
+  kLEDSAmpingLeds,
+  kLEDSCOOPLeds,
+  kLEDSDisabled,
+};
+
 struct LEDsReadings {};
 
-struct LEDsTarget {};
+struct LEDsTarget {
+  LEDsState state;
+};
 
 class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
  public:

@@ -186,10 +186,10 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
     double generatedEMF = 12.0 * readings().speed / max_speed_.value();
 
     double upperTargetEMF =
-        12.0 * current_limit_.value() / motor_stall_current_.value() +
+        (12.0 * current_limit_.value() / motor_stall_current_.value()) +
         generatedEMF;
     double lowerTargetEMF =
-        12.0 * current_limit_.value() / motor_stall_current_.value() +
+        -(12.0 * current_limit_.value() / motor_stall_current_.value()) +
         generatedEMF;
 
     double upperDCBound = upperTargetEMF / 12.0;

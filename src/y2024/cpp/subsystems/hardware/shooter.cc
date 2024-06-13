@@ -35,12 +35,6 @@ ShooterTarget ShooterSubsystem::ZeroTarget() const {
   return target;
 }
 
-ShooterTarget ShooterSubsystem::MakeTarget(ShooterState target_state) {
-  ShooterTarget target;
-  target.target_state = target_state;
-  return target;
-}
-
 bool ShooterSubsystem::VerifyHardware() {
   if (is_initialized()) {
     bool ok = true;
@@ -85,7 +79,7 @@ void ShooterSubsystem::DirectWrite(ShooterTarget target) {
     shooter_esc_two_.Write(frc846::control::ControlMode::Velocity,
                            shooter_speed_.value() * (1 - spin_.value()));
   } else {
-    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0);
-    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0);
+    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0.0);
+    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0.0);
   }
 }

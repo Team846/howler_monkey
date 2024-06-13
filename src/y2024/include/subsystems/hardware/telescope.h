@@ -10,6 +10,7 @@
 #include "ports.h"
 #include "units/length.h"
 #include "units/velocity.h"
+#include "units/math.h"
 
 struct TelescopeReadings {
   units::inch_t extension;
@@ -25,8 +26,6 @@ class TelescopeSubsystem
   TelescopeSubsystem(bool init);
 
   TelescopeTarget ZeroTarget() const override;
-
-  TelescopeTarget MakeTarget(std::variant<units::inch_t, double> tele_out);
 
   bool VerifyHardware() override;
 
@@ -46,11 +45,19 @@ class TelescopeSubsystem
     SetTarget(ZeroTarget());
   }
 
+  bool WithinTolerance(units::inch_t pos) {
+    return (units::math::abs(pos - readings().extension) <
+            telescope_tolerance_.value());
+  }
+
   frc846::Pref<units::feet_per_second_t> max_adjustment_rate_{
       *this, "max_adjustment_rate", 0.5_fps};
 
  private:
   bool hasZeroed = false;
+
+  frc846::Pref<units::inch_t> telescope_tolerance_{*this, "telescope_tolerance",
+                                                   0.25_in};
 
   frc846::Loggable readings_named_{*this, "readings"};
 

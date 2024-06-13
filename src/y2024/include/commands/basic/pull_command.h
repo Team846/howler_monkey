@@ -1,5 +1,5 @@
-#ifndef y2024_COMMANDS_SHOOT_COMMAND_H_
-#define y2024_COMMANDS_SHOOT_COMMAND_H_
+#ifndef y2024_COMMANDS_PULL_COMMAND_H_
+#define y2024_COMMANDS_PULL_COMMAND_H_
 
 #include <frc2/command/CommandHelper.h>
 
@@ -8,10 +8,10 @@
 #include "subsystems/hardware/shooter.h"
 #include "subsystems/robot_container.h"
 
-class ShootCommand : public frc2::CommandHelper<frc2::Command, ShootCommand>,
-                     public frc846::Loggable {
+class PullCommand : public frc2::CommandHelper<frc2::Command, PullCommand>,
+                    public frc846::Loggable {
  public:
-  ShootCommand(RobotContainer& container);
+  PullCommand(RobotContainer& container);
 
   void Initialize() override;
 
@@ -23,9 +23,8 @@ class ShootCommand : public frc2::CommandHelper<frc2::Command, ShootCommand>,
 
  private:
   IntakeSubsystem& intake_;
-  ShooterSubsystem& shooter_;
 
   bool is_done_ = false;
 };
 
-#endif  // y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_
+#endif  // y2024_COMMANDS_PULL_COMMAND_H_

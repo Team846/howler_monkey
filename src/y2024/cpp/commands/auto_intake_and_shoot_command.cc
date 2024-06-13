@@ -5,12 +5,12 @@
 #include <frc2/command/ParallelRaceGroup.h>
 #include <frc2/command/SequentialCommandGroup.h>
 
-#include "commands/deploy_intake_command.h"
+#include "commands/basic/deploy_intake_command.h"
 #include "commands/follow_trajectory_command.h"
-#include "commands/prepare_shoot_command.h"
-#include "commands/shoot_command.h"
+#include "commands/basic/prepare_auto_shoot_command.h"
+#include "commands/basic/shoot_command.h"
 #include "commands/speaker_trajectory_command.h"
-#include "commands/stow_command.h"
+#include "commands/basic/stow_command.h"
 #include "field.h"
 #include "frc2/command/WaitCommand.h"
 
@@ -25,7 +25,7 @@ frc2::SequentialCommandGroup AutoIntakeAndShootCommand(
               SpeakerTrajectoryCommand{container, {shoot_point}},
               frc2::WaitCommand(
                   container.super_structure_.pre_shoot_wait_.value())},
-          PrepareShootCommand{container}},
+          PrepareAutoShootCommand{container}},
       ShootCommand{container},
       frc2::WaitCommand(container.super_structure_.post_shoot_wait_.value()),
       StowCommand{container}};

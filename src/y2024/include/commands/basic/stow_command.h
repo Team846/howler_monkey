@@ -28,12 +28,7 @@ class StowCommand : public frc2::CommandHelper<frc2::Command, StowCommand>,
  private:
   IntakeSubsystem& intake_;
   ShooterSubsystem& shooter_;
-  PivotSubsystem& pivot_;
-  TelescopeSubsystem& telescope_;
-  WristSubsystem& wrist_;
   SuperStructureSubsystem& super_;
-
-  bool is_done_ = false;
 };
 
 #endif  // y2024_COMMANDS_STOW_COMMAND_H_

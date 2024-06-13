@@ -10,6 +10,7 @@
 #include "frc846/util/pref.h"
 #include "ports.h"
 #include "units/length.h"
+#include "units/math.h"
 
 struct PivotReadings {
   units::degree_t pivot_position;
@@ -25,11 +26,14 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
 
   PivotTarget ZeroTarget() const override;
 
-  PivotTarget MakeTarget(std::variant<units::degree_t, double> pivot_out);
-
   bool VerifyHardware() override;
 
   bool GetHasZeroed() { return hasZeroed; }
+
+  bool WithinTolerance(units::degree_t pos) {
+    return (units::math::abs(pos - readings().pivot_position) <
+            pivot_tolerance_.value());
+  }
 
   void Coast() {
     pivot_one_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
@@ -53,6 +57,9 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
     pivot_four_.ZeroEncoder();
     SetTarget(ZeroTarget());
   }
+
+  frc846::Pref<units::degree_t> pivot_tolerance_{*this, "pivot_tolerance",
+                                                 0.5_deg};
 
   frc846::Pref<units::degree_t> pivot_home_offset_{*this, "pivot_home_offset",
                                                    17_deg};

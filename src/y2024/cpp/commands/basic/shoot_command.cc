@@ -1,4 +1,4 @@
-#include "commands/shoot_command.h"
+#include "commands/basic/shoot_command.h"
 
 #include <frc/RobotBase.h>
 
@@ -19,12 +19,10 @@ ShootCommand::ShootCommand(RobotContainer& container)
 void ShootCommand::Initialize() { Log("Shoot Command Initialize"); }
 
 void ShootCommand::Execute() {
-  intake_.SetTarget(intake_.MakeTarget(kFeed));
-  shooter_.SetTarget(shooter_.MakeTarget(kRun));
-
-  is_done_ = !frc846::util::ShareTables::GetBoolean("scorer_has_piece");
+  intake_.SetTarget({IntakeState::kFeed});
+  shooter_.SetTarget({ShooterState::kRun});
 }
 
 void ShootCommand::End(bool interrupted) { Log("Shoot Command Finished"); }
 
-bool ShootCommand::IsFinished() { return is_done_; }
+bool ShootCommand::IsFinished() { return intake_.GetHasPiece(); }

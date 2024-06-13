@@ -1,10 +1,11 @@
-#ifndef y2024_COMMANDS_DEPLOY_INTAKE_COMMAND_H_
-#define y2024_COMMANDS_DEPLOY_INTAKE_COMMAND_H_
+#ifndef y2024_COMMANDS_PREPARE_AUTO_SHOOT_COMMAND_H_
+#define y2024_COMMANDS_PREPARE_AUTO_SHOOT_COMMAND_H_
 
 #include <frc2/command/CommandHelper.h>
 
+#include "constants.h"
 #include "frc846/util/math.h"
-#include "subsystems/abstract/super_structure.h"
+#include "subsystems/abstract/vision.h"
 #include "subsystems/hardware/intake.h"
 #include "subsystems/hardware/pivot.h"
 #include "subsystems/hardware/shooter.h"
@@ -12,11 +13,11 @@
 #include "subsystems/hardware/wrist.h"
 #include "subsystems/robot_container.h"
 
-class DeployIntakeCommand
-    : public frc2::CommandHelper<frc2::Command, DeployIntakeCommand>,
+class PrepareAutoShootCommand
+    : public frc2::CommandHelper<frc2::Command, PrepareAutoShootCommand>,
       public frc846::Loggable {
  public:
-  DeployIntakeCommand(RobotContainer& container);
+  PrepareAutoShootCommand(RobotContainer& container);
 
   void Initialize() override;
 
@@ -29,12 +30,10 @@ class DeployIntakeCommand
  private:
   IntakeSubsystem& intake_;
   ShooterSubsystem& shooter_;
-  PivotSubsystem& pivot_;
-  TelescopeSubsystem& telescope_;
-  WristSubsystem& wrist_;
+  VisionSubsystem& vision_;
   SuperStructureSubsystem& super_;
 
-  bool is_done_ = false;
+  ShootingCalculator shooting_calculator_;
 };
 
-#endif  // y2024_COMMANDS_DEPLOY_INTAKE_COMMAND_H_
+#endif  // y2024_COMMANDS_PREPARE_AUTO_SHOOT_COMMAND_H_

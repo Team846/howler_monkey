@@ -1,9 +1,9 @@
 #ifndef y2024_SUBSYSTEMS_INTAKE_H_
 #define y2024_SUBSYSTEMS_INTAKE_H_
 
-#include "frc/AnalogInput.h"
-#include "frc/AnalogTrigger.h"
-#include "frc/filter/SlewRateLimiter.h"
+// #include "frc/AnalogInput.h"
+// #include "frc/AnalogTrigger.h"
+// #include "frc/filter/SlewRateLimiter.h"
 #include "frc846/control/control.h"
 #include "frc846/control/controlgains.h"
 #include "frc846/loggable.h"
@@ -26,7 +26,6 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
   IntakeSubsystem(bool init);
 
   IntakeTarget ZeroTarget() const override;
-  IntakeTarget MakeTarget(IntakeState target_state);
 
   bool VerifyHardware() override;
 

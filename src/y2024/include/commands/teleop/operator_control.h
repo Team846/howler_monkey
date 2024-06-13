@@ -1,5 +1,5 @@
-#ifndef y2024_COMMANDS_WRIST_COMMAND_H_
-#define y2024_COMMANDS_WRIST_COMMAND_H_
+#ifndef y2024_COMMANDS_OPERATOR_CONTROL_COMMAND_H_
+#define y2024_COMMANDS_OPERATOR_CONTROL_COMMAND_H_
 
 #include <frc2/command/CommandHelper.h>
 
@@ -14,9 +14,10 @@
 #include "subsystems/hardware/wrist.h"
 #include "subsystems/robot_container.h"
 
-class WristCommand : public frc2::CommandHelper<frc2::Command, WristCommand> {
+class OperatorControlCommand
+    : public frc2::CommandHelper<frc2::Command, OperatorControlCommand> {
  public:
-  WristCommand(RobotContainer& container);
+  OperatorControlCommand(RobotContainer& container);
 
   void Execute() override;
 
@@ -24,20 +25,7 @@ class WristCommand : public frc2::CommandHelper<frc2::Command, WristCommand> {
 
  private:
   ControlInputSubsystem& control_input_;
-  WristSubsystem& wrist_;
-  PivotSubsystem& pivot_;
-  DrivetrainSubsystem& drivetrain_;
-  ShooterSubsystem& shooter_;
   SuperStructureSubsystem& super_;
-  VisionSubsystem& vision_;
-
-  ControlInputReadings prev_ci_readings_{};
-
-  ShootingCalculator shooting_calculator{};
-
-  frc846::control::Sequencer msequencer_{"wrist_command_sequencer"};
-
-  units::degree_t ms_adj = 0.0_deg;
 };
 
-#endif  // y2024_COMMANDS_WRIST_COMMAND_H_
+#endif  // y2024_COMMANDS_OPERATOR_CONTROL_COMMAND_H_
