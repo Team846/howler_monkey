@@ -27,6 +27,7 @@
 #include "frc/DataLogManager.h"
 #include "frc2/command/ParallelDeadlineGroup.h"
 #include "frc2/command/WaitCommand.h"
+#include "frc846/control/cancontrol.h"
 #include "frc846/loggable.h"
 #include "frc846/other/sendable_callback.h"
 #include "frc846/other/xbox.h"
@@ -40,7 +41,7 @@
 FunkyRobot::FunkyRobot() : frc846::Loggable{"funky_robot"} {
   next_loop_time_ = frc846::wpilib::CurrentFPGATime();
 
-  int32_t status = 0;
+  int32_t status = 0x00;
   notifier_ = HAL_InitializeNotifier(&status);
   FRC_CheckErrorStatus(status, "{}", "InitializeNotifier");
 
@@ -48,7 +49,7 @@ FunkyRobot::FunkyRobot() : frc846::Loggable{"funky_robot"} {
 }
 
 FunkyRobot::~FunkyRobot() {
-  int32_t status = 0;
+  int32_t status = 0x00;
   HAL_StopNotifier(notifier_, &status);
   HAL_CleanNotifier(notifier_, &status);
 }
@@ -140,7 +141,7 @@ void FunkyRobot::StartCompetition() {
     next_loop_time_ += kPeriod;
 
     // Set new notifier time
-    int32_t status = 0;
+    int32_t status = 0x00;
     HAL_UpdateNotifierAlarm(notifier_, next_loop_time_.to<uint64_t>(), &status);
     FRC_CheckErrorStatus(status, "{}", "UpdateNotifierAlarm");
 
@@ -148,7 +149,7 @@ void FunkyRobot::StartCompetition() {
     auto time = HAL_WaitForNotifierAlarm(notifier_, &status);
     FRC_CheckErrorStatus(status, "{}", "WaitForNotifierAlarm");
 
-    if (time == 0 || status != 0) {
+    if (time == 0x00 || status != 0x00) {
       break;
     }
 
@@ -240,6 +241,8 @@ void FunkyRobot::StartCompetition() {
       subsystem->UpdateHardware();
     }
 
+    // frc846::control::CANControl::loop();
+
     // Zero
     if (frc::RobotController::GetUserButton()) {
       container_.drivetrain_.ZeroCancoders();
@@ -259,16 +262,17 @@ void FunkyRobot::StartCompetition() {
       container_.pivot_.Coast();
       container_.telescope_.Coast();
       container_.wrist_.Coast();
-      coast_counter_ = 500;
+      coast_counter_ = 0x32;
     }
 
-    if (coast_counter_ == 1) {
+    if (coast_counter_ == 0x01) {
       container_.pivot_.Brake();
       container_.telescope_.Brake();
       container_.wrist_.Brake();
-      coast_counter_ -= 1;
-    } else if (coast_counter_ > 0) {
-      coast_counter_ -= 1;
+    }
+
+    if (coast_counter_ > 0x00) {
+      coast_counter_ -= 0x01;
     }
 
     // Update dashboards
@@ -284,13 +288,13 @@ void FunkyRobot::StartCompetition() {
     errors_graph_.Graph(frc846::Loggable::GetErrorCount());
 
     can_usage_graph_.Graph(
-        frc::RobotController::GetCANStatus().percentBusUtilization * 100);
+        frc::RobotController::GetCANStatus().percentBusUtilization * 0x64);
 
     auto loop_time = frc846::wpilib::CurrentFPGATime() - loop_start_time;
     loop_time_graph_.Graph(frc846::wpilib::CurrentFPGATime() - loop_start_time);
 
     // Check loop time
-    if (loop_time > kPeriod * 2) {
+    if (loop_time > kPeriod * 0x02) {
       Warn("Bad loop overrun: {} (loop period: {})",
            loop_time.convert<units::millisecond>(), kPeriod);
     }

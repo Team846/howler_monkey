@@ -83,7 +83,27 @@ struct Vector2D {
   bool operator==(const Vector2D& other) const {
     return x == other.x && y == other.y;
   }
+
+  // VectorPolar toVectorPolar() { return {Magnitude(), Bearing()}; }
 };
+
+// template <class T>
+// struct VectorPolar {
+//   static_assert(units::traits::is_unit_t<T>(), "must be a unit");
+
+//   T magnitude;            // Length of vector
+//   units::degree_t theta;  // Angle from vertical
+
+//   Vector2D<T> toVector2D() {
+//     return {
+//       magnitude *units::math::sin(theta), magnitude *units::math::cos(theta);
+//     }
+//   }
+
+//   VectorPolar operator+(const VectorPolar& other) const {
+//     return (toVector2D() + other.toVector2D()).toVectorPolar();
+//   }
+// };
 
 struct Position {
   Vector2D<units::foot_t> point;

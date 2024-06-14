@@ -18,7 +18,7 @@ OperatorControlCommand::OperatorControlCommand(RobotContainer &container)
 void OperatorControlCommand::Execute() {
   ControlInputReadings ci_readings_{control_input_.readings()};
 
-  PTWSetpoint manual_adjustment_additions;
+  PTWSetpoint manual_adjustment_additions{};
 
   if (std::abs(ci_readings_.wrist_manual_adjust) >
       super_.manual_control_deadband_.value()) {
