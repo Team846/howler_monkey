@@ -18,7 +18,6 @@
 #include "commands/basic/spin_up_command.h"
 #include "commands/basic/stow_command.h"
 #include "commands/follow_trajectory_command.h"
-#include "commands/teleop/bracer_command.h"
 #include "commands/teleop/control_input_command.h"
 #include "commands/teleop/drive_command.h"
 #include "commands/teleop/leds_command.h"
@@ -305,7 +304,6 @@ void FunkyRobot::InitTeleopDefaults() {
   container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
   container_.super_structure_.SetDefaultCommand(
       OperatorControlCommand{container_});
-  container_.bracer_.SetDefaultCommand(BracerCommand{container_});
   container_.control_input_.SetDefaultCommand(ControlInputCommand{container_});
 }
 

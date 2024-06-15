@@ -57,10 +57,6 @@ void LEDsSubsystem::DirectWrite(LEDsTarget target) {
     for (int i = 0; i < kLength; i++) {
       leds_buffer_[i].SetRGB(255, 0, 255);
     }
-  } else if (target.state == kLEDSClimbing) {
-    for (int i = 0; i < kLength; i++) {
-      leds_buffer_[i].SetRGB(0, 255, 0);
-    }
   } else if (target.state == kLEDSPreparingShoot) {
     if (loops % 20 < 10) {
       for (int i = 0; i < kLength; i++) {

@@ -32,8 +32,6 @@ void LEDsCommand::Execute() {
     lstate = LEDsState::kLEDSAmpingLeds;
   } else if (ci_readings_.coopertition_leds) {
     lstate = LEDsState::kLEDSCOOPLeds;
-  } else if (ci_readings_.stageOfTrap != 0) {
-    lstate = LEDsState::kLEDSClimbing;
   } else if (ci_readings_.running_prep_shoot ||
              ci_readings_.running_super_shoot) {
     lstate = LEDsState::kLEDSPreparingShoot;

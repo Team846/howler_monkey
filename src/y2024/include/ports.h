@@ -37,19 +37,15 @@ struct ports {
   };
 
   struct positioning_ {
-    static constexpr int kPivotOne_CANID = 16;
-    static constexpr int kPivotTwo_CANID = 17;
-    static constexpr int kPivotThree_CANID = 18;
-    static constexpr int kPivotFour_CANID = 19;
+    static constexpr int kPivotOne_CANID = 25;
+    static constexpr int kPivotTwo_CANID = 26;
+    static constexpr int kPivotThree_CANID = 27;
+    static constexpr int kPivotFour_CANID = 28;
 
-    static constexpr int kWrist_CANID = 27;
+    static constexpr int kWrist_CANID = 17;
 
-    static constexpr int kTele_CANID = 24;
-  };
-
-  struct bracer_ {
-    static constexpr int kPWM_Left = 3;
-    static constexpr int kPWM_Right = 4;
+    static constexpr int kTele_CANID = 31;
+    static constexpr int kTeleTwo_CANID = 32;
   };
 
   struct leds_ {

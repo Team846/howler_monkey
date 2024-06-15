@@ -13,10 +13,7 @@ bool ControlInputSubsystem::VerifyHardware() { return true; }
 
 ControlInputReadings ControlInputSubsystem::GetNewReadings() {
   ControlInputReadings readings{readings_};
-
-  if (readings.stageOfTrap != previous_readings_.stageOfTrap) {
-    Log("ControlInput [Trap Stage] state changed to {}", readings.stageOfTrap);
-  }
+  
   if (readings.running_intake != previous_readings_.running_intake) {
     Log("ControlInput [Running Intake] state changed to {}",
         readings.running_intake ? 1 : 0);

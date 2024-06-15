@@ -10,22 +10,22 @@ struct field {
   struct points {
 
     static frc846::util::Position Origin() {
-      return frc846::util::Position(frc846::util::Vector2D<units::foot_t>(0_in, 0_in), 0_deg);
+      return {{0_in, 0_in}, 0_deg};
     };
 
     static frc846::util::Vector2D<units::foot_t> kSpeaker(bool flip = false) {
       if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(-100.4_in, 0_in);
+        return {-100.4_in, 0_in};
       } else {
-        return frc846::util::Vector2D<units::foot_t>(-100.4_in, 659.8_in);
+        return {-100.4_in, 659.8_in};
       }
     }
 
     static frc846::util::Vector2D<units::foot_t> kSpeakerTeleop(bool flip = false) {
       if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(-100.4_in, -10.4_in);
+        return {-100.4_in, -10.4_in};
       } else {
-        return frc846::util::Vector2D<units::foot_t>(-100.4_in, 659.8_in);
+        return {-100.4_in, 659.8_in};
       }
     }
 

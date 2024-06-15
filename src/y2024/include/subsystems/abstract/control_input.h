@@ -6,7 +6,6 @@
 #include "subsystems/abstract/operator.h"
 
 struct ControlInputReadings {
-  int stageOfTrap;
 
   bool running_intake;
   bool running_source;

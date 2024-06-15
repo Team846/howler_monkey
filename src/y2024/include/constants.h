@@ -239,46 +239,4 @@ class InverseKinematics {
   }
 };
 
-class TrapCalculator {
- public:
-  static std::vector<
-      std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>>
-  interpolateTrapPoints(
-      frc846::util::Vector2D<units::inch_t> starting_coordinate,
-      frc846::util::Vector2D<units::inch_t> ending_coordinate,
-      units::degree_t starting_angle, units::degree_t ending_angle,
-      int steps = 140) {
-    std::vector<
-        std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>>
-        toReturn{};
-    for (int i = 0; i < steps; i++) {
-      auto x_coord =
-          starting_coordinate.x +
-          (i * 1.0 / steps) * (ending_coordinate.x - starting_coordinate.x);
-      auto y_coord =
-          starting_coordinate.y +
-          (i * 1.0 / steps) * (ending_coordinate.y - starting_coordinate.y);
-      auto angle =
-          starting_angle + (i * 1.0 / steps) * (ending_angle - starting_angle);
-      toReturn.push_back({{x_coord, y_coord}, angle});
-
-      // std::cout << angle.to<double>() << std::endl;
-    }
-    return toReturn;
-  }
-
-  static RawPositions getRawsAtPoint(
-      int counter,
-      std::vector<
-          std::pair<frc846::util::Vector2D<units::inch_t>, units::degree_t>>
-          trapPoints) {
-    auto toReturn = InverseKinematics::toRaw(
-        CoordinatePositions{radians(trapPoints.at(counter).second.to<double>()),
-                            trapPoints.at(counter).first.x.to<double>(),
-                            trapPoints.at(counter).first.y.to<double>()});
-    toReturn.wrist_angle = radians(trapPoints.at(counter).second.to<double>());
-    return toReturn;
-  }
-};
-
 #endif

@@ -4,8 +4,6 @@
 #include <rev/CANSparkMax.h>
 #include <units/current.h>
 
-#include <ctre/phoenix6/TalonFX.hpp>
-
 #include "frc846/ctre_namespace.h"
 #include "frc846/util/pref.h"
 #include "units/time.h"

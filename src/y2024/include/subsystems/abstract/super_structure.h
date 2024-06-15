@@ -139,23 +139,6 @@ class SuperStructureSubsystem
   frc846::Pref<units::inch_t> auto_shooter_height_{
       shooting_named_, "auto_shooter_height", 21_in};
 
-  /*
-   */
-
-  frc846::Pref<units::inch_t> trap_start_x{shooting_named_, "trap_start_x",
-                                           17_in};
-  frc846::Pref<units::inch_t> trap_start_y{shooting_named_, "trap_start_y",
-                                           25_in};
-  frc846::Pref<units::inch_t> trap_end_x{shooting_named_, "trap_fin_x", 25_in};
-  frc846::Pref<units::inch_t> trap_end_y{shooting_named_, "trap_fin_y", 47_in};
-  frc846::Pref<units::degree_t> trap_start_angle{shooting_named_,
-                                                 "trap_start_a", 60_deg};
-  frc846::Pref<units::degree_t> trap_end_angle{shooting_named_, "trap_end_a",
-                                               -10_deg};
-
-  /*
-   */
-
   // SETPOINTS
   PTWSetPref amp_position_{"amp_position", {0_deg, 0_in, 0_deg}};
   PTWSetpoint getAmpSetpoint() { return amp_position_.get(); }

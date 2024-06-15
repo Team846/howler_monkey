@@ -33,15 +33,18 @@ class TelescopeSubsystem
 
   void Coast() {
     telescope_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+    telescopeTwo_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
   }
 
   void Brake() {
     telescope_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+    telescopeTwo_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
   }
 
   void ZeroSubsystem() {
     hasZeroed = true;
     telescope_esc_.ZeroEncoder();
+    telescopeTwo_esc_.ZeroEncoder();
     SetTarget(ZeroTarget());
   }
 
@@ -79,6 +82,8 @@ class TelescopeSubsystem
 
   frc846::control::SparkRevController<units::inch_t> telescope_esc_{
       *this, "telescope_esc", ports::positioning_::kTele_CANID};
+  frc846::control::SparkRevController<units::inch_t> telescopeTwo_esc_{
+      *this, "telescopeTwo_esc", ports::positioning_::kTeleTwo_CANID};
 
   TelescopeReadings GetNewReadings() override;
 
