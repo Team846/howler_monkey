@@ -134,7 +134,7 @@ void FunkyRobot::StartCompetition() {
   Log("\n********** Funky robot initialized **********\n");
   HAL_ObserveUserProgramStarting();
 
-  container_.leds_.SetDefaultCommand(LEDsCommand{container_});
+  // container_.leds_.SetDefaultCommand(LEDsCommand{container_});
 
   for (;;) {
     frc::DriverStation::RefreshData();
@@ -346,7 +346,7 @@ void FunkyRobot::InitTeleopTriggers() {
                               container_.wrist_.ZeroSubsystem();
                             }).ToPtr());
 
-  ControlTriggerInitializer::InitTeleopTriggers(container_);
+  // ControlTriggerInitializer::InitTeleopTriggers(container_);
 }
 
 void FunkyRobot::InitTestDefaults() {}

@@ -98,7 +98,7 @@ void DriveCommand::Execute() {
     drivetrain_target.rotation = DrivetrainRotationVelocity(0_deg_per_s);
   }
 
-  if (prep_align_speaker) {
+  /*if (prep_align_speaker) {
     VisionReadings vision_readings = vision_.readings();
     double shooting_dist = vision_readings.est_dist_from_speaker.to<double>();
 
@@ -147,7 +147,7 @@ void DriveCommand::Execute() {
     }
   } else {
     driver_adjust_ = 0.0;
-  }
+  }*/
 
   drivetrain_.SetTarget(drivetrain_target);
 }
