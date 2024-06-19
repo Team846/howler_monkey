@@ -11,7 +11,7 @@
 IdleCommand::IdleCommand(RobotContainer& container, bool onlyIntake)
     : frc846::Loggable{"idle_command"},
       intake_(container.intake_),
-      shooter_(container.shooter_),
+      
       onlyIntake_(onlyIntake) {
   AddRequirements({&intake_});
   SetName("idle_command");
@@ -24,7 +24,7 @@ void IdleCommand::Initialize() {
 
 void IdleCommand::Execute() {
   intake_.SetTarget({IntakeState::kHold});
-  if (!onlyIntake_) shooter_.SetTarget({ShooterState::kIdle});
+  
   is_done_ = true;
 }
 

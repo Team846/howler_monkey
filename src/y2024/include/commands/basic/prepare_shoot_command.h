@@ -8,7 +8,7 @@
 #include "subsystems/abstract/vision.h"
 #include "subsystems/hardware/intake.h"
 #include "subsystems/hardware/pivot.h"
-#include "subsystems/hardware/shooter.h"
+
 #include "subsystems/hardware/telescope.h"
 #include "subsystems/hardware/wrist.h"
 #include "subsystems/robot_container.h"
@@ -29,7 +29,7 @@ class PrepareShootCommand
 
  private:
   IntakeSubsystem& intake_;
-  ShooterSubsystem& shooter_;
+
   VisionSubsystem& vision_;
   SuperStructureSubsystem& super_;
   ControlInputSubsystem& control_input_;

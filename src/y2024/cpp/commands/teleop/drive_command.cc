@@ -9,19 +9,22 @@
 #include "frc846/util/share_tables.h"
 #include "subsystems/hardware/drivetrain.h"
 #include "subsystems/hardware/swerve_module.h"
+#include "subsystems/hardware/intake.h"
 
 DriveCommand::DriveCommand(RobotContainer& container)
     : driver_(container.driver_),
       drivetrain_(container.drivetrain_),
       super_(container.super_structure_),
       vision_(container.vision_),
-      shooter_(container.shooter_) {
-  AddRequirements({&drivetrain_});
+      intake_(container.intake_){
+      /*shooter_(container.shooter_)*/ 
+  AddRequirements({&drivetrain_, &intake_});
   SetName("drive_command");
 }
 
 void DriveCommand::Execute() {
   DrivetrainTarget drivetrain_target;
+  
 
   // -----BUTTON MAPPINGS-----
 
@@ -108,7 +111,7 @@ void DriveCommand::Execute() {
     units::degree_t theta_adjust =
         shooting_calculator
             .calculateLaunchAngles(
-                shooter_.shooting_exit_velocity_.value(), shooting_dist,
+                intake_.shooting_exit_velocity_.value(), shooting_dist,
                 vision_readings.velocity_in_component,
                 vision_readings.velocity_orth_component,
                 super_.teleop_shooter_height_.value().to<double>())

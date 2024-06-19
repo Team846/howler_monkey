@@ -9,8 +9,8 @@
 #include "frc846/wpilib/time.h"
 
 SpinUpCommand::SpinUpCommand(RobotContainer& container)
-    : frc846::Loggable{"spin_up_command"}, shooter_(container.shooter_) {
-  AddRequirements({&shooter_});
+    : frc846::Loggable{"spin_up_command"} {
+  
   SetName("spin_up_command");
 }
 
@@ -20,7 +20,7 @@ void SpinUpCommand::Initialize() {
 }
 
 void SpinUpCommand::Execute() {
-  shooter_.SetTarget({ShooterState::kRun});
+  //er_.SetTarget({ShooterState::kRun}); //flag
   is_done_ = true;
 }
 

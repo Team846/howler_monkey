@@ -41,6 +41,17 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
 
   frc846::Pref<double> retract_speed_{*this, "retract_speed", -0.2};
 
+  frc846::Pref<double> shooting_exit_velocity_{*this, "shooting_exit_velocity", 47.0};
+
+  frc846::Pref<double> shooter_speed_tolerance_{*this, "shooter_speed_tolerance", 0.05};
+
+
+
+
+
+
+  
+
  private:
   bool has_piece_;
 

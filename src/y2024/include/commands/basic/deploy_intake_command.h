@@ -7,7 +7,7 @@
 #include "subsystems/abstract/super_structure.h"
 #include "subsystems/hardware/intake.h"
 #include "subsystems/hardware/pivot.h"
-#include "subsystems/hardware/shooter.h"
+
 #include "subsystems/hardware/telescope.h"
 #include "subsystems/hardware/wrist.h"
 #include "subsystems/robot_container.h"
@@ -28,7 +28,7 @@ class DeployIntakeCommand
 
  private:
   IntakeSubsystem& intake_;
-  ShooterSubsystem& shooter_;
+ 
   SuperStructureSubsystem& super_;
 };
 

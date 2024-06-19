@@ -8,7 +8,7 @@
 #include <memory>
 
 #include "commands/auto_intake_and_shoot_command.h"
-#include "commands/basic/prepare_auto_shoot_command.h"
+//#include "commands/basic/prepare_auto_shoot_command.h"
 #include "commands/basic/shoot_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "field.h"
@@ -31,7 +31,7 @@ FourPieceAuto::FourPieceAuto(RobotContainer& container, bool should_flip)
         container.drivetrain_.SetBearing(pose_.bearing);
       }},
       frc2::SequentialCommandGroup{frc2::WaitCommand{1.5_s},
-                                   PrepareAutoShootCommand{container}},
+                                   /*PrepareAutoShootCommand{container}*/},
       ShootCommand{container},
       frc2::WaitCommand{container.super_structure_.post_shoot_wait_.value()},
 

@@ -41,15 +41,15 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
     return container.control_input_.readings().running_prep_shoot;
   }};
 
-  point_blank_prep_speaker_trigger.OnTrue(
-      PrepareShootCommand{container, false}.ToPtr());
+  //point_blank_prep_speaker_trigger.OnTrue(
+      //PrepareShootCommand{container, false}.ToPtr());
   point_blank_prep_speaker_trigger.OnFalse(StowCommand{container}.ToPtr());
 
   frc2::Trigger prep_super_shot_trigger{[&container] {
     return container.control_input_.readings().running_prep_shoot;
   }};
 
-  prep_super_shot_trigger.OnTrue(PrepareShootCommand{container, true}.ToPtr());
+  //prep_super_shot_trigger.OnTrue(PrepareShootCommand{container, true}.ToPtr());
   prep_super_shot_trigger.OnFalse(StowCommand{container}.ToPtr());
 
   frc2::Trigger operator_pull_trigger{[&container] {

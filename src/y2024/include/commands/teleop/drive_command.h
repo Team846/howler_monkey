@@ -8,7 +8,8 @@
 #include "subsystems/abstract/super_structure.h"
 #include "subsystems/abstract/vision.h"
 #include "subsystems/hardware/drivetrain.h"
-#include "subsystems/hardware/shooter.h"
+#include "subsystems/hardware/intake.h"
+
 #include "subsystems/robot_container.h"
 
 class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
@@ -24,7 +25,8 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
   DrivetrainSubsystem& drivetrain_;
   SuperStructureSubsystem& super_;
   VisionSubsystem& vision_;
-  ShooterSubsystem& shooter_;
+
+  IntakeSubsystem& intake_;
 
   ShootingCalculator shooting_calculator{};
 

@@ -5,7 +5,7 @@
 
 #include "frc846/util/math.h"
 #include "subsystems/hardware/intake.h"
-#include "subsystems/hardware/shooter.h"
+
 #include "subsystems/robot_container.h"
 
 class ShootCommand : public frc2::CommandHelper<frc2::Command, ShootCommand>,
@@ -23,7 +23,7 @@ class ShootCommand : public frc2::CommandHelper<frc2::Command, ShootCommand>,
 
  private:
   IntakeSubsystem& intake_;
-  ShooterSubsystem& shooter_;
+
 };
 
 #endif  // y2024_COMMANDS_SHOOT_COMMAND_H_

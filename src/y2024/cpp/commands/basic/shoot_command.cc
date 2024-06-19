@@ -10,17 +10,21 @@
 
 ShootCommand::ShootCommand(RobotContainer& container)
     : frc846::Loggable{"shoot_command"},
-      intake_(container.intake_),
-      shooter_(container.shooter_) {
-  AddRequirements({&intake_, &shooter_});
+      intake_(container.intake_) {
+  AddRequirements({&intake_});
   SetName("shoot_command");
 }
 
-void ShootCommand::Initialize() { Log("Shoot Command Initialize"); }
+void ShootCommand::Initialize() { 
+  Log("Shoot Command Initialize"); 
+  intake_.SetTarget({IntakeState::kFeed});
+  }
 
 void ShootCommand::Execute() {
-  intake_.SetTarget({IntakeState::kFeed});
-  shooter_.SetTarget({ShooterState::kRun});
+
+  intake_.SetTarget({IntakeState::kRelease});
+  
+  
 }
 
 void ShootCommand::End(bool interrupted) { Log("Shoot Command Finished"); }

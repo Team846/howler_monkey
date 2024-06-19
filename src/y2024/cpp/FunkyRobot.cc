@@ -32,7 +32,7 @@
 #include "frc846/wpilib/time.h"
 #include "subsystems/hardware/intake.h"
 #include "subsystems/hardware/pivot.h"
-#include "subsystems/hardware/shooter.h"
+
 #include "subsystems/hardware/telescope.h"
 #include "subsystems/hardware/wrist.h"
 

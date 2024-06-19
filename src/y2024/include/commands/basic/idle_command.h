@@ -5,7 +5,7 @@
 
 #include "frc846/util/math.h"
 #include "subsystems/hardware/intake.h"
-#include "subsystems/hardware/shooter.h"
+
 #include "subsystems/robot_container.h"
 
 class IdleCommand : public frc2::CommandHelper<frc2::Command, IdleCommand>,
@@ -23,7 +23,7 @@ class IdleCommand : public frc2::CommandHelper<frc2::Command, IdleCommand>,
 
  private:
   IntakeSubsystem& intake_;
-  ShooterSubsystem& shooter_;
+
 
   bool onlyIntake_;
 

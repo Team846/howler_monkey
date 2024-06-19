@@ -10,9 +10,9 @@
 StowCommand::StowCommand(RobotContainer& container)
     : frc846::Loggable{"stow_command"},
       intake_(container.intake_),
-      shooter_(container.shooter_),
+      
       super_(container.super_structure_) {
-  AddRequirements({&intake_, &shooter_, &container.pivot_,
+  AddRequirements({&intake_, &container.pivot_,
                    &container.telescope_, &container.wrist_});
   SetName("stow_command");
 }
@@ -20,8 +20,7 @@ StowCommand::StowCommand(RobotContainer& container)
 void StowCommand::Initialize() { Log("Stow Command Initialize"); }
 
 void StowCommand::Execute() {
-  // intake_.SetTarget(intake_.ZeroTarget());
-  // shooter_.SetTarget(shooter_.ZeroTarget());
+  
 
   super_.SetTargetSetpoint(super_.getStowSetpoint());
 }
