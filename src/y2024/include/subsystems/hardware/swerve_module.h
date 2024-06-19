@@ -97,11 +97,11 @@ class SwerveModuleSubsystem
   frc846::Grapher<double> lower_dc_current_limiting_{
       *this, "lower_dc_current_limiting"};
 
-  // frc846::control::SparkRevController<units::foot_t> drive_esc_helper_;
-  // frc846::control::SparkRevController<units::degree_t> steer_esc_helper_;
+  frc846::control::SparkRevController<units::foot_t> drive_esc_helper_;
+  frc846::control::SparkRevController<units::degree_t> steer_esc_helper_;
 
-  frc846::control::TalonFXController<units::foot_t> drive_esc_helper_;
-  frc846::control::TalonFXController<units::degree_t> steer_esc_helper_;
+//   frc846::control::TalonFXController<units::foot_t> drive_esc_helper_;
+//   frc846::control::TalonFXController<units::degree_t> steer_esc_helper_;
 
   ctre::CANcoder cancoder_;
 

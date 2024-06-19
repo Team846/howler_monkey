@@ -5,6 +5,7 @@
 #include <rev/CANSparkMax.h>
 #include <units/current.h>
 
+#include <ctre/phoenix6/TalonFX.hpp>
 #include <initializer_list>
 #include <variant>
 
@@ -59,6 +60,17 @@ constexpr unsigned int errorParseREVLib(rev::REVLibError err) {
   }
 }
 
+constexpr unsigned int errorParsePhoenix(ctre::phoenix::StatusCode& err) {
+  if (err.IsOK()) {
+    return 0;
+  } else if (err.IsWarning()) {
+    return 11;
+  } else if (err.IsError()) {
+    return -1;
+  }
+
+  return -1;
+}
 
 constexpr std::string parseControllerError(unsigned int err) {
   switch (err) {
@@ -356,173 +368,173 @@ class BaseSparkREVController : BaseElectronicSpeedController {
  *
  */
 
-// class BaseTalonFXController : BaseElectronicSpeedController {
-//  public:
-//   BaseTalonFXController(int kCANid)
-//       : esc_{kCANid}, configurator_{esc_.GetConfigurator()} {};
+class BaseTalonFXController : BaseElectronicSpeedController {
+ public:
+  BaseTalonFXController(int kCANid)
+      : esc_{kCANid}, configurator_{esc_.GetConfigurator()} {};
 
-//   ~BaseTalonFXController(){};
+  ~BaseTalonFXController(){};
 
-//   unsigned int InitConfigure(units::millisecond_t timeout = 0.0_ms) override {
-//     if (!VerifyConnected()) return -1;
+  unsigned int InitConfigure(units::millisecond_t timeout = 0.0_ms) override {
+    if (!VerifyConnected()) return -1;
 
-//     rev::REVLibError err = esc_.SetCANTimeout(timeout.to<double>());
-//     if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
-//     err = esc_.SetSmartCurrentLimit(40.0);
-//     if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
-//     err = esc_.EnableVoltageCompensation(12.0);
-//     if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
-//     err = esc_.SetPeriodicFramePeriod(
-//         rev::CANSparkBase::PeriodicFrame::kStatus0, 30);
-//     if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
-//     err = esc_.BurnFlash();
-//     if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
+    rev::REVLibError err = esc_.SetCANTimeout(timeout.to<double>());
+    if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
+    err = esc_.SetSmartCurrentLimit(40.0);
+    if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
+    err = esc_.EnableVoltageCompensation(12.0);
+    if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
+    err = esc_.SetPeriodicFramePeriod(
+        rev::CANSparkBase::PeriodicFrame::kStatus0, 30);
+    if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
+    err = esc_.BurnFlash();
+    if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
 
-//     setup = true;
+    setup = true;
 
-//     return errorParseREVLib(rev::REVLibError::kOk);
-//   }
+    return errorParseREVLib(rev::REVLibError::kOk);
+  }
 
-//   unsigned int AddGainsHelper(ControlGainsHelper* gainsHelper) override {
-//     gains_helper = gainsHelper;
-//     rev::REVLibError err =
-//         pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(),
-//                                        gains_helper->peak_output_.value());
-//     if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
-//     err = gains_helper->Write(pid_controller_, gains_cache_, true);
-//     if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
+  unsigned int AddGainsHelper(ControlGainsHelper* gainsHelper) override {
+    gains_helper = gainsHelper;
+    rev::REVLibError err =
+        pid_controller_.SetOutputRange(-gains_helper->peak_output_.value(),
+                                       gains_helper->peak_output_.value());
+    if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
+    err = gains_helper->Write(pid_controller_, gains_cache_, true);
+    if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
 
-//     return errorParseREVLib(rev::REVLibError::kOk);
-//   }
+    return errorParseREVLib(rev::REVLibError::kOk);
+  }
 
-//   unsigned int DisableStatusFrames(
-//       std::initializer_list<rev::CANSparkLowLevel::PeriodicFrame> frames) {
-//     if (!setup) return -1;
+  unsigned int DisableStatusFrames(
+      std::initializer_list<rev::CANSparkLowLevel::PeriodicFrame> frames) {
+    if (!setup) return -1;
 
-//     for (auto f : frames) {
-//       // https://docs.revrobotics.com/sparkmax/operating-modes/control-interfaces#periodic-status-frames
-//       auto err = esc_.SetPeriodicFramePeriod(f, 65535);
-//       if (err != rev::REVLibError::kOk) {
-//         return errorParseREVLib(err);
-//       }
-//     }
+    for (auto f : frames) {
+      // https://docs.revrobotics.com/sparkmax/operating-modes/control-interfaces#periodic-status-frames
+      auto err = esc_.SetPeriodicFramePeriod(f, 65535);
+      if (err != rev::REVLibError::kOk) {
+        return errorParseREVLib(err);
+      }
+    }
 
-//     return errorParseREVLib(rev::REVLibError::kOk);
-//   };
+    return errorParseREVLib(rev::REVLibError::kOk);
+  };
 
-//   unsigned int ZeroEncoder(double pos) {
-//     if (!setup) return -1;
+  unsigned int ZeroEncoder(double pos) {
+    if (!setup) return -1;
 
-//     return errorParseREVLib(encoder_.SetPosition(pos));
-//   };
+    return errorParseREVLib(encoder_.SetPosition(pos));
+  };
 
-//   unsigned int WriteDutyCycle(double output) override {
-//     if (!setup) return -1;
+  unsigned int WriteDutyCycle(double output) override {
+    if (!setup) return -1;
 
-//     if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
-//       setup = false;
-//       return -1;
-//     }
+    if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
+      setup = false;
+      return -1;
+    }
 
-//     double value = output;
+    double value = output;
 
-//     if (gainsHelper != nullptr) {
-//       value = std::max(output, gains_helper->reverse_peak_output_.value());
-//       value = std::min(value, gains_helper->peak_output_.value());
-//     }
+    if (gainsHelper != nullptr) {
+      value = std::max(output, gains_helper->reverse_peak_output_.value());
+      value = std::min(value, gains_helper->peak_output_.value());
+    }
 
-//     return errorParseREVLib(pid_controller_.SetReference(
-//         value, rev::CANSparkLowLevel::ControlType::kDutyCycle));
-//   };
+    return errorParseREVLib(pid_controller_.SetReference(
+        value, rev::CANSparkLowLevel::ControlType::kDutyCycle));
+  };
 
-//   unsigned int WriteVelocity(double output) override {
-//     if (!setup || gains_helper == nullptr) return -1;
+  unsigned int WriteVelocity(double output) override {
+    if (!setup || gains_helper == nullptr) return -1;
 
-//     if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
-//       setup = false;
-//       return -1;
-//     }
+    if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
+      setup = false;
+      return -1;
+    }
 
-//     err = gains_helper->Write(pid_controller_, gains_cache_, false);
-//     if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
+    err = gains_helper->Write(pid_controller_, gains_cache_, false);
+    if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
 
-//     return errorParseREVLib(pid_controller_.SetReference(
-//         output, rev::CANSparkLowLevel::ControlType::kVelocity));
-//   };
+    return errorParseREVLib(pid_controller_.SetReference(
+        output, rev::CANSparkLowLevel::ControlType::kVelocity));
+  };
 
-//   unsigned int WritePosition(double output) override {
-//     if (!setup || gainsHelper == nullptr) return -1;
+  unsigned int WritePosition(double output) override {
+    if (!setup || gainsHelper == nullptr) return -1;
 
-//     if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
-//       setup = false;
-//       return -1;
-//     }
+    if (esc_.GetStickyFault(rev::CANSparkMax::FaultID::kHasReset)) {
+      setup = false;
+      return -1;
+    }
 
-//     err = gains_helper->Write(pid_controller_, gains_cache_, false);
-//     if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
+    err = gains_helper->Write(pid_controller_, gains_cache_, false);
+    if (err != rev::REVLibError::kOk) return errorParseREVLib(err);
 
-//     return errorParseREVLib(pid_controller_.SetReference(
-//         output, rev::CANSparkLowLevel::ControlType::kPosition));
-//   };
+    return errorParseREVLib(pid_controller_.SetReference(
+        output, rev::CANSparkLowLevel::ControlType::kPosition));
+  };
 
-//   double GetVelocity() override {
-//     if (!setup) return 0.0;
+  double GetVelocity() override {
+    if (!setup) return 0.0;
 
-//     return esc_.GetVelocity().GetValueAsDouble();
-//   };
+    return esc_.GetVelocity().GetValueAsDouble();
+  };
 
-//   double GetPosition() override {
-//     if (!setup) return 0.0;
+  double GetPosition() override {
+    if (!setup) return 0.0;
 
-//     return esc_.GetPosition().GetValueAsDouble();
-//   };
+    return esc_.GetPosition().GetValueAsDouble();
+  };
 
-//   double GetCurrent() override {
-//     if (!setup) return 0.0;
+  double GetCurrent() override {
+    if (!setup) return 0.0;
 
-//     return esc_.GetSupplyCurrent().GetValueAsDouble();
-//   };
+    return esc_.GetSupplyCurrent().GetValueAsDouble();
+  };
 
-//   bool VerifyConnected() override { return esc_.IsAlive(); };
+  bool VerifyConnected() override { return esc_.IsAlive(); };
 
-//   bool GetInverted() override {
-//     if (!setup) return false;
+  bool GetInverted() override {
+    if (!setup) return false;
 
-//     return esc_.GetInverted();
-//   };
+    return esc_.GetInverted();
+  };
 
-//   unsigned int SetInverted(bool invert) override {
-//     if (!setup) return;
+  unsigned int SetInverted(bool invert) override {
+    if (!setup) return;
 
-//     deviceConfigs.MotorOutput.Inverted = invert;
+    deviceConfigs.MotorOutput.Inverted = invert;
 
-//     auto status = configurator_.Apply(deviceConfigs);
-//     return errorParsePhoenix(status);
-//   };
+    auto status = configurator_.Apply(deviceConfigs);
+    return errorParsePhoenix(status);
+  };
 
-//   unsigned int SetLimits(double reverse, double forward) override {
-//     if (!setup) return;
+  unsigned int SetLimits(double reverse, double forward) override {
+    if (!setup) return;
 
-//     deviceConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-//     deviceConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-//     deviceConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = forward;
-//     deviceConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = forward;
+    deviceConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    deviceConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    deviceConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = forward;
+    deviceConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = forward;
 
-//     auto status = configurator_.Apply(deviceConfigs);
-//     return errorParsePhoenix(status);
-//   }
+    auto status = configurator_.Apply(deviceConfigs);
+    return errorParsePhoenix(status);
+  }
 
-//  private:
-//   ctre::phoenix6::hardware::TalonFX esc_;
-//   ctre::phoenix6::configs::TalonFXConfigurator& configurator_;
-//   ctre::phoenix6::configs::TalonFXConfiguration deviceConfigs{};
+ private:
+  ctre::phoenix6::hardware::TalonFX esc_;
+  ctre::phoenix6::configs::TalonFXConfigurator& configurator_;
+  ctre::phoenix6::configs::TalonFXConfiguration deviceConfigs{};
 
-//   ControlGainsHelper* gains_helper;
+  ControlGainsHelper* gains_helper;
 
-//   ControlGains gains_cache_;
+  ControlGains gains_cache_;
 
-//   bool setup = false;
-// };
+  bool setup = false;
+};
 
 // // template <typename X>
 // // class TalonFXController : ElectronicSpeedController<X> {
