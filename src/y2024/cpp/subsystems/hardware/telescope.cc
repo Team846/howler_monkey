@@ -8,7 +8,7 @@ TelescopeSubsystem::TelescopeSubsystem(bool init)
   if (init) {
     telescope_esc_.Setup(&tele_esc_gains_, false);
 
-    telescope_esc_.SetupConverter(0.25_in);
+    telescope_esc_.SetupConverter(1_in * 2.2146);
 
     telescope_esc_.ZeroEncoder();
 

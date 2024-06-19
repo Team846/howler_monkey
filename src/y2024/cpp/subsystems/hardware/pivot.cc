@@ -10,14 +10,10 @@ PivotSubsystem::PivotSubsystem(bool init)
     pivot_two_.Setup(&pivot_esc_gains_, true, frc846::control::kBrake);
     pivot_three_.Setup(&pivot_esc_gains_, false, frc846::control::kBrake);
     pivot_four_.Setup(&pivot_esc_gains_, false, frc846::control::kBrake);
-    pivot_one_.SetupConverter(1.0_tr /
-                              (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0));
-    pivot_two_.SetupConverter(1.0_tr /
-                              (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0));
-    pivot_three_.SetupConverter(1.0_tr /
-                                (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0));
-    pivot_four_.SetupConverter(1.0_tr /
-                               (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0));
+    pivot_one_.SetupConverter(1.0_tr /110);
+    pivot_two_.SetupConverter(1.0_tr /110);
+    pivot_three_.SetupConverter(1.0_tr /110);
+    pivot_four_.SetupConverter(1.0_tr /110);
     pivot_one_.ZeroEncoder();
     pivot_two_.ZeroEncoder();
     pivot_three_.ZeroEncoder();

@@ -4,11 +4,13 @@
 #include "frc846/util/share_tables.h"
 #include "units/math.h"
 
+
 WristSubsystem::WristSubsystem(bool init)
     : frc846::Subsystem<WristReadings, WristTarget>{"wrist", init} {
   if (init) {
     wrist_esc_.Setup(&wrist_esc_gains_, true);
-    wrist_esc_.SetupConverter(3.0 / 250.0 * 1_tr);
+    // wrist_esc_.SetupConverter(3.0 / 250.0 * 1_tr);
+    wrist_esc_.SetupConverter(0.0293 * 340_deg)
 
     wrist_esc_.ConfigurePositionLimits(165_deg, 0_deg);
 
