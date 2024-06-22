@@ -7,8 +7,8 @@
 #include <type_traits>
 
 #include "frc/Preferences.h"
-#include "frc846/loggable.h"
 #include "frc846/fstore.h"
+#include "frc846/loggable.h"
 
 namespace frc846 {
 
@@ -25,8 +25,6 @@ class Pref {
   // The pref name will be post-fixed with the unit (e.g. `length (in)`).
   Pref(const frc846::Loggable& parent, std::string name, T fallback);
   Pref(const frc846::Loggable& parent, std::string name);
-  
-
 
   ~Pref() { pref_table_->RemoveListener(entry_listener_); }
 
@@ -34,8 +32,8 @@ class Pref {
   Pref(const frc846::Loggable& parent, std::string name, T fallback,
        std::function<void(std::string, T, frc846::FPointer)> init,
        std::function<void(frc846::FPointer, T)> set,
-       std::function<T(std::string, T)> get) :
-        f_ptr_{Loggable::Join(parent.name(), name)} {
+       std::function<T(std::string, T)> get)
+      : f_ptr_{Loggable::Join(parent.name(), name)} {
     FunkyStore::FP_HardReadPrefs();
     // Full networktables key (parent name + pref name)
     auto full_key = Loggable::Join(parent.name(), name);
@@ -43,6 +41,10 @@ class Pref {
     // If the entry already exists, get its value. Otherwise, create the entry.
     init(full_key, fallback, f_ptr_);
     value_ = get(full_key, fallback);
+
+    if (value_ != fallback) {
+      parent.Log("Definition of preference `{}` is outdated.", full_key);
+    }
 
     // Update pref when preference is new or updated.
     entry_listener_ = pref_table_->AddListener(
@@ -78,7 +80,8 @@ Pref<U>::Pref(const frc846::Loggable& parent, std::string name, U fallback)
                        units::abbreviation(units::make_unit<U>(0))),
            fallback,
            [](std::string name, U fallback, frc846::FPointer ptr) {
-             frc::Preferences::SetDouble(name, ptr.double_value(fallback.template to<double>()));
+             frc::Preferences::SetDouble(
+                 name, ptr.double_value(fallback.template to<double>()));
            },
            [](frc846::FPointer ptr, U val) {
              ptr.set(val.template to<double>());
@@ -97,7 +100,8 @@ Pref<U>::Pref(const frc846::Loggable& parent, std::string name)
                        units::abbreviation(units::make_unit<U>(0))),
            units::make_unit<U>(0),
            [](std::string name, U fallback, frc846::FPointer ptr) {
-             frc::Preferences::SetDouble(name, ptr.double_value(fallback.template to<double>()));
+             frc::Preferences::SetDouble(
+                 name, ptr.double_value(fallback.template to<double>()));
            },
            [](frc846::FPointer ptr, U val) {
              ptr.set(val.template to<double>());
@@ -109,7 +113,6 @@ Pref<U>::Pref(const frc846::Loggable& parent, std::string name)
   static_assert(units::traits::is_unit_t<U>(), "must be a unit");
 }
 
-
 template <>
 inline Pref<bool>::Pref(const frc846::Loggable& parent, std::string name,
                         bool fallback)
@@ -120,9 +123,7 @@ inline Pref<bool>::Pref(const frc846::Loggable& parent, std::string name,
           [](std::string name, bool fallback, frc846::FPointer ptr) {
             frc::Preferences::SetBoolean(name, ptr.bool_value(fallback));
           },
-          [](frc846::FPointer ptr, bool val) {
-             ptr.set(val);
-          },
+          [](frc846::FPointer ptr, bool val) { ptr.set(val); },
           [](std::string name, bool fallback) {
             return frc::Preferences::GetBoolean(name, fallback);
           },
@@ -137,9 +138,7 @@ inline Pref<bool>::Pref(const frc846::Loggable& parent, std::string name)
           [](std::string name, bool fallback, frc846::FPointer ptr) {
             frc::Preferences::SetBoolean(name, ptr.bool_value(fallback));
           },
-          [](frc846::FPointer ptr, bool val) {
-             ptr.set(val);
-          },
+          [](frc846::FPointer ptr, bool val) { ptr.set(val); },
           [](std::string name, bool fallback) {
             return frc::Preferences::GetBoolean(name, fallback);
           },
@@ -155,9 +154,7 @@ inline Pref<double>::Pref(const frc846::Loggable& parent, std::string name,
           [](std::string name, double fallback, frc846::FPointer ptr) {
             frc::Preferences::SetDouble(name, ptr.double_value(fallback));
           },
-          [](frc846::FPointer ptr, double val) {
-             ptr.set(val);
-          },
+          [](frc846::FPointer ptr, double val) { ptr.set(val); },
           [](std::string name, double fallback) {
             return frc::Preferences::GetDouble(name, fallback);
           },
@@ -172,9 +169,7 @@ inline Pref<double>::Pref(const frc846::Loggable& parent, std::string name)
           [](std::string name, double fallback, frc846::FPointer ptr) {
             frc::Preferences::SetDouble(name, ptr.double_value(fallback));
           },
-          [](frc846::FPointer ptr, double val) {
-             ptr.set(val);
-          },
+          [](frc846::FPointer ptr, double val) { ptr.set(val); },
           [](std::string name, double fallback) {
             return frc::Preferences::GetDouble(name, fallback);
           },
@@ -190,9 +185,7 @@ inline Pref<int>::Pref(const frc846::Loggable& parent, std::string name,
           [](std::string name, int fallback, frc846::FPointer ptr) {
             frc::Preferences::SetInt(name, ptr.int_value(fallback));
           },
-          [](frc846::FPointer ptr, int val) {
-             ptr.set(val);
-          },
+          [](frc846::FPointer ptr, int val) { ptr.set(val); },
           [](std::string name, int fallback) {
             return frc::Preferences::GetInt(name, fallback);
           },
@@ -207,9 +200,7 @@ inline Pref<int>::Pref(const frc846::Loggable& parent, std::string name)
           [](std::string name, int fallback, frc846::FPointer ptr) {
             frc::Preferences::SetInt(name, ptr.int_value(fallback));
           },
-          [](frc846::FPointer ptr, int val) {
-             ptr.set(val);
-          },
+          [](frc846::FPointer ptr, int val) { ptr.set(val); },
           [](std::string name, int fallback) {
             return frc::Preferences::GetInt(name, fallback);
           },
@@ -225,9 +216,7 @@ inline Pref<std::string>::Pref(const frc846::Loggable& parent, std::string name,
           [](std::string name, std::string fallback, frc846::FPointer ptr) {
             frc::Preferences::SetString(name, ptr.string_value(fallback));
           },
-          [](frc846::FPointer ptr, std::string val) {
-             ptr.set(val);
-          },
+          [](frc846::FPointer ptr, std::string val) { ptr.set(val); },
           [](std::string name, std::string fallback) {
             return frc::Preferences::GetString(name, fallback);
           },

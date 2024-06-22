@@ -346,7 +346,7 @@ void FunkyRobot::InitTeleopTriggers() {
                               container_.wrist_.ZeroSubsystem();
                             }).ToPtr());
 
-  // ControlTriggerInitializer::InitTeleopTriggers(container_);
+  ControlTriggerInitializer::InitTeleopTriggers(container_);
 }
 
 void FunkyRobot::InitTestDefaults() {}

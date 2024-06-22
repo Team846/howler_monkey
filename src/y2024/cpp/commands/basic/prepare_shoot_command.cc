@@ -29,14 +29,15 @@ void PrepareShootCommand::Initialize() {
 void PrepareShootCommand::Execute() {
   VisionReadings vis_readings_ = vision_.readings();
 
-  auto theta = shooting_calculator_
-                   .calculateLaunchAngles(
-                       shooter_.shooting_exit_velocity_.value(),
-                       vis_readings_.est_dist_from_speaker.to<double>(),
-                       vis_readings_.velocity_in_component,
-                       vis_readings_.velocity_orth_component,
-                       super_.auto_shooter_height_.value().to<double>() / 12.0)
-                   .launch_angle;
+  auto theta =
+      shooting_calculator_
+          .calculateLaunchAngles(
+              shooter_.shooting_exit_velocity_.value(),
+              vis_readings_.est_dist_from_speaker.to<double>(),
+              vis_readings_.velocity_in_component,
+              vis_readings_.velocity_orth_component,
+              super_.teleop_shooter_height_.value().to<double>() / 12.0)
+          .launch_angle;
 
   intake_.SetTarget({IntakeState::kHold});
   shooter_.SetTarget({ShooterState::kRun});
@@ -47,6 +48,10 @@ void PrepareShootCommand::Execute() {
     shootSetpoint.wrist =
         90_deg + (theta - super_.wrist_->wrist_home_offset_.value()) +
         (shootSetpoint.pivot - super_.pivot_->pivot_home_offset_.value());
+  }
+
+  if (!super_.pivot_->WithinTolerance(shootSetpoint.pivot)) {
+    shootSetpoint.wrist = super_.getStowSetpoint().wrist;
   }
 
   super_.SetTargetSetpoint(shootSetpoint);

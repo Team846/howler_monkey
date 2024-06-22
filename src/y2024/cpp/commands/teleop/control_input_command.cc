@@ -24,7 +24,7 @@ void ControlInputCommand::Execute() {
   OperatorReadings op_readings{operator_.readings()};
 
   // TRAP
-  if (op_readings.left_trigger && !previous_driver_.left_trigger) {
+  if (op_readings.left_trigger && !previous_operator_.left_trigger) {
     ci_readings_.stageOfTrap += 1;
   } else if (op_readings.left_bumper && !previous_operator_.left_bumper) {
     ci_readings_.stageOfTrap = std::max(ci_readings_.stageOfTrap - 1, 0);

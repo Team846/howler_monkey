@@ -45,9 +45,9 @@ PivotSubsystem::PivotSubsystem(bool init)
          rev::CANSparkBase::PeriodicFrame::kStatus4,
          rev::CANSparkBase::PeriodicFrame::kStatus3});
 
-    pivot_two_.esc_.Follow(pivot_one_.esc_, false);
-    pivot_three_.esc_.Follow(pivot_one_.esc_, true);
-    pivot_four_.esc_.Follow(pivot_one_.esc_, true);
+    // pivot_two_.esc_.Follow(pivot_one_.esc_, false);
+    // pivot_three_.esc_.Follow(pivot_one_.esc_, true);
+    // pivot_four_.esc_.Follow(pivot_one_.esc_, true);
   }
 }
 
@@ -93,16 +93,16 @@ PivotReadings PivotSubsystem::GetNewReadings() {
 void PivotSubsystem::PositionPivot(PivotTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
     pivot_one_.Write(frc846::control::ControlMode::Position, *pos);
-    // pivot_two_.Write(frc846::control::ControlMode::Position, *pos);
-    // pivot_three_.Write(frc846::control::ControlMode::Position, *pos);
-    // pivot_four_.Write(frc846::control::ControlMode::Position, *pos);
+    pivot_two_.Write(frc846::control::ControlMode::Position, *pos);
+    pivot_three_.Write(frc846::control::ControlMode::Position, *pos);
+    pivot_four_.Write(frc846::control::ControlMode::Position, *pos);
 
     target_pivot_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.pivot_output)) {
     pivot_one_.Write(frc846::control::ControlMode::Percent, *output);
-    // pivot_two_.Write(frc846::control::ControlMode::Percent, *output);
-    // pivot_three_.Write(frc846::control::ControlMode::Percent, *output);
-    // pivot_four_.Write(frc846::control::ControlMode::Percent, *output);
+    pivot_two_.Write(frc846::control::ControlMode::Percent, *output);
+    pivot_three_.Write(frc846::control::ControlMode::Percent, *output);
+    pivot_four_.Write(frc846::control::ControlMode::Percent, *output);
 
     target_pivot_duty_cycle_graph.Graph(*output);
   }

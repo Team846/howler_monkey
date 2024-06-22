@@ -1,6 +1,7 @@
 #ifndef y2024_SUBSYSTEMS_ARM_H_
 #define y2024_SUBSYSTEMS_ARM_H_
 
+#include "frc/filter/SlewRateLimiter.h"
 #include "frc/trajectory/TrapezoidProfile.h"
 #include "frc846/control/control.h"
 #include "frc846/control/controlgains.h"
@@ -9,6 +10,7 @@
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
+#include "units/angular_velocity.h"
 #include "units/length.h"
 #include "units/math.h"
 

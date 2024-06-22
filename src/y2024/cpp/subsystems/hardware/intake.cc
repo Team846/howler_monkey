@@ -10,7 +10,7 @@ IntakeSubsystem::IntakeSubsystem(bool init)
       note_detection_other{intake_esc_.esc_.GetReverseLimitSwitch(
           rev::SparkLimitSwitch::Type::kNormallyOpen)} {
   if (init) {
-    intake_esc_.Setup(&intake_esc_gains_, false);
+    intake_esc_.Setup(&intake_esc_gains_, true);
     intake_esc_.SetupConverter(1_tr);
 
     // intake_esc_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus2,

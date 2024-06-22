@@ -23,32 +23,16 @@ static constexpr units::millisecond_t CANTimeout = 50_ms;
 enum ControlMode { Percent, Velocity, Position, Current };
 enum IdleMode { kCoast, kBrake };
 
-constexpr rev::CANSparkMax::ControlType LocalRevControlMode(ControlMode mode) {
+constexpr rev::CANSparkMax::ControlType LocalREVControlMode(ControlMode mode) {
   switch (mode) {
     case ControlMode::Percent:
-      return rev::CANSparkMax::ControlType::kDutyCycle;
+      return rev::CANSparkBase::ControlType::kDutyCycle;
     case ControlMode::Velocity:
-      return rev::CANSparkMax::ControlType::kVelocity;
+      return rev::CANSparkBase::ControlType::kVelocity;
     case ControlMode::Position:
-      return rev::CANSparkMax::ControlType::kPosition;
+      return rev::CANSparkBase::ControlType::kPosition;
     case ControlMode::Current:
-      return rev::CANSparkMax::ControlType::kCurrent;
-    default:
-      throw std::runtime_error("unsupported control type");
-  }
-}
-
-constexpr rev::CANSparkFlex::ControlType LocalFlexControlMode(
-    ControlMode mode) {
-  switch (mode) {
-    case ControlMode::Percent:
-      return rev::CANSparkFlex::ControlType::kDutyCycle;
-    case ControlMode::Velocity:
-      return rev::CANSparkFlex::ControlType::kVelocity;
-    case ControlMode::Position:
-      return rev::CANSparkFlex::ControlType::kPosition;
-    case ControlMode::Current:
-      return rev::CANSparkFlex::ControlType::kCurrent;
+      return rev::CANSparkBase::ControlType::kCurrent;
     default:
       throw std::runtime_error("unsupported control type");
   }
@@ -147,8 +131,8 @@ class SparkRevController : ElectronicSpeedController<X> {
                                      gains_helper->peak_output_.value());
     }
 
-    esc_.SetOpenLoopRampRate(1.0);
-    esc_.SetClosedLoopRampRate(1.0);
+    // esc_.SetOpenLoopRampRate(1.0);
+    // esc_.SetClosedLoopRampRate(1.0);
 
     CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()),
             "Current Limit");
@@ -186,8 +170,8 @@ class SparkRevController : ElectronicSpeedController<X> {
                                      gains_helper->peak_output_.value());
     }
 
-    esc_.SetOpenLoopRampRate(1.0);
-    esc_.SetClosedLoopRampRate(1.0);
+    // esc_.SetOpenLoopRampRate(1.0);
+    // esc_.SetClosedLoopRampRate(1.0);
 
     CheckOk(obj, esc_.SetSmartCurrentLimit(gainsHelper->current_limit_.value()),
             "Current Limit");
@@ -214,8 +198,8 @@ class SparkRevController : ElectronicSpeedController<X> {
               "Current Limit");
     }
 
-    esc_.SetOpenLoopRampRate(1.0);
-    esc_.SetClosedLoopRampRate(1.0);
+    // esc_.SetOpenLoopRampRate(1.0);
+    // esc_.SetClosedLoopRampRate(1.0);
 
     CheckOk(obj, esc_.EnableVoltageCompensation(12.0), "Voltage Compensation");
 
@@ -272,7 +256,7 @@ class SparkRevController : ElectronicSpeedController<X> {
       value = std::min(value, +peak_output);
 
       CheckOk(obj,
-              pid_controller_.SetReference(value, LocalRevControlMode(mode)),
+              pid_controller_.SetReference(value, LocalREVControlMode(mode)),
               "Write Duty Cycle");
     }
   };
@@ -292,7 +276,7 @@ class SparkRevController : ElectronicSpeedController<X> {
     if (mode == ControlMode::Velocity) {
       CheckOk(obj,
               pid_controller_.SetReference(conv_.RealToNativeVelocity(output),
-                                           LocalRevControlMode(mode)),
+                                           LocalREVControlMode(mode)),
               "Write Velocity");
     }
   };
@@ -317,7 +301,7 @@ class SparkRevController : ElectronicSpeedController<X> {
     if (mode == ControlMode::Position) {
       CheckOk(obj,
               pid_controller_.SetReference(conv_.RealToNativePosition(output),
-                                           LocalRevControlMode(mode)),
+                                           LocalREVControlMode(mode)),
               "Write Position");
     }
   };
@@ -332,7 +316,7 @@ class SparkRevController : ElectronicSpeedController<X> {
     if (mode == ControlMode::Current) {
       CheckOk(obj,
               pid_controller_.SetReference(output.to<double>(),
-                                           LocalRevControlMode(mode)),
+                                           LocalREVControlMode(mode)),
               "Write Current");
     }
   };
@@ -343,7 +327,7 @@ class SparkRevController : ElectronicSpeedController<X> {
     CheckOk(
         obj,
         pid_controller_.SetReference(current.to<double>(),
-                                     LocalRevControlMode(ControlMode::Current)),
+                                     LocalREVControlMode(ControlMode::Current)),
         "Write Current");
   }
 
@@ -596,7 +580,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
           std::max(output, gains_helper->reverse_peak_output_.value());
       value = std::min(value, +peak_output);
 
-      pid_controller_.SetReference(value, LocalFlexControlMode(mode));
+      pid_controller_.SetReference(value, LocalREVControlMode(mode));
     }
   };
 
@@ -614,7 +598,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
 
     if (mode == ControlMode::Velocity) {
       pid_controller_.SetReference(conv_.RealToNativeVelocity(output),
-                                   LocalFlexControlMode(mode));
+                                   LocalREVControlMode(mode));
     }
   };
 
@@ -623,12 +607,12 @@ class SparkFlexController : ElectronicSpeedController<X> {
 
     if (usingPositionLimits) {
       if (output < reverse_position_limit) {
-        pid_controller_.SetReference(
-            0.0, LocalFlexControlMode(ControlMode::Percent));
+        pid_controller_.SetReference(0.0,
+                                     LocalREVControlMode(ControlMode::Percent));
         return;
       } else if (output > forward_position_limit) {
-        pid_controller_.SetReference(
-            0.0, LocalFlexControlMode(ControlMode::Percent));
+        pid_controller_.SetReference(0.0,
+                                     LocalREVControlMode(ControlMode::Percent));
         return;
       }
     }
@@ -644,7 +628,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
 
     if (mode == ControlMode::Position) {
       pid_controller_.SetReference(conv_.RealToNativePosition(output),
-                                   LocalFlexControlMode(mode));
+                                   LocalREVControlMode(mode));
     }
   };
 
@@ -658,7 +642,7 @@ class SparkFlexController : ElectronicSpeedController<X> {
     if (mode == ControlMode::Current) {
       CheckOk(obj,
               pid_controller_.SetReference(output.to<double>(),
-                                           LocalFlexControlMode(mode)),
+                                           LocalREVControlMode(mode)),
               "Write Current");
     }
   };
@@ -668,8 +652,8 @@ class SparkFlexController : ElectronicSpeedController<X> {
 
     CheckOk(
         obj,
-        pid_controller_.SetReference(
-            current.to<double>(), LocalFlexControlMode(ControlMode::Current)),
+        pid_controller_.SetReference(current.to<double>(),
+                                     LocalREVControlMode(ControlMode::Current)),
         "Write Current");
   }
 
@@ -804,16 +788,14 @@ class TalonFXController : ElectronicSpeedController<X> {
 
     deviceConfigs.WithMotorOutput(motorConfs);
 
-    currentConfs.WithSupplyCurrentLimit(gains_helper->current_limit_.value() /
-                                        2.0);
+    currentConfs.WithSupplyCurrentLimitEnable(true);
+    currentConfs.WithSupplyCurrentLimit(gains_helper->current_limit_.value());
     currentConfs.WithSupplyCurrentThreshold(
-        gains_helper->current_limit_.value());
-    currentConfs.WithSupplyTimeThreshold(0.02);
-    currentConfs.WithStatorCurrentLimit(gains_helper->current_limit_.value());
-    currentConfs.WithStatorCurrentLimitEnable(true);
+        gains_helper->current_limit_.value() * 1.5);
+    currentConfs.WithSupplyTimeThreshold(0.20);
 
-    voltageConfs.PeakForwardVoltage = 12.0;
-    voltageConfs.PeakReverseVoltage = -12.0;
+    voltageConfs.PeakForwardVoltage = 16.0;
+    voltageConfs.PeakReverseVoltage = -16.0;
 
     deviceConfigs.WithVoltage(voltageConfs);
     deviceConfigs.WithCurrentLimits(currentConfs);
@@ -862,16 +844,14 @@ class TalonFXController : ElectronicSpeedController<X> {
 
     deviceConfigs.WithMotorOutput(motorConfs);
 
-    currentConfs.WithSupplyCurrentLimit(gains_helper->current_limit_.value() /
-                                        2.0);
+    currentConfs.WithSupplyCurrentLimitEnable(true);
+    currentConfs.WithSupplyCurrentLimit(gains_helper->current_limit_.value());
     currentConfs.WithSupplyCurrentThreshold(
-        gains_helper->current_limit_.value());
-    currentConfs.WithSupplyTimeThreshold(0.02);
-    currentConfs.WithStatorCurrentLimit(gains_helper->current_limit_.value());
-    currentConfs.WithStatorCurrentLimitEnable(true);
+        gains_helper->current_limit_.value() * 1.5);
+    currentConfs.WithSupplyTimeThreshold(0.20);
 
-    voltageConfs.PeakForwardVoltage = 12.0;
-    voltageConfs.PeakReverseVoltage = -12.0;
+    voltageConfs.PeakForwardVoltage = 16.0;
+    voltageConfs.PeakReverseVoltage = -16.0;
 
     deviceConfigs.WithVoltage(voltageConfs);
     deviceConfigs.WithCurrentLimits(currentConfs);
@@ -900,13 +880,14 @@ class TalonFXController : ElectronicSpeedController<X> {
     ctre::configs::VoltageConfigs voltageConfs{};
     ctre::configs::CurrentLimitsConfigs currentConfs{};
 
-    currentConfs.WithSupplyCurrentLimit(gains_helper->current_limit_.value() /
-                                        2.0);
+    currentConfs.WithSupplyCurrentLimitEnable(true);
+    currentConfs.WithSupplyCurrentLimit(gains_helper->current_limit_.value());
     currentConfs.WithSupplyCurrentThreshold(
-        gains_helper->current_limit_.value());
-    currentConfs.WithSupplyTimeThreshold(0.02);
-    currentConfs.WithStatorCurrentLimit(gains_helper->current_limit_.value());
-    currentConfs.WithStatorCurrentLimitEnable(true);
+        gains_helper->current_limit_.value() * 1.5);
+    currentConfs.WithSupplyTimeThreshold(0.20);
+
+    voltageConfs.PeakForwardVoltage = 16.0;
+    voltageConfs.PeakReverseVoltage = -16.0;
 
     deviceConfigs.WithVoltage(voltageConfs);
     deviceConfigs.WithCurrentLimits(currentConfs);
