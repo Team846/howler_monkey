@@ -13,6 +13,8 @@
 #include "frc846/ctre_namespace.h"
 #include "frc846/loggable.h"
 #include "frc846/util/conversions.h"
+#include "qwertyctre.h"
+#include "qwertyrev.h"
 
 FRC846_CTRE_NAMESPACE()
 

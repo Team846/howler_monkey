@@ -65,7 +65,7 @@ class GainsPrefs {
   frc846::Pref<double> kF;
 };
 
-enum IdleMode { kCoast, kBrake };
+enum MotorIdleMode { kDefaultCoast, kDefaultBrake };
 
 struct FFCalibrationPoint {
   double position;
@@ -129,7 +129,7 @@ struct MotorConfig {
 
   double gear_ratio = 1.0;
 
-  IdleMode idle_mode = kCoast;
+  MotorIdleMode idle_mode = kDefaultCoast;
 
   CurrentLimiting current_limiting = {40_A};
   bool usingSmartCurrentLimiting = false;
@@ -140,9 +140,7 @@ struct MotorConfig {
   units::volt_t voltage_compensation = 16.0_V;
   units::volt_t auton_voltage_compensation = 12.0_V;
 
-  double usingDynamicFF = false;
-
-  std::vector<DataTag> dataTags = {};
+  bool usingDynamicFF = false;
 };
 
 class MotorConfigPrefs {
@@ -152,7 +150,7 @@ class MotorConfigPrefs {
         invert_{rep, "invert", default_config.invert},
         gear_ratio_{rep, "gear_ratio", default_config.gear_ratio},
         default_brake_{rep, "default_brake_mode",
-                       default_config.idle_mode == kBrake},
+                       default_config.idle_mode == kDefaultBrake},
         current_limiting_{rep, default_config.current_limiting},
         using_smart_current_limiting_{rep, "use_smart_current_limiting",
                                       default_config.usingSmartCurrentLimiting},
@@ -166,16 +164,16 @@ class MotorConfigPrefs {
                           default_config.usingDynamicFF} {}
 
   MotorConfig get() {
-    return {invert_.value(),
-            gear_ratio_.value(),
-            default_brake_.value() ? kBrake : kCoast,
-            current_limiting_.get(),
-            using_smart_current_limiting_.value(),
-            ramp_time_.value(),
-            using_ramp_rate_.value(),
-            voltage_compensation_.value(),
-            auton_voltage_compensation_.value(),
-            using_dynamic_ff_.value()};
+    return MotorConfig{invert_.value(),
+                       gear_ratio_.value(),
+                       default_brake_.value() ? kDefaultBrake : kDefaultCoast,
+                       current_limiting_.get(),
+                       using_smart_current_limiting_.value(),
+                       ramp_time_.value(),
+                       using_ramp_rate_.value(),
+                       voltage_compensation_.value(),
+                       auton_voltage_compensation_.value(),
+                       using_dynamic_ff_.value()};
   }
 
  private:
