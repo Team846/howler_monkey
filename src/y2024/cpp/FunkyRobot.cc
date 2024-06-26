@@ -27,7 +27,6 @@
 #include "frc/DataLogManager.h"
 #include "frc2/command/ParallelDeadlineGroup.h"
 #include "frc2/command/WaitCommand.h"
-#include "frc846/control/cancontrol.h"
 #include "frc846/loggable.h"
 #include "frc846/other/sendable_callback.h"
 #include "frc846/other/xbox.h"
@@ -241,7 +240,6 @@ void FunkyRobot::StartCompetition() {
       subsystem->UpdateHardware();
     }
 
-    // frc846::control::CANControl::loop();
 
     // Zero
     if (frc::RobotController::GetUserButton()) {

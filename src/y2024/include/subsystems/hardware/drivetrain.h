@@ -12,7 +12,6 @@
 #include <variant>
 
 #include "frc/filter/SlewRateLimiter.h"
-#include "frc846/control/controlgains.h"
 #include "frc846/other/swerve_odometry.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/conversions.h"
@@ -104,6 +103,9 @@ class DrivetrainSubsystem
   // Closed loop tuned for this
   frc846::Pref<units::feet_per_second_t> auto_max_speed_{
       *this, "auto_max_speed", 11.2_fps};
+
+  frc846::Pref<double> driver_speed_multiplier_{*this,
+                                                "driver_speed_multiplier", 1.0};
 
   frc846::Pref<double> slow_mode_percent_{*this, "slow_mode_percent", 0.04};
   frc846::Pref<double> slow_omega_percent_{*this, "slow_omega_percent", 0.12};
@@ -216,49 +218,34 @@ class DrivetrainSubsystem
   frc846::Loggable steer_esc_loggable_{*this, "steer_esc"};
   frc::Field2d m_field;
 
-  frc846::control::ControlGainsHelper* drive_esc_gains_helper_ =
-      new frc846::control::ControlGainsHelper{
-          drive_esc_loggable_,
-          {
-              0.0002,    /* p */
-              0,         /* i */
-              0,         /* d */
-              0.0001769, /* f */
-              0,         /* max_integral_accumulator */
-          },
-          80_A,  // NEO smart current limit
-          1.0,   // peak output
-      };
+  frc846::control::ConfigHelper drive_config_helper_{
+      *this,
+      {false,
+       (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) *
+           frc846::util::Circumference(wheel_radius_.value()).to<double>(),
+       frc846::control::MotorIdleMode::kDefaultBrake,
+       {80_A},
+       true},
+      {0.0002, 0.0, 0.0001769},
+  };
 
-  frc846::control::ControlGainsHelper* steer_esc_gains_helper_ =
-      new frc846::control::ControlGainsHelper{
-          steer_esc_loggable_,
-          {
-              0.12, /* p */
-              0,    /* i */
-              0,    /* d */
-              0,    /* f */
-              0,    /* max_integral_accumulator */
-          },
-          40_A,  // NEO smart current limit
-          1.0,   // peak output
-      };
-
-  units::foot_t drive_conversion_ =
-      (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) *
-      frc846::util::Circumference(wheel_radius_.value());
-
-  units::degree_t steer_conversion_ = (7.0 / 150.0) * 1_tr;
+  frc846::control::ConfigHelper steer_config_helper_{
+      *this,
+      {false,
+       (7.0 / 150.0) * 360.0,
+       frc846::control::MotorIdleMode::kDefaultCoast,
+       {40_A},
+       false},
+      {0.12, 0.0},
+  };
 
   SwerveModuleSubsystem module_fl_{
       *this,
       is_initialized(),
       "FL",
       3.23_deg,
-      drive_esc_gains_helper_,
-      steer_esc_gains_helper_,
-      drive_conversion_,
-      steer_conversion_,
+      &drive_config_helper_,
+      &steer_config_helper_,
       ports::drivetrain_::kFLDrive_CANID,
       ports::drivetrain_::kFLSteer_CANID,
       ports::drivetrain_::kFLCANCoder_CANID,
@@ -273,10 +260,8 @@ class DrivetrainSubsystem
       is_initialized(),
       "FR",
       140.05_deg,
-      drive_esc_gains_helper_,
-      steer_esc_gains_helper_,
-      drive_conversion_,
-      steer_conversion_,
+      &drive_config_helper_,
+      &steer_config_helper_,
       ports::drivetrain_::kFRDrive_CANID,
       ports::drivetrain_::kFRSteer_CANID,
       ports::drivetrain_::kFRCANCoder_CANID,
@@ -291,10 +276,8 @@ class DrivetrainSubsystem
       is_initialized(),
       "BL",
       297.5_deg,
-      drive_esc_gains_helper_,
-      steer_esc_gains_helper_,
-      drive_conversion_,
-      steer_conversion_,
+      &drive_config_helper_,
+      &steer_config_helper_,
       ports::drivetrain_::kBLDrive_CANID,
       ports::drivetrain_::kBLSteer_CANID,
       ports::drivetrain_::kBLCANCoder_CANID,
@@ -309,10 +292,8 @@ class DrivetrainSubsystem
       is_initialized(),
       "BR",
       157.89_deg,
-      drive_esc_gains_helper_,
-      steer_esc_gains_helper_,
-      drive_conversion_,
-      steer_conversion_,
+      &drive_config_helper_,
+      &steer_config_helper_,
       ports::drivetrain_::kBRDrive_CANID,
       ports::drivetrain_::kBRSteer_CANID,
       ports::drivetrain_::kBRCANCoder_CANID,

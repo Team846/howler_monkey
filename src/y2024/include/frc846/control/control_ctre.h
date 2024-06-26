@@ -1,7 +1,7 @@
-#ifndef FRC846_3CONTROL_H_
-#define FRC846_3CONTROL_H_
+#ifndef FRC846_CTRE_CONTROL_H_
+#define FRC846_CTRE_CONTROL_H_
 
-#include "qwertybase.h"
+#include "controlbase.h"
 
 namespace frc846::control {
 
@@ -10,7 +10,7 @@ namespace frc846::control {
  */
 
 template <typename X>
-class TalonFXControllerQWERTY : public BaseESC<X> {
+class TalonFXController : public BaseESC<X> {
   using V = units::unit_t<
       units::compound_unit<typename X::unit_type,  // the velocity unit is equal
                                                    // to the position unit / 1_s
@@ -19,16 +19,27 @@ class TalonFXControllerQWERTY : public BaseESC<X> {
   using A = units::ampere_t;  // current
 
  public:
-  TalonFXControllerQWERTY(
-      frc846::Loggable& parent, int canID,
-      frc846::control::ConfigHelper& config_helper,
-      frc846::control::HardLimitsConfigHelper<X>& hard_limits)
+  TalonFXController(frc846::Loggable& parent, int canID,
+                    frc846::control::ConfigHelper& config_helper,
+                    frc846::control::HardLimitsConfigHelper<X>& hard_limits)
       : parent_{parent},
         canID_{canID},
         config_helper_{config_helper},
         hard_limits_{hard_limits},
         esc_{nullptr},
         configurator_{nullptr} {}
+
+  void OverrideInvert(bool invert) override {
+    if (!esc_) return;
+
+    esc_->SetInverted(invert);
+  }
+
+  bool VerifyConnected() override {
+    if (esc_ == nullptr) return false;
+
+    return esc_->IsAlive();
+  }
 
   void WriteDC(double output) override {
     if (esc_ != nullptr) {
@@ -63,7 +74,8 @@ class TalonFXControllerQWERTY : public BaseESC<X> {
       }
 
       ctre::controls::VelocityDutyCycle cntrl{
-          output / config_helper_.getMotorConfig().gear_ratio};
+          1_tr / 1_s * output.template to<double>() /
+          config_helper_.getMotorConfig().gear_ratio};
 
       canopt.registerSuccess(CheckOK(esc_->SetControl(cntrl)));
     }
@@ -90,10 +102,18 @@ class TalonFXControllerQWERTY : public BaseESC<X> {
       }
 
       ctre::controls::PositionDutyCycle cntrl{
-          output / config_helper_.getMotorConfig().gear_ratio};
+          1_tr * output.template to<double>() /
+          config_helper_.getMotorConfig().gear_ratio};
 
       canopt.registerSuccess(CheckOK(esc_->SetControl(cntrl)));
     }
+  }
+
+  void ZeroEncoder(X val) {
+    if (esc_ == nullptr) return;
+
+    esc_->SetPosition(1_tr * val.template to<double>() /
+                      config_helper_.getMotorConfig().gear_ratio);
   }
 
   V GetVelocity() override {
@@ -238,7 +258,6 @@ class TalonFXControllerQWERTY : public BaseESC<X> {
 
   SimpleCANOpt canopt{};
 };
-
 };  // namespace frc846::control
 
 #endif

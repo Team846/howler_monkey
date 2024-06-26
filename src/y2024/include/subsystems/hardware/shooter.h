@@ -5,13 +5,14 @@
 #include "frc/AnalogTrigger.h"
 #include "frc/filter/SlewRateLimiter.h"
 #include "frc846/control/control.h"
-#include "frc846/control/controlgains.h"
 #include "frc846/loggable.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
 #include "units/angular_velocity.h"
+#include "units/length.h"
+#include "units/velocity.h"
 
 struct ShooterReadings {
   double error_percent;
@@ -32,8 +33,8 @@ class ShooterSubsystem
 
   bool VerifyHardware() override;
 
-  frc846::Pref<units::turns_per_second_t> shooter_speed_{
-      *this, "shooter_speed_", 50_tps};
+  frc846::Pref<units::feet_per_second_t> shooter_speed_{*this, "shooter_speed",
+                                                        65.0_fps};
 
   frc846::Pref<double> spin_{*this, "shooter_spin", 0.33};
 
@@ -61,15 +62,24 @@ class ShooterSubsystem
   frc846::Grapher<double> target_shooting_speed_graph{
       target_named_, "target_shooting_speed_graph"};
 
-  frc846::Loggable shooter_gains_lg = frc846::Loggable(*this, "shooter_gains");
-  frc846::control::ControlGainsHelper shooter_esc_gains_{
-      shooter_gains_lg, {0, 0, 0, 0, 0}, 200_A, 0.5};
+  frc846::control::ConfigHelper config_helper_{
+      *this,
+      {false,
+       (4.75 / 12.0) * 3.14159265,
+       frc846::control::MotorIdleMode::kDefaultCoast,
+       {40_A},
+       true},
+      {0.05, 0.00, 0.15}};
 
-  frc846::control::SparkFlexController<units::turn_t> shooter_esc_one_{
-      *this, "shooter_esc_one_", ports::scorer_::kShooterOneController_CANID};
+  frc846::control::HardLimitsConfigHelper<units::foot_t> hard_limits_{
+      *this, {0_ft, 0_ft, false, 1.0, -1.0}};
 
-  frc846::control::SparkFlexController<units::turn_t> shooter_esc_two_{
-      *this, "shooter_esc_two", ports::scorer_::kShooterTwoController_CANID};
+  frc846::control::SparkFLEXController<units::foot_t> shooter_esc_one_{
+      *this, ports::scorer_::kShooterOneController_CANID, config_helper_,
+      hard_limits_};
+  frc846::control::SparkFLEXController<units::foot_t> shooter_esc_two_{
+      *this, ports::scorer_::kShooterTwoController_CANID, config_helper_,
+      hard_limits_};
 
   ShooterReadings GetNewReadings() override;
 

@@ -6,48 +6,26 @@
 PivotSubsystem::PivotSubsystem(bool init)
     : frc846::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
   if (init) {
-    pivot_one_.Setup(&pivot_esc_gains_, true, frc846::control::kBrake);
-    pivot_two_.Setup(&pivot_esc_gains_, true, frc846::control::kBrake);
-    pivot_three_.Setup(&pivot_esc_gains_, false, frc846::control::kBrake);
-    pivot_four_.Setup(&pivot_esc_gains_, false, frc846::control::kBrake);
-    pivot_one_.SetupConverter(1.0_tr /
-                              (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0));
-    pivot_two_.SetupConverter(1.0_tr /
-                              (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0));
-    pivot_three_.SetupConverter(1.0_tr /
-                                (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0));
-    pivot_four_.SetupConverter(1.0_tr /
-                               (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0));
-    pivot_one_.ZeroEncoder();
-    pivot_two_.ZeroEncoder();
-    pivot_three_.ZeroEncoder();
-    pivot_four_.ZeroEncoder();
+    pivot_one_.Configure({frc846::control::DataTag::kLeader,
+                          frc846::control::DataTag::kPositionData});
+    pivot_three_.Configure({frc846::control::DataTag::kLeader,
+                            frc846::control::DataTag::kPositionData});
+    pivot_two_.Configure({});
+    pivot_four_.Configure({});
 
-    pivot_one_.ConfigurePositionLimits(130_deg, -8_deg);
-    pivot_two_.ConfigurePositionLimits(130_deg, -8_deg);
-    pivot_three_.ConfigurePositionLimits(130_deg, -8_deg);
-    pivot_four_.ConfigurePositionLimits(130_deg, -8_deg);
+    pivot_three_.OverrideInvert(!config_helper_.getMotorConfig().invert);
 
-    pivot_one_.DisableStatusFrames(
-        {rev::CANSparkBase::PeriodicFrame::kStatus0,
-         rev::CANSparkBase::PeriodicFrame::kStatus4,
-         rev::CANSparkBase::PeriodicFrame::kStatus3});
-    pivot_two_.DisableStatusFrames(
-        {rev::CANSparkBase::PeriodicFrame::kStatus0,
-         rev::CANSparkBase::PeriodicFrame::kStatus4,
-         rev::CANSparkBase::PeriodicFrame::kStatus3});
-    pivot_three_.DisableStatusFrames(
-        {rev::CANSparkBase::PeriodicFrame::kStatus0,
-         rev::CANSparkBase::PeriodicFrame::kStatus4,
-         rev::CANSparkBase::PeriodicFrame::kStatus3});
-    pivot_four_.DisableStatusFrames(
-        {rev::CANSparkBase::PeriodicFrame::kStatus0,
-         rev::CANSparkBase::PeriodicFrame::kStatus4,
-         rev::CANSparkBase::PeriodicFrame::kStatus3});
-
-    // pivot_two_.esc_.Follow(pivot_one_.esc_, false);
-    // pivot_three_.esc_.Follow(pivot_one_.esc_, true);
-    // pivot_four_.esc_.Follow(pivot_one_.esc_, true);
+    if (auto esc = pivot_two_.getESC()) {
+      if (auto leader_esc = pivot_one_.getESC()) {
+        esc->Follow(*pivot_one_.getESC());
+      }
+    }
+    if (auto esc = pivot_four_.getESC()) {
+      if (auto leader_esc = pivot_three_.getESC()) {
+        esc->Follow(*pivot_one_.getESC());  // Not sure whether to invert or
+                                            // not. TODO: check this.
+      }
+    }
   }
 }
 
@@ -90,22 +68,16 @@ PivotReadings PivotSubsystem::GetNewReadings() {
   return readings;
 }
 
-void PivotSubsystem::PositionPivot(PivotTarget target) {
+void PivotSubsystem::DirectWrite(PivotTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
-    pivot_one_.Write(frc846::control::ControlMode::Position, *pos);
-    pivot_two_.Write(frc846::control::ControlMode::Position, *pos);
-    pivot_three_.Write(frc846::control::ControlMode::Position, *pos);
-    pivot_four_.Write(frc846::control::ControlMode::Position, *pos);
+    pivot_one_.WritePosition(*pos);
+    pivot_three_.WritePosition(*pos);
 
     target_pivot_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.pivot_output)) {
-    pivot_one_.Write(frc846::control::ControlMode::Percent, *output);
-    pivot_two_.Write(frc846::control::ControlMode::Percent, *output);
-    pivot_three_.Write(frc846::control::ControlMode::Percent, *output);
-    pivot_four_.Write(frc846::control::ControlMode::Percent, *output);
+    pivot_one_.WriteDC(*output);
+    pivot_three_.WriteDC(*output);
 
     target_pivot_duty_cycle_graph.Graph(*output);
   }
 }
-
-void PivotSubsystem::DirectWrite(PivotTarget target) { PositionPivot(target); }

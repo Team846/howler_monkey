@@ -10,7 +10,6 @@
 #include <string>
 
 #include "frc846/control/control.h"
-#include "frc846/control/controlgains.h"
 #include "frc846/ctre_namespace.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/conversions.h"
@@ -18,7 +17,7 @@
 #include "frc846/util/math.h"
 #include "frc846/util/pref.h"
 
-FRC846_CTRE_NAMESPACE()
+// FRC846_CTRE_NAMESPACE()
 
 // Open loop vs closed loop control
 enum DrivetrainControl { kOpenLoop, kClosedLoop };
@@ -38,17 +37,16 @@ struct SwerveModuleTarget {
 class SwerveModuleSubsystem
     : public frc846::Subsystem<SwerveModuleReadings, SwerveModuleTarget> {
  public:
-  SwerveModuleSubsystem(
-      const frc846::Loggable& drivetrain, bool init, std::string location,
-      units::degree_t fallback_cancoder_offset,
-      frc846::control::ControlGainsHelper* drive_esc_gains_helper,
-      frc846::control::ControlGainsHelper* steer_esc_gains_helper,
-      units::foot_t drive_conversion, units::degree_t steer_conversion,
-      int drive_esc_id, int steer_esc_id, int cancoder_id,
-      frc846::Pref<units::ampere_t>& current_limit,
-      frc846::Pref<units::ampere_t>& motor_stall_current,
-      frc846::Pref<double>& braking_constant,
-      frc846::Pref<units::feet_per_second_t>& max_speed);
+  SwerveModuleSubsystem(const frc846::Loggable& drivetrain, bool init,
+                        std::string location,
+                        units::degree_t fallback_cancoder_offset,
+                        frc846::control::ConfigHelper* drive_esc_config_helper,
+                        frc846::control::ConfigHelper* steer_esc_config_helper,
+                        int drive_esc_id, int steer_esc_id, int cancoder_id,
+                        frc846::Pref<units::ampere_t>& current_limit,
+                        frc846::Pref<units::ampere_t>& motor_stall_current,
+                        frc846::Pref<double>& braking_constant,
+                        frc846::Pref<units::feet_per_second_t>& max_speed);
 
   // Calculate the normalized target angle for the module to minimize rotations.
   // Returns the normalized direction and whether or not the drive motor should
@@ -97,6 +95,11 @@ class SwerveModuleSubsystem
   frc846::Grapher<double> lower_dc_current_limiting_{
       *this, "lower_dc_current_limiting"};
 
+  frc846::control::HardLimitsConfigHelper<units::foot_t>
+      disabled_hard_limits_drive_{*this, {0.0_ft, 0.0_ft, false}};
+  frc846::control::HardLimitsConfigHelper<units::degree_t>
+      disabled_hard_limits_steer_{*this, {0.0_deg, 0.0_deg, false}};
+
   // frc846::control::SparkRevController<units::foot_t> drive_esc_helper_;
   // frc846::control::SparkRevController<units::degree_t> steer_esc_helper_;
 
@@ -115,6 +118,8 @@ class SwerveModuleSubsystem
   SwerveModuleReadings GetNewReadings() override;
 
   void DirectWrite(SwerveModuleTarget target) override;
+
+  SwerveModuleTarget last_target{};
 };
 
 #endif  // y2024_SUBSYSTEMS_SWERVE_MODULE_H_

@@ -6,7 +6,6 @@
 #include "frc/Servo.h"
 #include "frc/motorcontrol/Spark.h"
 #include "frc846/control/control.h"
-#include "frc846/control/controlgains.h"
 #include "frc846/loggable.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"

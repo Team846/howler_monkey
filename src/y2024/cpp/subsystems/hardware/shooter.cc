@@ -6,26 +6,10 @@
 ShooterSubsystem::ShooterSubsystem(bool init)
     : frc846::Subsystem<ShooterReadings, ShooterTarget>{"shooter", init} {
   if (init) {
-    shooter_esc_one_.DisableStatusFrames(
-        {rev::CANSparkBase::PeriodicFrame::kStatus0,
-         rev::CANSparkBase::PeriodicFrame::kStatus4,
-         rev::CANSparkBase::PeriodicFrame::kStatus2,
-         rev::CANSparkBase::PeriodicFrame::kStatus3,
-         rev::CANSparkBase::PeriodicFrame::kStatus1,
-         rev::CANSparkBase::PeriodicFrame::kStatus5});
-    shooter_esc_two_.DisableStatusFrames(
-        {rev::CANSparkBase::PeriodicFrame::kStatus0,
-         rev::CANSparkBase::PeriodicFrame::kStatus4,
-         rev::CANSparkBase::PeriodicFrame::kStatus2,
-         rev::CANSparkBase::PeriodicFrame::kStatus3,
-         rev::CANSparkBase::PeriodicFrame::kStatus1,
-         rev::CANSparkBase::PeriodicFrame::kStatus5});
+    shooter_esc_one_.Configure({frc846::control::DataTag::kVelocityData});
+    shooter_esc_two_.Configure({frc846::control::DataTag::kVelocityData});
 
-    shooter_esc_one_.Setup(&shooter_esc_gains_, true, frc846::control::kCoast);
-    shooter_esc_one_.SetupConverter(1_tr);
-
-    shooter_esc_two_.Setup(&shooter_esc_gains_, false, frc846::control::kCoast);
-    shooter_esc_two_.SetupConverter(1_tr);
+    shooter_esc_one_.OverrideInvert(!config_helper_.getMotorConfig().invert);
   }
 }
 
@@ -74,12 +58,12 @@ ShooterReadings ShooterSubsystem::GetNewReadings() {
 
 void ShooterSubsystem::DirectWrite(ShooterTarget target) {
   if (target.target_state == kRun) {
-    shooter_esc_one_.Write(frc846::control::ControlMode::Velocity,
-                           shooter_speed_.value() * (1 + spin_.value()));
-    shooter_esc_two_.Write(frc846::control::ControlMode::Velocity,
-                           shooter_speed_.value() * (1 - spin_.value()));
+    shooter_esc_one_.WriteVelocity(shooter_speed_.value() *
+                                   (1 + spin_.value()));
+    shooter_esc_two_.WriteVelocity(shooter_speed_.value() *
+                                   (1 - spin_.value()));
   } else {
-    shooter_esc_one_.Write(frc846::control::ControlMode::Percent, 0.0);
-    shooter_esc_two_.Write(frc846::control::ControlMode::Percent, 0.0);
+    shooter_esc_one_.WriteDC(0.0);
+    shooter_esc_two_.WriteDC(0.0);
   }
 }

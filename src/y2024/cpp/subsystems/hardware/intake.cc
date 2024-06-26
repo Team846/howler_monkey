@@ -1,25 +1,30 @@
 #include "subsystems/hardware/intake.h"
 
+#include <units/math.h>
+
 #include "frc846/control/control.h"
 #include "frc846/util/share_tables.h"
 
 IntakeSubsystem::IntakeSubsystem(bool init)
-    : frc846::Subsystem<IntakeReadings, IntakeTarget>{"intake", init},
-      note_detection{intake_esc_.esc_.GetForwardLimitSwitch(
-          rev::SparkLimitSwitch::Type::kNormallyOpen)},
-      note_detection_other{intake_esc_.esc_.GetReverseLimitSwitch(
-          rev::SparkLimitSwitch::Type::kNormallyOpen)} {
+    : frc846::Subsystem<IntakeReadings, IntakeTarget>{"intake", init} {
   if (init) {
-    intake_esc_.Setup(&intake_esc_gains_, true);
-    intake_esc_.SetupConverter(1_tr);
+    intake_esc_.Configure({frc846::control::DataTag::kVelocityData,
+                           frc846::control::DataTag::kCurrentData,
+                           frc846::control::DataTag::kFaultData});
 
-    // intake_esc_.DisableStatusFrames({rev::CANSparkBase::PeriodicFrame::kStatus2,
-    //   rev::CANSparkBase::PeriodicFrame::kStatus4,
-    //   rev::CANSparkBase::PeriodicFrame::kStatus3});
+    auto esc = intake_esc_.getESC();
 
-    note_detection.EnableLimitSwitch(true);
+    if (esc) {
+      auto fwlms = intake_esc_.getESC()->GetForwardLimitSwitch(
+          rev::SparkLimitSwitch::Type::kNormallyOpen);
+      auto revlms = intake_esc_.getESC()->GetReverseLimitSwitch(
+          rev::SparkLimitSwitch::Type::kNormallyOpen);
+      in_limit_switch = &fwlms;
+      out_limit_switch = &revlms;
 
-    note_detection_other.EnableLimitSwitch(false);
+      in_limit_switch->EnableLimitSwitch(true);
+      out_limit_switch->EnableLimitSwitch(false);
+    }
   }
 }
 
@@ -40,21 +45,24 @@ bool IntakeSubsystem::VerifyHardware() {
 
 IntakeReadings IntakeSubsystem::GetNewReadings() {
   IntakeReadings readings;
-  has_piece_ = note_detection.Get();
 
-  frc846::util::ShareTables::SetBoolean("scorer_has_piece",
-                                        note_detection.Get());
+  if (in_limit_switch)
+    has_piece_ = in_limit_switch->Get();
+  else
+    has_piece_ = false;
+
+  frc846::util::ShareTables::SetBoolean("scorer_has_piece", has_piece_);
   readings_has_piece_graph.Graph(has_piece_);
 
-  double intake_velocity = intake_esc_.GetVelocity().to<double>();
+  auto intake_velocity = intake_esc_.GetVelocity();
 
-  readings_intake_speed_.Graph(intake_velocity);
+  readings_intake_speed_.Graph(intake_velocity.to<double>());
 
-  if (std::abs(lastIntakeTarget) > 0.05) {
-    intake_error_.Graph((lastIntakeTarget - intake_velocity) /
-                        lastIntakeTarget);
+  if (units::math::abs(target_intaking_speed) > 0.05_fps) {
+    intake_error_.Graph((target_intaking_speed - intake_velocity) /
+                        target_intaking_speed);
   } else {
-    intake_error_.Graph(-intake_velocity);
+    intake_error_.Graph(0.0);
   }
 
   intake_current_draw_.Graph(intake_esc_.GetCurrent().to<double>());
@@ -63,45 +71,42 @@ IntakeReadings IntakeSubsystem::GetNewReadings() {
 }
 
 void IntakeSubsystem::DirectWrite(IntakeTarget target) {
+  target_intaking_speed = 0.0_fps;
+
   if (target.target_state == kIntake) {
-    if (!note_detection.IsLimitSwitchEnabled()) {
-      note_detection.EnableLimitSwitch(true);
+    if (in_limit_switch && !in_limit_switch->IsLimitSwitchEnabled()) {
+      in_limit_switch->EnableLimitSwitch(true);
     };
-    frc846::util::ShareTables::SetBoolean("scorer_has_piece",
-                                          note_detection.Get());
-    intake_esc_.Write(frc846::control::ControlMode::Velocity,
-                      intake_speed_.value() +
-                          frc846::util::ShareTables::GetDouble("velocity") *
-                              1_tps / (1.8 * 3.1415926 / 12.0));
+
+    frc846::util::ShareTables::SetBoolean(
+        "scorer_has_piece", in_limit_switch && in_limit_switch->Get());
+    target_intaking_speed =
+        base_intake_speed_.value() +
+        frc846::util::ShareTables::GetDouble("velocity") * 1_fps;
+    intake_esc_.WriteVelocity(target_intaking_speed);
+
   } else if (target.target_state == kFeed) {
-    if (has_piece_ == true || note_detection.IsLimitSwitchEnabled()) {
-      note_detection.EnableLimitSwitch(false);
+    if (in_limit_switch && in_limit_switch->IsLimitSwitchEnabled()) {
+      in_limit_switch->EnableLimitSwitch(false);
     }
 
-    intake_esc_.Write(frc846::control::ControlMode::Velocity,
-                      intake_feed_speed_.value());
+    intake_esc_.WriteVelocity(intake_feed_speed_.value());
   } else if (target.target_state == kPull) {
-    if (note_detection.IsLimitSwitchEnabled())
-      note_detection.EnableLimitSwitch(false);
-    if (note_detection_other.IsLimitSwitchEnabled())
-      note_detection_other.EnableLimitSwitch(false);
+    if (in_limit_switch && in_limit_switch->IsLimitSwitchEnabled()) {
+      in_limit_switch->EnableLimitSwitch(false);
+    }
 
-    intake_esc_.Write(frc846::control::ControlMode::Percent,
-                      retract_speed_.value());
+    intake_esc_.WriteDC(retract_speed_.value());
 
   } else if (target.target_state == kRelease) {
-    if (note_detection.IsLimitSwitchEnabled())
-      note_detection.EnableLimitSwitch(false);
-    if (note_detection_other.IsLimitSwitchEnabled())
-      note_detection_other.EnableLimitSwitch(false);
+    if (out_limit_switch && out_limit_switch->IsLimitSwitchEnabled()) {
+      out_limit_switch->EnableLimitSwitch(false);
+    }
 
-    intake_esc_.Write(frc846::control::ControlMode::Percent,
-                      release_speed_.value());
+    intake_esc_.WriteDC(release_speed_.value());
   } else {
-    frc846::util::ShareTables::SetBoolean("scorer_has_piece",
-                                          note_detection.Get());
-    intake_esc_.Write(frc846::control::ControlMode::Percent, 0);
-
-    lastIntakeTarget = 0.0;
+    frc846::util::ShareTables::SetBoolean(
+        "scorer_has_piece", in_limit_switch && in_limit_switch->Get());
+    intake_esc_.WriteDC(0.0);
   }
 }

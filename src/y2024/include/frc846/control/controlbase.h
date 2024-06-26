@@ -1,5 +1,5 @@
-#ifndef FRC846_2CONTROLBASE_H_
-#define FRC846_2CONTROLBASE_H_
+#ifndef FRC846_CONTROLBASE_H_
+#define FRC846_CONTROLBASE_H_
 
 #include <rev/CANSparkFlex.h>
 #include <rev/CANSparkMax.h>
@@ -167,6 +167,11 @@ class BaseESC {
 
  public:
   virtual int Configure(std::vector<DataTag> data_tags) = 0;  // setup motor
+
+  virtual void OverrideInvert(
+      bool invert) = 0;  // for systems where using same config helper for 2+
+                         // motors but 1+ of those motors is inverted. ex. 2024
+                         // pivot
 
   virtual void SetVoltageCompensationAuton(
       bool auton) = 0;  // to switch between voltage compensation presets for

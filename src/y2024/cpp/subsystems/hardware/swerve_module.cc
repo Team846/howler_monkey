@@ -7,10 +7,9 @@ static constexpr auto kMotorType = rev::CANSparkMax::MotorType::kBrushless;
 SwerveModuleSubsystem::SwerveModuleSubsystem(
     const frc846::Loggable& drivetrain, bool init, std::string location,
     units::degree_t fallback_cancoder_offset,
-    frc846::control::ControlGainsHelper* drive_esc_gains_helper,
-    frc846::control::ControlGainsHelper* steer_esc_gains_helper,
-    units::foot_t drive_conversion, units::degree_t steer_conversion,
-    int drive_esc_id, int steer_esc_id, int cancoder_id,
+    frc846::control::ConfigHelper* drive_esc_config_helper,
+    frc846::control::ConfigHelper* steer_esc_config_helper, int drive_esc_id,
+    int steer_esc_id, int cancoder_id,
     frc846::Pref<units::ampere_t>& current_limit,
     frc846::Pref<units::ampere_t>& motor_stall_current,
     frc846::Pref<double>& braking_constant,
@@ -20,27 +19,18 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
                                                                       location,
                                                                   init},
       cancoder_offset_{*this, "cancoder_offset", fallback_cancoder_offset},
-      drive_esc_helper_{*this, location + "D", drive_esc_id},
-      steer_esc_helper_{*this, location + "S", steer_esc_id},
+      drive_esc_helper_{*this, drive_esc_id, *drive_esc_config_helper,
+                        disabled_hard_limits_drive_},
+      steer_esc_helper_{*this, steer_esc_id, *steer_esc_config_helper,
+                        disabled_hard_limits_steer_},
       cancoder_{cancoder_id},
       current_limit_{current_limit},
       motor_stall_current_{motor_stall_current},
       braking_constant_{braking_constant},
       max_speed_{max_speed} {
-  drive_esc_helper_.Setup(drive_esc_gains_helper, false,
-                          frc846::control::kBrake);
-  drive_esc_helper_.SetInverted(true);
-  drive_esc_helper_.SetupConverter(drive_conversion);
-
-  // Disable applied output frame
-  // drive_esc_helper_.DisableStatusFrames(
-  //     {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
-
-  steer_esc_helper_.Setup(steer_esc_gains_helper, false,
-                          frc846::control::kCoast);
-  steer_esc_helper_.SetupConverter(steer_conversion);
-  // steer_esc_helper_.DisableStatusFrames(
-  //     {rev::CANSparkLowLevel::PeriodicFrame::kStatus0});
+  drive_esc_helper_.Configure({frc846::control::DataTag::kPositionData,
+                               frc846::control::DataTag::kVelocityData});
+  steer_esc_helper_.Configure({frc846::control::DataTag::kPositionData});
 
   // // Invert so that clockwise is positive when looking down on the robot
   // cancoder_.ConfigSensorDirection(true);
@@ -48,8 +38,6 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
   current_speed_ = 0_fps;
 
   ZeroWithCANcoder();
-
-  drive_esc_helper_.SetInverted(false);
 }
 
 void SwerveModuleSubsystem::ZeroCancoder() {
@@ -173,9 +161,16 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
 
   double drive_output;
   if (target.control == kClosedLoop) {
-    drive_esc_helper_.Write(frc846::control::ControlMode::Velocity,
-                            target_velocity);
+    if (last_target.control != kClosedLoop) {
+      drive_esc_helper_.SetVoltageCompensationAuton(true);
+    }
+
+    drive_esc_helper_.WriteVelocity(target_velocity);
   } else if (target.control == kOpenLoop) {
+    if (last_target.control != kOpenLoop) {
+      drive_esc_helper_.SetVoltageCompensationAuton(false);
+    }
+
     drive_output = target_velocity / max_speed_.value();
 
     double braking_force = (target_velocity - readings().speed) /
@@ -200,12 +195,13 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
 
     drive_output = std::min(upperDCBound, std::max(lowerDCBound, drive_output));
 
-    drive_esc_helper_.Write(frc846::control::ControlMode::Percent,
-                            drive_output);
+    drive_esc_helper_.WriteDC(drive_output);
   } else {
     Warn("No Control Strategy Set");
   }
 
   units::degree_t steer_output = (normalized_angle - zero_offset_);
-  steer_esc_helper_.Write(frc846::control::ControlMode::Position, steer_output);
+  steer_esc_helper_.WritePosition(steer_output);
+
+  last_target = target;
 }

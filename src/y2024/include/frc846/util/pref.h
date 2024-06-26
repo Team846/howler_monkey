@@ -95,23 +95,7 @@ Pref<U>::Pref(const frc846::Loggable& parent, std::string name, U fallback)
 
 template <class U>
 Pref<U>::Pref(const frc846::Loggable& parent, std::string name)
-    : Pref{parent,
-           fmt::format("{} ({})", name,
-                       units::abbreviation(units::make_unit<U>(0))),
-           units::make_unit<U>(0),
-           [](std::string name, U fallback, frc846::FPointer ptr) {
-             frc::Preferences::SetDouble(
-                 name, ptr.double_value(fallback.template to<double>()));
-           },
-           [](frc846::FPointer ptr, U val) {
-             ptr.set(val.template to<double>());
-           },
-           [](std::string name, U fallback) {
-             return units::make_unit<U>(frc::Preferences::GetDouble(
-                 name, fallback.template to<double>()));
-           }} {
-  static_assert(units::traits::is_unit_t<U>(), "must be a unit");
-}
+    : Pref{parent, name, units::abbreviation(units::make_unit<U>(0))} {}
 
 template <>
 inline Pref<bool>::Pref(const frc846::Loggable& parent, std::string name,
@@ -131,18 +115,7 @@ inline Pref<bool>::Pref(const frc846::Loggable& parent, std::string name,
 
 template <>
 inline Pref<bool>::Pref(const frc846::Loggable& parent, std::string name)
-    : Pref<bool>{
-          parent,
-          name,
-          false,
-          [](std::string name, bool fallback, frc846::FPointer ptr) {
-            frc::Preferences::SetBoolean(name, ptr.bool_value(fallback));
-          },
-          [](frc846::FPointer ptr, bool val) { ptr.set(val); },
-          [](std::string name, bool fallback) {
-            return frc::Preferences::GetBoolean(name, fallback);
-          },
-      } {}
+    : Pref<bool>{parent, name, false} {}
 
 template <>
 inline Pref<double>::Pref(const frc846::Loggable& parent, std::string name,
@@ -162,18 +135,7 @@ inline Pref<double>::Pref(const frc846::Loggable& parent, std::string name,
 
 template <>
 inline Pref<double>::Pref(const frc846::Loggable& parent, std::string name)
-    : Pref<double>{
-          parent,
-          name,
-          0.0,
-          [](std::string name, double fallback, frc846::FPointer ptr) {
-            frc::Preferences::SetDouble(name, ptr.double_value(fallback));
-          },
-          [](frc846::FPointer ptr, double val) { ptr.set(val); },
-          [](std::string name, double fallback) {
-            return frc::Preferences::GetDouble(name, fallback);
-          },
-      } {}
+    : Pref<double>{parent, name, 0.0} {}
 
 template <>
 inline Pref<int>::Pref(const frc846::Loggable& parent, std::string name,
@@ -193,18 +155,7 @@ inline Pref<int>::Pref(const frc846::Loggable& parent, std::string name,
 
 template <>
 inline Pref<int>::Pref(const frc846::Loggable& parent, std::string name)
-    : Pref<int>{
-          parent,
-          name,
-          0,
-          [](std::string name, int fallback, frc846::FPointer ptr) {
-            frc::Preferences::SetInt(name, ptr.int_value(fallback));
-          },
-          [](frc846::FPointer ptr, int val) { ptr.set(val); },
-          [](std::string name, int fallback) {
-            return frc::Preferences::GetInt(name, fallback);
-          },
-      } {}
+    : Pref<int>{parent, name, 0} {}
 
 template <>
 inline Pref<std::string>::Pref(const frc846::Loggable& parent, std::string name,

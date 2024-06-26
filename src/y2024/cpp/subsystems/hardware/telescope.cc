@@ -6,18 +6,7 @@
 TelescopeSubsystem::TelescopeSubsystem(bool init)
     : frc846::Subsystem<TelescopeReadings, TelescopeTarget>{"telescope", init} {
   if (init) {
-    telescope_esc_.Setup(&tele_esc_gains_, false);
-
-    telescope_esc_.SetupConverter(0.25_in);
-
-    telescope_esc_.ZeroEncoder();
-
-    telescope_esc_.ConfigurePositionLimits(6_in, 0_in);
-
-    telescope_esc_.DisableStatusFrames(
-        {rev::CANSparkBase::PeriodicFrame::kStatus0,
-         rev::CANSparkBase::PeriodicFrame::kStatus4,
-         rev::CANSparkBase::PeriodicFrame::kStatus3});
+    telescope_esc_.Configure({frc846::control::DataTag::kPositionData});
   }
 }
 
@@ -58,18 +47,14 @@ TelescopeReadings TelescopeSubsystem::GetNewReadings() {
   return readings;
 }
 
-void TelescopeSubsystem::PositionTelescope(TelescopeTarget target) {
+void TelescopeSubsystem::DirectWrite(TelescopeTarget target) {
   if (auto pos = std::get_if<units::inch_t>(&target.extension)) {
-    telescope_esc_.Write(frc846::control::ControlMode::Position, *pos);
+    telescope_esc_.WritePosition(*pos);
 
     target_tele_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.extension)) {
-    telescope_esc_.Write(frc846::control::ControlMode::Percent, *output);
+    telescope_esc_.WriteDC(*output);
 
     target_tele_duty_cycle_graph.Graph(*output);
   }
-}
-
-void TelescopeSubsystem::DirectWrite(TelescopeTarget target) {
-  PositionTelescope(target);
 }

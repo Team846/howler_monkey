@@ -1,7 +1,7 @@
-#ifndef FRC846_2CONTROL_H_
-#define FRC846_2CONTROL_H_
+#ifndef FRC846_REV_CONTROL_H_
+#define FRC846_REV_CONTROL_H_
 
-#include "qwertybase.h"
+#include "controlbase.h"
 
 namespace frc846::control {
 
@@ -18,7 +18,7 @@ class BaseSparkController : public BaseESC<X> {
 
   using A = units::ampere_t;  // current
 
- public:
+ protected:
   bool CheckOK(rev::REVLibError err) {
     if (err != rev::REVLibError::kOk) {
       parent_.Error(
@@ -37,8 +37,9 @@ class BaseSparkController : public BaseESC<X> {
 
     /* Setting configs */
 
-    esc->SetCANTimeout(20.0);  // If this value is higher, issues on CAN bus can
-                               // cause much worse loop overruns
+    CheckOK(
+        esc->SetCANTimeout(20.0));  // If this value is higher, issues on CAN
+                                    // bus can cause much worse loop overruns
 
     auto motor_config = config_helper_.getMotorConfig();
 
@@ -49,7 +50,7 @@ class BaseSparkController : public BaseESC<X> {
                               // for consistency during autonomous, but the
                               // value can be above 12V for teleop
 
-    CheckOK(esc->SetInverted(motor_config.invert));
+    esc->SetInverted(motor_config.invert);
 
     CheckOK(esc->SetIdleMode(
         motor_config.idle_mode == frc846::control::MotorIdleMode::kDefaultCoast
@@ -142,11 +143,12 @@ class BaseSparkController : public BaseESC<X> {
         rev::CANSparkLowLevel::PeriodicFrame::kStatus6, 65535));
   }
 
+ public:
   BaseSparkController(frc846::Loggable& parent, int canID,
                       frc846::control::ConfigHelper& config_helper,
                       frc846::control::HardLimitsConfigHelper<X>& hard_limits,
-                      std::optional<rev::SparkRelativeEncoder*>* encoder,
-                      std::optional<rev::SparkPIDController*>* pid_controller)
+                      rev::SparkRelativeEncoder* encoder,
+                      rev::SparkPIDController* pid_controller)
       : parent_{parent},
         canID_{canID},
         config_helper_{config_helper},
@@ -226,7 +228,7 @@ class BaseSparkController : public BaseESC<X> {
   V GetVelocity() override {
     if (encoder_ == nullptr) return units::make_unit<V>(0.0);
 
-    return encoder_->GetVelocity() *
+    return units::make_unit<V>(encoder_->GetVelocity()) *
            config_helper_.getMotorConfig().gear_ratio /
            60.0;  // 60.0 seconds to a minute
                   // native time period is in minutes
@@ -235,7 +237,8 @@ class BaseSparkController : public BaseESC<X> {
   X GetPosition() override {
     if (encoder_ == nullptr) return units::make_unit<X>(0.0);
 
-    return encoder_->GetPosition() * config_helper_.getMotorConfig().gear_ratio;
+    return units::make_unit<X>(encoder_->GetPosition()) *
+           config_helper_.getMotorConfig().gear_ratio;
   }
 
  protected:
@@ -262,7 +265,7 @@ class BaseSparkController : public BaseESC<X> {
  */
 
 template <typename X>
-class SparkMAXControllerQWERTY : BaseSparkController<X> {
+class SparkMAXController : public BaseSparkController<X> {
   using V = units::unit_t<
       units::compound_unit<typename X::unit_type,  // the velocity unit is equal
                                                    // to the position unit / 1_s
@@ -271,17 +274,18 @@ class SparkMAXControllerQWERTY : BaseSparkController<X> {
   using A = units::ampere_t;  // current
 
  public:
-  SparkMAXControllerQWERTY(frc846::Loggable& parent, int canID,
-                           ConfigHelper& config_helper,
-                           HardLimitsConfigHelper<X>& hard_limits_configs)
+  SparkMAXController(frc846::Loggable& parent, int canID,
+                     ConfigHelper& config_helper,
+                     HardLimitsConfigHelper<X>& hard_limits_configs)
       : parent_{parent},
         canID_{canID},
         config_helper_{config_helper},
         hard_limits_{hard_limits_configs},
-        encoder_{std::nullopt},
-        pid_controller_{std::nullopt},
-        BaseSparkController<X>{parent_, config_helper, hard_limits_configs,
-                               encoder_, pid_controller_} {}
+        encoder_{nullptr},
+        pid_controller_{nullptr},
+        BaseSparkController<X>{parent_,       canID,
+                               config_helper, hard_limits_configs,
+                               encoder_,      pid_controller_} {}
 
   int Configure(std::vector<DataTag> data_tags) override {
     esc_ =
@@ -307,9 +311,14 @@ class SparkMAXControllerQWERTY : BaseSparkController<X> {
     this->ConfigureGains();
 
     /* Disable Status Frames */
-    this->ConfigureStatusFrames(data_tags);
+    this->ConfigureStatusFrames(esc_, data_tags);
 
     return 0;
+  }
+
+  void OverrideInvert(bool invert) override {
+    if (!esc_) return;
+    esc_->SetInverted(invert);
   }
 
   bool VerifyConnected() override {
@@ -347,11 +356,13 @@ class SparkMAXControllerQWERTY : BaseSparkController<X> {
     }
   }
 
+  rev::CANSparkMax* getESC() { return esc_; }
+
  private:
   int canID_;
   frc846::Loggable& parent_;
   frc846::control::ConfigHelper& config_helper_;
-  frc846::control::HardLimits<X>& hard_limits_;
+  frc846::control::HardLimitsConfigHelper<X>& hard_limits_;
   rev::SparkRelativeEncoder* encoder_;
   rev::SparkPIDController* pid_controller_;
 
@@ -363,7 +374,7 @@ class SparkMAXControllerQWERTY : BaseSparkController<X> {
  */
 
 template <typename X>
-class SparkFLEXControllerQWERTY : BaseSparkController<X> {
+class SparkFLEXController : public BaseSparkController<X> {
   using V = units::unit_t<
       units::compound_unit<typename X::unit_type,  // the velocity unit is equal
                                                    // to the position unit / 1_s
@@ -372,17 +383,18 @@ class SparkFLEXControllerQWERTY : BaseSparkController<X> {
   using A = units::ampere_t;  // current
 
  public:
-  SparkFLEXControllerQWERTY(frc846::Loggable& parent, int canID,
-                            ConfigHelper& config_helper,
-                            HardLimitsConfigHelper<X>& hard_limits_configs)
+  SparkFLEXController(frc846::Loggable& parent, int canID,
+                      ConfigHelper& config_helper,
+                      HardLimitsConfigHelper<X>& hard_limits_configs)
       : parent_{parent},
         canID_{canID},
         config_helper_{config_helper},
         hard_limits_{hard_limits_configs},
-        encoder_{std::nullopt},
-        pid_controller_{std::nullopt},
-        BaseSparkController<X>{parent_, config_helper, hard_limits_configs,
-                               encoder_, pid_controller_} {}
+        encoder_{nullptr},
+        pid_controller_{nullptr},
+        BaseSparkController<X>{parent_,       canID,
+                               config_helper, hard_limits_configs,
+                               encoder_,      pid_controller_} {}
 
   int Configure(std::vector<DataTag> data_tags) override {
     esc_ =
@@ -408,9 +420,14 @@ class SparkFLEXControllerQWERTY : BaseSparkController<X> {
     this->ConfigureGains();
 
     /* Disable Status Frames */
-    this->ConfigureStatusFrames(data_tags);
+    this->ConfigureStatusFrames(esc_, data_tags);
 
     return 0;
+  }
+
+  void OverrideInvert(bool invert) override {
+    if (!esc_) return;
+    esc_->SetInverted(invert);
   }
 
   bool VerifyConnected() override {
@@ -448,11 +465,13 @@ class SparkFLEXControllerQWERTY : BaseSparkController<X> {
     }
   }
 
+  rev::CANSparkFlex* getESC() { return esc_; }
+
  private:
   int canID_;
   frc846::Loggable& parent_;
   frc846::control::ConfigHelper& config_helper_;
-  frc846::control::HardLimits<X>& hard_limits_;
+  frc846::control::HardLimitsConfigHelper<X>& hard_limits_;
   rev::SparkRelativeEncoder* encoder_;
   rev::SparkPIDController* pid_controller_;
 

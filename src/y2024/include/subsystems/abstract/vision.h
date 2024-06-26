@@ -44,6 +44,8 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
   bool VerifyHardware() override;
 
  private:
+  frc846::Pref<bool> default_is_red_side_{*this, "default_is_red_side"};
+
   frc846::Grapher<bool> tag_in_sight_graph_{*this, "tag_in_sight"};
   frc846::Grapher<int> tag_id_graph_{*this, "tag_id"};
   frc846::Grapher<units::millisecond_t> ll_latency_graph_{*this, "ll_latency"};

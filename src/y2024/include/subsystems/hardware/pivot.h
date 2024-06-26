@@ -4,7 +4,6 @@
 #include "frc/filter/SlewRateLimiter.h"
 #include "frc/trajectory/TrapezoidProfile.h"
 #include "frc846/control/control.h"
-#include "frc846/control/controlgains.h"
 #include "frc846/loggable.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
@@ -38,25 +37,33 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
   }
 
   void Coast() {
-    pivot_one_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
-    pivot_two_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
-    pivot_three_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
-    pivot_four_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+    if (auto esc = pivot_one_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+    if (auto esc = pivot_two_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+    if (auto esc = pivot_three_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+    if (auto esc = pivot_four_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
   }
 
   void Brake() {
-    pivot_one_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
-    pivot_two_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
-    pivot_three_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
-    pivot_four_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+    if (auto esc = pivot_one_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+    if (auto esc = pivot_two_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+    if (auto esc = pivot_three_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+    if (auto esc = pivot_four_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
   }
 
   void ZeroSubsystem() {
     hasZeroed = true;
-    pivot_one_.ZeroEncoder();
-    pivot_two_.ZeroEncoder();
-    pivot_three_.ZeroEncoder();
-    pivot_four_.ZeroEncoder();
+    pivot_one_.ZeroEncoder(0.0_deg);
+    pivot_two_.ZeroEncoder(0.0_deg);
+    pivot_three_.ZeroEncoder(0.0_deg);
+    pivot_four_.ZeroEncoder(0.0_deg);
     SetTarget(ZeroTarget());
   }
 
@@ -87,24 +94,32 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
   frc846::Grapher<units::degree_t> target_pivot_pos_graph{target_named_,
                                                           "pivot_pos"};
 
-  frc846::Loggable pivot_gains_lg = frc846::Loggable(*this, "pivot_gains");
-  frc846::control::ControlGainsHelper pivot_esc_gains_{
-      pivot_gains_lg, {0, 0, 0, 0, 0}, 100_A, 0.5};
+  frc846::control::ConfigHelper config_helper_{
+      *this,
+      {false,
+       (360.0) / (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0),
+       frc846::control::MotorIdleMode::kDefaultBrake,
+       {60_A},
+       false},
+      {0.047, 0.00, 0.00}};
 
-  frc846::control::SparkFlexController<units::degree_t> pivot_one_{
-      *this, "pivot_one", ports::positioning_::kPivotOne_CANID};
-  frc846::control::SparkFlexController<units::degree_t> pivot_two_{
-      *this, "pivot_two", ports::positioning_::kPivotTwo_CANID};
-  frc846::control::SparkFlexController<units::degree_t> pivot_three_{
-      *this, "pivot_three", ports::positioning_::kPivotThree_CANID};
-  frc846::control::SparkFlexController<units::degree_t> pivot_four_{
-      *this, "pivot_four", ports::positioning_::kPivotFour_CANID};
+  frc846::control::HardLimitsConfigHelper<units::degree_t> hard_limits_{
+      *this, {110_deg, 0_deg, true, 0.7, -0.5}};
+
+  frc846::control::SparkFLEXController<units::degree_t> pivot_one_{
+      *this, ports::positioning_::kPivotOne_CANID, config_helper_,
+      hard_limits_};
+  frc846::control::SparkFLEXController<units::degree_t> pivot_two_{
+      *this, ports::positioning_::kPivotTwo_CANID, config_helper_,
+      hard_limits_};
+  frc846::control::SparkFLEXController<units::degree_t> pivot_three_{
+      *this, ports::positioning_::kPivotThree_CANID, config_helper_,
+      hard_limits_};
+  frc846::control::SparkFLEXController<units::degree_t> pivot_four_{
+      *this, ports::positioning_::kPivotFour_CANID, config_helper_,
+      hard_limits_};
 
   PivotReadings GetNewReadings() override;
-
-  void PositionTelescope(PivotTarget target);
-  void PositionPivot(PivotTarget target);
-  void PositionWrist(PivotTarget target);
 
   void DirectWrite(PivotTarget target) override;
 };

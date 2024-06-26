@@ -2,15 +2,14 @@
 #define y2024_SUBSYSTEMS_TELESCOPE_H_
 
 #include "frc846/control/control.h"
-#include "frc846/control/controlgains.h"
 #include "frc846/loggable.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
 #include "units/length.h"
-#include "units/velocity.h"
 #include "units/math.h"
+#include "units/velocity.h"
 
 struct TelescopeReadings {
   units::inch_t extension;
@@ -32,16 +31,18 @@ class TelescopeSubsystem
   bool GetHasZeroed() { return hasZeroed; }
 
   void Coast() {
-    telescope_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+    if (auto esc = telescope_esc_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
   }
 
   void Brake() {
-    telescope_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+    if (auto esc = telescope_esc_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
   }
 
   void ZeroSubsystem() {
     hasZeroed = true;
-    telescope_esc_.ZeroEncoder();
+    telescope_esc_.ZeroEncoder(0.0_in);
     SetTarget(ZeroTarget());
   }
 
@@ -73,16 +74,22 @@ class TelescopeSubsystem
   frc846::Grapher<units::inch_t> target_tele_pos_graph{target_named_,
                                                        "tele_pos"};
 
-  frc846::Loggable tele_gains_lg = frc846::Loggable(*this, "tele_gains");
-  frc846::control::ControlGainsHelper tele_esc_gains_{
-      tele_gains_lg, {0, 0, 0, 0, 0}, 50_A, 0.5};
+  frc846::control::ConfigHelper config_helper_{
+      *this,
+      {false,
+       0.25,
+       frc846::control::MotorIdleMode::kDefaultBrake,
+       {40_A},
+       false},
+      {0.3, 0.00, 0.00}};
 
-  frc846::control::SparkRevController<units::inch_t> telescope_esc_{
-      *this, "telescope_esc", ports::positioning_::kTele_CANID};
+  frc846::control::HardLimitsConfigHelper<units::inch_t> hard_limits_{
+      *this, {6_in, 0_in, true, 1.0, -0.7}};
+
+  frc846::control::SparkMAXController<units::inch_t> telescope_esc_{
+      *this, ports::positioning_::kTele_CANID, config_helper_, hard_limits_};
 
   TelescopeReadings GetNewReadings() override;
-
-  void PositionTelescope(TelescopeTarget target);
 
   void DirectWrite(TelescopeTarget target) override;
 };

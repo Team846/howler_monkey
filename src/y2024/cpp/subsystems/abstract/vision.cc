@@ -28,7 +28,8 @@ VisionReadings VisionSubsystem::GetNewReadings() {
       frc846::util::ShareTables::SetBoolean("is_red_side", false);
     }
   } else {
-    frc846::util::ShareTables::SetBoolean("is_red_side", false);
+    frc846::util::ShareTables::SetBoolean("is_red_side",
+                                          default_is_red_side_.value());
   }
 
   VisionReadings newReadings{};

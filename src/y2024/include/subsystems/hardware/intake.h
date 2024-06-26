@@ -5,13 +5,14 @@
 // #include "frc/AnalogTrigger.h"
 // #include "frc/filter/SlewRateLimiter.h"
 #include "frc846/control/control.h"
-#include "frc846/control/controlgains.h"
 #include "frc846/loggable.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
 #include "units/angular_velocity.h"
+#include "units/length.h"
+#include "units/velocity.h"
 
 struct IntakeReadings {};
 
@@ -31,11 +32,11 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
 
   bool GetHasPiece() { return has_piece_; }
 
-  frc846::Pref<units::turns_per_second_t> intake_speed_{*this, "intake_speed_",
-                                                        70_tps};
+  frc846::Pref<units::feet_per_second_t> base_intake_speed_{
+      *this, "base_intake_speed_", 2_fps};
 
-  frc846::Pref<units::turns_per_second_t> intake_feed_speed_{
-      *this, "intake_feed_speed_", 50_tps};
+  frc846::Pref<units::feet_per_second_t> intake_feed_speed_{
+      *this, "intake_feed_speed_", 2_fps};
 
   frc846::Pref<double> release_speed_{*this, "release_speed", -0.3};
 
@@ -44,7 +45,7 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
  private:
   bool has_piece_;
 
-  double lastIntakeTarget;
+  units::feet_per_second_t target_intaking_speed;
 
   frc846::Loggable readings_named_{*this, "readings"};
   frc846::Grapher<bool> readings_has_piece_graph{readings_named_,
@@ -61,15 +62,23 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
   frc846::Grapher<bool> target_is_intaking_graph{target_named_,
                                                  "target_is_intaking_graph"};
 
-  frc846::Loggable intake_gains_lg = frc846::Loggable(*this, "intake_gains");
-  frc846::control::ControlGainsHelper intake_esc_gains_{
-      intake_gains_lg, {0, 0, 0, 0, 0}, 100_A, 0.5};
+  frc846::control::ConfigHelper config_helper_{
+      *this,
+      {false,
+       (1.75 / 12.0) * 3.14159265,
+       frc846::control::MotorIdleMode::kDefaultBrake,
+       {40_A},
+       true},
+      {0.05, 0.00, 0.15}};
 
-  frc846::control::SparkRevController<units::turn_t> intake_esc_{
-      *this, "intake_esc_", ports::scorer_::kController_CANID};
+  frc846::control::HardLimitsConfigHelper<units::foot_t> hard_limits_{
+      *this, {0_ft, 0_ft, false, 1.0, -1.0}};
 
-  rev::SparkLimitSwitch note_detection;
-  rev::SparkLimitSwitch note_detection_other;
+  frc846::control::SparkMAXController<units::foot_t> intake_esc_{
+      *this, ports::scorer_::kController_CANID, config_helper_, hard_limits_};
+
+  rev::SparkLimitSwitch* in_limit_switch;
+  rev::SparkLimitSwitch* out_limit_switch;
 
   IntakeReadings GetNewReadings() override;
 

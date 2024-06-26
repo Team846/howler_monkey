@@ -48,8 +48,10 @@ void DriveCommand::Execute() {
     translate_y = units::math::min(0.75, units::math::max(translate_y, -0.75));
   }
 
-  drivetrain_target.v_x = translate_x * drivetrain_.max_speed_.value();
-  drivetrain_target.v_y = translate_y * drivetrain_.max_speed_.value();
+  drivetrain_target.v_x = translate_x * drivetrain_.max_speed_.value() *
+                          drivetrain_.driver_speed_multiplier_.value();
+  drivetrain_target.v_y = translate_y * drivetrain_.max_speed_.value() *
+                          drivetrain_.driver_speed_multiplier_.value();
 
   // Slow down translation if slow mode is active
   if (is_slow_drive) {

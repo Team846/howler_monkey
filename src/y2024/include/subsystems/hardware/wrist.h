@@ -2,7 +2,6 @@
 #define y2024_SUBSYSTEMS_WRIST_H_
 
 #include "frc846/control/control.h"
-#include "frc846/control/controlgains.h"
 #include "frc846/loggable.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
@@ -36,16 +35,18 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
   }
 
   void Coast() {
-    wrist_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+    if (auto esc = wrist_esc_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
   }
 
   void Brake() {
-    wrist_esc_.esc_.SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+    if (auto esc = wrist_esc_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
   }
 
   void ZeroSubsystem() {
     hasZeroed = true;
-    wrist_esc_.ZeroEncoder();
+    wrist_esc_.ZeroEncoder(0.0_deg);
     SetTarget(ZeroTarget());
   }
 
@@ -82,16 +83,22 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
   frc846::Grapher<units::degree_t> target_wrist_pos_graph{target_named_,
                                                           "wrist_pos"};
 
-  frc846::Loggable wrist_gains_lg = frc846::Loggable(*this, "wrist_gains");
-  frc846::control::ControlGainsHelper wrist_esc_gains_{
-      wrist_gains_lg, {0, 0, 0, 0, 0}, 200_A, 0.5};
+  frc846::control::ConfigHelper config_helper_{
+      *this,
+      {false,
+       3.0 / 250.0 * (360.0),
+       frc846::control::MotorIdleMode::kDefaultBrake,
+       {40_A},
+       false},
+      {0.3, 0.00, 0.00}};
 
-  frc846::control::SparkRevController<units::degree_t> wrist_esc_{
-      *this, "wrist_esc", ports::positioning_::kWrist_CANID};
+  frc846::control::HardLimitsConfigHelper<units::degree_t> hard_limits_{
+      *this, {150_deg, 0_deg, true, 0.7, -0.5}};
+
+  frc846::control::SparkMAXController<units::degree_t> wrist_esc_{
+      *this, ports::positioning_::kWrist_CANID, config_helper_, hard_limits_};
 
   WristReadings GetNewReadings() override;
-
-  void PositionWrist(WristTarget target);
 
   void DirectWrite(WristTarget target) override;
 };

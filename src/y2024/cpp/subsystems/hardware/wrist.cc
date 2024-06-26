@@ -7,17 +7,7 @@
 WristSubsystem::WristSubsystem(bool init)
     : frc846::Subsystem<WristReadings, WristTarget>{"wrist", init} {
   if (init) {
-    wrist_esc_.Setup(&wrist_esc_gains_, true);
-    wrist_esc_.SetupConverter(3.0 / 250.0 * 1_tr);
-
-    wrist_esc_.ConfigurePositionLimits(165_deg, 0_deg);
-
-    wrist_esc_.ZeroEncoder();
-
-    wrist_esc_.DisableStatusFrames(
-        {rev::CANSparkBase::PeriodicFrame::kStatus0,
-         rev::CANSparkBase::PeriodicFrame::kStatus4,
-         rev::CANSparkBase::PeriodicFrame::kStatus3});
+    wrist_esc_.Configure({frc846::control::kPositionData});
   }
 }
 
@@ -55,7 +45,7 @@ WristReadings WristSubsystem::GetNewReadings() {
   return readings;
 }
 
-void WristSubsystem::PositionWrist(WristTarget target) {
+void WristSubsystem::DirectWrite(WristTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
     units::degree_t pivot_angle =
         units::degree_t(
@@ -72,15 +62,13 @@ void WristSubsystem::PositionWrist(WristTarget target) {
 
     double d = d_.value() * (wrist_esc_.GetVelocity()).to<double>();
 
-    wrist_esc_.Write(frc846::control::ControlMode::Percent, f + p - d);
+    wrist_esc_.WriteDC(f + p - d);
 
     target_wrist_pos_graph.Graph(*pos);
 
   } else if (auto output = std::get_if<double>(&target.wrist_output)) {
-    wrist_esc_.Write(frc846::control::ControlMode::Percent, *output);
+    wrist_esc_.WriteDC(*output);
 
     target_wrist_duty_cycle_graph.Graph(*output);
   }
 }
-
-void WristSubsystem::DirectWrite(WristTarget target) { PositionWrist(target); }
