@@ -6,24 +6,31 @@
 PivotSubsystem::PivotSubsystem(bool init)
     : frc846::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
   if (init) {
-    pivot_one_.Configure({frc846::control::DataTag::kLeader,
+    pivot_one_.Configure(frc846::control::REVSparkType::kSparkFLEX,
+                         {frc846::control::DataTag::kLeader,
                           frc846::control::DataTag::kPositionData});
-    pivot_three_.Configure({frc846::control::DataTag::kLeader,
+    pivot_three_.Configure(frc846::control::REVSparkType::kSparkFLEX,
+                           {frc846::control::DataTag::kLeader,
                             frc846::control::DataTag::kPositionData});
-    pivot_two_.Configure({});
-    pivot_four_.Configure({});
+    pivot_two_.Configure(frc846::control::REVSparkType::kSparkFLEX, {});
+    pivot_four_.Configure(frc846::control::REVSparkType::kSparkFLEX, {});
 
     pivot_three_.OverrideInvert(!config_helper_.getMotorConfig().invert);
 
+    pivot_one_.ZeroEncoder(pivot_home_offset_.value());
+    pivot_two_.ZeroEncoder(pivot_home_offset_.value());
+    pivot_three_.ZeroEncoder(pivot_home_offset_.value());
+    pivot_four_.ZeroEncoder(pivot_home_offset_.value());
+
     if (auto esc = pivot_two_.getESC()) {
       if (auto leader_esc = pivot_one_.getESC()) {
-        esc->Follow(*pivot_one_.getESC());
+        esc->Follow(*leader_esc);
       }
     }
     if (auto esc = pivot_four_.getESC()) {
       if (auto leader_esc = pivot_three_.getESC()) {
-        esc->Follow(*pivot_one_.getESC());  // Not sure whether to invert or
-                                            // not. TODO: check this.
+        esc->Follow(*leader_esc);  // Not sure whether to invert or
+                                   // not. TODO: check this.
       }
     }
   }
@@ -70,8 +77,12 @@ PivotReadings PivotSubsystem::GetNewReadings() {
 
 void PivotSubsystem::DirectWrite(PivotTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
-    pivot_one_.WritePosition(*pos);
-    pivot_three_.WritePosition(*pos);
+    double output = dyFPID.calculate(*pos, readings().pivot_position,
+                                     pivot_one_.GetVelocityPercentage(),
+                                     config_helper_.updateAndGetGains());
+
+    pivot_one_.WriteDC(output);
+    pivot_three_.WriteDC(output);
 
     target_pivot_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.pivot_output)) {

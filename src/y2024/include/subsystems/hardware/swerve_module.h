@@ -10,6 +10,7 @@
 #include <string>
 
 #include "frc846/control/control.h"
+#include "frc846/control/motion.h"
 #include "frc846/ctre_namespace.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/conversions.h"
@@ -120,6 +121,13 @@ class SwerveModuleSubsystem
   void DirectWrite(SwerveModuleTarget target) override;
 
   SwerveModuleTarget last_target{};
+
+  frc846::Loggable current_braking_loggable{*this, "smart_current_braking"};
+
+  frc846::motion::CurrentControl current_braking{
+      current_braking_loggable,
+      {120_A, frc846::control::DefaultSpecifications::stall_current_kraken,
+       0.3}};
 };
 
 #endif  // y2024_SUBSYSTEMS_SWERVE_MODULE_H_

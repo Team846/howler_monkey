@@ -67,18 +67,17 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
       {false,
        (1.75 / 12.0) * 3.14159265,
        frc846::control::MotorIdleMode::kDefaultBrake,
-       {40_A},
-       true},
+       {40_A}},
       {0.05, 0.00, 0.15}};
 
   frc846::control::HardLimitsConfigHelper<units::foot_t> hard_limits_{
       *this, {0_ft, 0_ft, false, 1.0, -1.0}};
 
-  frc846::control::SparkMAXController<units::foot_t> intake_esc_{
+  frc846::control::REVSparkController<units::foot_t> intake_esc_{
       *this, ports::scorer_::kController_CANID, config_helper_, hard_limits_};
 
-  rev::SparkLimitSwitch* in_limit_switch;
-  rev::SparkLimitSwitch* out_limit_switch;
+  std::optional<rev::SparkLimitSwitch> in_limit_switch;
+  std::optional<rev::SparkLimitSwitch> out_limit_switch;
 
   IntakeReadings GetNewReadings() override;
 

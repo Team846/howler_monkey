@@ -2,6 +2,7 @@
 #define FRC846_CTRE_CONTROL_H_
 
 #include "controlbase.h"
+#include "units/math.h"
 
 namespace frc846::control {
 
@@ -65,8 +66,7 @@ class TalonFXController : public BaseESC<X> {
         auto g = config_helper_.getGains();
         pidConfs.WithKP(g.kP);
         pidConfs.WithKD(g.kD);
-        if (!config_helper_.getMotorConfig().usingDynamicFF)
-          pidConfs.WithKS(g.kF);
+        pidConfs.WithKS(g.kF);
 
         deviceConfigs.WithSlot0(pidConfs);
 
@@ -93,8 +93,7 @@ class TalonFXController : public BaseESC<X> {
         auto g = config_helper_.getGains();
         pidConfs.WithKP(g.kP);
         pidConfs.WithKD(g.kD);
-        if (!config_helper_.getMotorConfig().usingDynamicFF)
-          pidConfs.WithKS(g.kF);
+        pidConfs.WithKS(g.kF);
 
         deviceConfigs.WithSlot0(pidConfs);
 
@@ -121,6 +120,13 @@ class TalonFXController : public BaseESC<X> {
 
     return units::make_unit<V>(esc_->GetVelocity().GetValueAsDouble() *
                                config_helper_.getMotorConfig().gear_ratio);
+  }
+
+  double GetVelocityPercentage() override {
+    if (esc_ == nullptr) return 0.0;
+
+    return esc_->GetVelocity().GetValue() /
+           DefaultSpecifications::free_speed_kraken;
   }
 
   X GetPosition() override {
@@ -181,7 +187,7 @@ class TalonFXController : public BaseESC<X> {
 
     ctre::configs::CurrentLimitsConfigs currentConfs;
     currentConfs.WithSupplyCurrentLimitEnable(true);
-    currentConfs.WithStatorCurrentLimit(
+    currentConfs.WithSupplyCurrentLimit(
         motor_config.current_limiting.target_threshold.to<double>());
     currentConfs.WithSupplyTimeThreshold(
         motor_config.current_limiting.peak_time_threshold.to<double>());
@@ -205,14 +211,14 @@ class TalonFXController : public BaseESC<X> {
     auto g = config_helper_.getGains();
     pidConfs.WithKP(g.kP);
     pidConfs.WithKD(g.kD);
-    if (!config_helper_.getMotorConfig().usingDynamicFF) pidConfs.WithKS(g.kF);
+    pidConfs.WithKS(g.kF);
 
     deviceConfigs.WithSlot0(pidConfs);
 
     configurator_ = &esc->GetConfigurator();
     CheckOK(configurator_->Apply(deviceConfigs));
 
-    CheckOK(esc->OptimizeBusUtilization(20_ms));
+    CheckOK(esc->OptimizeBusUtilization(30_ms));
 
     if (std::find(data_tags.begin(), data_tags.end(), DataTag::kVelocityData) !=
         data_tags.end()) {

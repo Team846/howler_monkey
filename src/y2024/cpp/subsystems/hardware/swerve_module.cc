@@ -35,6 +35,8 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
   // // Invert so that clockwise is positive when looking down on the robot
   // cancoder_.ConfigSensorDirection(true);
 
+  drive_esc_helper_.SetVoltageCompensationAuton(true);
+
   current_speed_ = 0_fps;
 
   ZeroWithCANcoder();
@@ -173,27 +175,8 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
 
     drive_output = target_velocity / max_speed_.value();
 
-    double braking_force = (target_velocity - readings().speed) /
-                           max_speed_.value() * braking_constant_.value();
-
-    drive_output += braking_force;
-
-    double generatedEMF = 12.0 * readings().speed / max_speed_.value();
-
-    double upperTargetEMF =
-        (12.0 * current_limit_.value() / motor_stall_current_.value()) +
-        generatedEMF;
-    double lowerTargetEMF =
-        -(12.0 * current_limit_.value() / motor_stall_current_.value()) +
-        generatedEMF;
-
-    double upperDCBound = upperTargetEMF / 12.0;
-    double lowerDCBound = lowerTargetEMF / 12.0;
-
-    upper_dc_current_limiting_.Graph(upperDCBound);
-    lower_dc_current_limiting_.Graph(lowerDCBound);
-
-    drive_output = std::min(upperDCBound, std::max(lowerDCBound, drive_output));
+    drive_output = current_braking.calculate(
+        drive_esc_helper_.GetVelocityPercentage(), drive_output);
 
     drive_esc_helper_.WriteDC(drive_output);
   } else {

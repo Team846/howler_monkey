@@ -5,6 +5,7 @@
 #include "frc/AnalogTrigger.h"
 #include "frc/filter/SlewRateLimiter.h"
 #include "frc846/control/control.h"
+#include "frc846/control/motion.h"
 #include "frc846/loggable.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
@@ -67,23 +68,29 @@ class ShooterSubsystem
       {false,
        (4.75 / 12.0) * 3.14159265,
        frc846::control::MotorIdleMode::kDefaultCoast,
-       {40_A},
-       true},
+       {40_A}},
       {0.05, 0.00, 0.15}};
 
   frc846::control::HardLimitsConfigHelper<units::foot_t> hard_limits_{
       *this, {0_ft, 0_ft, false, 1.0, -1.0}};
 
-  frc846::control::SparkFLEXController<units::foot_t> shooter_esc_one_{
+  frc846::control::REVSparkController<units::foot_t> shooter_esc_one_{
       *this, ports::scorer_::kShooterOneController_CANID, config_helper_,
       hard_limits_};
-  frc846::control::SparkFLEXController<units::foot_t> shooter_esc_two_{
+  frc846::control::REVSparkController<units::foot_t> shooter_esc_two_{
       *this, ports::scorer_::kShooterTwoController_CANID, config_helper_,
       hard_limits_};
 
   ShooterReadings GetNewReadings() override;
 
   void DirectWrite(ShooterTarget target) override;
+
+  frc846::Loggable vFPID_loggable{*this, "vFPID"};
+
+  frc846::motion::BrakingVelocityFPID<units::feet_per_second_t> braking_v_FPID{
+      vFPID_loggable,
+      {35_A, frc846::control::DefaultSpecifications::stall_current_vortex,
+       0.3}};
 };
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef CONTROL_CONFIG_H_
 #define CONTROL_CONFIG_H_
 
+#include <units/angular_velocity.h>
 #include <units/current.h>
 #include <units/time.h>
 #include <units/voltage.h>
@@ -15,6 +16,11 @@ struct DefaultSpecifications {
   static constexpr units::ampere_t stall_current_vortex = 211_A;
   static constexpr units::ampere_t stall_current_neo = 105_A;
   static constexpr units::ampere_t stall_current_550 = 100_A;
+
+  static constexpr units::revolutions_per_minute_t free_speed_kraken = 6000_rpm;
+  static constexpr units::revolutions_per_minute_t free_speed_vortex = 6784_rpm;
+  static constexpr units::revolutions_per_minute_t free_speed_neo = 5676_rpm;
+  static constexpr units::revolutions_per_minute_t free_speed_550 = 11000_rpm;
 };
 
 struct CurrentLimiting {
@@ -67,14 +73,14 @@ class GainsPrefs {
 
 enum MotorIdleMode { kDefaultCoast, kDefaultBrake };
 
-struct FFCalibrationPoint {
-  double position;
-  double duty_cycle;
-};
+// struct FFCalibrationPoint {
+//   double position;
+//   double duty_cycle;
+// };
 
-struct FFTable {
-  std::vector<FFCalibrationPoint> ff_calibration_points;
-};
+// struct FFTable {
+//   std::vector<FFCalibrationPoint> ff_calibration_points;
+// };
 
 template <class X>
 struct HardLimits {
@@ -132,15 +138,12 @@ struct MotorConfig {
   MotorIdleMode idle_mode = kDefaultCoast;
 
   CurrentLimiting current_limiting = {40_A};
-  bool usingSmartCurrentLimiting = false;
 
   units::second_t rampTime = 0.0_s;
   bool withRampRate = false;
 
   units::volt_t voltage_compensation = 16.0_V;
   units::volt_t auton_voltage_compensation = 12.0_V;
-
-  bool usingDynamicFF = false;
 };
 
 class MotorConfigPrefs {
@@ -152,28 +155,23 @@ class MotorConfigPrefs {
         default_brake_{rep, "default_brake_mode",
                        default_config.idle_mode == kDefaultBrake},
         current_limiting_{rep, default_config.current_limiting},
-        using_smart_current_limiting_{rep, "use_smart_current_limiting",
-                                      default_config.usingSmartCurrentLimiting},
         ramp_time_{rep, "ramp_time", default_config.rampTime},
         using_ramp_rate_{rep, "use_ramp_rate", default_config.withRampRate},
         voltage_compensation_{rep, "voltage_compensation",
                               default_config.voltage_compensation},
         auton_voltage_compensation_{rep, "auton_voltage_compensation",
-                                    default_config.auton_voltage_compensation},
-        using_dynamic_ff_{rep, "use_dynamic_ff",
-                          default_config.usingDynamicFF} {}
+                                    default_config.auton_voltage_compensation} {
+  }
 
   MotorConfig get() {
     return MotorConfig{invert_.value(),
                        gear_ratio_.value(),
                        default_brake_.value() ? kDefaultBrake : kDefaultCoast,
                        current_limiting_.get(),
-                       using_smart_current_limiting_.value(),
                        ramp_time_.value(),
                        using_ramp_rate_.value(),
                        voltage_compensation_.value(),
-                       auton_voltage_compensation_.value(),
-                       using_dynamic_ff_.value()};
+                       auton_voltage_compensation_.value()};
   }
 
  private:
@@ -182,12 +180,10 @@ class MotorConfigPrefs {
   frc846::Pref<double> gear_ratio_;
   frc846::Pref<bool> default_brake_;
   CurrentLimitingPrefs current_limiting_;
-  frc846::Pref<bool> using_smart_current_limiting_;
   frc846::Pref<units::second_t> ramp_time_;
   frc846::Pref<bool> using_ramp_rate_;
   frc846::Pref<units::volt_t> voltage_compensation_;
   frc846::Pref<units::volt_t> auton_voltage_compensation_;
-  frc846::Pref<bool> using_dynamic_ff_;
 };
 
 class ConfigHelper {
@@ -203,17 +199,25 @@ class ConfigHelper {
 
   bool hasGainsChanged() {
     auto latestGains = gains_.get();
-    if (latestGains.kP != cachedGains.kP || latestGains.kD != cachedGains.kD ||
-        latestGains.kF != cachedGains.kF) {
+    if (!deq(latestGains.kP, cachedGains.kP) ||
+        !deq(latestGains.kD, cachedGains.kD) ||
+        !deq(latestGains.kF, cachedGains.kF)) {
       cachedGains = latestGains;
       return true;
     }
     return false;
   }
 
+  Gains updateAndGetGains() {
+    hasGainsChanged();
+    return getGains();
+  }
+
   MotorConfig getMotorConfig() { return motor_config_.get(); };
 
  private:
+  bool deq(double a, double b) { return std::abs(a - b) <= 0.01; }
+
   Loggable& parent_;
   MotorConfigPrefs motor_config_;
   GainsPrefs gains_;

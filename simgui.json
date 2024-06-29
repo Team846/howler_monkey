@@ -53,10 +53,13 @@
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
+      "/SmartDashboard/brake_subsystems": "Command",
+      "/SmartDashboard/coast_subsystems": "Command",
       "/SmartDashboard/verify_hardware": "Command",
       "/SmartDashboard/zero_bearing": "Command",
       "/SmartDashboard/zero_modules": "Command",
-      "/SmartDashboard/zero_odometry": "Command"
+      "/SmartDashboard/zero_odometry": "Command",
+      "/SmartDashboard/zero_subsystems": "Command"
     }
   },
   "NetworkTables": {

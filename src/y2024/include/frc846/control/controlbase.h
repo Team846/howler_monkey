@@ -166,8 +166,6 @@ class BaseESC {
   using A = units::ampere_t;  // current
 
  public:
-  virtual int Configure(std::vector<DataTag> data_tags) = 0;  // setup motor
-
   virtual void OverrideInvert(
       bool invert) = 0;  // for systems where using same config helper for 2+
                          // motors but 1+ of those motors is inverted. ex. 2024
@@ -186,6 +184,8 @@ class BaseESC {
   virtual void WritePosition(X output) = 0;
 
   virtual V GetVelocity() = 0;
+
+  virtual double GetVelocityPercentage() = 0;
 
   virtual X GetPosition() = 0;
 

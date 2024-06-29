@@ -76,17 +76,13 @@ class TelescopeSubsystem
 
   frc846::control::ConfigHelper config_helper_{
       *this,
-      {false,
-       0.25,
-       frc846::control::MotorIdleMode::kDefaultBrake,
-       {40_A},
-       false},
+      {false, 0.25, frc846::control::MotorIdleMode::kDefaultBrake, {40_A}},
       {0.3, 0.00, 0.00}};
 
   frc846::control::HardLimitsConfigHelper<units::inch_t> hard_limits_{
       *this, {6_in, 0_in, true, 1.0, -0.7}};
 
-  frc846::control::SparkMAXController<units::inch_t> telescope_esc_{
+  frc846::control::REVSparkController<units::inch_t> telescope_esc_{
       *this, ports::positioning_::kTele_CANID, config_helper_, hard_limits_};
 
   TelescopeReadings GetNewReadings() override;

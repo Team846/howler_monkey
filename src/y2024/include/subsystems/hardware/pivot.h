@@ -4,6 +4,7 @@
 #include "frc/filter/SlewRateLimiter.h"
 #include "frc/trajectory/TrapezoidProfile.h"
 #include "frc846/control/control.h"
+#include "frc846/control/motion.h"
 #include "frc846/loggable.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
@@ -60,10 +61,10 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
 
   void ZeroSubsystem() {
     hasZeroed = true;
-    pivot_one_.ZeroEncoder(0.0_deg);
-    pivot_two_.ZeroEncoder(0.0_deg);
-    pivot_three_.ZeroEncoder(0.0_deg);
-    pivot_four_.ZeroEncoder(0.0_deg);
+    pivot_one_.ZeroEncoder(pivot_home_offset_.value());
+    pivot_two_.ZeroEncoder(pivot_home_offset_.value());
+    pivot_three_.ZeroEncoder(pivot_home_offset_.value());
+    pivot_four_.ZeroEncoder(pivot_home_offset_.value());
     SetTarget(ZeroTarget());
   }
 
@@ -71,7 +72,7 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
                                                  0.5_deg};
 
   frc846::Pref<units::degree_t> pivot_home_offset_{*this, "pivot_home_offset",
-                                                   17_deg};
+                                                   -17_deg};
 
   frc846::Pref<units::degrees_per_second_t> max_adjustment_rate_{
       *this, "max_adjustment_rate", units::degrees_per_second_t(60.0)};
@@ -99,29 +100,38 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
       {false,
        (360.0) / (68.0 / 7.0 * 50.0 / 18.0 * 64.0 / 10.0),
        frc846::control::MotorIdleMode::kDefaultBrake,
-       {60_A},
-       false},
+       {60_A}},
       {0.047, 0.00, 0.00}};
 
   frc846::control::HardLimitsConfigHelper<units::degree_t> hard_limits_{
       *this, {110_deg, 0_deg, true, 0.7, -0.5}};
 
-  frc846::control::SparkFLEXController<units::degree_t> pivot_one_{
+  frc846::control::REVSparkController<units::degree_t> pivot_one_{
       *this, ports::positioning_::kPivotOne_CANID, config_helper_,
       hard_limits_};
-  frc846::control::SparkFLEXController<units::degree_t> pivot_two_{
+  frc846::control::REVSparkController<units::degree_t> pivot_two_{
       *this, ports::positioning_::kPivotTwo_CANID, config_helper_,
       hard_limits_};
-  frc846::control::SparkFLEXController<units::degree_t> pivot_three_{
+  frc846::control::REVSparkController<units::degree_t> pivot_three_{
       *this, ports::positioning_::kPivotThree_CANID, config_helper_,
       hard_limits_};
-  frc846::control::SparkFLEXController<units::degree_t> pivot_four_{
+  frc846::control::REVSparkController<units::degree_t> pivot_four_{
       *this, ports::positioning_::kPivotFour_CANID, config_helper_,
       hard_limits_};
 
   PivotReadings GetNewReadings() override;
 
   void DirectWrite(PivotTarget target) override;
+
+  frc846::Loggable dyFPID_loggable{*this, "DynamicFPID"};
+
+  frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPID{
+      dyFPID_loggable,
+      [this](units::degree_t pos) -> double {
+        return std::abs(
+            units::math::cos(readings().pivot_position).to<double>());
+      },
+      {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
 };
 
 #endif

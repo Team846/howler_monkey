@@ -6,8 +6,10 @@
 ShooterSubsystem::ShooterSubsystem(bool init)
     : frc846::Subsystem<ShooterReadings, ShooterTarget>{"shooter", init} {
   if (init) {
-    shooter_esc_one_.Configure({frc846::control::DataTag::kVelocityData});
-    shooter_esc_two_.Configure({frc846::control::DataTag::kVelocityData});
+    shooter_esc_one_.Configure(frc846::control::REVSparkType::kSparkFLEX,
+                               {frc846::control::DataTag::kVelocityData});
+    shooter_esc_two_.Configure(frc846::control::REVSparkType::kSparkFLEX,
+                               {frc846::control::DataTag::kVelocityData});
 
     shooter_esc_one_.OverrideInvert(!config_helper_.getMotorConfig().invert);
   }
@@ -58,10 +60,16 @@ ShooterReadings ShooterSubsystem::GetNewReadings() {
 
 void ShooterSubsystem::DirectWrite(ShooterTarget target) {
   if (target.target_state == kRun) {
-    shooter_esc_one_.WriteVelocity(shooter_speed_.value() *
-                                   (1 + spin_.value()));
-    shooter_esc_two_.WriteVelocity(shooter_speed_.value() *
-                                   (1 - spin_.value()));
+    shooter_esc_one_.WriteDC(
+        braking_v_FPID.calculate(shooter_speed_.value() * (1 + spin_.value()),
+                                 shooter_esc_one_.GetVelocity(),
+                                 shooter_esc_one_.GetVelocityPercentage(),
+                                 config_helper_.updateAndGetGains()));
+    shooter_esc_two_.WriteDC(
+        braking_v_FPID.calculate(shooter_speed_.value() * (1 - spin_.value()),
+                                 shooter_esc_two_.GetVelocity(),
+                                 shooter_esc_two_.GetVelocityPercentage(),
+                                 config_helper_.updateAndGetGains()));
   } else {
     shooter_esc_one_.WriteDC(0.0);
     shooter_esc_two_.WriteDC(0.0);

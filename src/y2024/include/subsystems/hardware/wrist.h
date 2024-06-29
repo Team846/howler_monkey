@@ -2,6 +2,7 @@
 #define y2024_SUBSYSTEMS_WRIST_H_
 
 #include "frc846/control/control.h"
+#include "frc846/control/motion.h"
 #include "frc846/loggable.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
@@ -46,7 +47,7 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
 
   void ZeroSubsystem() {
     hasZeroed = true;
-    wrist_esc_.ZeroEncoder(0.0_deg);
+    wrist_esc_.ZeroEncoder(wrist_home_offset_.value());
     SetTarget(ZeroTarget());
   }
 
@@ -54,7 +55,7 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
                                                  1.2_deg};
 
   frc846::Pref<units::degree_t> wrist_home_offset_{*this, "home_offset_wrist",
-                                                   30_deg};
+                                                   -49_deg};
   frc846::Pref<units::degree_t> wrist_cg_offset_{*this, "cg_offset_wrist",
                                                  60_deg};
 
@@ -88,19 +89,31 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
       {false,
        3.0 / 250.0 * (360.0),
        frc846::control::MotorIdleMode::kDefaultBrake,
-       {40_A},
-       false},
+       {40_A}},
       {0.3, 0.00, 0.00}};
 
   frc846::control::HardLimitsConfigHelper<units::degree_t> hard_limits_{
       *this, {150_deg, 0_deg, true, 0.7, -0.5}};
 
-  frc846::control::SparkMAXController<units::degree_t> wrist_esc_{
+  frc846::control::REVSparkController<units::degree_t> wrist_esc_{
       *this, ports::positioning_::kWrist_CANID, config_helper_, hard_limits_};
 
   WristReadings GetNewReadings() override;
 
   void DirectWrite(WristTarget target) override;
+
+  frc846::Loggable dyFPID_loggable{*this, "DynamicFPID"};
+
+  frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPID{
+      dyFPID_loggable,
+      [this](units::degree_t pos) -> double {
+        return std::abs(
+            units::math::cos(
+                1_deg * frc846::util::ShareTables::GetDouble("pivot_position") +
+                readings().wrist_position - wrist_cg_offset_.value())
+                .to<double>());
+      },
+      {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
 };
 
 #endif

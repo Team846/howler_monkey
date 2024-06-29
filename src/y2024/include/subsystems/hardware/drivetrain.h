@@ -224,8 +224,7 @@ class DrivetrainSubsystem
        (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) *
            frc846::util::Circumference(wheel_radius_.value()).to<double>(),
        frc846::control::MotorIdleMode::kDefaultBrake,
-       {80_A},
-       true},
+       {80_A}},
       {0.0002, 0.0, 0.0001769},
   };
 
@@ -234,8 +233,7 @@ class DrivetrainSubsystem
       {false,
        (7.0 / 150.0) * 360.0,
        frc846::control::MotorIdleMode::kDefaultCoast,
-       {40_A},
-       false},
+       {40_A}},
       {0.12, 0.0},
   };
 

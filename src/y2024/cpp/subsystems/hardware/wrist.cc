@@ -7,7 +7,10 @@
 WristSubsystem::WristSubsystem(bool init)
     : frc846::Subsystem<WristReadings, WristTarget>{"wrist", init} {
   if (init) {
-    wrist_esc_.Configure({frc846::control::kPositionData});
+    wrist_esc_.Configure(frc846::control::REVSparkType::kSparkMAX,
+                         {frc846::control::kPositionData});
+
+    wrist_esc_.ZeroEncoder(wrist_home_offset_.value());
   }
 }
 
@@ -47,22 +50,11 @@ WristReadings WristSubsystem::GetNewReadings() {
 
 void WristSubsystem::DirectWrite(WristTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
-    units::degree_t pivot_angle =
-        units::degree_t(
-            frc846::util::ShareTables::GetDouble("pivot_position")) -
-        17_deg;
-    units::degree_t wrist_angle =
-        readings().wrist_position +
-        (180_deg - (wrist_home_offset_.value() + wrist_cg_offset_.value()));
-    units::degree_t shooting_angle = 180_deg + pivot_angle - wrist_angle;
+    double output = dyFPID.calculate(*pos, readings().wrist_position,
+                                     wrist_esc_.GetVelocityPercentage(),
+                                     config_helper_.updateAndGetGains());
 
-    double f = k_.value() * units::math::abs(units::math::cos(shooting_angle));
-
-    double p = p_.value() * (*pos - readings().wrist_position).to<double>();
-
-    double d = d_.value() * (wrist_esc_.GetVelocity()).to<double>();
-
-    wrist_esc_.WriteDC(f + p - d);
+    wrist_esc_.WriteDC(output);
 
     target_wrist_pos_graph.Graph(*pos);
 
