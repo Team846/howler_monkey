@@ -45,9 +45,7 @@ void PrepareShootCommand::Execute() {
   auto shootSetpoint = super_.getShootSetpoint();
 
   if (super_shot_) {
-    shootSetpoint.wrist =
-        90_deg + (theta - super_.wrist_->wrist_home_offset_.value()) +
-        (shootSetpoint.pivot - super_.pivot_->pivot_home_offset_.value());
+    shootSetpoint.wrist = theta + shootSetpoint.pivot;
   }
 
   if (!super_.pivot_->WithinTolerance(shootSetpoint.pivot)) {

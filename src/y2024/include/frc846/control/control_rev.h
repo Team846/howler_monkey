@@ -45,10 +45,10 @@ class REVSparkController : public BaseESC<X> {
   }
 
   void WriteDC(double output) override {
-    if (pid_controller_) {
+    if (pid_controller_.has_value()) {
       if (!canopt.check(SimpleCANOpt::duty_cycle_type, output)) return;
 
-      canopt.registerSuccess(CheckOK(pid_controller_->SetReference(
+      canopt.registerSuccess(CheckOK(pid_controller_.value().SetReference(
           std::max(std::min(output, hard_limits_.get().peak_output_forward),
                    hard_limits_.get().peak_output_reverse),
           rev::CANSparkBase::ControlType::kDutyCycle)));
@@ -56,7 +56,7 @@ class REVSparkController : public BaseESC<X> {
   }
 
   void WriteVelocity(V output) override {
-    if (pid_controller_) {
+    if (pid_controller_.has_value()) {
       RefreshPID();
 
       if (!canopt.check(SimpleCANOpt::velocity_type,
@@ -64,7 +64,7 @@ class REVSparkController : public BaseESC<X> {
         return;
 
       // DO NOT USE REV SMART VELOCITY
-      canopt.registerSuccess(CheckOK(pid_controller_->SetReference(
+      canopt.registerSuccess(CheckOK(pid_controller_.value().SetReference(
           output.template to<double>() /
               config_helper_.getMotorConfig().gear_ratio *
               60.0,  // 60.0 seconds to a minute
@@ -74,7 +74,7 @@ class REVSparkController : public BaseESC<X> {
   }
 
   void WritePosition(X output) override {
-    if (pid_controller_) {
+    if (pid_controller_.has_value()) {
       RefreshPID();
 
       if (!canopt.check(SimpleCANOpt::position_type,
@@ -82,7 +82,7 @@ class REVSparkController : public BaseESC<X> {
         return;
 
       // DO NOT USE REV SMART MOTION
-      canopt.registerSuccess(CheckOK(pid_controller_->SetReference(
+      canopt.registerSuccess(CheckOK(pid_controller_.value().SetReference(
           output.template to<double>() /
               config_helper_.getMotorConfig().gear_ratio,
           rev::CANSparkBase::ControlType::kPosition)));
@@ -90,23 +90,23 @@ class REVSparkController : public BaseESC<X> {
   }
 
   void ZeroEncoder(X val) override {
-    if (encoder_) {
-      CheckOK(
-          encoder_->SetPosition(val.template to<double>() /
-                                config_helper_.getMotorConfig().gear_ratio));
+    if (encoder_.has_value()) {
+      CheckOK(encoder_.value().SetPosition(
+          val.template to<double>() /
+          config_helper_.getMotorConfig().gear_ratio));
     }
   }
 
   V GetVelocity() override {
-    if (encoder_ == nullptr) return units::make_unit<V>(0.0);
-    return units::make_unit<V>(encoder_->GetVelocity()) *
+    if (!encoder_.has_value()) return units::make_unit<V>(0.0);
+    return units::make_unit<V>(encoder_.value().GetVelocity()) *
            config_helper_.getMotorConfig().gear_ratio /
            60.0;  // 60.0 seconds to a minute
                   // native time period is in minutes
   }
 
   double GetVelocityPercentage() override {
-    if (encoder_ == nullptr) return 0.0;
+    if (!encoder_.has_value()) return 0.0;
 
     units::revolutions_per_minute_t max_velocity =
         controller_type_ == kSparkFLEX
@@ -117,13 +117,13 @@ class REVSparkController : public BaseESC<X> {
                        ? DefaultSpecifications::free_speed_550
                        : max_velocity;
 
-    return encoder_->GetVelocity() * 1_rpm / max_velocity;
+    return encoder_.value().GetVelocity() * 1_rpm / max_velocity;
   }
 
   X GetPosition() override {
-    if (encoder_ == nullptr) return units::make_unit<X>(0.0);
+    if (!encoder_.has_value()) return units::make_unit<X>(0.0);
 
-    return units::make_unit<X>(encoder_->GetPosition()) *
+    return units::make_unit<X>(encoder_.value().GetPosition()) *
            config_helper_.getMotorConfig().gear_ratio;
   }
 
@@ -157,6 +157,14 @@ class REVSparkController : public BaseESC<X> {
 
   int Configure(REVSparkType controller_type, std::vector<DataTag> data_tags) {
     controller_type_ = controller_type;
+
+    if (controller_type == REVSparkType::kSparkFLEX) {
+      esc_ = new rev::CANSparkFlex{canID_,
+                                   rev::CANSparkBase::MotorType::kBrushless};
+    } else {
+      esc_ = new rev::CANSparkMax{canID_,
+                                  rev::CANSparkBase::MotorType::kBrushless};
+    }
 
     if (!CheckOK(esc_->RestoreFactoryDefaults(true))) {
       return 1;  // does not configure controller in this case
@@ -209,6 +217,10 @@ class REVSparkController : public BaseESC<X> {
                              motor_config.gear_ratio);
     }
 
+    encoder_.emplace(esc_->GetEncoder(
+        rev::SparkRelativeEncoder::EncoderType::kHallSensor, 42));
+    pid_controller_.emplace(esc_->GetPIDController());
+
     RefreshPID(true);
 
     DisableStatusFrames(data_tags);
@@ -225,9 +237,9 @@ class REVSparkController : public BaseESC<X> {
             .hasGainsChanged()) {  // this allows for pid to be tuned without
                                    // having to restart robot code
       auto g = config_helper_.getGains();
-      CheckOK(pid_controller_->SetP(g.kP));
-      CheckOK(pid_controller_->SetD(g.kD));
-      CheckOK(pid_controller_->SetFF(g.kF));
+      CheckOK(pid_controller_.value().SetP(g.kP));
+      CheckOK(pid_controller_.value().SetD(g.kD));
+      CheckOK(pid_controller_.value().SetFF(g.kF));
     }
   }
 
@@ -293,8 +305,8 @@ class REVSparkController : public BaseESC<X> {
   frc846::control::HardLimitsConfigHelper<X>& hard_limits_;
 
   rev::CANSparkBase* esc_;
-  rev::SparkRelativeEncoder* encoder_;
-  rev::SparkPIDController* pid_controller_;
+  std::optional<rev::SparkRelativeEncoder> encoder_;
+  std::optional<rev::SparkPIDController> pid_controller_;
 
   frc846::control::REVSparkType controller_type_ = kSparkMAX;
 

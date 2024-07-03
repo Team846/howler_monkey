@@ -41,10 +41,7 @@ void PrepareAutoShootCommand::Execute() {
   auto defaultShootSetpoint{super_.getAutoShootSetpoint()};
 
   if (theta >= 1_deg) {
-    defaultShootSetpoint.wrist = 90_deg + theta -
-                                 super_.wrist_->wrist_home_offset_.value() +
-                                 (defaultShootSetpoint.pivot -
-                                  super_.pivot_->pivot_home_offset_.value());
+    defaultShootSetpoint.wrist = theta + defaultShootSetpoint.pivot;
   }
 
   super_.SetTargetSetpoint(defaultShootSetpoint);
