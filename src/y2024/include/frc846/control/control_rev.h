@@ -1,6 +1,9 @@
 #ifndef FRC846_REV_CONTROL_H_
 #define FRC846_REV_CONTROL_H_
 
+#include <chrono>
+#include <thread>
+
 #include "controlbase.h"
 
 namespace frc846::control {
@@ -29,13 +32,11 @@ class REVSparkController : public BaseESC<X> {
         config_helper_{config_helper},
         hard_limits_{hard_limits},
         esc_{nullptr},
-        encoder_{nullptr},
-        pid_controller_{nullptr} {}
+        encoder_{std::nullopt},
+        pid_controller_{std::nullopt},
+        invert_override_{false} {}
 
-  void OverrideInvert(bool invert) override {
-    if (!esc_) return;
-    esc_->SetInverted(invert);
-  }
+  void OverrideInvert() { invert_override_ = true; }
 
   bool VerifyConnected() override {
     if (!esc_) return false;
@@ -166,9 +167,13 @@ class REVSparkController : public BaseESC<X> {
                                   rev::CANSparkBase::MotorType::kBrushless};
     }
 
+    sleep(1.0);
+
     if (!CheckOK(esc_->RestoreFactoryDefaults(true))) {
       return 1;  // does not configure controller in this case
     }
+
+    sleep(1.0);
 
     /* Setting configs */
 
@@ -185,12 +190,20 @@ class REVSparkController : public BaseESC<X> {
                               // for consistency during autonomous, but the
                               //  can be above 12V for teleop
 
-    esc_->SetInverted(motor_config.invert);
+    sleep(1.0);
+
+    std::cout << "inverting esc "
+              << (invert_override_ ? !motor_config.invert : motor_config.invert)
+              << std::endl;
+    esc_->SetInverted(invert_override_ ? !motor_config.invert
+                                       : motor_config.invert);
 
     CheckOK(esc_->SetIdleMode(
         motor_config.idle_mode == frc846::control::MotorIdleMode::kDefaultCoast
             ? rev::CANSparkBase::IdleMode::kCoast
             : rev::CANSparkBase::IdleMode::kBrake));
+
+    sleep(1.0);
 
     if (motor_config.withRampRate) {
       CheckOK(esc_->SetOpenLoopRampRate(
@@ -199,6 +212,8 @@ class REVSparkController : public BaseESC<X> {
                                 // should use custom motion profiles instead
 
       CheckOK(esc_->SetClosedLoopRampRate(motor_config.rampTime.to<double>()));
+
+      sleep(1.0);
     }
 
     CheckOK(esc_->SetSmartCurrentLimit(
@@ -217,13 +232,19 @@ class REVSparkController : public BaseESC<X> {
                              motor_config.gear_ratio);
     }
 
-    encoder_.emplace(esc_->GetEncoder(
-        rev::SparkRelativeEncoder::EncoderType::kHallSensor, 42));
+    sleep(1.0);
+
+    encoder_.emplace(
+        esc_->GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 42));
     pid_controller_.emplace(esc_->GetPIDController());
 
     RefreshPID(true);
 
+    sleep(1.0);
+
     DisableStatusFrames(data_tags);
+
+    sleep(1.0);
 
     return 0;
   }
@@ -309,6 +330,8 @@ class REVSparkController : public BaseESC<X> {
   std::optional<rev::SparkPIDController> pid_controller_;
 
   frc846::control::REVSparkType controller_type_ = kSparkMAX;
+
+  bool invert_override_;
 
   SimpleCANOpt canopt{};
 };

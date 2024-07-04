@@ -30,7 +30,7 @@ class TalonFXController : public BaseESC<X> {
         esc_{nullptr},
         configurator_{nullptr} {}
 
-  void OverrideInvert(bool invert) override {
+  void OverrideInvert(bool invert) {
     if (!esc_) return;
 
     esc_->SetInverted(invert);
@@ -236,6 +236,8 @@ class TalonFXController : public BaseESC<X> {
     }
 
     esc_ = esc;
+
+    sleep(0.5);
 
     return 0;
   }

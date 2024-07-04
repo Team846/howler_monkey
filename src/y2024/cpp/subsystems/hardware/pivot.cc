@@ -6,33 +6,40 @@
 PivotSubsystem::PivotSubsystem(bool init)
     : frc846::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
   if (init) {
+    std::cout << "WERETR" << config_helper_.getMotorConfig().invert
+              << std::endl;
+    pivot_three_.OverrideInvert();
+    pivot_four_.OverrideInvert();
+
     pivot_one_.Configure(frc846::control::REVSparkType::kSparkFLEX,
-                         {frc846::control::DataTag::kLeader,
+                         {frc846::control::DataTag::kVelocityData,
+                          frc846::control::DataTag::kPositionData});
+    pivot_two_.Configure(frc846::control::REVSparkType::kSparkFLEX,
+                         {frc846::control::DataTag::kVelocityData,
                           frc846::control::DataTag::kPositionData});
     pivot_three_.Configure(frc846::control::REVSparkType::kSparkFLEX,
-                           {frc846::control::DataTag::kLeader,
+                           {frc846::control::DataTag::kVelocityData,
                             frc846::control::DataTag::kPositionData});
-    pivot_two_.Configure(frc846::control::REVSparkType::kSparkFLEX, {});
-    pivot_four_.Configure(frc846::control::REVSparkType::kSparkFLEX, {});
-
-    pivot_three_.OverrideInvert(!config_helper_.getMotorConfig().invert);
+    pivot_four_.Configure(frc846::control::REVSparkType::kSparkFLEX,
+                          {frc846::control::DataTag::kVelocityData,
+                           frc846::control::DataTag::kPositionData});
 
     pivot_one_.ZeroEncoder(pivot_home_offset_.value());
     pivot_two_.ZeroEncoder(pivot_home_offset_.value());
     pivot_three_.ZeroEncoder(pivot_home_offset_.value());
     pivot_four_.ZeroEncoder(pivot_home_offset_.value());
 
-    if (auto esc = pivot_two_.getESC()) {
-      if (auto leader_esc = pivot_one_.getESC()) {
-        esc->Follow(*leader_esc);
-      }
-    }
-    if (auto esc = pivot_four_.getESC()) {
-      if (auto leader_esc = pivot_three_.getESC()) {
-        esc->Follow(*leader_esc);  // Not sure whether to invert or
-                                   // not. TODO: check this.
-      }
-    }
+    // if (auto esc = pivot_two_.getESC()) {
+    //   if (auto leader_esc = pivot_one_.getESC()) {
+    //     esc->Follow(*leader_esc);
+    //   }
+    // }
+    // if (auto esc = pivot_four_.getESC()) {
+    //   if (auto leader_esc = pivot_three_.getESC()) {
+    //     esc->Follow(*leader_esc);  // Not sure whether to invert or
+    //                                // not. TODO: check this.
+    //   }
+    // }
   }
 }
 
@@ -82,12 +89,16 @@ void PivotSubsystem::DirectWrite(PivotTarget target) {
                                      config_helper_.updateAndGetGains());
 
     pivot_one_.WriteDC(output);
+    pivot_two_.WriteDC(output);
     pivot_three_.WriteDC(output);
+    pivot_four_.WriteDC(output);
 
     target_pivot_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.pivot_output)) {
     pivot_one_.WriteDC(*output);
+    pivot_two_.WriteDC(*output);
     pivot_three_.WriteDC(*output);
+    pivot_four_.WriteDC(*output);
 
     target_pivot_duty_cycle_graph.Graph(*output);
   }

@@ -166,10 +166,11 @@ class BaseESC {
   using A = units::ampere_t;  // current
 
  public:
-  virtual void OverrideInvert(
-      bool invert) = 0;  // for systems where using same config helper for 2+
-                         // motors but 1+ of those motors is inverted. ex. 2024
-                         // pivot
+  // virtual void OverrideInvert(
+  //     bool invert) = 0;  // for systems where using same config helper for 2+
+  //                        // motors but 1+ of those motors is inverted. ex.
+  //                        2024
+  //                        // pivot
 
   virtual void SetVoltageCompensationAuton(
       bool auton) = 0;  // to switch between voltage compensation presets for

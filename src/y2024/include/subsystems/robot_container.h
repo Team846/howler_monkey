@@ -24,7 +24,7 @@ class RobotContainer : public frc846::Loggable {
   frc846::Pref<bool> init_intake_{*this, "init_intake", false};
   frc846::Pref<bool> init_shooter_{*this, "init_shooter", false};
   frc846::Pref<bool> init_wrist_{*this, "init_wrist", false};
-  frc846::Pref<bool> init_pivot_{*this, "init_pivot", false};
+  frc846::Pref<bool> init_pivot_{*this, "init_pivot", true};
   frc846::Pref<bool> init_telescope_{*this, "init_telescope", false};
   frc846::Pref<bool> init_leds_{*this, "init_leds", true};
   frc846::Pref<bool> init_bracer_{*this, "init_bracers_", false};
