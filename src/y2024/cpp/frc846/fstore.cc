@@ -226,7 +226,14 @@ void FunkyStore::FP_HardReadPrefs() {
       }
 
       if (tokens.size() == 2) {
-        prefs[tokens[0]] = stringToVariant(tokens[0], tokens[1]);
+        if (prefs.find(tokens.at(0)) == prefs.end()) {
+          // not found
+          // prefs.insert(std::pair<std::string, std::variant<int, double, std::string, bool>>("", ""));
+          prefs.insert({{tokens.at(0), stringToVariant(tokens.at(0), tokens.at(1))}});
+        } else {
+          // found
+          prefs[tokens.at(0)] = stringToVariant(tokens.at(0), tokens.at(1));
+        }
       }
     }
 
