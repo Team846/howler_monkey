@@ -1,5 +1,4 @@
-#ifndef FRC846_TRAJECTORY_GENERATOR_H_
-#define FRC846_TRAJECTORY_GENERATOR_H_
+#pragma once
 
 #include <optional>
 #include <vector>
@@ -33,5 +32,3 @@ Trajectory GenerateTrajectory(
     units::inch_t cut = 6_in);
 
 }  // namespace frc846
-
-#endif  // FRC846_TRAJECTORY_GENERATOR_H_

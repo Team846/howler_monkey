@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_
-#define y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -38,5 +37,3 @@ class PrepareShootCommand
 
   ShootingCalculator shooting_calculator_;
 };
-
-#endif  // y2024_COMMANDS_PREPARE_SHOOT_COMMAND_H_

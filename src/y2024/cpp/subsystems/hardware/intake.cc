@@ -75,7 +75,7 @@ void IntakeSubsystem::DirectWrite(IntakeTarget target) {
 
     target_intaking_speed =
         base_intake_speed_.value() +
-        frc846::util::ShareTables::GetDouble("velocity") * 1_fps;
+        frc846::util::ShareTables::GetDouble("velocity") * 0.33_fps;
     intake_esc_.WriteVelocity(target_intaking_speed);
 
   } else if (target.target_state == kFeed) {

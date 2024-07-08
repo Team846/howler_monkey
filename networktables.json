@@ -2502,5 +2502,21 @@
     "properties": {
       "persistent": true
     }
+  },
+  {
+    "name": "/Preferences/drivetrain/smart_current_braking/smart_current_limit (A)",
+    "type": "double",
+    "value": 170.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/smart_current_braking/braking_p",
+    "type": "double",
+    "value": 0.45,
+    "properties": {
+      "persistent": true
+    }
   }
 ]

@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_BRACER_H_
-#define y2024_SUBSYSTEMS_BRACER_H_
+#pragma once
 
 #include "frc/DigitalInput.h"
 #include "frc/PWM.h"
@@ -46,5 +45,3 @@ class BracerSubsystem : public frc846::Subsystem<BracerReadings, BracerTarget> {
 
   void DirectWrite(BracerTarget target) override;
 };
-
-#endif

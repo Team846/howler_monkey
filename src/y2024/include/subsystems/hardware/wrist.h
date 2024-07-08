@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_WRIST_H_
-#define y2024_SUBSYSTEMS_WRIST_H_
+#pragma once
 
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
@@ -115,5 +114,3 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
       },
       {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
 };
-
-#endif

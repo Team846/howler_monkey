@@ -1,5 +1,4 @@
-#ifndef FRC846_SENDABLE_CALLBACK_H_
-#define FRC846_SENDABLE_CALLBACK_H_
+#pragma once
 
 #include <wpi/sendable/Sendable.h>
 
@@ -21,6 +20,4 @@ class SendableCallback : public wpi::Sendable {
   std::function<void()> callback_;
 };
 
-}  // namespace frc846
-
-#endif  // FRC846_SENDABLE_CALLBACK_H_
+}  // namespace frc846::other

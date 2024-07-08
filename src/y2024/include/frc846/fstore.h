@@ -1,5 +1,4 @@
-#ifndef frcLib846_NCPROT_H_
-#define frcLib846_NCPROT_H_
+#pragma once
 
 #include <fcntl.h>
 #include <fmt/core.h>
@@ -100,5 +99,3 @@ class FPointer {
 };
 
 }  // namespace frc846
-
-#endif

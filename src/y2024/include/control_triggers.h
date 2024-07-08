@@ -1,5 +1,4 @@
-#ifndef CONTROL_TRIGGERS_H_
-#define CONTROL_TRIGGERS_H_
+#pragma once
 
 #include "subsystems/robot_container.h"
 
@@ -7,5 +6,3 @@ class ControlTriggerInitializer {
  public:
   static void InitTeleopTriggers(RobotContainer& container);
 };
-
-#endif

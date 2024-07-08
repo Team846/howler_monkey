@@ -1,5 +1,4 @@
-#ifndef FRC846_ESC_CONTROL_H_
-#define FRC846_ESC_CONTROL_H_
+#pragma once
 
 #include "control_ctre.h"
 #include "control_rev.h"
@@ -9,5 +8,3 @@
  * in this file. Does not serve same purpose as control.h in earlier code
  * versions.
  */
-
-#endif

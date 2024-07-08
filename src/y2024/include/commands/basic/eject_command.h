@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_EJECT_COMMAND_H_
-#define y2024_COMMANDS_EJECT_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -26,5 +25,3 @@ class EjectCommand : public frc2::CommandHelper<frc2::Command, EjectCommand>,
 
   bool is_done_ = false;
 };
-
-#endif  // y2024_COMMANDS_EJECT_COMMAND_H_

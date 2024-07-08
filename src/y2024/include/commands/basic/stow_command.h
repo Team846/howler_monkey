@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_STOW_COMMAND_H_
-#define y2024_COMMANDS_STOW_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -30,5 +29,3 @@ class StowCommand : public frc2::CommandHelper<frc2::Command, StowCommand>,
   ShooterSubsystem& shooter_;
   SuperStructureSubsystem& super_;
 };
-
-#endif  // y2024_COMMANDS_STOW_COMMAND_H_

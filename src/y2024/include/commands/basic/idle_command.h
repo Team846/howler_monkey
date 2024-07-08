@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_IDLE_COMMAND_H_
-#define y2024_COMMANDS_IDLE_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -29,5 +28,3 @@ class IdleCommand : public frc2::CommandHelper<frc2::Command, IdleCommand>,
 
   bool is_done_ = false;
 };
-
-#endif  // y2024_COMMANDS_IDLE_COMMAND_H_

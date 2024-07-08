@@ -1,5 +1,4 @@
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#pragma once
 
 #include <utility>
 
@@ -280,5 +279,3 @@ class TrapCalculator {
     return toReturn;
   }
 };
-
-#endif

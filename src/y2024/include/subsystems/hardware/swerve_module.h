@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_SWERVE_MODULE_H_
-#define y2024_SUBSYSTEMS_SWERVE_MODULE_H_
+#pragma once
 
 #include <rev/CANSparkMax.h>
 #include <units/angle.h>
@@ -44,10 +43,8 @@ class SwerveModuleSubsystem
                         frc846::control::ConfigHelper* drive_esc_config_helper,
                         frc846::control::ConfigHelper* steer_esc_config_helper,
                         int drive_esc_id, int steer_esc_id, int cancoder_id,
-                        frc846::Pref<units::ampere_t>& current_limit,
-                        frc846::Pref<units::ampere_t>& motor_stall_current,
-                        frc846::Pref<double>& braking_constant,
-                        frc846::Pref<units::feet_per_second_t>& max_speed);
+                        frc846::Pref<units::feet_per_second_t>& max_speed,
+                        frc846::motion::CurrentControl& current_control);
 
   // Calculate the normalized target angle for the module to minimize rotations.
   // Returns the normalized direction and whether or not the drive motor should
@@ -109,25 +106,13 @@ class SwerveModuleSubsystem
 
   ctre::CANcoder cancoder_;
 
-  frc846::Pref<units::ampere_t>& current_limit_;
-  frc846::Pref<units::ampere_t>& motor_stall_current_;
-
-  frc846::Pref<double>& braking_constant_;
-
   frc846::Pref<units::feet_per_second_t>& max_speed_;
+
+  frc846::motion::CurrentControl& current_control_;
 
   SwerveModuleReadings GetNewReadings() override;
 
   void DirectWrite(SwerveModuleTarget target) override;
 
   SwerveModuleTarget last_target{};
-
-  frc846::Loggable current_braking_loggable{*this, "smart_current_braking"};
-
-  frc846::motion::CurrentControl current_braking{
-      current_braking_loggable,
-      {120_A, frc846::control::DefaultSpecifications::stall_current_kraken,
-       0.3}};
 };
-
-#endif  // y2024_SUBSYSTEMS_SWERVE_MODULE_H_

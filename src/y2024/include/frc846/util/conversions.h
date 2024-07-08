@@ -1,5 +1,4 @@
-#ifndef FRC846_CONVERSIONS_H_
-#define FRC846_CONVERSIONS_H_
+#pragma once
 
 #include <units/angle.h>
 #include <units/dimensionless.h>
@@ -65,9 +64,7 @@ class Converter {
     return RealToNativePosition(real * native_period_);
   }
 
-  void ChangeConversion(X x) {
-    x_= x;
-  }
+  void ChangeConversion(X x) { x_ = x; }
 
  private:
   const units::second_t native_period_;
@@ -75,6 +72,4 @@ class Converter {
   X x_;
 };
 
-}  // namespace frc846
-
-#endif  // FRC846_CONVERSIONS_H_
+}  // namespace frc846::util

@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_OPERATOR_H_
-#define y2024_SUBSYSTEMS_OPERATOR_H_
+#pragma once
 
 #include "frc846/other/xbox.h"
 #include "frc846/subsystem.h"
@@ -38,5 +37,3 @@ class OperatorSubsystem
 
   void DirectWrite(OperatorTarget target) override;
 };
-
-#endif  // y2024_SUBSYSTEMS_Dawg_H_

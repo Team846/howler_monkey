@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_SOURCE_COMMAND_H_
-#define y2024_COMMANDS_SOURCE_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -29,5 +28,3 @@ class SourceCommand : public frc2::CommandHelper<frc2::Command, SourceCommand>,
   SuperStructureSubsystem& super_;
   IntakeSubsystem& intake_;
 };
-
-#endif  // y2024_COMMANDS_SOURCE_COMMAND_H_

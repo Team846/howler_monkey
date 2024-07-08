@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_SHOOTER_H_
-#define y2024_SUBSYSTEMS_SHOOTER_H_
+#pragma once
 
 #include "frc/AnalogInput.h"
 #include "frc/AnalogTrigger.h"
@@ -92,5 +91,3 @@ class ShooterSubsystem
       {35_A, frc846::control::DefaultSpecifications::stall_current_vortex,
        0.3}};
 };
-
-#endif

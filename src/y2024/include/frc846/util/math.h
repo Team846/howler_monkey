@@ -1,5 +1,4 @@
-#ifndef FRC846_MATH_H_
-#define FRC846_MATH_H_
+#pragma once
 
 #include <units/angle.h>
 #include <units/constants.h>
@@ -167,5 +166,3 @@ class FieldPoint {
 };
 
 }  // namespace frc846::util
-
-#endif  // FRC846_MATH_H_

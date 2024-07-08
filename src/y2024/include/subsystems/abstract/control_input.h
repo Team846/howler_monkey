@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_CONTROL_INPUT_H_
-#define y2024_SUBSYSTEMS_CONTROL_INPUT_H_
+#pragma once
 
 #include "frc846/subsystem.h"
 #include "subsystems/abstract/driver.h"
@@ -50,5 +49,3 @@ class ControlInputSubsystem
 
   void DirectWrite(ControlInputTarget target) override;
 };
-
-#endif  // y2024_SUBSYSTEMS_CONTROL_INPUT_H_

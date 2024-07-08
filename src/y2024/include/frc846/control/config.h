@@ -1,5 +1,4 @@
-#ifndef CONTROL_CONFIG_H_
-#define CONTROL_CONFIG_H_
+#pragma once
 
 #include <units/angular_velocity.h>
 #include <units/current.h>
@@ -216,7 +215,7 @@ class ConfigHelper {
   MotorConfig getMotorConfig() { return motor_config_.get(); };
 
  private:
-  bool deq(double a, double b) { return std::abs(a - b) <= 0.01; }
+  bool deq(double a, double b) { return std::abs(a - b) <= 0.000002; }
 
   Loggable& parent_;
   MotorConfigPrefs motor_config_;
@@ -226,5 +225,3 @@ class ConfigHelper {
 };
 
 }  // namespace frc846::control
-
-#endif

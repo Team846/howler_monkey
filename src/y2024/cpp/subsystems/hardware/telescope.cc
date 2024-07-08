@@ -8,6 +8,8 @@ TelescopeSubsystem::TelescopeSubsystem(bool init)
   if (init) {
     telescope_esc_.Configure(frc846::control::REVSparkType::kSparkMAX,
                              {frc846::control::DataTag::kPositionData});
+
+    telescope_esc_.ZeroEncoder(0.0_in);
   }
 }
 

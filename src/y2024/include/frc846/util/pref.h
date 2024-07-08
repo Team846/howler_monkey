@@ -1,5 +1,4 @@
-#ifndef FRC846_PREF_H_
-#define FRC846_PREF_H_
+#pragma once
 
 #include <networktables/NetworkTableInstance.h>
 #include <units/base.h>
@@ -177,5 +176,3 @@ inline Pref<std::string>::Pref(const frc846::Loggable& parent, std::string name,
 // Subsystem, Event loop, gains, safeties, offloaded output vals, etc
 
 }  // namespace frc846
-
-#endif  // FRC846_PREF_H_

@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_CONTROL_INPUT_COMMAND_H_
-#define y2024_COMMANDS_CONTROL_INPUT_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -28,5 +27,3 @@ class ControlInputCommand
 
   ControlInputReadings ci_readings_;
 };
-
-#endif  // y2024_COMMANDS_CONTROL_INPUT_COMMAND_H_

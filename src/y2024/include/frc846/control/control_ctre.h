@@ -1,5 +1,4 @@
-#ifndef FRC846_CTRE_CONTROL_H_
-#define FRC846_CTRE_CONTROL_H_
+#pragma once
 
 #include "controlbase.h"
 #include "units/math.h"
@@ -216,9 +215,12 @@ class TalonFXController : public BaseESC<X> {
     deviceConfigs.WithSlot0(pidConfs);
 
     configurator_ = &esc->GetConfigurator();
-    CheckOK(configurator_->Apply(deviceConfigs));
+    this->Q(parent_,
+            [&]() { return CheckOK(configurator_->Apply(deviceConfigs)); });
 
-    CheckOK(esc->OptimizeBusUtilization(30_ms));
+    this->Q(parent_, [&]() {
+      return CheckOK(esc->OptimizeBusUtilization(1_ms * DNC::CANTimeout));
+    });
 
     if (std::find(data_tags.begin(), data_tags.end(), DataTag::kVelocityData) !=
         data_tags.end()) {
@@ -237,7 +239,7 @@ class TalonFXController : public BaseESC<X> {
 
     esc_ = esc;
 
-    sleep(0.5);
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
     return 0;
   }
@@ -267,5 +269,3 @@ class TalonFXController : public BaseESC<X> {
   SimpleCANOpt canopt{};
 };
 };  // namespace frc846::control
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef y2024_FUNKY_ROBOT_H_
-#define y2024_FUNKY_ROBOT_H_
+#pragma once
 
 #include <frc/DriverStation.h>
 #include <frc/RobotBase.h>
@@ -100,5 +99,3 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
 
   int coast_counter_ = 0;
 };
-
-#endif  // y2024_FUNKY_ROBOT_H_

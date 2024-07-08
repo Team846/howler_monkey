@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_SPEAKER_TRAJECTORY_COMMAND_H_
-#define y2024_COMMANDS_SPEAKER_TRAJECTORY_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -42,5 +41,3 @@ class SpeakerTrajectoryCommand
       frc846::util::Vector2D<units::foot_t> pos,
       frc846::util::Vector2D<units::foot_t> test_target);
 };
-
-#endif  // y2024_COMMANDS_SPEAKER_TRAJECTORY_COMMAND_H_

@@ -1,5 +1,4 @@
-#ifndef FRC846_XBOX_H_
-#define FRC846_XBOX_H_
+#pragma once
 
 #include <frc/XboxController.h>
 
@@ -43,5 +42,3 @@ struct XboxReadings {
 };
 
 }  // namespace frc846
-
-#endif  // FRC846_XBOX_H_

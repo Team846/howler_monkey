@@ -1,5 +1,4 @@
-#ifndef FRC846_LOGGABLE_H_
-#define FRC846_LOGGABLE_H_
+#pragma once
 
 #include <networktables/NetworkTableInstance.h>
 #include <units/base.h>
@@ -55,5 +54,3 @@ class Loggable {
   frc846::Logger logger;
 };
 }  // namespace frc846
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef FRC846_SWERVE_ODOMETRY_H_
-#define FRC846_SWERVE_ODOMETRY_H_
+#pragma once
 
 #include <array>
 
@@ -31,5 +30,3 @@ class SwerveOdometry {
 };
 
 }  // namespace frc846
-
-#endif  // FRC846_SWERVE_ODOMETRY_H_

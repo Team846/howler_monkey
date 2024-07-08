@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_SHOOT_COMMAND_H_
-#define y2024_COMMANDS_SHOOT_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -25,5 +24,3 @@ class ShootCommand : public frc2::CommandHelper<frc2::Command, ShootCommand>,
   IntakeSubsystem& intake_;
   ShooterSubsystem& shooter_;
 };
-
-#endif  // y2024_COMMANDS_SHOOT_COMMAND_H_

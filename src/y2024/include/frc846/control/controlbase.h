@@ -1,15 +1,17 @@
-#ifndef FRC846_CONTROLBASE_H_
-#define FRC846_CONTROLBASE_H_
+#pragma once
 
 #include <rev/CANSparkFlex.h>
 #include <rev/CANSparkMax.h>
 #include <units/current.h>
 
 #include <algorithm>
+#include <chrono>
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <initializer_list>
+#include <thread>
 #include <variant>
 
+#include "frc/RobotController.h"
 #include "frc846/control/config.h"
 #include "frc846/ctre_namespace.h"
 #include "frc846/loggable.h"
@@ -18,6 +20,17 @@
 FRC846_CTRE_NAMESPACE()
 
 namespace frc846::control {
+
+struct DNC {
+  static constexpr double CANTimeout = 50.0;  // ms
+
+  static constexpr int numRetries = 5;
+  static constexpr int maxQWaitLoops = 50;
+
+  static constexpr int QTimeWait = 100;  // ms
+
+  static constexpr double QMaxCANUtil = 0.6;  // frac
+};
 
 class ErrorParsing {
  public:
@@ -195,8 +208,33 @@ class BaseESC {
   virtual bool GetInverted() = 0;
 
   virtual units::ampere_t GetCurrent() = 0;
+
+ protected:
+  void Q(Loggable& lg, std::function<bool()> f) {
+    int numLoops = 0;
+    do {
+      numLoops++;
+      std::this_thread::sleep_for(std::chrono::milliseconds(DNC::QTimeWait));
+
+      if (numLoops >= DNC::maxQWaitLoops) {
+        lg.Warn("Exited Config Q Early. Continuously high CAN bus usage.");
+        break;
+      }
+    } while (frc::RobotController::GetCANStatus().percentBusUtilization >=
+             DNC::QMaxCANUtil);
+
+    for (int i = 0; i < DNC::numRetries; i++) {
+      if (f()) {
+        if (i != 0) {
+          lg.Warn("Config required {} retries.", i + 1);
+        }
+        return;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    lg.Error("Configuration may not have been set. Errored {}/{} times.",
+             DNC::numRetries, DNC::numRetries);
+  }
 };
 
 };  // namespace frc846::control
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef FRC846_SEQUENCER_H_
-#define FRC846_SEQUENCER_H_
+#pragma once
 
 #include <functional>
 #include <initializer_list>
@@ -14,7 +13,7 @@ using Sequence = std::vector<SequenceSegment>;
 
 class Sequencer : Loggable {
  public:
-  Sequencer(std::string name) : Loggable(name){};
+  Sequencer(std::string name) : Loggable(name) {};
 
   void execute(std::string sequence_id, Sequence sequence,
                int forcedStage = -1) {
@@ -109,5 +108,3 @@ class Sequencer : Loggable {
 };
 
 };  // namespace frc846::control
-
-#endif

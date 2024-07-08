@@ -10,10 +10,8 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
     frc846::control::ConfigHelper* drive_esc_config_helper,
     frc846::control::ConfigHelper* steer_esc_config_helper, int drive_esc_id,
     int steer_esc_id, int cancoder_id,
-    frc846::Pref<units::ampere_t>& current_limit,
-    frc846::Pref<units::ampere_t>& motor_stall_current,
-    frc846::Pref<double>& braking_constant,
-    frc846::Pref<units::feet_per_second_t>& max_speed)
+    frc846::Pref<units::feet_per_second_t>& max_speed,
+    frc846::motion::CurrentControl& current_control)
     : frc846::Subsystem<SwerveModuleReadings, SwerveModuleTarget>{drivetrain,
                                                                   "module_" +
                                                                       location,
@@ -24,10 +22,8 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
       steer_esc_helper_{*this, steer_esc_id, *steer_esc_config_helper,
                         disabled_hard_limits_steer_},
       cancoder_{cancoder_id},
-      current_limit_{current_limit},
-      motor_stall_current_{motor_stall_current},
-      braking_constant_{braking_constant},
-      max_speed_{max_speed} {
+      max_speed_{max_speed},
+      current_control_{current_control} {
   drive_esc_helper_.Configure({frc846::control::DataTag::kPositionData,
                                frc846::control::DataTag::kVelocityData});
   steer_esc_helper_.Configure({frc846::control::DataTag::kPositionData});
@@ -175,7 +171,7 @@ void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
 
     drive_output = target_velocity / max_speed_.value();
 
-    drive_output = current_braking.calculate(
+    drive_output = current_control_.calculate(
         drive_esc_helper_.GetVelocityPercentage(), drive_output);
 
     drive_esc_helper_.WriteDC(drive_output);

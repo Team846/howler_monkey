@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_DRIVER_H_
-#define y2024_SUBSYSTEMS_DRIVER_H_
+#pragma once
 
 #include "frc846/other/xbox.h"
 #include "frc846/subsystem.h"
@@ -44,5 +43,3 @@ class DriverSubsystem : public frc846::Subsystem<DriverReadings, DriverTarget> {
 
   void DirectWrite(DriverTarget target) override;
 };
-
-#endif  // y2024_SUBSYSTEMS_DRIVER_H_

@@ -1,5 +1,4 @@
-#ifndef FRC846_REV_CONTROL_H_
-#define FRC846_REV_CONTROL_H_
+#pragma once
 
 #include <chrono>
 #include <thread>
@@ -47,6 +46,14 @@ class REVSparkController : public BaseESC<X> {
 
   void WriteDC(double output) override {
     if (pid_controller_.has_value()) {
+      if (hard_limits_.get().usingPositionLimits) {
+        if (GetPosition() >= hard_limits_.get().forward) {
+          output = std::min(output, 0.0);
+        } else if (GetPosition() <= hard_limits_.get().reverse) {
+          output = std::max(output, 0.0);
+        }
+      }
+
       if (!canopt.check(SimpleCANOpt::duty_cycle_type, output)) return;
 
       canopt.registerSuccess(CheckOK(pid_controller_.value().SetReference(
@@ -59,6 +66,14 @@ class REVSparkController : public BaseESC<X> {
   void WriteVelocity(V output) override {
     if (pid_controller_.has_value()) {
       RefreshPID();
+
+      if (hard_limits_.get().usingPositionLimits) {
+        if (GetPosition() >= hard_limits_.get().forward) {
+          output = units::math::min(output, units::make_unit<V>(0.0));
+        } else if (GetPosition() <= hard_limits_.get().reverse) {
+          output = units::math::max(output, units::make_unit<V>(0.0));
+        }
+      }
 
       if (!canopt.check(SimpleCANOpt::velocity_type,
                         output.template to<double>()))
@@ -81,6 +96,12 @@ class REVSparkController : public BaseESC<X> {
       if (!canopt.check(SimpleCANOpt::position_type,
                         output.template to<double>()))
         return;
+
+      if (hard_limits_.get().usingPositionLimits) {
+        output = units::math::max(
+            units::math::min(output, hard_limits_.get().forward),
+            hard_limits_.get().reverse);
+      }
 
       // DO NOT USE REV SMART MOTION
       canopt.registerSuccess(CheckOK(pid_controller_.value().SetReference(
@@ -159,6 +180,8 @@ class REVSparkController : public BaseESC<X> {
   int Configure(REVSparkType controller_type, std::vector<DataTag> data_tags) {
     controller_type_ = controller_type;
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(350));
+
     if (controller_type == REVSparkType::kSparkFLEX) {
       esc_ = new rev::CANSparkFlex{canID_,
                                    rev::CANSparkBase::MotorType::kBrushless};
@@ -167,72 +190,74 @@ class REVSparkController : public BaseESC<X> {
                                   rev::CANSparkBase::MotorType::kBrushless};
     }
 
-    sleep(1.0);
+    std::this_thread::sleep_for(std::chrono::milliseconds(30));
 
-    if (!CheckOK(esc_->RestoreFactoryDefaults(true))) {
-      return 1;  // does not configure controller in this case
+    if (!CheckOK(esc_->SetCANTimeout(DNC::CANTimeout))) {
+      parent_.Error("NOT configuring controller");
+      // return 1;  // does not configure
+      //  controller in this case
     }
-
-    sleep(1.0);
 
     /* Setting configs */
 
-    CheckOK(
-        esc_->SetCANTimeout(30.0));  // If this  is higher, issues on CAN
-                                     // bus can cause much worse loop overruns
+    this->Q(parent_,
+            [&]() { return CheckOK(esc_->RestoreFactoryDefaults(true)); });
 
     auto motor_config = config_helper_.getMotorConfig();
 
-    CheckOK(esc_->EnableVoltageCompensation(
-        motor_config.auton_voltage_compensation
-            .to<double>()));  // voltage compensation sets the maximum voltage
-                              // that the controller will output. 10-12V is good
-                              // for consistency during autonomous, but the
-                              //  can be above 12V for teleop
+    this->Q(parent_, [&]() {
+      return CheckOK(esc_->EnableVoltageCompensation(
+          motor_config.auton_voltage_compensation.to<double>()));
+    });  // voltage compensation sets the maximum voltage
+         // that the controller will output. 10-12V is good
+         // for consistency during autonomous, but the
+         //  can be above 12V for teleop
 
-    sleep(1.0);
-
-    std::cout << "inverting esc "
-              << (invert_override_ ? !motor_config.invert : motor_config.invert)
-              << std::endl;
     esc_->SetInverted(invert_override_ ? !motor_config.invert
                                        : motor_config.invert);
 
-    CheckOK(esc_->SetIdleMode(
-        motor_config.idle_mode == frc846::control::MotorIdleMode::kDefaultCoast
-            ? rev::CANSparkBase::IdleMode::kCoast
-            : rev::CANSparkBase::IdleMode::kBrake));
+    this->Q(parent_, [&]() {
+      return CheckOK(esc_->SetIdleMode(
+          motor_config.idle_mode ==
+                  frc846::control::MotorIdleMode::kDefaultCoast
+              ? rev::CANSparkBase::IdleMode::kCoast
+              : rev::CANSparkBase::IdleMode::kBrake));
+    });
 
-    sleep(1.0);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     if (motor_config.withRampRate) {
-      CheckOK(esc_->SetOpenLoopRampRate(
-          motor_config.rampTime
-              .to<double>()));  // if our can bus isn't overloaded, we
-                                // should use custom motion profiles instead
+      this->Q(parent_, [&]() {
+        return CheckOK(esc_->SetOpenLoopRampRate(
+                   motor_config.rampTime.to<
+                       double>()))  // if our can bus isn't overloaded, we
+                                    // should use custom motion profiles instead
 
-      CheckOK(esc_->SetClosedLoopRampRate(motor_config.rampTime.to<double>()));
-
-      sleep(1.0);
+               && CheckOK(esc_->SetClosedLoopRampRate(
+                      motor_config.rampTime.to<double>()));
+      });
     }
 
-    CheckOK(esc_->SetSmartCurrentLimit(
-        motor_config.current_limiting.target_threshold
-            .to<double>()));  // REV current limit uses PID to control
-                              // current if it exceeds output. Reactive
-                              // system. Happens on board controller at high
-                              // rate.
+    this->Q(parent_, [&]() {
+      return CheckOK(esc_->SetSmartCurrentLimit(
+          motor_config.current_limiting.target_threshold.to<double>()));
+    });  // REV current limit uses PID to control
+         // current if it exceeds output. Reactive
+         // system. Happens on board controller at high
+         // rate.
 
     if (hard_limits_.get().usingPositionLimits) {  // position limiting
-      esc_->SetSoftLimit(rev::CANSparkBase::SoftLimitDirection::kForward,
-                         hard_limits_.get().forward.template to<double>() /
-                             motor_config.gear_ratio);
-      esc_->SetSoftLimit(rev::CANSparkBase::SoftLimitDirection::kReverse,
-                         hard_limits_.get().reverse.template to<double>() /
-                             motor_config.gear_ratio);
+      this->Q(parent_, [&]() {
+        return CheckOK(esc_->SetSoftLimit(
+                   rev::CANSparkBase::SoftLimitDirection::kForward,
+                   hard_limits_.get().forward.template to<double>() /
+                       motor_config.gear_ratio)) &&
+               CheckOK(esc_->SetSoftLimit(
+                   rev::CANSparkBase::SoftLimitDirection::kReverse,
+                   hard_limits_.get().reverse.template to<double>() /
+                       motor_config.gear_ratio));
+      });
     }
-
-    sleep(1.0);
 
     encoder_.emplace(
         esc_->GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 42));
@@ -240,11 +265,11 @@ class REVSparkController : public BaseESC<X> {
 
     RefreshPID(true);
 
-    sleep(1.0);
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
 
     DisableStatusFrames(data_tags);
 
-    sleep(1.0);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     return 0;
   }
@@ -336,5 +361,3 @@ class REVSparkController : public BaseESC<X> {
   SimpleCANOpt canopt{};
 };
 };  // namespace frc846::control
-
-#endif

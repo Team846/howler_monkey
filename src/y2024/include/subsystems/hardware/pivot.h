@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_ARM_H_
-#define y2024_SUBSYSTEMS_ARM_H_
+#pragma once
 
 #include "frc/filter/SlewRateLimiter.h"
 #include "frc/trajectory/TrapezoidProfile.h"
@@ -133,5 +132,3 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
       },
       {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
 };
-
-#endif

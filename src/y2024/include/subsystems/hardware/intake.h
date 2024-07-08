@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_INTAKE_H_
-#define y2024_SUBSYSTEMS_INTAKE_H_
+#pragma once
 
 // #include "frc/AnalogInput.h"
 // #include "frc/AnalogTrigger.h"
@@ -65,7 +64,7 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
   frc846::control::ConfigHelper config_helper_{
       *this,
       {false,
-       (1.75 / 12.0) * 3.14159265,
+       (1.5 / 12.0) * 3.14159265 * 15.0 / 50.0,
        frc846::control::MotorIdleMode::kDefaultBrake,
        {40_A}},
       {0.05, 0.00, 0.15}};
@@ -83,5 +82,3 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
 
   void DirectWrite(IntakeTarget target) override;
 };
-
-#endif

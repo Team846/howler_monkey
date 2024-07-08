@@ -1,5 +1,4 @@
-#ifndef Y2024_SUBSYSTEMS_LEDS_H_
-#define Y2024_SUBSYSTEMS_LEDS_H_
+#pragma once
 
 #include <frc/AddressableLED.h>
 
@@ -60,5 +59,3 @@ class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
 
   void DirectWrite(LEDsTarget target) override;
 };
-
-#endif

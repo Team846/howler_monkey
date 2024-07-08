@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_DEPLOY_INTAKE_COMMAND_H_
-#define y2024_COMMANDS_DEPLOY_INTAKE_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -31,5 +30,3 @@ class DeployIntakeCommand
   ShooterSubsystem& shooter_;
   SuperStructureSubsystem& super_;
 };
-
-#endif  // y2024_COMMANDS_DEPLOY_INTAKE_COMMAND_H_

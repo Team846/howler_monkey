@@ -6,8 +6,6 @@
 PivotSubsystem::PivotSubsystem(bool init)
     : frc846::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
   if (init) {
-    std::cout << "WERETR" << config_helper_.getMotorConfig().invert
-              << std::endl;
     pivot_three_.OverrideInvert();
     pivot_four_.OverrideInvert();
 
@@ -45,7 +43,7 @@ PivotSubsystem::PivotSubsystem(bool init)
 
 PivotTarget PivotSubsystem::ZeroTarget() const {
   PivotTarget target;
-  target.pivot_output = 0.0;
+  target.pivot_output = pivot_home_offset_.value();
   return target;
 }
 

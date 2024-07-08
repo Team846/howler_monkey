@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_DRIVE_COMMAND_H_
-#define y2024_COMMANDS_DRIVE_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -30,5 +29,3 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
 
   double driver_adjust_ = 0.0;
 };
-
-#endif  // y2024_COMMANDS_DRIVE_COMMAND_H_

@@ -1,5 +1,4 @@
-#ifndef Y2024_COMMANDS_AUTO_INTAKE_AND_SHOOT_COMMAND_H_
-#define Y2024_COMMANDS_AUTO_INTAKE_AND_SHOOT_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SequentialCommandGroup.h>
@@ -11,5 +10,3 @@
 frc2::SequentialCommandGroup AutoIntakeAndShootCommand(
     RobotContainer& container, frc846::InputWaypoint intake_point,
     frc846::InputWaypoint shoot_point);
-
-#endif  // Y2024_COMMANDS_AUTO_INTAKE_AND_SHOOT_H_

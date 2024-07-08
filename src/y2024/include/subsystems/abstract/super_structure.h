@@ -1,5 +1,4 @@
-#ifndef Y2024_SUBSYSTEMS_SUPER_STRUCTURE_H_
-#define Y2024_SUBSYSTEMS_SUPER_STRUCTURE_H_
+#pragma once
 
 #include "constants.h"
 #include "frc846/control/motion.h"
@@ -104,9 +103,9 @@ class SuperStructureSubsystem
   };
 
   void AdjustSetpoint(PTWSetpoint newAdj) {
-    if (CheckValidAdjustment(newAdj)) {
-      manualAdjustments = manualAdjustments + newAdj;
-    }
+    // if (CheckValidAdjustment(newAdj)) {
+    manualAdjustments = manualAdjustments + newAdj;
+    // }
   }
 
   void ClearAdjustments() {
@@ -185,5 +184,3 @@ class SuperStructureSubsystem
 
   void DirectWrite(SuperStructureTarget target) override;
 };
-
-#endif

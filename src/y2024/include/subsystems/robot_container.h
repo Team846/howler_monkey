@@ -1,5 +1,4 @@
-#ifndef FRC846_SUBSYSTEMS_ROBOT_CONTAINER_H_
-#define FRC846_SUBSYSTEMS_ROBOT_CONTAINER_H_
+#pragma once
 
 #include "frc846/util/pref.h"
 #include "subsystems/abstract/control_input.h"
@@ -49,5 +48,3 @@ class RobotContainer : public frc846::Loggable {
       &shooter_, &wrist_,           &pivot_,         &telescope_,  &leds_,
       &bracer_,  &super_structure_, &vision_};
 };
-
-#endif  // FRC846_SUBSYSTEMS_ROBOT_CONTAINER_H_

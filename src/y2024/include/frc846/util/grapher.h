@@ -1,5 +1,4 @@
-#ifndef FRC846_GRAPHER_H_
-#define FRC846_GRAPHER_H_
+#pragma once
 
 #include <fmt/format.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -60,5 +59,3 @@ template <>
 inline Grapher<std::string>::Grapher(const Loggable& parent, std::string name)
     : Grapher{parent, name, frc::SmartDashboard::PutString} {}
 }  // namespace frc846
-
-#endif  // FRC846_GRAPHER_H_

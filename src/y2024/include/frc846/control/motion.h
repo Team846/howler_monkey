@@ -1,5 +1,4 @@
-#ifndef FRC846_MOTION_H_
-#define FRC846_MOTION_H_
+#pragma once
 
 #include <units/angle.h>
 #include <units/current.h>
@@ -132,100 +131,100 @@ struct GenericMotionWaypoint {
  * TIME CUT trapezoidal motion profile; targets are positions. Does not use
  * WPILib units, allowing it to be used more generally.
  */
-class TrapezoidalMotionProfile {
- public:
-  /*
-   * Standard motion profile. Default time_cut is 0.02 (seconds), loop time for
-   * a 50_Hz loop.
-   */
-  TrapezoidalMotionProfile(double target, double current, double max_vel,
-                           double max_acc, double time_cut = 0.02)
-      : profile{} {
-    sign_ = (target >= current) ? 1 : -1;
+// class TrapezoidalMotionProfile {
+//  public:
+//   /*
+//    * Standard motion profile. Default time_cut is 0.02 (seconds), loop time
+//    for
+//    * a 50_Hz loop.
+//    */
+//   TrapezoidalMotionProfile(double target, double current, double max_vel,
+//                            double max_acc, double time_cut = 0.02)
+//       : profile{} {
+//     sign_ = (target >= current) ? 1 : -1;
 
-    double dist = std::abs(target - current);
+//     double dist = std::abs(target - current);
 
-    std::vector<GenericMotionWaypoint> local_motion{};
-    local_motion.push_back({0.0, 0.0});
+//     std::vector<GenericMotionWaypoint> local_motion{};
+//     local_motion.push_back({0.0, 0.0});
 
-    double half_dist = dist / 2.0;
+//     double half_dist = dist / 2.0;
 
-    double dist_traversed = 0.0;
-    double current_velocity = 0.0;
+//     double dist_traversed = 0.0;
+//     double current_velocity = 0.0;
 
-    double time{time_cut};
-    for (;; time += time_cut) {
-      double next_velocity =
-          std::min(current_velocity + max_acc * time_cut, max_vel);
-      double avg_velocity = (current_velocity + next_velocity) / 2.0;
+//     double time{time_cut};
+//     for (;; time += time_cut) {
+//       double next_velocity =
+//           std::min(current_velocity + max_acc * time_cut, max_vel);
+//       double avg_velocity = (current_velocity + next_velocity) / 2.0;
 
-      dist_traversed += avg_velocity * time_cut;
-      if (dist_traversed >= half_dist) break;
+//       dist_traversed += avg_velocity * time_cut;
+//       if (dist_traversed >= half_dist) break;
 
-      local_motion.push_back({time, dist_traversed});
+//       local_motion.push_back({time, dist_traversed});
 
-      current_velocity = next_velocity;
-    }
+//       current_velocity = next_velocity;
+//     }
 
-    int halfNumPoints = local_motion.size();
-    for (int i = halfNumPoints - 1; i >= 0; i++) {
-      auto w = local_motion.at(i);
+//     int halfNumPoints = local_motion.size();
+//     for (int i = halfNumPoints - 1; i >= 0; i++) {
+//       auto w = local_motion.at(i);
 
-      local_motion.push_back({time * 2 - w.time, dist - w.position});
-    }
+//       local_motion.push_back({time * 2 - w.time, dist - w.position});
+//     }
 
-    for (auto w : local_motion) {
-      profile.push_back({w.time, w.position * sign_ + current});
-    }
-  }
+//     for (auto w : local_motion) {
+//       profile.push_back({w.time, w.position * sign_ + current});
+//     }
+//   }
 
-  /*
-   * Finds time associated with current position. Adds time_step. Interpolates
-   * using closest two waypoints in profile to find next target position.
-   *
-   * Time step is in seconds.
-   */
-  double getNextTarget(double current, double time_step = 0.02) {
-    if (profile.size() <= 4) return current;
+//   /*
+//    * Finds time associated with current position. Adds time_step.
+//    Interpolates
+//    * using closest two waypoints in profile to find next target position.
+//    *
+//    * Time step is in seconds.
+//    */
+//   double getNextTarget(double current, double time_step = 0.02) {
+//     if (profile.size() <= 4) return current;
 
-    GenericMotionWaypoint closest_above{-1.0, 0.0};
+//     GenericMotionWaypoint closest_above{-1.0, 0.0};
 
-    int index_found_at = -1;
-    for (int i = 0; i < profile.size(); i++) {
-      auto w = profile.at(i);
-      if ((sign_ == 1 && w.position >= current) ||
-          (sign_ == -1 && w.position <= current)) {
-        closest_above = w;
-        index_found_at = i;
-      }
-    }
+//     int index_found_at = -1;
+//     for (int i = 0; i < profile.size(); i++) {
+//       auto w = profile.at(i);
+//       if ((sign_ == 1 && w.position >= current) ||
+//           (sign_ == -1 && w.position <= current)) {
+//         closest_above = w;
+//         index_found_at = i;
+//       }
+//     }
 
-    if (index_found_at != -1) return profile.at(profile.size() - 1).position;
+//     if (index_found_at != -1) return profile.at(profile.size() - 1).position;
 
-    double time_found_at = closest_above.time;
+//     double time_found_at = closest_above.time;
 
-    if (index_found_at != 0) {
-      auto closest_beneath = profile.at(index_found_at - 1);
+//     if (index_found_at != 0) {
+//       auto closest_beneath = profile.at(index_found_at - 1);
 
-      time_found_at =
-          closest_beneath.time +
-          (closest_above.time - closest_beneath.time) *
-              (std::abs(current - closest_beneath.position)) /
-              (std::abs(closest_above.position - closest_beneath.position));
-    }
+//       time_found_at =
+//           closest_beneath.time +
+//           (closest_above.time - closest_beneath.time) *
+//               (std::abs(current - closest_beneath.position)) /
+//               (std::abs(closest_above.position - closest_beneath.position));
+//     }
 
-    double next_target_time = time_found_at + time_step;
+//     double next_target_time = time_found_at + time_step;
 
-    // TODO: reverse interpolation process (time -> dist)
+//     // TODO: reverse interpolation process (time -> dist)
 
-    return 0.0;
-  }
+//     return 0.0;
+//   }
 
- private:
-  std::vector<GenericMotionWaypoint> profile;
-  int sign_ = 1;
-};
+//  private:
+//   std::vector<GenericMotionWaypoint> profile;
+//   int sign_ = 1;
+// };
 
 }  // namespace frc846::motion
-
-#endif  // FRC846_MOTION_H_

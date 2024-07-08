@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_DRIVETRAIN_H_
-#define y2024_SUBSYSTEMS_DRIVETRAIN_H_
+#pragma once
 
 #include <AHRS.h>
 #include <frc/smartdashboard/Field2d.h>
@@ -218,24 +217,32 @@ class DrivetrainSubsystem
   frc846::Loggable steer_esc_loggable_{*this, "steer_esc"};
   frc::Field2d m_field;
 
+  
   frc846::control::ConfigHelper drive_config_helper_{
-      *this,
+      drive_esc_loggable_,
       {false,
        (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) *
-           frc846::util::Circumference(wheel_radius_.value()).to<double>(),
+           frc846::util::Circumference(wheel_radius_.value()).to<double>() / 12.0,
        frc846::control::MotorIdleMode::kDefaultBrake,
        {80_A}},
       {0.0002, 0.0, 0.0001769},
   };
 
   frc846::control::ConfigHelper steer_config_helper_{
-      *this,
+      steer_esc_loggable_,
       {false,
        (7.0 / 150.0) * 360.0,
        frc846::control::MotorIdleMode::kDefaultCoast,
        {40_A}},
       {0.12, 0.0},
   };
+
+  frc846::Loggable current_braking_loggable{*this, "smart_current_braking"};
+
+  frc846::motion::CurrentControl current_braking{
+      current_braking_loggable,
+      {170_A, frc846::control::DefaultSpecifications::stall_current_kraken,
+    0.45}};
 
   SwerveModuleSubsystem module_fl_{
       *this,
@@ -247,10 +254,8 @@ class DrivetrainSubsystem
       ports::drivetrain_::kFLDrive_CANID,
       ports::drivetrain_::kFLSteer_CANID,
       ports::drivetrain_::kFLCANCoder_CANID,
-      current_limit_,
-      motor_stall_current_,
-      braking_constant_,
       max_speed_,
+      current_braking,
   };
 
   SwerveModuleSubsystem module_fr_{
@@ -263,10 +268,8 @@ class DrivetrainSubsystem
       ports::drivetrain_::kFRDrive_CANID,
       ports::drivetrain_::kFRSteer_CANID,
       ports::drivetrain_::kFRCANCoder_CANID,
-      current_limit_,
-      motor_stall_current_,
-      braking_constant_,
       max_speed_,
+      current_braking,
   };
 
   SwerveModuleSubsystem module_bl_{
@@ -279,10 +282,8 @@ class DrivetrainSubsystem
       ports::drivetrain_::kBLDrive_CANID,
       ports::drivetrain_::kBLSteer_CANID,
       ports::drivetrain_::kBLCANCoder_CANID,
-      current_limit_,
-      motor_stall_current_,
-      braking_constant_,
       max_speed_,
+      current_braking,
   };
 
   SwerveModuleSubsystem module_br_{
@@ -295,10 +296,8 @@ class DrivetrainSubsystem
       ports::drivetrain_::kBRDrive_CANID,
       ports::drivetrain_::kBRSteer_CANID,
       ports::drivetrain_::kBRCANCoder_CANID,
-      current_limit_,
-      motor_stall_current_,
-      braking_constant_,
       max_speed_,
+      current_braking,
   };
 
   SwerveModuleSubsystem* modules_all_[kModuleCount]{&module_fl_, &module_fr_,
@@ -310,5 +309,3 @@ class DrivetrainSubsystem
 
   void DirectWrite(DrivetrainTarget target) override;
 };
-
-#endif  // y2024_SUBSYSTEMS_DRIVETRAIN_H_

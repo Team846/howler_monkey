@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_SPIN_UP_COMMAND_H_
-#define y2024_COMMANDS_SPIN_UP_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -26,5 +25,3 @@ class SpinUpCommand : public frc2::CommandHelper<frc2::Command, SpinUpCommand>,
 
   bool is_done_ = false;
 };
-
-#endif  // y2024_COMMANDS_SPIN_UP_COMMAND_H_

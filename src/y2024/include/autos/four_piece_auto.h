@@ -1,5 +1,4 @@
-#ifndef FOUR_PIECE_AUTO_H_
-#define FOUR_PIECE_AUTO_H_
+#pragma once
 
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SequentialCommandGroup.h>
@@ -15,5 +14,3 @@ class FourPieceAuto
 
   bool should_flip_;
 };
-
-#endif  // y2024_COMMANDS_FOUR_PIECE_AUTO_H_

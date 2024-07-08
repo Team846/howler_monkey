@@ -1,5 +1,4 @@
-#ifndef y2024_SUBSYSTEMS_TELESCOPE_H_
-#define y2024_SUBSYSTEMS_TELESCOPE_H_
+#pragma once
 
 #include "frc846/control/control.h"
 #include "frc846/loggable.h"
@@ -89,5 +88,3 @@ class TelescopeSubsystem
 
   void DirectWrite(TelescopeTarget target) override;
 };
-
-#endif

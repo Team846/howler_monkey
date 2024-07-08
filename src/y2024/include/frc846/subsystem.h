@@ -1,5 +1,4 @@
-#ifndef FRC846_SUBSYSTEM_H_
-#define FRC846_SUBSYSTEM_H_
+#pragma once
 
 #include <frc2/command/InstantCommand.h>
 #include <frc2/command/SubsystemBase.h>
@@ -121,5 +120,3 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
 };
 
 }  // namespace frc846
-
-#endif  // subsystem

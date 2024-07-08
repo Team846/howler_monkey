@@ -1,5 +1,4 @@
-#ifndef y2024_COMMANDS_BRACER_COMMAND_H_
-#define y2024_COMMANDS_BRACER_COMMAND_H_
+#pragma once
 
 #include <frc2/command/CommandHelper.h>
 
@@ -26,5 +25,3 @@ class BracerCommand : public frc2::CommandHelper<frc2::Command, BracerCommand> {
 
   ControlInputReadings prev_ci_readings_{};
 };
-
-#endif  // y2024_COMMANDS_BRACER_COMMAND_H_

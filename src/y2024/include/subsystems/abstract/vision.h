@@ -1,5 +1,4 @@
-#ifndef Y2024_SUBSYSTEMS_VISION_H_
-#define Y2024_SUBSYSTEMS_VISION_H_
+#pragma once
 
 #include <units/angle.h>
 #include <units/length.h>
@@ -97,5 +96,3 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
 
   void DirectWrite(VisionTarget target) override;
 };
-
-#endif

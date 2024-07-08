@@ -1,5 +1,4 @@
-#ifndef y2024_PORTS_H_
-#define y2024_PORTS_H_
+#pragma once
 
 struct ports {
   // 2..13 dt, 16...19 p, 24? t, SET PDP 1
@@ -56,5 +55,3 @@ struct ports {
     static constexpr int kPWMPort = 6;
   };
 };
-
-#endif  // y2024_PORTS_H_

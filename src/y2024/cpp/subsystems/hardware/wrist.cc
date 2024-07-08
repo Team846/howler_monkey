@@ -16,7 +16,7 @@ WristSubsystem::WristSubsystem(bool init)
 
 WristTarget WristSubsystem::ZeroTarget() const {
   WristTarget target;
-  target.wrist_output = 0.0;
+  target.wrist_output = wrist_home_offset_.value();
   return target;
 }
 
