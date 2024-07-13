@@ -25,6 +25,8 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
  public:
   IntakeSubsystem(bool init);
 
+  void Setup() override;
+
   IntakeTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;

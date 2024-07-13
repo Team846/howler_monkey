@@ -23,6 +23,8 @@ class SubsystemBase : public Loggable {
 
   virtual ~SubsystemBase() = default;
 
+  virtual void Setup() = 0;
+
   virtual void UpdateReadings() = 0;
   virtual void UpdateHardware() = 0;
   virtual bool VerifyHardware() = 0;

@@ -23,6 +23,8 @@ class TelescopeSubsystem
  public:
   TelescopeSubsystem(bool init);
 
+  void Setup() override;
+
   TelescopeTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;
@@ -48,6 +50,14 @@ class TelescopeSubsystem
   bool WithinTolerance(units::inch_t pos) {
     return (units::math::abs(pos - readings().extension) <
             telescope_tolerance_.value());
+  }
+
+  bool WithinLimits(units::inch_t pos) {
+    return hard_limits_.WithinLimits(pos);
+  }
+
+  units::inch_t CapWithinLimits(units::inch_t pos) {
+    return hard_limits_.CapWithinLimits(pos);
   }
 
   frc846::Pref<units::feet_per_second_t> max_adjustment_rate_{

@@ -16,13 +16,13 @@
 
 DriveAuto::DriveAuto(RobotContainer& container, bool should_flip)
     : should_flip_(should_flip) {
-  SetName("DriveAutoCommand" + std::string(should_flip_ ? " red" : " blue"));
+  SetName("DriveAutoCommand");
   AddCommands(frc2::InstantCommand{[&, flip = should_flip_] {
                 auto pose_ = field::points::kTestingOrigin(flip);
                 container.drivetrain_.SetPoint(pose_.point);
                 container.drivetrain_.SetBearing(pose_.bearing);
 
-                std::cout << "start" << std::endl;
+                std::cout << "Drive auto start" << std::endl;
               }},
 
               FollowTrajectoryCommand{
@@ -33,6 +33,6 @@ DriveAuto::DriveAuto(RobotContainer& container, bool should_flip)
               },
 
               frc2::InstantCommand{[&, flip = should_flip_] {
-                std::cout << "end" << std::endl;
+                std::cout << "Drive auto end" << std::endl;
               }});
 }

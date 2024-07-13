@@ -7,10 +7,10 @@
 #include "frc846/util/math.h"
 #include "subsystems/robot_container.h"
 
-class FourPieceAuto
-    : public frc2::CommandHelper<frc2::SequentialCommandGroup, FourPieceAuto> {
+class FivePieceAuto
+    : public frc2::CommandHelper<frc2::SequentialCommandGroup, FivePieceAuto> {
  public:
-  FourPieceAuto(RobotContainer& container, bool should_flip_);
+  FivePieceAuto(RobotContainer& container, bool should_flip_);
 
   bool should_flip_;
 };

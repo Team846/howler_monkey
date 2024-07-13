@@ -12,7 +12,7 @@
 #include "ports.h"
 #include "units/length.h"
 
-enum BracerState { kExtend, kStow, kRetract };
+enum BracerState { kStow, kExtend, kRetract };
 
 struct BracerReadings {};
 
@@ -23,6 +23,8 @@ struct BracerTarget {
 class BracerSubsystem : public frc846::Subsystem<BracerReadings, BracerTarget> {
  public:
   BracerSubsystem(bool init);
+
+  void Setup() override {};
 
   BracerTarget ZeroTarget() const override;
 

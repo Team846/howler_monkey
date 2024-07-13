@@ -115,29 +115,46 @@ class FieldPoint {
     return Position{{point.x.value(), point.y.value()}, point.bearing.value()};
   }
 
-  static Position flip(FieldPoint point, bool should_flip) {
+  static Position flipOnlyY(FieldPoint point, bool should_flip) {
+    if (should_flip) {
+      return {{point.x.value(), field_size_y - point.y.value()},
+              180_deg - point.bearing.value()};
+    }
+    return {{point.x.value(), point.y.value()}, point.bearing.value()};
+  }
+
+  static Position flipOnlyY(Position point, bool should_flip) {
+    if (should_flip) {
+      return {{point.point.x, field_size_y - point.point.y},
+              180_deg - point.bearing};
+    }
+    return point;
+  }
+
+  static Position flip(FieldPoint point, bool should_flip, bool onlyY = false) {
+    if (onlyY) return flipOnlyY(point, should_flip);
+
     if (should_flip) {
       return Position{{-point.x.value(), point.y.value()},
-                      -point.bearing.value()};
+                      180_deg - point.bearing.value()};
     } else {
       return Position{{point.x.value(), point.y.value()},
                       point.bearing.value()};
     }
   }
 
-  static Position realFlip(Position point, bool should_flip) {
+  static Position flip(Position point, bool should_flip, bool onlyY = false) {
     if (should_flip) {
-      return Position{{units::inch_t(field_size_x) - point.point.x,
-                       units::inch_t(field_size_y) - point.point.y},
-                      180_deg - point.bearing};
+      return Position{
+          {field_size_x - point.point.x, field_size_y - point.point.y},
+          180_deg - point.bearing};
     } else {
       return Position{{point.point.x, point.point.y}, point.bearing};
     }
   }
 
-  Position flip(bool should_flip, bool real_flip = false) {
-    if (real_flip) return realFlip(to_position(*this), should_flip);
-    return flip(*this, should_flip);
+  Position flip(bool should_flip, bool onlyY = false) {
+    return flip(*this, should_flip, onlyY);
   }
 
   Loggable& point_names_ = *(new Loggable("Preferences/field_points"));
@@ -161,8 +178,8 @@ class FieldPoint {
   std::string name_;
 
  private:
-  static constexpr double field_size_x = 319.0;
-  static constexpr double field_size_y = 49.0;
+  static constexpr units::inch_t field_size_x = 651.25_in;
+  static constexpr units::inch_t field_size_y = 315.5_in;
 };
 
 }  // namespace frc846::util

@@ -10,11 +10,10 @@
 #include <cameraserver/CameraServer.h>
 
 #include "autos/drive_auto.h"
-#include "autos/four_piece_auto.h"
-#include "frc846/util/pref.h"
-// #include "autos/_TESTING_ROUTINE.h"
+#include "autos/five_piece_auto.h"
 #include "frc/DigitalInput.h"
 #include "frc846/fstore.h"
+#include "frc846/util/pref.h"
 #include "subsystems/robot_container.h"
 
 enum Mode { kNone, kDisabled, kAutonomous, kTeleop, kTest };
@@ -82,12 +81,13 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
   // color being changed
 
   // Autos
-  frc2::CommandPtr drive_auto_ = DriveAuto{container_, true}.ToPtr();
+  frc2::CommandPtr drive_auto_ = DriveAuto{container_, false}.ToPtr();
 
-  frc2::CommandPtr four_piece_auto_lr =
-      FourPieceAuto{container_, false}.ToPtr();
+  frc2::CommandPtr five_piece_auto_red =
+      FivePieceAuto{container_, false}.ToPtr();
 
-  frc2::CommandPtr four_piece_auto_rl = FourPieceAuto{container_, true}.ToPtr();
+  frc2::CommandPtr five_piece_auto_blue =
+      FivePieceAuto{container_, true}.ToPtr();
 
   //   frc2::CommandPtr testing_routine_ =
   //       TestingArmRoutine{container_, false}.ToPtr();

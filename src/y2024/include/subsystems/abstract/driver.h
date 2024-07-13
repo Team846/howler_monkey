@@ -17,6 +17,8 @@ class DriverSubsystem : public frc846::Subsystem<DriverReadings, DriverTarget> {
  public:
   DriverSubsystem();
 
+  void Setup() override {};
+
   frc846::Pref<double> translation_deadband_{*this, "translation_deadband",
                                              0.05};
   frc846::Pref<double> steer_deadband_{*this, "steer_deadband", 0.05};

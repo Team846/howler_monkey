@@ -23,6 +23,8 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
  public:
   WristSubsystem(bool init);
 
+  void Setup() override;
+
   WristTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;
@@ -48,6 +50,14 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
     hasZeroed = true;
     wrist_esc_.ZeroEncoder(wrist_home_offset_.value());
     SetTarget(ZeroTarget());
+  }
+
+  bool WithinLimits(units::degree_t pos) {
+    return hard_limits_.WithinLimits(pos);
+  }
+
+  units::degree_t CapWithinLimits(units::degree_t pos) {
+    return hard_limits_.CapWithinLimits(pos);
   }
 
   frc846::Pref<units::degree_t> wrist_tolerance_{*this, "wrist_tolerance",

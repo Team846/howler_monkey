@@ -26,9 +26,11 @@ void BracerCommand::Execute() {
     target.state = BracerState::kRetract;
   }
 
+  ci_readings_.stageOfTrap = std::max(ci_readings_.stageOfTrap, 0);
+
   if ((ci_readings_.stageOfTrap == 0 && prev_ci_readings_.stageOfTrap != 0) ||
       (ci_readings_.stageOfTrap != 0 && prev_ci_readings_.stageOfTrap == 0)) {
-    counter = 75;
+    counter = 120;
   }
 
   if (counter >= 1)

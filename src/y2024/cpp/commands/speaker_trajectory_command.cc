@@ -41,7 +41,7 @@ void SpeakerTrajectoryCommand::Initialize() {
                                  drivetrain_.max_deceleration_.value());
 
   if (trajectory_.size() < 2) {
-    Error("trajectory size ({}) is less than 2 - ending!", trajectory_.size());
+    Warn("trajectory size ({}) is less than 2 - ending!", trajectory_.size());
     is_done_ = true;
   } else {
     current_extrapolated_point_ = trajectory_[1].pos.point.Extrapolate(

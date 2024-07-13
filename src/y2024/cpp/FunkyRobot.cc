@@ -114,9 +114,8 @@ void FunkyRobot::StartCompetition() {
 
   auto_chooser_.AddOption("drive_auto", drive_auto_.get());
 
-  auto_chooser_.SetDefaultOption("four_piece_auto_lr",
-                                 four_piece_auto_lr.get());
-  auto_chooser_.AddOption("four_piece_auto_rl", four_piece_auto_rl.get());
+  auto_chooser_.SetDefaultOption("5p_red", five_piece_auto_red.get());
+  auto_chooser_.AddOption("5p_blue", five_piece_auto_blue.get());
 
   // Other options
   frc::SmartDashboard::PutData(&auto_chooser_);
@@ -124,8 +123,9 @@ void FunkyRobot::StartCompetition() {
   // Verify robot hardware
   VerifyHardware();
 
-  // Set initial target for all subsystems to zero.
+  // Setup all subsystems and set initial targets to zero.
   for (auto subsystem : container_.all_subsystems_) {
+    subsystem->Setup();
     subsystem->SetTargetZero();
   }
 
@@ -133,7 +133,7 @@ void FunkyRobot::StartCompetition() {
   Log("\n********** Funky robot initialized **********\n");
   HAL_ObserveUserProgramStarting();
 
-  // container_.leds_.SetDefaultCommand(LEDsCommand{container_});
+  container_.leds_.SetDefaultCommand(LEDsCommand{container_});
 
   for (;;) {
     frc::DriverStation::RefreshData();
@@ -240,20 +240,21 @@ void FunkyRobot::StartCompetition() {
       subsystem->UpdateHardware();
     }
 
-
     // Zero
     if (frc::RobotController::GetUserButton()) {
       container_.drivetrain_.ZeroCancoders();
     }
 
     if (!homing_switch_.Get() && word.IsDisabled()) {
-      std::cout << "Zeroing all subsystems" << std::endl;
+      Log("Zeroing all subsystems");
+
       frc846::util::ShareTables::SetBoolean("zero sequence", true);
       container_.pivot_.ZeroSubsystem();
       container_.telescope_.ZeroSubsystem();
       container_.wrist_.ZeroSubsystem();
       container_.leds_.ZeroSubsystem();
-      container_.drivetrain_.ZeroBearing();
+
+      // container_.drivetrain_.ZeroBearing();
     }
     if (!coasting_switch_.Get() && word.IsDisabled()) {
       std::cout << "All Coast" << std::endl;
@@ -317,7 +318,9 @@ void FunkyRobot::InitTeleopTriggers() {
 
   drivetrain_zero_bearing_trigger.WhileTrue(
       frc2::InstantCommand([this] {
-        container_.drivetrain_.ZeroBearing();
+        container_.drivetrain_.SetBearing(
+            frc846::util::ShareTables::GetBoolean("is_red_side") ? 0_deg
+                                                                 : 180_deg);
       }).ToPtr());
 
   frc2::Trigger on_piece_trigger{[&] {

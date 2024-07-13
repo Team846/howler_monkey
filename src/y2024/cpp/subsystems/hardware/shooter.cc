@@ -8,11 +8,14 @@ ShooterSubsystem::ShooterSubsystem(bool init)
   if (init) {
     shooter_esc_one_.OverrideInvert();
 
-    shooter_esc_one_.Configure(frc846::control::REVSparkType::kSparkFLEX,
-                               {frc846::control::DataTag::kVelocityData});
-    shooter_esc_two_.Configure(frc846::control::REVSparkType::kSparkFLEX,
-                               {frc846::control::DataTag::kVelocityData});
+    shooter_esc_one_.Init(frc846::control::REVSparkType::kSparkFLEX);
+    shooter_esc_two_.Init(frc846::control::REVSparkType::kSparkFLEX);
   }
+}
+
+void ShooterSubsystem::Setup() {
+  shooter_esc_one_.Configure({frc846::control::DataTag::kVelocityData});
+  shooter_esc_two_.Configure({frc846::control::DataTag::kVelocityData});
 }
 
 ShooterTarget ShooterSubsystem::ZeroTarget() const {

@@ -65,6 +65,8 @@ class SuperStructureSubsystem
         wrist_{wrist},
         telescope_{telescope} {};
 
+  void Setup() override {};
+
   SuperStructureTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;
@@ -82,15 +84,12 @@ class SuperStructureSubsystem
     }
   }
 
-  bool CheckValidAdjustment(PTWSetpoint adj) {
+  bool CheckValidAdjustment(PTWSetpoint adjusted) {
     auto nextSumOutOfBounds = InverseKinematics::sumOutOfBounds(
         InverseKinematics::degree_toCoordinate(
-            {(currentSetpoint.pivot + manualAdjustments.pivot + adj.pivot)
-                 .to<double>(),
-             (currentSetpoint.wrist + manualAdjustments.wrist + adj.wrist)
-                 .to<double>(),
-             (currentSetpoint.wrist + manualAdjustments.wrist + adj.wrist)
-                 .to<double>()}));
+            {(currentSetpoint.pivot + adjusted.pivot).to<double>(),
+             (currentSetpoint.wrist + adjusted.wrist).to<double>(),
+             (currentSetpoint.wrist + adjusted.wrist).to<double>()}));
 
     auto currentSumOutOfBounds = InverseKinematics::sumOutOfBounds(
         InverseKinematics::degree_toCoordinate(
@@ -103,9 +102,21 @@ class SuperStructureSubsystem
   };
 
   void AdjustSetpoint(PTWSetpoint newAdj) {
-    // if (CheckValidAdjustment(newAdj)) {
-    manualAdjustments = manualAdjustments + newAdj;
-    // }
+    auto newAdjusted = newAdj + manualAdjustments;
+    newAdjusted.pivot =
+        pivot_->CapWithinLimits(newAdjusted.pivot + currentSetpoint.pivot) -
+        currentSetpoint.pivot;
+    newAdjusted.telescope =
+        telescope_->CapWithinLimits(newAdjusted.telescope +
+                                    currentSetpoint.telescope) -
+        currentSetpoint.telescope;
+    newAdjusted.wrist =
+        wrist_->CapWithinLimits(newAdjusted.wrist + currentSetpoint.wrist) -
+        currentSetpoint.wrist;
+
+    if (CheckValidAdjustment(newAdjusted)) {
+      manualAdjustments = newAdjusted;
+    }
   }
 
   void ClearAdjustments() {

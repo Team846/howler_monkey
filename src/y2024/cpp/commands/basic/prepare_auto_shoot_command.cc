@@ -44,6 +44,8 @@ void PrepareAutoShootCommand::Execute() {
     defaultShootSetpoint.wrist = theta + defaultShootSetpoint.pivot;
   }
 
+  Log("Theta {}", theta);
+
   super_.SetTargetSetpoint(defaultShootSetpoint);
 }
 
@@ -52,7 +54,7 @@ void PrepareAutoShootCommand::End(bool interrupted) {
 }
 
 bool PrepareAutoShootCommand::IsFinished() {
-  return shooter_.readings().error_percent <=
+  return false; /*shooter_.readings().error_percent <=
              shooter_.shooter_speed_tolerance_.value() &&
-         super_.pivot_->WithinTolerance(super_.getAutoShootSetpoint().pivot);
+         super_.pivot_->WithinTolerance(super_.getAutoShootSetpoint().pivot);*/
 }

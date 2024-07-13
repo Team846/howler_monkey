@@ -7,11 +7,16 @@
 WristSubsystem::WristSubsystem(bool init)
     : frc846::Subsystem<WristReadings, WristTarget>{"wrist", init} {
   if (init) {
-    wrist_esc_.Configure(frc846::control::REVSparkType::kSparkMAX,
-                         {frc846::control::kPositionData});
+    wrist_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
 
-    wrist_esc_.ZeroEncoder(wrist_home_offset_.value());
+    SetTarget(ZeroTarget());
   }
+}
+
+void WristSubsystem::Setup() {
+  wrist_esc_.Configure({frc846::control::DataTag::kPositionData,
+                        frc846::control::DataTag::kVelocityData});
+  wrist_esc_.ZeroEncoder(wrist_home_offset_.value());
 }
 
 WristTarget WristSubsystem::ZeroTarget() const {

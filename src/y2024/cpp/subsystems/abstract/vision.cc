@@ -93,7 +93,7 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
     robot_x += can_bus_latency_.value() * velocity_x;
 
-    auto flipped = frc846::util::FieldPoint::realFlip(
+    auto flipped = frc846::util::FieldPoint::flip(
         {{robot_x, robot_y}, bearing_},
         frc846::util::ShareTables::GetBoolean("is_red_side"));
 
@@ -130,9 +130,9 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
     robot_x += can_bus_latency_.value() * velocity_x;
 
-    auto flipped = frc846::util::FieldPoint::realFlip(
+    auto flipped = frc846::util::FieldPoint::flip(
         {{robot_x, robot_y}, bearing_},
-        frc846::util::ShareTables::GetBoolean("is_red_side"));
+        frc846::util::ShareTables::GetBoolean("is_red_side"), true);
 
     robot_y = flipped.point.y;
     robot_x = flipped.point.x;

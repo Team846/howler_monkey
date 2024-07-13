@@ -29,6 +29,8 @@ class ShooterSubsystem
  public:
   ShooterSubsystem(bool init);
 
+  void Setup() override;
+
   ShooterTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;

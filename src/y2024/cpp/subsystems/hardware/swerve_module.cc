@@ -24,6 +24,9 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
       cancoder_{cancoder_id},
       max_speed_{max_speed},
       current_control_{current_control} {
+  drive_esc_helper_.Init();
+  steer_esc_helper_.Init();
+
   drive_esc_helper_.Configure({frc846::control::DataTag::kPositionData,
                                frc846::control::DataTag::kVelocityData});
   steer_esc_helper_.Configure({frc846::control::DataTag::kPositionData});

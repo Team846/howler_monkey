@@ -46,6 +46,8 @@ class SwerveModuleSubsystem
                         frc846::Pref<units::feet_per_second_t>& max_speed,
                         frc846::motion::CurrentControl& current_control);
 
+  void Setup() override {};
+
   // Calculate the normalized target angle for the module to minimize rotations.
   // Returns the normalized direction and whether or not the drive motor should
   // be reversed.

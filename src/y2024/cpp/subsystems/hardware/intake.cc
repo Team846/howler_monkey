@@ -9,10 +9,7 @@
 IntakeSubsystem::IntakeSubsystem(bool init)
     : frc846::Subsystem<IntakeReadings, IntakeTarget>{"intake", init} {
   if (init) {
-    intake_esc_.Configure(frc846::control::REVSparkType::kSparkMAX,
-                          {frc846::control::DataTag::kVelocityData,
-                           frc846::control::DataTag::kCurrentData,
-                           frc846::control::DataTag::kFaultData});
+    intake_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
 
     if (auto esc = intake_esc_.getESC()) {
       in_limit_switch.emplace(esc->GetForwardLimitSwitch(
@@ -23,6 +20,12 @@ IntakeSubsystem::IntakeSubsystem(bool init)
       out_limit_switch.value().EnableLimitSwitch(false);
     }
   }
+}
+
+void IntakeSubsystem::Setup() {
+  intake_esc_.Configure({frc846::control::DataTag::kVelocityData,
+                         frc846::control::DataTag::kCurrentData,
+                         frc846::control::DataTag::kFaultData});
 }
 
 IntakeTarget IntakeSubsystem::ZeroTarget() const {
@@ -75,7 +78,7 @@ void IntakeSubsystem::DirectWrite(IntakeTarget target) {
 
     target_intaking_speed =
         base_intake_speed_.value() +
-        frc846::util::ShareTables::GetDouble("velocity") * 0.33_fps;
+        frc846::util::ShareTables::GetDouble("velocity") * 0.5_fps;
     intake_esc_.WriteVelocity(target_intaking_speed);
 
   } else if (target.target_state == kFeed) {

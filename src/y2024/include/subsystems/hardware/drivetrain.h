@@ -56,6 +56,12 @@ class DrivetrainSubsystem
  public:
   DrivetrainSubsystem(bool initialize = true);
 
+  void Setup() override {
+    for (auto swerve_module : modules_all_) {
+      swerve_module->Setup();
+    }
+  }
+
   // Number of swerve modules (avoid hardcoding 4 in loops and such).
   static constexpr int kModuleCount = 4;
 
@@ -217,12 +223,12 @@ class DrivetrainSubsystem
   frc846::Loggable steer_esc_loggable_{*this, "steer_esc"};
   frc::Field2d m_field;
 
-  
   frc846::control::ConfigHelper drive_config_helper_{
       drive_esc_loggable_,
       {false,
        (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) *
-           frc846::util::Circumference(wheel_radius_.value()).to<double>() / 12.0,
+           frc846::util::Circumference(wheel_radius_.value()).to<double>() /
+           12.0,
        frc846::control::MotorIdleMode::kDefaultBrake,
        {80_A}},
       {0.0002, 0.0, 0.0001769},
@@ -242,7 +248,7 @@ class DrivetrainSubsystem
   frc846::motion::CurrentControl current_braking{
       current_braking_loggable,
       {170_A, frc846::control::DefaultSpecifications::stall_current_kraken,
-    0.45}};
+       0.45}};
 
   SwerveModuleSubsystem module_fl_{
       *this,

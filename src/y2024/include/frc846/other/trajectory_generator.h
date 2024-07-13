@@ -29,6 +29,6 @@ Trajectory GenerateTrajectory(
     units::feet_per_second_t robot_max_v,
     units::feet_per_second_squared_t robot_max_acceleration,
     units::feet_per_second_squared_t robot_max_deceleration,
-    units::inch_t cut = 6_in);
+    units::inch_t cut = 2_in);
 
 }  // namespace frc846

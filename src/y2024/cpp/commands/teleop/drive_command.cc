@@ -30,9 +30,12 @@ void DriveCommand::Execute() {
 
   bool is_robot_centric = false;
   bool is_slow_drive = driver_.readings().right_bumper;
-  bool prep_align_speaker = driver_.readings().right_trigger;
+  bool prep_align_speaker = driver_.readings().y_button;
   bool amping = driver_.readings().left_bumper;
   bool sourcing = driver_.readings().x_button;
+
+  bool flipping_controls =
+      !frc846::util::ShareTables::GetBoolean("is_red_side");
 
   // -----TRANSLATION CONTROL-----
 
@@ -42,6 +45,11 @@ void DriveCommand::Execute() {
   double translate_y = frc846::util::HorizontalDeadband(
       driver_.readings().left_stick_y, driver_.translation_deadband_.value(), 1,
       driver_.translation_exponent_.value(), 1);
+
+  if (flipping_controls) {
+    translate_x = -translate_x;
+    translate_y = -translate_y;
+  }
 
   if (prep_align_speaker) {
     translate_x = units::math::min(0.75, units::math::max(translate_x, -0.75));
@@ -129,7 +137,7 @@ void DriveCommand::Execute() {
     driver_adjust_ += driver_.readings().right_stick_x / 5.0;
     driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
 
-    if (frc846::util::ShareTables::GetBoolean("is_red_side")) {
+    if (!flipping_controls) {
       drivetrain_target.rotation =
           DrivetrainRotationPosition(90_deg + units::degree_t(driver_adjust_));
     } else {
@@ -140,7 +148,7 @@ void DriveCommand::Execute() {
     driver_adjust_ += driver_.readings().right_stick_x / 5.0;
     driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
 
-    if (frc846::util::ShareTables::GetBoolean("is_red_side")) {
+    if (!flipping_controls) {
       drivetrain_target.rotation = DrivetrainRotationPosition(
           -51.4_deg + units::degree_t(driver_adjust_));
     } else {

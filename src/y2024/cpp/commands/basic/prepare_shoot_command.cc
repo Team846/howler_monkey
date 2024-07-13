@@ -49,20 +49,26 @@ void PrepareShootCommand::Execute() {
   }
 
   if (!super_.pivot_->WithinTolerance(shootSetpoint.pivot)) {
-    shootSetpoint.wrist = super_.getStowSetpoint().wrist;
+    // shootSetpoint.wrist = super_.getStowSetpoint().wrist;
+    shootSetpoint.wrist -= 30_deg;
   }
 
   super_.SetTargetSetpoint(shootSetpoint);
 }
 
 void PrepareShootCommand::End(bool interrupted) {
+  intake_.SetTarget({IntakeState::kHold});
+  shooter_.SetTarget({ShooterState::kIdle});
+
   Log("Prepare Shoot Command Finished");
 }
 
 bool PrepareShootCommand::IsFinished() {
   if (super_shot_) return !control_input_.readings().running_super_shoot;
 
-  return super_.hasReachedSetpoint(super_.getShootSetpoint()) &&
-         shooter_.readings().error_percent <=
-             shooter_.shooter_speed_tolerance_.value();
+  return !control_input_.readings().running_prep_shoot;
+
+  // return super_.hasReachedSetpoint(super_.getShootSetpoint()) &&
+  //        shooter_.readings().error_percent <=
+  //            shooter_.shooter_speed_tolerance_.value();
 }

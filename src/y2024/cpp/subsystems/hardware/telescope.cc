@@ -6,11 +6,14 @@
 TelescopeSubsystem::TelescopeSubsystem(bool init)
     : frc846::Subsystem<TelescopeReadings, TelescopeTarget>{"telescope", init} {
   if (init) {
-    telescope_esc_.Configure(frc846::control::REVSparkType::kSparkMAX,
-                             {frc846::control::DataTag::kPositionData});
-
-    telescope_esc_.ZeroEncoder(0.0_in);
+    telescope_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
   }
+}
+
+void TelescopeSubsystem::Setup() {
+  telescope_esc_.Configure({frc846::control::DataTag::kPositionData});
+
+  telescope_esc_.ZeroEncoder(0.0_in);
 }
 
 TelescopeTarget TelescopeSubsystem::ZeroTarget() const {

@@ -177,10 +177,8 @@ class REVSparkController : public BaseESC<X> {
     }
   }
 
-  int Configure(REVSparkType controller_type, std::vector<DataTag> data_tags) {
+  void Init(REVSparkType controller_type) {
     controller_type_ = controller_type;
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(350));
 
     if (controller_type == REVSparkType::kSparkFLEX) {
       esc_ = new rev::CANSparkFlex{canID_,
@@ -189,8 +187,15 @@ class REVSparkController : public BaseESC<X> {
       esc_ = new rev::CANSparkMax{canID_,
                                   rev::CANSparkBase::MotorType::kBrushless};
     }
+  }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(30));
+  int Configure(std::vector<DataTag> data_tags) {
+    if (!esc_) {
+      parent_.Error("ESC not created");
+      return 1;
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(350));
 
     if (!CheckOK(esc_->SetCANTimeout(DNC::CANTimeout))) {
       parent_.Error("NOT configuring controller");
@@ -246,18 +251,18 @@ class REVSparkController : public BaseESC<X> {
          // system. Happens on board controller at high
          // rate.
 
-    if (hard_limits_.get().usingPositionLimits) {  // position limiting
-      this->Q(parent_, [&]() {
-        return CheckOK(esc_->SetSoftLimit(
-                   rev::CANSparkBase::SoftLimitDirection::kForward,
-                   hard_limits_.get().forward.template to<double>() /
-                       motor_config.gear_ratio)) &&
-               CheckOK(esc_->SetSoftLimit(
-                   rev::CANSparkBase::SoftLimitDirection::kReverse,
-                   hard_limits_.get().reverse.template to<double>() /
-                       motor_config.gear_ratio));
-      });
-    }
+    // if (hard_limits_.get().usingPositionLimits) {  // position limiting
+    //   this->Q(parent_, [&]() {
+    //     return CheckOK(esc_->SetSoftLimit(
+    //                rev::CANSparkBase::SoftLimitDirection::kForward,
+    //                hard_limits_.get().forward.template to<double>() /
+    //                    motor_config.gear_ratio)) &&
+    //            CheckOK(esc_->SetSoftLimit(
+    //                rev::CANSparkBase::SoftLimitDirection::kReverse,
+    //                hard_limits_.get().reverse.template to<double>() /
+    //                    motor_config.gear_ratio));
+    //   });
+    // }
 
     encoder_.emplace(
         esc_->GetEncoder(rev::SparkRelativeEncoder::Type::kHallSensor, 42));

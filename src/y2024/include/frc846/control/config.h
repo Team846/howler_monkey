@@ -106,8 +106,27 @@ class HardLimitsConfigHelper {
                              default_limits.peak_output_reverse} {}
 
   HardLimits<X> get() {
-    return {forward_.value(), reverse_.value(), using_position_limits_.value(),
+    return {forward_.value(), reverse_.value(),
+            override_limits_ ? false : using_position_limits_.value(),
             peak_output_forward_.value(), peak_output_reverse_.value()};
+  }
+
+  void OverrideLimits(bool override_limits) {
+    override_limits_ = override_limits;
+  }
+
+  bool WithinLimits(X pos) {
+    if (override_limits_ ? false : using_position_limits_.value()) return true;
+
+    return (pos >= reverse_.value() && pos <= forward_.value());
+  }
+
+  X CapWithinLimits(X pos) {
+    if (override_limits_ ? false : using_position_limits_.value()) return pos;
+
+    if (pos < reverse_.value()) return reverse_.value();
+    if (pos > forward_.value()) return forward_.value();
+    return pos;
   }
 
  private:
@@ -118,6 +137,8 @@ class HardLimitsConfigHelper {
 
   frc846::Pref<double> peak_output_forward_;
   frc846::Pref<double> peak_output_reverse_;
+
+  bool override_limits_ = false;
 };
 
 enum DataTag {

@@ -35,6 +35,8 @@ class ControlInputSubsystem
  public:
   ControlInputSubsystem();
 
+  void Setup() override {};
+
   ControlInputTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;

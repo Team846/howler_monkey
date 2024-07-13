@@ -18,6 +18,8 @@ class OperatorSubsystem
  public:
   OperatorSubsystem();
 
+  void Setup() override {};
+
   OperatorTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;

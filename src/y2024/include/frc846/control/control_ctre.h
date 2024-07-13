@@ -165,11 +165,16 @@ class TalonFXController : public BaseESC<X> {
     }
   }
 
+  void Init() { esc_ = new ctre::phoenix6::hardware::TalonFX(canID_); }
+
   int Configure(std::vector<DataTag> data_tags) {
-    ctre::phoenix6::hardware::TalonFX* esc =
-        new ctre::phoenix6::hardware::TalonFX(canID_);
-    if (!esc->IsAlive()) {
-      delete esc;
+    if (!esc_) {
+      parent_.Error("ESC not created");
+      return 1;
+    }
+
+    if (!esc_->IsAlive()) {
+      delete esc_;
       return 1;
     }
 
@@ -177,12 +182,12 @@ class TalonFXController : public BaseESC<X> {
 
     SetVoltageCompensationAuton(true);
 
-    esc->SetInverted(motor_config.invert);
+    esc_->SetInverted(motor_config.invert);
 
-    esc->SetNeutralMode(motor_config.idle_mode ==
-                                frc846::control::MotorIdleMode::kDefaultCoast
-                            ? ctre::phoenix6::signals::NeutralModeValue::Coast
-                            : ctre::phoenix6::signals::NeutralModeValue::Brake);
+    esc_->SetNeutralMode(
+        motor_config.idle_mode == frc846::control::MotorIdleMode::kDefaultCoast
+            ? ctre::phoenix6::signals::NeutralModeValue::Coast
+            : ctre::phoenix6::signals::NeutralModeValue::Brake);
 
     ctre::configs::CurrentLimitsConfigs currentConfs;
     currentConfs.WithSupplyCurrentLimitEnable(true);
@@ -214,30 +219,28 @@ class TalonFXController : public BaseESC<X> {
 
     deviceConfigs.WithSlot0(pidConfs);
 
-    configurator_ = &esc->GetConfigurator();
+    configurator_ = &esc_->GetConfigurator();
     this->Q(parent_,
             [&]() { return CheckOK(configurator_->Apply(deviceConfigs)); });
 
     this->Q(parent_, [&]() {
-      return CheckOK(esc->OptimizeBusUtilization(1_ms * DNC::CANTimeout));
+      return CheckOK(esc_->OptimizeBusUtilization(1_ms * DNC::CANTimeout));
     });
 
     if (std::find(data_tags.begin(), data_tags.end(), DataTag::kVelocityData) !=
         data_tags.end()) {
-      CheckOK(esc->GetVelocity().SetUpdateFrequency(50_Hz));
+      CheckOK(esc_->GetVelocity().SetUpdateFrequency(50_Hz));
     }
 
     if (std::find(data_tags.begin(), data_tags.end(), DataTag::kPositionData) !=
         data_tags.end()) {
-      CheckOK(esc->GetPosition().SetUpdateFrequency(50_Hz));
+      CheckOK(esc_->GetPosition().SetUpdateFrequency(50_Hz));
     }
 
     if (std::find(data_tags.begin(), data_tags.end(), DataTag::kCurrentData) !=
         data_tags.end()) {
-      CheckOK(esc->GetSupplyCurrent().SetUpdateFrequency(10_Hz));
+      CheckOK(esc_->GetSupplyCurrent().SetUpdateFrequency(10_Hz));
     }
-
-    esc_ = esc;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
 

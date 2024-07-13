@@ -23,4 +23,5 @@ class ShootCommand : public frc2::CommandHelper<frc2::Command, ShootCommand>,
  private:
   IntakeSubsystem& intake_;
   ShooterSubsystem& shooter_;
+  ControlInputSubsystem& control_input_;
 };

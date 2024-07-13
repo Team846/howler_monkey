@@ -80,6 +80,7 @@ static constexpr double degs(double radians) {
   return radians * 180 / 3.141592658979;
 }
 
+// FIX adding/removing home_offsets
 class InverseKinematics {
  private:
   static constexpr double pivotToWrist = 20.5;
@@ -105,15 +106,17 @@ class InverseKinematics {
 
  public:
   static bool withinBounds(CoordinatePositions pos) {
-    return (pos.forward_axis < robotWidth / 2.0 + 12 &&
-            pos.forward_axis > -robotWidth / 2.0 - 12 && pos.upward_axis > 0 &&
+    return (pos.forward_axis < robotWidth / 2.0 + 12.0 &&
+            pos.forward_axis > -robotWidth / 2.0 - 12.0 &&
             pos.upward_axis < 48);
   }
 
   static double sumOutOfBounds(CoordinatePositions pos) {
     double sumOut = 0.0;
-    if (pos.forward_axis >= robotWidth / 2.0) {
-      sumOut += pos.forward_axis - robotWidth / 2.0;
+    if (pos.forward_axis >= (robotWidth / 2.0 + 12.0)) {
+      sumOut += pos.forward_axis - (robotWidth / 2.0 + 12.0);
+    } else if (pos.forward_axis <= (-robotWidth / 2.0 - 12.0)) {
+      sumOut += -robotWidth / 2.0 - 12.0 - pos.forward_axis;
     }
     if (pos.upward_axis >= 48) {
       sumOut += pos.upward_axis - 48;
@@ -183,9 +186,6 @@ class InverseKinematics {
     CoordinatePositions coordinate{};
 
     if (point == 0) {
-      pos.pivot_angle -= radians(17.0);
-      pos.wrist_angle -= radians(49.0);
-
       double truePivotAngle =
           (pos.pivot_angle) +
           (std::atan2(pivotToWristOffset, pos.extension + pivotToWrist));
@@ -206,9 +206,6 @@ class InverseKinematics {
       coordinate.shooting_angle =
           ((pos.pivot_angle) - pos.wrist_angle + wristToIntakeOtherAngle);
     } else if (point == 1) {
-      pos.pivot_angle -= radians(17.0);
-      pos.wrist_angle -= radians(49.0);
-
       double truePivotAngle =
           (pos.pivot_angle) +
           (std::atan2(pivotToWristOffset, pos.extension + pivotToWrist));

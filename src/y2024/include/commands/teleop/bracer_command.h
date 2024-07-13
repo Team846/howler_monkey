@@ -17,7 +17,7 @@ class BracerCommand : public frc2::CommandHelper<frc2::Command, BracerCommand> {
   bool IsFinished() override;
 
  private:
-  int counter = 75;
+  int counter = 120;
 
   ControlInputSubsystem& control_input_;
   BracerSubsystem& bracer_;

@@ -1,4 +1,4 @@
-#include "autos/four_piece_auto.h"
+#include "autos/five_piece_auto.h"
 
 #include <frc2/command/Commands.h>
 #include <frc2/command/ParallelDeadlineGroup.h>
@@ -19,16 +19,16 @@
 #include "subsystems/hardware/swerve_module.h"
 #include "subsystems/robot_container.h"
 
-FourPieceAuto::FourPieceAuto(RobotContainer& container, bool should_flip)
+FivePieceAuto::FivePieceAuto(RobotContainer& container, bool should_flip)
     : should_flip_(should_flip) {
-  SetName("FourPieceAutoCommand" +
-          std::string(should_flip_ ? " red" : " blue"));
+  SetName("FivePieceAutoCommand" +
+          std::string(should_flip_ ? " blue" : " red"));
 
   AddCommands(
       frc2::InstantCommand{[&, flip = should_flip_] {
-        auto pose_ = field::points::kFourPieceOrigin(flip);
+        auto pose_ = field::points::kFivePieceOrigin(flip);
         container.drivetrain_.SetPoint(pose_.point);
-        container.drivetrain_.SetBearing(pose_.bearing);
+        container.drivetrain_.SetBearing(should_flip_ ? 180_deg : 0_deg);
       }},
       frc2::SequentialCommandGroup{frc2::WaitCommand{1.5_s},
                                    PrepareAutoShootCommand{container}},
@@ -36,19 +36,23 @@ FourPieceAuto::FourPieceAuto(RobotContainer& container, bool should_flip)
       frc2::WaitCommand{container.super_structure_.post_shoot_wait_.value()},
 
       AutoIntakeAndShootCommand(
-          container, {field::points::kFourPieceIntakeOne(should_flip_), 0_fps},
-          {field::points::kFourPieceShootOne(should_flip_), 0_fps}),
+          container, {field::points::kFivePieceIntakeOne(should_flip_), 0_fps},
+          {field::points::kFivePieceShootOne(should_flip_), 0_fps}),
 
       AutoIntakeAndShootCommand(
-          container, {field::points::kFourPieceIntakeTwo(should_flip_), 0_fps},
-          {field::points::kFourPieceShootTwo(should_flip_), 0_fps}),
+          container, {field::points::kFivePieceIntakeTwo(should_flip_), 0_fps},
+          {field::points::kFivePieceShootTwo(should_flip_), 0_fps}),
 
       AutoIntakeAndShootCommand(
           container,
-          {field::points::kFourPieceIntakeThree(should_flip_), 0_fps},
-          {field::points::kFourPieceShootThree(should_flip_), 0_fps}),
+          {field::points::kFivePieceIntakeThree(should_flip_), 0_fps},
+          {field::points::kFivePieceShootThree(should_flip_), 0_fps}),
+
+      AutoIntakeAndShootCommand(
+          container, {field::points::kFivePieceIntakeFour(should_flip_), 0_fps},
+          {field::points::kFivePieceShootFour(should_flip_), 0_fps}),
 
       FollowTrajectoryCommand{
           container,
-          {{field::points::kFourPieceFinalPosition(should_flip_), 0_fps}}});
+          {{field::points::kFivePieceFinalPosition(should_flip_), 0_fps}}});
 }

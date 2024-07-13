@@ -30,6 +30,8 @@ class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
  public:
   LEDsSubsystem(bool init);
 
+  void Setup() override {};
+
   LEDsTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;

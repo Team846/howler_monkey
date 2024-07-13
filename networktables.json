@@ -48,6 +48,246 @@
     }
   },
   {
+    "name": "/Preferences/Preferences/field_points/5p_origin_x (in)",
+    "type": "double",
+    "value": 217.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_origin_y (in)",
+    "type": "double",
+    "value": 49.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_origin_deg (deg)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_one_x (in)",
+    "type": "double",
+    "value": 217.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_one_y (in)",
+    "type": "double",
+    "value": 112.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_one_deg (deg)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_one_x (in)",
+    "type": "double",
+    "value": 217.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_one_y (in)",
+    "type": "double",
+    "value": 112.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_one_deg (deg)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_two_x (in)",
+    "type": "double",
+    "value": 292.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_two_y (in)",
+    "type": "double",
+    "value": 324.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_two_deg (deg)",
+    "type": "double",
+    "value": 20.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_two_x (in)",
+    "type": "double",
+    "value": 217.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_two_y (in)",
+    "type": "double",
+    "value": 53.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_two_deg (deg)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_three_x (in)",
+    "type": "double",
+    "value": 160.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_three_y (in)",
+    "type": "double",
+    "value": 112.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_three_deg (deg)",
+    "type": "double",
+    "value": -40.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_three_x (in)",
+    "type": "double",
+    "value": 217.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_three_y (in)",
+    "type": "double",
+    "value": 53.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_three_deg (deg)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_four_x (in)",
+    "type": "double",
+    "value": 274.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_four_y (in)",
+    "type": "double",
+    "value": 112.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_intake_four_deg (deg)",
+    "type": "double",
+    "value": 40.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_four_x (in)",
+    "type": "double",
+    "value": 274.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_four_y (in)",
+    "type": "double",
+    "value": 112.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_shoot_four_deg (deg)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_final_position_x (in)",
+    "type": "double",
+    "value": 274.5,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_final_position_y (in)",
+    "type": "double",
+    "value": 200.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Preferences/field_points/5p_final_position_deg (deg)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
     "name": "/Preferences/Preferences/field_points/op_origin_x (in)",
     "type": "double",
     "value": 104.4,
@@ -1346,7 +1586,7 @@
   {
     "name": "/Preferences/intake/Configs/gear_ratio",
     "type": "double",
-    "value": 0.4581489281250001,
+    "value": 0.11780972437500001,
     "properties": {
       "persistent": true
     }
@@ -2515,6 +2755,198 @@
     "name": "/Preferences/drivetrain/smart_current_braking/braking_p",
     "type": "double",
     "value": 0.45,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Configs/invert",
+    "type": "boolean",
+    "value": false,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Configs/gear_ratio",
+    "type": "double",
+    "value": 0.14979852970587568,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Configs/default_brake_mode",
+    "type": "boolean",
+    "value": true,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Configs/CurrentLimiting/target_threshold (A)",
+    "type": "double",
+    "value": 80.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Configs/CurrentLimiting/peak_time_threshold (ms)",
+    "type": "double",
+    "value": 200.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Configs/ramp_time (s)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Configs/use_ramp_rate",
+    "type": "boolean",
+    "value": false,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Configs/voltage_compensation (V)",
+    "type": "double",
+    "value": 16.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Configs/auton_voltage_compensation (V)",
+    "type": "double",
+    "value": 12.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Gains/kP",
+    "type": "double",
+    "value": 0.0002,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Gains/kD",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/drive_esc/Gains/kF",
+    "type": "double",
+    "value": 0.0001769,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Configs/invert",
+    "type": "boolean",
+    "value": false,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Configs/gear_ratio",
+    "type": "double",
+    "value": 16.8,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Configs/default_brake_mode",
+    "type": "boolean",
+    "value": false,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Configs/CurrentLimiting/target_threshold (A)",
+    "type": "double",
+    "value": 40.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Configs/CurrentLimiting/peak_time_threshold (ms)",
+    "type": "double",
+    "value": 200.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Configs/ramp_time (s)",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Configs/use_ramp_rate",
+    "type": "boolean",
+    "value": false,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Configs/voltage_compensation (V)",
+    "type": "double",
+    "value": 16.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Configs/auton_voltage_compensation (V)",
+    "type": "double",
+    "value": 12.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Gains/kP",
+    "type": "double",
+    "value": 0.12,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Gains/kD",
+    "type": "double",
+    "value": 0.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/drivetrain/steer_esc/Gains/kF",
+    "type": "double",
+    "value": 0.0,
     "properties": {
       "persistent": true
     }

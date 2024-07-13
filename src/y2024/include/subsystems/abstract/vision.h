@@ -38,6 +38,8 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
  public:
   VisionSubsystem(bool init);
 
+  void Setup() override {};
+
   VisionTarget ZeroTarget() const override;
 
   bool VerifyHardware() override;
