@@ -54,7 +54,7 @@ visualization = False
 try:
     import cv2
 except:
-    raise Exception('opencv not found')
+    raise Exception('OpenCV not found')
 
 try:
     from cv2 import imshow

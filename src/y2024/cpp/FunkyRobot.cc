@@ -142,11 +142,11 @@ void FunkyRobot::StartCompetition() {
     // Set new notifier time
     int32_t status = 0x00;
     HAL_UpdateNotifierAlarm(notifier_, next_loop_time_.to<uint64_t>(), &status);
-    FRC_CheckErrorStatus(status, "{}", "UpdateNotifierAlarm");
+    // FRC_CheckErrorStatus(status, "{}", "UpdateNotifierAlarm");
 
     // Wait for notifier
     auto time = HAL_WaitForNotifierAlarm(notifier_, &status);
-    FRC_CheckErrorStatus(status, "{}", "WaitForNotifierAlarm");
+    // FRC_CheckErrorStatus(status, "{}", "WaitForNotifierAlarm");
 
     if (time == 0x00 || status != 0x00) {
       break;
@@ -293,7 +293,7 @@ void FunkyRobot::StartCompetition() {
     loop_time_graph_.Graph(frc846::wpilib::CurrentFPGATime() - loop_start_time);
 
     // Check loop time
-    if (loop_time > kPeriod * 0x02) {
+    if (loop_time > kPeriod * 0x03) {
       Warn("Bad loop overrun: {} (loop period: {})",
            loop_time.convert<units::millisecond>(), kPeriod);
     }

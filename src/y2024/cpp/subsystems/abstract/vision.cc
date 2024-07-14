@@ -3,6 +3,7 @@
 #include <frc/DriverStation.h>
 #include <units/math.h>
 
+#include "field.h"
 #include "frc846/util/math.h"
 #include "frc846/util/share_tables.h"
 
@@ -42,7 +43,7 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
   double latency = table->GetNumber("tl", 0.0) + table->GetNumber("cl", 0.0);
 
-  ll_latency_graph_.Graph(latency * 1_ms);
+  ll_latency_graph_.Graph(latency * 1_s);
 
   auto speakerTag = frc846::util::ShareTables::GetBoolean("is_red_side")
                         ? tag_locations[4]
@@ -63,12 +64,13 @@ VisionReadings VisionSubsystem::GetNewReadings() {
   units::feet_per_second_t velocity_y = units::feet_per_second_t(
       frc846::util::ShareTables::GetDouble("velocity_y_"));
 
-  if (frc846::util::ShareTables::GetBoolean("is_red_side")) {
+  if (!frc846::util::ShareTables::GetBoolean("is_red_side")) {
     velocity_x = -velocity_x;
     velocity_y = -velocity_y;
   }
 
-  if (tag_locations.contains(tag_id)) {
+  if (tag_locations.contains(tag_id)) {  // &&
+    // frc846::util::ShareTables::GetString("mode").compare("kTeleop") == 0) {
     tag_in_sight_graph_.Graph(true);
 
     auto april_tag = tag_locations[tag_id];
@@ -80,13 +82,16 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
     newReadings.tag_distance =
         height_difference_ / units::math::tan(april_tag_vertical_angle);
+
     newReadings.local_y_dist =
         newReadings.tag_distance *
-            units::math::cos(units::degree_t(targetOffsetAngle_Horizontal)) -
+            units::math::cos(units::degree_t(targetOffsetAngle_Horizontal) +
+                             180_deg) +
         camera_y_offset_.value();
     newReadings.local_x_dist =
         newReadings.tag_distance *
-            units::math::sin(units::degree_t(targetOffsetAngle_Horizontal)) -
+            units::math::sin(units::degree_t(targetOffsetAngle_Horizontal) +
+                             180_deg) +
         camera_x_offset_.value();
 
     robot_y += can_bus_latency_.value() * velocity_y;
@@ -95,33 +100,33 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
     auto flipped = frc846::util::FieldPoint::flip(
         {{robot_x, robot_y}, bearing_},
-        frc846::util::ShareTables::GetBoolean("is_red_side"));
+        !frc846::util::ShareTables::GetBoolean("is_red_side"), true);
 
     robot_y = flipped.point.y;
     robot_x = flipped.point.x;
     bearing_ = flipped.bearing;
 
-    units::inch_t tag_x_dist =
-        newReadings.local_x_dist * units::math::sin(bearing_) +
-        newReadings.local_y_dist * units::math::cos(bearing_);
+    frc846::util::Vector2D<units::inch_t> local_tag_vec{
+        newReadings.local_x_dist, newReadings.local_y_dist};
+    auto tag_vec = local_tag_vec.Rotate(bearing_);
 
-    units::inch_t tag_y_dist =
-        newReadings.local_y_dist * units::math::sin(bearing_) +
-        newReadings.local_x_dist * units::math::cos(bearing_);
+    units::inch_t tag_x_dist = tag_vec.x;
 
-    y_correction = (april_tag.y_pos - tag_y_dist) -
-                   (robot_y - latency * 1_ms * velocity_y);
+    units::inch_t tag_y_dist = tag_vec.y;
 
-    x_correction = (april_tag.x_pos - tag_x_dist) -
-                   (robot_x - latency * 1_ms * velocity_x);
+    y_correction =
+        (april_tag.y_pos - tag_y_dist) - (robot_y - latency * 1_s * velocity_y);
+
+    x_correction =
+        (april_tag.x_pos - tag_x_dist) - (robot_x - latency * 1_s * velocity_x);
 
     newReadings.est_dist_from_speaker_x =
-        robot_x + x_correction - speakerTag.x_pos;
-    if (frc846::util::ShareTables::GetBoolean("is_red_side"))
+        robot_x + x_correction - field::points::kSpeaker().x;
+    if (!frc846::util::ShareTables::GetBoolean("is_red_side"))
       newReadings.est_dist_from_speaker_x *= -1;
 
     newReadings.est_dist_from_speaker_y =
-        units::math::abs(robot_y + y_correction - speakerTag.y_pos);
+        units::math::abs(robot_y + y_correction - field::points::kSpeaker().y);
 
   } else {
     tag_in_sight_graph_.Graph(false);
@@ -132,19 +137,19 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
     auto flipped = frc846::util::FieldPoint::flip(
         {{robot_x, robot_y}, bearing_},
-        frc846::util::ShareTables::GetBoolean("is_red_side"), true);
+        !frc846::util::ShareTables::GetBoolean("is_red_side"), true);
 
     robot_y = flipped.point.y;
     robot_x = flipped.point.x;
     bearing_ = flipped.bearing;
 
     newReadings.est_dist_from_speaker_x =
-        robot_x + x_correction - speakerTag.x_pos;
-    if (frc846::util::ShareTables::GetBoolean("is_red_side"))
+        robot_x + x_correction - field::points::kSpeaker().x;
+    if (!frc846::util::ShareTables::GetBoolean("is_red_side"))
       newReadings.est_dist_from_speaker_x *= -1;
 
     newReadings.est_dist_from_speaker_y =
-        units::math::abs(robot_y + y_correction - speakerTag.y_pos);
+        units::math::abs(robot_y + y_correction - field::points::kSpeaker().y);
   }
 
   auto point_target = frc846::util::Vector2D<units::foot_t>{

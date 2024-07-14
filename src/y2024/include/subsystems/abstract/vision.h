@@ -57,7 +57,7 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
   frc846::Grapher<units::foot_t> speaker_y_dist_graph_{readings_named,
                                                        "speaker_dist_y"};
   frc846::Grapher<units::foot_t> speaker_dist_graph_{readings_named,
-                                                     "speaker_dist_x"};
+                                                     "speaker_dist"};
   frc846::Grapher<units::foot_t> local_x_dist_graph_{readings_named,
                                                      "local_dist_x"};
   frc846::Grapher<units::foot_t> local_y_dist_graph_{readings_named,
@@ -73,23 +73,23 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
       readings_named, "velocity_orth_component"};
 
   std::shared_ptr<nt::NetworkTable> table =
-      nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+      nt::NetworkTableInstance::GetDefault().GetTable("AprilTags");
 
   frc846::Pref<units::millisecond_t> can_bus_latency_{*this, "can_bus_latency",
                                                       20_ms};
 
   // SPEAKER = Blue 7, Red 4
   std::map<int, AprilTagData> tag_locations{
-      {7, {-1.5_in, 218.42_in, 0_deg, 57.13_in}},
-      {8, {-1.5_in, 196.17_in, 0_deg, 57.13_in}},
-      {4, {652.73_in, 218.4_in, 180_deg, 57.13_in}},
-      {3, {652.73_in, 196.17_in, 180_deg, 57.13_in}}};
+      {4, {218.42_in, -1.5_in, 0_deg, 57.13_in}},
+      {3, {196.17_in, -1.5_in, 0_deg, 57.13_in}},
+      {7, {218.4_in, 652.73_in, 180_deg, 57.13_in}},
+      {8, {196.17_in, 652.73_in, 180_deg, 57.13_in}}};
 
   frc846::Pref<units::inch_t> camera_height_{*this, "camera_height", 14_in};
   frc846::Pref<units::degree_t> camera_angle_{*this, "camera_angle", 37_deg};
-  frc846::Pref<units::inch_t> camera_y_offset_{*this, "camera_y_offset_",
+  frc846::Pref<units::inch_t> camera_y_offset_{*this, "camera_y_offset",
                                                -10_in};
-  frc846::Pref<units::inch_t> camera_x_offset_{*this, "camera_x_offset_", 7_in};
+  frc846::Pref<units::inch_t> camera_x_offset_{*this, "camera_x_offset", -7_in};
 
   units::inch_t x_correction = 0_in;
   units::inch_t y_correction = 0_in;

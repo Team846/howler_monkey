@@ -48,10 +48,10 @@ void PrepareShootCommand::Execute() {
     shootSetpoint.wrist = theta + shootSetpoint.pivot;
   }
 
-  if (!super_.pivot_->WithinTolerance(shootSetpoint.pivot)) {
-    // shootSetpoint.wrist = super_.getStowSetpoint().wrist;
-    shootSetpoint.wrist -= 30_deg;
-  }
+  // if (!super_.pivot_->WithinTolerance(shootSetpoint.pivot)) {
+  //   // shootSetpoint.wrist = super_.getStowSetpoint().wrist;
+  //   shootSetpoint.wrist -= 30_deg;
+  // }
 
   super_.SetTargetSetpoint(shootSetpoint);
 }

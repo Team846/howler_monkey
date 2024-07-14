@@ -25,5 +25,7 @@ class ControlInputCommand
   DriverReadings previous_driver_;
   OperatorReadings previous_operator_;
 
-  ControlInputReadings ci_readings_;
+  ControlInputReadings ci_readings_{0,     false, false, false, false, false,
+                                    false, false, false, false, false, 0,
+                                    0,     0,     false, false};
 };

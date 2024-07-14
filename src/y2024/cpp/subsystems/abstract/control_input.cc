@@ -12,7 +12,7 @@ ControlInputTarget ControlInputSubsystem::ZeroTarget() const {
 bool ControlInputSubsystem::VerifyHardware() { return true; }
 
 ControlInputReadings ControlInputSubsystem::GetNewReadings() {
-  ControlInputReadings readings{readings_};
+  ControlInputReadings readings{this_readings_};
 
   if (readings.stageOfTrap != previous_readings_.stageOfTrap) {
     Log("ControlInput [Trap Stage] state changed to {}", readings.stageOfTrap);
@@ -97,5 +97,5 @@ ControlInputReadings ControlInputSubsystem::GetNewReadings() {
 void ControlInputSubsystem::DirectWrite(ControlInputTarget target) {}
 
 void ControlInputSubsystem::UpdateWithInput(ControlInputReadings newReadings) {
-  readings_ = newReadings;
+  this_readings_ = newReadings;
 }

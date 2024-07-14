@@ -26,25 +26,24 @@ void PrepareAutoShootCommand::Initialize() {
 void PrepareAutoShootCommand::Execute() {
   VisionReadings vis_readings_ = vision_.readings();
 
-  auto theta = shooting_calculator_
-                   .calculateLaunchAngles(
-                       shooter_.shooting_exit_velocity_.value(),
-                       vis_readings_.est_dist_from_speaker.to<double>(),
-                       vis_readings_.velocity_in_component,
-                       vis_readings_.velocity_orth_component,
-                       super_.auto_shooter_height_.value().to<double>() / 12.0)
-                   .launch_angle;
+  // auto theta =
+  //     shooting_calculator_
+  //         .calculateLaunchAngles(
+  //             shooter_.shooting_exit_velocity_.value(),
+  //             vis_readings_.est_dist_from_speaker.to<double>(), 0.0, 0.0,
+  //             super_.auto_shooter_height_.value().to<double>() / 12.0)
+  //         .launch_angle;
 
   intake_.SetTarget({IntakeState::kHold});
   shooter_.SetTarget({ShooterState::kRun});
 
   auto defaultShootSetpoint{super_.getAutoShootSetpoint()};
 
-  if (theta >= 1_deg) {
-    defaultShootSetpoint.wrist = theta + defaultShootSetpoint.pivot;
-  }
+  // if (theta >= 1_deg) {
+  //   defaultShootSetpoint.wrist = theta + defaultShootSetpoint.pivot;
+  // }
 
-  Log("Theta {}", theta);
+  // Log("Theta {}", theta);
 
   super_.SetTargetSetpoint(defaultShootSetpoint);
 }
@@ -54,7 +53,7 @@ void PrepareAutoShootCommand::End(bool interrupted) {
 }
 
 bool PrepareAutoShootCommand::IsFinished() {
-  return false; /*shooter_.readings().error_percent <=
+  return shooter_.readings().error_percent <=
              shooter_.shooter_speed_tolerance_.value() &&
-         super_.pivot_->WithinTolerance(super_.getAutoShootSetpoint().pivot);*/
+         super_.pivot_->WithinTolerance(super_.getAutoShootSetpoint().pivot);
 }

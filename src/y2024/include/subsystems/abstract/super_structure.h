@@ -103,16 +103,16 @@ class SuperStructureSubsystem
 
   void AdjustSetpoint(PTWSetpoint newAdj) {
     auto newAdjusted = newAdj + manualAdjustments;
-    newAdjusted.pivot =
-        pivot_->CapWithinLimits(newAdjusted.pivot + currentSetpoint.pivot) -
-        currentSetpoint.pivot;
-    newAdjusted.telescope =
-        telescope_->CapWithinLimits(newAdjusted.telescope +
-                                    currentSetpoint.telescope) -
-        currentSetpoint.telescope;
-    newAdjusted.wrist =
-        wrist_->CapWithinLimits(newAdjusted.wrist + currentSetpoint.wrist) -
-        currentSetpoint.wrist;
+    // newAdjusted.pivot =
+    //     pivot_->CapWithinLimits(newAdjusted.pivot + currentSetpoint.pivot) -
+    //     currentSetpoint.pivot;
+    // newAdjusted.telescope =
+    //     telescope_->CapWithinLimits(newAdjusted.telescope +
+    //                                 currentSetpoint.telescope) -
+    //     currentSetpoint.telescope;
+    // newAdjusted.wrist =
+    //     wrist_->CapWithinLimits(newAdjusted.wrist + currentSetpoint.wrist) -
+    //     currentSetpoint.wrist;
 
     if (CheckValidAdjustment(newAdjusted)) {
       manualAdjustments = newAdjusted;

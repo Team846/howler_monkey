@@ -18,22 +18,7 @@ bool LEDsSubsystem::VerifyHardware() { return true; }
 LEDsReadings LEDsSubsystem::GetNewReadings() { return {}; }
 
 void LEDsSubsystem::DirectWrite(LEDsTarget target) {
-  if (target.state == kLEDSNotReady) {
-    zeroSequence = false;
-    if (loops % 30 < 15) {
-      for (int i = 0; i < kLength; i++) {
-        leds_buffer_[i].SetRGB(255, 0, 0);
-      }
-    } else {
-      for (int i = 0; i < kLength; i++) {
-        leds_buffer_[i].SetRGB(0, 0, 0);
-      }
-    }
-    loops++;
-    loops %= 120;
-
-    leds_.SetData(leds_buffer_);
-  } else if (target.state == kLEDSZeroing) {
+  if (target.state == kLEDSZeroing) {
     if (loops % 18 < 9) {
       for (int i = 0; i < kLength; i++) {
         leds_buffer_[i].SetRGB(255, 17, 0);

@@ -29,7 +29,7 @@ void DriveCommand::Execute() {
   // Right bumper  | precision drive
 
   bool is_robot_centric = false;
-  bool is_slow_drive = driver_.readings().right_bumper;
+  // bool is_slow_drive = driver_.readings().right_bumper;
   bool prep_align_speaker = driver_.readings().y_button;
   bool amping = driver_.readings().left_bumper;
   bool sourcing = driver_.readings().x_button;
@@ -62,23 +62,23 @@ void DriveCommand::Execute() {
                           drivetrain_.driver_speed_multiplier_.value();
 
   // Slow down translation if slow mode is active
-  if (is_slow_drive) {
-    translate_x = frc846::util::HorizontalDeadband(
-        driver_.readings().left_stick_x *
-            std::abs(driver_.readings().left_stick_x),
-        driver_.translation_deadband_.value(), 1,
-        driver_.translation_exponent_.value(), 1);
-    translate_y = frc846::util::HorizontalDeadband(
-        driver_.readings().left_stick_y *
-            std::abs(driver_.readings().left_stick_y),
-        driver_.translation_deadband_.value(), 1,
-        driver_.translation_exponent_.value(), 1);
-    drivetrain_target.v_x = translate_x * drivetrain_.max_speed_.value() *
-                            drivetrain_.slow_mode_percent_.value();
-    drivetrain_target.v_y = (prep_align_speaker ? 0.0 : translate_y) *
-                            drivetrain_.max_speed_.value() *
-                            drivetrain_.slow_mode_percent_.value();
-  }
+  // if (is_slow_drive) {
+  //   translate_x = frc846::util::HorizontalDeadband(
+  //       driver_.readings().left_stick_x *
+  //           std::abs(driver_.readings().left_stick_x),
+  //       driver_.translation_deadband_.value(), 1,
+  //       driver_.translation_exponent_.value(), 1);
+  //   translate_y = frc846::util::HorizontalDeadband(
+  //       driver_.readings().left_stick_y *
+  //           std::abs(driver_.readings().left_stick_y),
+  //       driver_.translation_deadband_.value(), 1,
+  //       driver_.translation_exponent_.value(), 1);
+  //   drivetrain_target.v_x = translate_x * drivetrain_.max_speed_.value() *
+  //                           drivetrain_.slow_mode_percent_.value();
+  //   drivetrain_target.v_y = (prep_align_speaker ? 0.0 : translate_y) *
+  //                           drivetrain_.max_speed_.value() *
+  //                           drivetrain_.slow_mode_percent_.value();
+  // }
 
   // Robot vs field oriented translation
   drivetrain_target.translation_reference =
@@ -98,9 +98,9 @@ void DriveCommand::Execute() {
     auto target = steer_x * drivetrain_.max_omega();
 
     // Slow down steering if slow mode is active
-    if (is_slow_drive) {
-      target *= drivetrain_.slow_omega_percent_.value();
-    }
+    // if (is_slow_drive) {
+    //   target *= drivetrain_.slow_omega_percent_.value();
+    // }
 
     drivetrain_target.rotation = DrivetrainRotationVelocity(target);
   } else {
@@ -137,13 +137,14 @@ void DriveCommand::Execute() {
     driver_adjust_ += driver_.readings().right_stick_x / 5.0;
     driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
 
-    if (!flipping_controls) {
-      drivetrain_target.rotation =
-          DrivetrainRotationPosition(90_deg + units::degree_t(driver_adjust_));
-    } else {
-      drivetrain_target.rotation =
-          DrivetrainRotationPosition(-90_deg + units::degree_t(driver_adjust_));
-    }
+    // if (!flipping_controls) {
+    drivetrain_target.rotation =
+        DrivetrainRotationPosition(90_deg + units::degree_t(driver_adjust_));
+    // } else {
+    //   drivetrain_target.rotation =
+    //       DrivetrainRotationPosition(-90_deg +
+    //       units::degree_t(driver_adjust_));
+    // }
   } else if (sourcing) {
     driver_adjust_ += driver_.readings().right_stick_x / 5.0;
     driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);

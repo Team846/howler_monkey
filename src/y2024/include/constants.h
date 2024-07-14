@@ -35,25 +35,32 @@ class ShootingCalculator {
   ShootingAngles calculateLaunchAngles(double v, double d, double r_v,
                                        double r_o, double h_shooter,
                                        double max_iterations = 7) {
-    // if (lastAngle == 0.0) lastAngle = radians(45.0);
+    if (d <= 6.0) {
+      double h = h_speaker - h_shooter;
+      double h_approx = h + 4 * sqrt(h * h + d * d) / v;
+
+      double slope_approx = h_approx / d;
+
+      return {units::radian_t(std::atan(slope_approx)), 0_deg};
+    }
+
     try {
       double t = 0.0;
       for (int i = 0; i < max_iterations; i++) {
-        t = d / (r_v + v * std::cos(std::asin(r_o / v) * std::cos(lastAngle)));
-        lastAngle =
-            std::asin((h_speaker - h_shooter + 1 / 2 * g * t * t) / (v * t));
+        t = d / (r_v + v * std::cos(std::asin(r_o / v)) * std::cos(lastAngle));
+        lastAngle = std::asin((h_speaker - h_shooter + 1.0 / 2.0 * g * t * t) /
+                              (v * t));
       }
 
       if (v * std::sin(lastAngle) / g >= t) {
         return {units::radian_t(lastAngle),
                 units::radian_t(std::asin(r_o / v))};
       }
-
     } catch (std::exception& exc) {
       (void)exc;
     }
 
-    std::cout << "[Shooting calculator] out of range";
+    // std::cout << "[Shooting calculator] out of range";
 
     lastAngle = radians(0.0);
     return {0.0_deg, 0.0_deg};
@@ -106,20 +113,20 @@ class InverseKinematics {
 
  public:
   static bool withinBounds(CoordinatePositions pos) {
-    return (pos.forward_axis < robotWidth / 2.0 + 12.0 &&
-            pos.forward_axis > -robotWidth / 2.0 - 12.0 &&
-            pos.upward_axis < 48);
+    return (pos.forward_axis < robotWidth / 2.0 + 12.5 &&
+            pos.forward_axis > -robotWidth / 2.0 - 12.5 &&
+            pos.upward_axis < 49.5);
   }
 
   static double sumOutOfBounds(CoordinatePositions pos) {
     double sumOut = 0.0;
-    if (pos.forward_axis >= (robotWidth / 2.0 + 12.0)) {
-      sumOut += pos.forward_axis - (robotWidth / 2.0 + 12.0);
-    } else if (pos.forward_axis <= (-robotWidth / 2.0 - 12.0)) {
+    if (pos.forward_axis >= (robotWidth / 2.0 + 12.5)) {
+      sumOut += pos.forward_axis - (robotWidth / 2.0 + 12.5);
+    } else if (pos.forward_axis <= (-robotWidth / 2.0 - 12.5)) {
       sumOut += -robotWidth / 2.0 - 12.0 - pos.forward_axis;
     }
-    if (pos.upward_axis >= 48) {
-      sumOut += pos.upward_axis - 48;
+    if (pos.upward_axis >= 49.5) {
+      sumOut += pos.upward_axis - 49.5;
     }
     return sumOut;
   }

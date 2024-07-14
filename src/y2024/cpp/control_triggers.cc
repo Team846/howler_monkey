@@ -57,6 +57,12 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
   operator_pull_trigger.OnTrue(PullCommand{container}.ToPtr());
   operator_pull_trigger.OnFalse(IdleCommand{container, false}.ToPtr());
 
+  frc2::Trigger operator_spin_trigger{[&container] {
+    return container.control_input_.readings().manual_spin_up;
+  }};
+  operator_spin_trigger.OnTrue(SpinUpCommand{container}.ToPtr());
+  operator_spin_trigger.OnFalse(IdleCommand{container, false}.ToPtr());
+
   frc2::Trigger eject_trigger{
       [&container] { return container.control_input_.readings().eject; }};
 

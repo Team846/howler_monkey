@@ -44,8 +44,12 @@ class ControlInputSubsystem
   void UpdateWithInput(ControlInputReadings newReadings);
 
  private:
-  ControlInputReadings readings_;
-  ControlInputReadings previous_readings_;
+  ControlInputReadings this_readings_{0,     false, false, false, false, false,
+                                      false, false, false, false, false, 0,
+                                      0,     0,     false, false};
+  ControlInputReadings previous_readings_{0,     false, false, false, false, false,
+                                    false, false, false, false, false, 0,
+                                    0,     0,     false, false};
 
   ControlInputReadings GetNewReadings() override;
 
