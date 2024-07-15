@@ -34,14 +34,10 @@ class ShootingCalculator {
  public:
   ShootingAngles calculateLaunchAngles(double v, double d, double r_v,
                                        double r_o, double h_shooter,
+                                       double angle_setpoint = 55.0,
                                        double max_iterations = 7) {
-    if (d <= 6.0) {
-      double h = h_speaker - h_shooter;
-      double h_approx = h + 4 * sqrt(h * h + d * d) / v;
-
-      double slope_approx = h_approx / d;
-
-      return {units::radian_t(std::atan(slope_approx)), 0_deg};
+    if (d <= 4.0) {
+      return {1_deg * angle_setpoint, 0.0_deg};
     }
 
     try {

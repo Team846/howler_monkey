@@ -29,23 +29,34 @@ void PrepareShootCommand::Initialize() {
 void PrepareShootCommand::Execute() {
   VisionReadings vis_readings_ = vision_.readings();
 
+  auto shootSetpoint = super_.getShootSetpoint();
+
   auto theta =
       shooting_calculator_
           .calculateLaunchAngles(
               shooter_.shooting_exit_velocity_.value(),
-              vis_readings_.est_dist_from_speaker.to<double>(),
+              vis_readings_.est_dist_from_speaker.to<double>() +
+                  super_.teleop_shooter_x_.value().to<double>() / 12.0,
               vis_readings_.velocity_in_component,
               vis_readings_.velocity_orth_component,
-              super_.teleop_shooter_height_.value().to<double>() / 12.0)
+              super_.teleop_shooter_height_.value().to<double>() / 12.0,
+              shootSetpoint.wrist.to<double>())
           .launch_angle;
 
   intake_.SetTarget({IntakeState::kHold});
   shooter_.SetTarget({ShooterState::kRun});
 
-  auto shootSetpoint = super_.getShootSetpoint();
-
   if (super_shot_) {
     shootSetpoint.wrist = theta + shootSetpoint.pivot;
+  } else {
+    shootSetpoint.wrist += shootSetpoint.pivot;
+  }
+
+  if (shooter_.readings().error_percent <=
+      shooter_.shooter_speed_tolerance_.value()) {
+    frc846::util::ShareTables::SetBoolean("ready_to_shoot", true);
+  } else {
+    frc846::util::ShareTables::SetBoolean("ready_to_shoot", false);
   }
 
   // if (!super_.pivot_->WithinTolerance(shootSetpoint.pivot)) {

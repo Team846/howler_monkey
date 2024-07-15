@@ -80,10 +80,10 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
 
   // SPEAKER = Blue 7, Red 4
   std::map<int, AprilTagData> tag_locations{
-      {4, {218.42_in, -1.5_in, 0_deg, 57.13_in}},
-      {3, {196.17_in, -1.5_in, 0_deg, 57.13_in}},
-      {7, {218.4_in, 652.73_in, 180_deg, 57.13_in}},
-      {8, {196.17_in, 652.73_in, 180_deg, 57.13_in}}};
+      {4, {217.5_in, -1.5_in, 0_deg, 57.13_in}},
+      {-3, {196.17_in, -1.5_in, 0_deg, 57.13_in}},
+      {7, {217.5_in, 652.73_in, 180_deg, 57.13_in}},
+      {-8, {196.17_in, 652.73_in, 180_deg, 57.13_in}}};
 
   frc846::Pref<units::inch_t> camera_height_{*this, "camera_height", 14_in};
   frc846::Pref<units::degree_t> camera_angle_{*this, "camera_angle", 37_deg};

@@ -5,13 +5,29 @@ import cv2
 import threading
 from networktables import NetworkTables
 
-NetworkTables.initialize(server='roborio-846-frc.local')
+from pref import NumericPref, BooleanPref, KillSwitch
+
+NetworkTables.initialize(server='10.8.46.2')
 table = NetworkTables.getTable("AprilTags")
+
+preferenceTable = NetworkTables.getTable("JetsonPreferences")
+
+kill_switch = KillSwitch(preferenceTable)
+
+exposure_pref = (preferenceTable, "camera_exposure", 0.7)
+horizontal_fov_pref = NumericPref(preferenceTable, "h_fov", 63.1)
+vertical_fov_pref = NumericPref(preferenceTable, "v_fov", 50.0)
+
+h_frame_size = NumericPref(preferenceTable, "h_frame", 640)
+v_frame_size = NumericPref(preferenceTable, "v_frame", 480)
+
+cam_latency = NumericPref(preferenceTable, "camera_latency", 0.01)
+
 
 at_detector = Detector(families='tag36h11',
                        nthreads=1,
                        quad_decimate=1.0,
-                       quad_sigma=0.0,
+                       quad_sigma=0.3,
                        refine_edges=1,
                        decode_sharpening=0.25,
                        debug=0)
@@ -26,15 +42,21 @@ def process_frames():
     global table
     global queue
 
-    camLatency = 0.01
+    global cam_latency
+    global horizontal_fov_pref
+    global vertical_fov_pref
+    global h_frame_size
+    global v_frame_size
 
     validTagIds = [4, 7, 3, 8]
 
-    CAM_FOV_H = 63.1
-    CAM_FOV_V = 50.0
+    CAM_FOV_H = horizontal_fov_pref.get()
+    CAM_FOV_V = vertical_fov_pref.get()
 
-    CAM_SZ_H = 640
-    CAM_SZ_V = 480
+    CAM_SZ_H = h_frame_size.get()
+    CAM_SZ_V = v_frame_size.get()
+
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
 
     while True:
         if len(queue) == 0: continue
@@ -44,6 +66,7 @@ def process_frames():
         process_start_time = time.time()
 
         img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        img = clahe.apply(img)
 
         tags = at_detector.detect(img, False, camera_params, 0.065)
 
@@ -68,29 +91,36 @@ def process_frames():
             table.putNumber("tid", tag.tag_id)
             table.putNumber("tx", tx)
             table.putNumber("ty", ty)
-            table.putNumber("latency", camLatency + time.time() - process_start_time)
+            table.putNumber("latency", cam_latency.get() + time.time() - process_start_time)
 
         except:
             pass
 
         NetworkTables.flush()
-                
 
-
-if __name__ == "__main__":
-
-    print("SCRIPT: ATTEMPTING CAM 1")
+def getCamera() -> cv2.VideoCapture | None:
+    print("\n")
     cap = cv2.VideoCapture("/dev/video0")
     if cap.isOpened() == False:
-        print("SCRIPT: ATTEMPTING CAM 2")
+        print("CAM 1 FAILURE, ATTEMPTING CAM 2.")
         cap = cv2.VideoCapture("/dev/video1")
     if cap.isOpened() == False:
-        print("SCRIPT: CAM CONN FAILURE")
+        print("CAM CONN FAILURE.")
     else:
-        print("SCRIPT: CAM CONN")
+        print("CAM CONN SUCCESS.")
+    print("\n")
 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+if __name__ == "__main__":
+    cap = getCamera()
+
+    if cap is None:
+        print("Exiting, camera is None.")
+        exit(1)
+
+    # exposure setting code
+
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(h_frame_size.get()))
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(v_frame_size.get()))
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 0)
 
     if cap.isOpened():

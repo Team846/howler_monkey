@@ -9,7 +9,7 @@
 #include "frc846/wpilib/time.h"
 
 AutoShootCommand::AutoShootCommand(RobotContainer& container)
-    : frc846::Loggable{"shoot_command"},
+    : frc846::Loggable{"auto_shoot_command"},
       intake_(container.intake_),
       shooter_(container.shooter_),
       control_input_(container.control_input_) {

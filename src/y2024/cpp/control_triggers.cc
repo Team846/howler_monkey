@@ -15,6 +15,7 @@
 #include "commands/basic/source_command.h"
 #include "commands/basic/spin_up_command.h"
 #include "commands/basic/stow_command.h"
+#include "commands/basic/trap_command.h"
 
 void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
   frc2::Trigger amp_command_trigger{
@@ -74,4 +75,13 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
 
   shoot_trigger.OnTrue(ShootCommand{container}.ToPtr());
   shoot_trigger.OnFalse(IdleCommand{container, false}.ToPtr());
+
+  for (int i = 0; i <= 6; i++) {
+    frc2::Trigger trap_stage_trigger{[&container, i] {
+      return container.control_input_.readings().stageOfTrap == i;
+    }};
+    trap_stage_trigger.OnTrue(TrapCommand{container, i}.Until([&container, i] {
+      return container.control_input_.readings().stageOfTrap != i;
+    }));
+  }
 }

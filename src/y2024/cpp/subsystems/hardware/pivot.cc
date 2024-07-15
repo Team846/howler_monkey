@@ -14,8 +14,6 @@ PivotSubsystem::PivotSubsystem(bool init)
     pivot_three_.Init(frc846::control::REVSparkType::kSparkFLEX);
     pivot_four_.Init(frc846::control::REVSparkType::kSparkFLEX);
 
-    SetTarget(ZeroTarget());
-
     // if (auto esc = pivot_two_.getESC()) {
     //   if (auto leader_esc = pivot_one_.getESC()) {
     //     esc->Follow(*leader_esc);

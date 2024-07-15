@@ -333,6 +333,7 @@ void FunkyRobot::InitTeleopTriggers() {
                             container_.driver_.SetTarget(driver_target);
                           })
                               .WithTimeout(1_s)
+                              .AndThen(frc2::WaitCommand(1_s).ToPtr())
                               .AndThen(frc2::InstantCommand([this] {
                                          DriverTarget driver_target{};
                                          driver_target.rumble = false;

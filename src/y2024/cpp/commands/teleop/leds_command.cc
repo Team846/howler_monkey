@@ -34,6 +34,8 @@ void LEDsCommand::Execute() {
     lstate = LEDsState::kLEDSCOOPLeds;
   } else if (ci_readings_.stageOfTrap != 0) {
     lstate = LEDsState::kLEDSClimbing;
+  } else if (frc846::util::ShareTables::GetBoolean("ready_to_shoot")) {
+    lstate = LEDsState::kLEDSReadyToShoot;
   } else if (ci_readings_.running_prep_shoot ||
              ci_readings_.running_super_shoot) {
     lstate = LEDsState::kLEDSPreparingShoot;

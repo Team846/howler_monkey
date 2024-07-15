@@ -35,17 +35,16 @@ FivePieceAuto::FivePieceAuto(RobotContainer& container, bool should_flip)
 
       AutoIntakeAndShootCommand(
           container, {field::points::kFivePieceIntakeOne(should_flip_), 0_fps},
-          {field::points::kFivePieceShootOne(should_flip_), 0_fps})
+          {field::points::kFivePieceShootOne(should_flip_), 0_fps}),
 
-      //   AutoIntakeAndShootCommand(
-      //       container, {field::points::kFivePieceIntakeTwo(should_flip_),
-      //       0_fps}, {field::points::kFivePieceShootTwo(should_flip_),
-      //       0_fps}),
+      AutoIntakeAndShootCommand(
+          container, {field::points::kFivePieceIntakeTwo(should_flip_), 0_fps},
+          {field::points::kFivePieceShootTwo(should_flip_), 0_fps}),
 
-      //   AutoIntakeAndShootCommand(
-      //       container,
-      //       {field::points::kFivePieceIntakeThree(should_flip_), 0_fps},
-      //       {field::points::kFivePieceShootThree(should_flip_), 0_fps}),
+      AutoIntakeAndShootCommand(
+          container,
+          {field::points::kFivePieceIntakeThree(should_flip_), 0_fps},
+          {field::points::kFivePieceShootThree(should_flip_), 0_fps})
 
       //   AutoIntakeAndShootCommand(
       //       container, {field::points::kFivePieceIntakeFour(should_flip_),

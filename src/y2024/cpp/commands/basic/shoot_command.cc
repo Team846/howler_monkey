@@ -25,6 +25,8 @@ void ShootCommand::Execute() {
 }
 
 void ShootCommand::End(bool interrupted) {
+  frc846::util::ShareTables::SetBoolean("ready_to_shoot", false);
+  
   intake_.SetTarget({IntakeState::kHold});
   shooter_.SetTarget({ShooterState::kIdle});
 

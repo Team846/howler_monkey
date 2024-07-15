@@ -39,8 +39,8 @@ void FollowTrajectoryCommand::Initialize() {
                                  drivetrain_.max_acceleration_.value(),
                                  drivetrain_.max_deceleration_.value());
 
-  if (trajectory_.size() < 2) {
-    Error("trajectory size ({}) is less than 2 - ending!", trajectory_.size());
+  if (trajectory_.size() < 4) {
+    Error("trajectory size ({}) is less than 4 - ending!", trajectory_.size());
     is_done_ = true;
   } else {
     current_extrapolated_point_ = trajectory_[1].pos.point.Extrapolate(

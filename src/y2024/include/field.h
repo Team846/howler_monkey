@@ -14,9 +14,9 @@ struct field {
 
     static frc846::util::Vector2D<units::foot_t> kSpeaker(bool flip = false) {
       if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(217.5_in, 0_in);
+        return frc846::util::Vector2D<units::foot_t>(217.5_in, -4_in);
       } else {
-        return frc846::util::Vector2D<units::foot_t>(217.5_in, 659.8_in);
+        return frc846::util::Vector2D<units::foot_t>(217.5_in, 655.8_in);
       }
     }
 

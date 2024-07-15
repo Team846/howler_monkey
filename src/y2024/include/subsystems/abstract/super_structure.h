@@ -63,7 +63,10 @@ class SuperStructureSubsystem
                           SuperStructureTarget>{"SuperStructure", true},
         pivot_{pivot},
         wrist_{wrist},
-        telescope_{telescope} {};
+        telescope_{telescope} {
+    currentSetpoint = {pivot_->pivot_home_offset_.value(), 0_in,
+                       wrist_->wrist_home_offset_.value()};
+  };
 
   void Setup() override {};
 
@@ -103,19 +106,13 @@ class SuperStructureSubsystem
 
   void AdjustSetpoint(PTWSetpoint newAdj) {
     auto newAdjusted = newAdj + manualAdjustments;
-    // newAdjusted.pivot =
-    //     pivot_->CapWithinLimits(newAdjusted.pivot + currentSetpoint.pivot) -
-    //     currentSetpoint.pivot;
-    // newAdjusted.telescope =
-    //     telescope_->CapWithinLimits(newAdjusted.telescope +
-    //                                 currentSetpoint.telescope) -
-    //     currentSetpoint.telescope;
-    // newAdjusted.wrist =
-    //     wrist_->CapWithinLimits(newAdjusted.wrist + currentSetpoint.wrist) -
-    //     currentSetpoint.wrist;
-
-    if (CheckValidAdjustment(newAdjusted)) {
-      manualAdjustments = newAdjusted;
+    if (pivot_->WithinLimits(newAdjusted.pivot + currentSetpoint.pivot) &&
+        telescope_->WithinLimits(newAdjusted.telescope +
+                                 currentSetpoint.telescope) &&
+        wrist_->WithinLimits(newAdjusted.wrist + currentSetpoint.wrist)) {
+      if (CheckValidAdjustment(newAdjusted)) {
+        manualAdjustments = newAdjusted;
+      }
     }
   }
 
@@ -148,20 +145,25 @@ class SuperStructureSubsystem
                                                 "teleop_shooter_x", 4_in};
   frc846::Pref<units::inch_t> auto_shooter_height_{
       shooting_named_, "auto_shooter_height", 21_in};
+  frc846::Pref<units::inch_t> auto_shooter_x_{shooting_named_, "auto_shooter_x",
+                                              13_in};
 
   /*
    */
 
-  frc846::Pref<units::inch_t> trap_start_x{shooting_named_, "trap_start_x",
-                                           17_in};
-  frc846::Pref<units::inch_t> trap_start_y{shooting_named_, "trap_start_y",
-                                           25_in};
-  frc846::Pref<units::inch_t> trap_end_x{shooting_named_, "trap_fin_x", 25_in};
-  frc846::Pref<units::inch_t> trap_end_y{shooting_named_, "trap_fin_y", 47_in};
-  frc846::Pref<units::degree_t> trap_start_angle{shooting_named_,
-                                                 "trap_start_a", 60_deg};
-  frc846::Pref<units::degree_t> trap_end_angle{shooting_named_, "trap_end_a",
+  frc846::Loggable trap_named_{*this, "trap"};
+
+  frc846::Pref<units::inch_t> trap_start_x{trap_named_, "trap_start_x", 17_in};
+  frc846::Pref<units::inch_t> trap_start_y{trap_named_, "trap_start_y", 25_in};
+  frc846::Pref<units::inch_t> trap_end_x{trap_named_, "trap_fin_x", 25_in};
+  frc846::Pref<units::inch_t> trap_end_y{trap_named_, "trap_fin_y", 47_in};
+  frc846::Pref<units::degree_t> trap_start_angle{trap_named_, "trap_start_a",
+                                                 60_deg};
+  frc846::Pref<units::degree_t> trap_end_angle{trap_named_, "trap_end_a",
                                                -10_deg};
+
+  frc846::Pref<units::degree_t> pivot_pull_target_{
+      trap_named_, "pivot_pull_target", -10_deg};
 
   /*
    */
@@ -187,6 +189,15 @@ class SuperStructureSubsystem
 
   PTWSetPref preclimb_position_{"preclimb_position", {0_deg, 0_in, 0_deg}};
   PTWSetpoint getPreClimbSetpoint() { return preclimb_position_.get(); }
+
+  PTWSetPref prescore_position_{"prescore_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getPreScoreSetpoint() { return prescore_position_.get(); }
+
+  PTWSetPref trapscore_position_{"trapscore_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getTrapScoreSetpoint() { return trapscore_position_.get(); }
+
+  PTWSetPref postscore_position_{"postscore_position", {0_deg, 0_in, 0_deg}};
+  PTWSetpoint getPostScoreSetpoint() { return postscore_position_.get(); }
 
  private:
   bool hasZeroed = false;

@@ -112,8 +112,7 @@ void DriverSubsystem::DirectWrite(DriverTarget target) {
   target_rumble_graph_.Graph(target.rumble);
 
   auto rumble =
-      (target.rumble || frc846::util::ShareTables::GetString("shooting_state")
-                                .compare("kReady") == 0)
+      (target.rumble || frc846::util::ShareTables::GetBoolean("ready_to_shoot"))
           ? rumble_strength_.value()
           : 0;
 

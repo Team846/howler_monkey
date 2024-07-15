@@ -78,16 +78,28 @@ void LEDsSubsystem::DirectWrite(LEDsTarget target) {
     first_pixel_hue_ += 3;
     first_pixel_hue_ %= 180;
   } else if (target.state == kLEDSTeleop) {
-    for (int i = 0; i < kLength; i++) {
-      leds_buffer_[i].SetRGB(255, 17, 0);
+    if (loops % 20 < 10) {
+      for (int i = 0; i < kLength; i++) {
+        leds_buffer_[i].SetRGB(255, 17, 0);
+      }
+    } else {
+      for (int i = 0; i < kLength; i++) {
+        leds_buffer_[i].SetRGB(0, 0, 0);
+      }
     }
+    loops++;
+    loops %= 100;
   } else if (target.state == kLEDSAutonomous) {
     for (int i = 0; i < kLength; i++) {
       leds_buffer_[i].SetRGB(0, 0, 255);
     }
-  } else {
+  } else if (target.state == kLEDSNotReady) {
     for (int i = 0; i < kLength; i++) {
       leds_buffer_[i].SetRGB(255, 0, 0);
+    }
+  } else {
+    for (int i = 0; i < kLength; i++) {
+      leds_buffer_[i].SetRGB(255, 17, 0);
     }
   }
 
