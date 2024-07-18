@@ -25,7 +25,7 @@ void AutoDeployIntakeCommand::Initialize() {
 
 void AutoDeployIntakeCommand::Execute() {
   intake_.SetTarget({kIntake});
-  shooter_.SetTarget({kIdle});
+  // shooter_.SetTarget({kIdle});
 
   super_.SetTargetSetpoint(super_.getIntakeSetpoint());
 

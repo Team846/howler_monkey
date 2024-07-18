@@ -42,6 +42,11 @@ struct field {
       return five_piece_intake_one.flip(should_flip, true);
     };
 
+    static frc846::util::FieldPoint five_piece_mid_one;
+    static frc846::util::Position kFivePieceMidOne(bool should_flip) {
+      return five_piece_mid_one.flip(should_flip, true);
+    };
+
     static frc846::util::FieldPoint five_piece_shoot_one;
     static frc846::util::Position kFivePieceShootOne(bool should_flip) {
       return five_piece_shoot_one.flip(should_flip, true);
@@ -50,6 +55,11 @@ struct field {
     static frc846::util::FieldPoint five_piece_intake_two;
     static frc846::util::Position kFivePieceIntakeTwo(bool should_flip) {
       return five_piece_intake_two.flip(should_flip, true);
+    };
+
+    static frc846::util::FieldPoint five_piece_mid_two;
+    static frc846::util::Position kFivePieceMidTwo(bool should_flip) {
+      return five_piece_mid_two.flip(should_flip, true);
     };
 
     static frc846::util::FieldPoint five_piece_shoot_two;
@@ -62,24 +72,14 @@ struct field {
       return five_piece_intake_three.flip(should_flip, true);
     };
 
+    static frc846::util::FieldPoint five_piece_mid_three;
+    static frc846::util::Position kFivePieceMidThree(bool should_flip) {
+      return five_piece_mid_three.flip(should_flip, true);
+    };
+
     static frc846::util::FieldPoint five_piece_shoot_three;
     static frc846::util::Position kFivePieceShootThree(bool should_flip) {
       return five_piece_shoot_three.flip(should_flip, true);
-    };
-
-    static frc846::util::FieldPoint five_piece_intake_four;
-    static frc846::util::Position kFivePieceIntakeFour(bool should_flip) {
-      return five_piece_intake_four.flip(should_flip, true);
-    };
-
-    static frc846::util::FieldPoint five_piece_shoot_four;
-    static frc846::util::Position kFivePieceShootFour(bool should_flip) {
-      return five_piece_shoot_four.flip(should_flip, true);
-    };
-
-    static frc846::util::FieldPoint five_piece_final_position;
-    static frc846::util::Position kFivePieceFinalPosition(bool should_flip) {
-      return five_piece_final_position.flip(should_flip, true);
     };
   };
 };

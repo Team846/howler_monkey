@@ -25,7 +25,7 @@ void ControlInputCommand::Execute() {
 
   // TRAP
   if (op_readings.left_trigger && !previous_operator_.left_trigger) {
-    ci_readings_.stageOfTrap += std::min(ci_readings_.stageOfTrap + 1, 6);
+    ci_readings_.stageOfTrap = std::min(ci_readings_.stageOfTrap + 1, 6);
   } else if (op_readings.left_bumper && !previous_operator_.left_bumper) {
     ci_readings_.stageOfTrap = std::max(ci_readings_.stageOfTrap - 1, 0);
   }

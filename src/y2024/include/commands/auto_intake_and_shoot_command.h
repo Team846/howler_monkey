@@ -9,4 +9,4 @@
 
 frc2::SequentialCommandGroup AutoIntakeAndShootCommand(
     RobotContainer& container, frc846::InputWaypoint intake_point,
-    frc846::InputWaypoint shoot_point);
+    frc846::InputWaypoint mid_point, frc846::InputWaypoint shoot_point);

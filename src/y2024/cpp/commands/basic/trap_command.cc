@@ -48,7 +48,6 @@ void TrapCommand::Execute() {
     super_.SetTargetSetpoint(super_.getTrapScoreSetpoint());
   }
   if (stage_ == 5) {
-    intake_.SetTarget(intake_.ZeroTarget());
     shooter_.SetTarget(shooter_.ZeroTarget());
 
     intake_.SetTarget({IntakeState::kRelease});

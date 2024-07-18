@@ -33,4 +33,4 @@ void AutoShootCommand::End(bool interrupted) {
   Log("Auto Shoot Command Finished");
 }
 
-bool AutoShootCommand::IsFinished() { return is_done_; }
+bool AutoShootCommand::IsFinished() { return !intake_.GetHasPiece(); }

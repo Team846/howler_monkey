@@ -24,7 +24,7 @@ void LEDsCommand::Execute() {
     lstate = LEDsState::kLEDSAutonomous;
   } else if (frc846::util::ShareTables::GetBoolean("zero sequence")) {
     lstate = LEDsState::kLEDSZeroing;
-  } else if (!super_.wrist_->GetHasZeroed()) {
+  } else if (!leds_.GetHasZeroed()) {
     lstate = LEDsState::kLEDSNotReady;
   } else if (frc846::util::ShareTables::GetString("mode") == "disabled") {
     lstate = LEDsState::kLEDSDisabled;
