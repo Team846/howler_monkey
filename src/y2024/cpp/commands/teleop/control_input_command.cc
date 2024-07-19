@@ -49,7 +49,7 @@ void ControlInputCommand::Execute() {
   ci_readings_.shooting =
       ((ci_readings_.running_prep_shoot || ci_readings_.running_super_shoot) &&
        dr_readings.right_bumper) ||
-      op_readings.pov == frc846::XboxPOV::kLeft;
+      op_readings.pov == frc846::XboxPOV::kRight;
   // EJECT
   ci_readings_.eject =
       ((ci_readings_.running_amp) && dr_readings.right_bumper) ||

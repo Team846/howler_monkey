@@ -8,11 +8,13 @@
 #include "frc846/util/share_tables.h"
 #include "frc846/wpilib/time.h"
 
-IdleCommand::IdleCommand(RobotContainer& container, bool onlyIntake)
+IdleCommand::IdleCommand(RobotContainer& container, bool idleIntake,
+                         bool idleShooter)
     : frc846::Loggable{"idle_command"},
       intake_(container.intake_),
       shooter_(container.shooter_),
-      onlyIntake_(onlyIntake) {
+      idleIntake_(idleIntake),
+      idleShooter_(idleShooter) {
   AddRequirements({&intake_});
   SetName("idle_command");
 }
@@ -23,8 +25,8 @@ void IdleCommand::Initialize() {
 }
 
 void IdleCommand::Execute() {
-  intake_.SetTarget({IntakeState::kHold});
-  if (!onlyIntake_) shooter_.SetTarget({ShooterState::kIdle});
+  if (idleIntake_) intake_.SetTarget({IntakeState::kHold});
+  if (idleShooter_) shooter_.SetTarget({ShooterState::kIdle});
   is_done_ = true;
 }
 

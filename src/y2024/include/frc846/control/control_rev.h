@@ -195,7 +195,7 @@ class REVSparkController : public BaseESC<X> {
       return 1;
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(350));
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
     if (!CheckOK(esc_->SetCANTimeout(DNC::CANTimeout))) {
       parent_.Error("NOT configuring controller");
@@ -207,6 +207,8 @@ class REVSparkController : public BaseESC<X> {
 
     this->Q(parent_,
             [&]() { return CheckOK(esc_->RestoreFactoryDefaults(true)); });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
     auto motor_config = config_helper_.getMotorConfig();
 

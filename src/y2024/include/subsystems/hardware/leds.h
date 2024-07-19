@@ -36,15 +36,7 @@ class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
 
   bool VerifyHardware() override;
 
-  void ZeroSubsystem() {
-    SetTarget(ZeroTarget());
-    hasZeroed = true;
-  }
-
-  bool GetHasZeroed() { return hasZeroed; }
-
  private:
-  bool hasZeroed = false;
   bool zeroSequence = false;
 
   // Number of LEDs.

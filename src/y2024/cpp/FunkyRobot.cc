@@ -88,11 +88,7 @@ void FunkyRobot::StartCompetition() {
 
   frc::SmartDashboard::PutData("zero_subsystems",
                                new frc846::other::SendableCallback([this] {
-                                 container_.pivot_.ZeroSubsystem();
-                                 container_.telescope_.ZeroSubsystem();
-                                 container_.wrist_.ZeroSubsystem();
-                                 container_.leds_.ZeroSubsystem();
-                                 container_.drivetrain_.ZeroBearing();
+                                 container_.super_structure_.ZeroSubsystem();
                                }));
 
   frc::SmartDashboard::PutData("coast_subsystems",
@@ -249,11 +245,7 @@ void FunkyRobot::StartCompetition() {
       Log("Zeroing all subsystems");
 
       frc846::util::ShareTables::SetBoolean("zero sequence", true);
-      container_.pivot_.ZeroSubsystem();
-      container_.telescope_.ZeroSubsystem();
-      container_.wrist_.ZeroSubsystem();
-      container_.leds_.ZeroSubsystem();
-
+      container_.super_structure_.ZeroSubsystem();
       // container_.drivetrain_.ZeroBearing();
     }
     if (!coasting_switch_.Get() && word.IsDisabled()) {

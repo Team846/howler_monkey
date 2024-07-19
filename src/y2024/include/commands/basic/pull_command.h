@@ -22,6 +22,7 @@ class PullCommand : public frc2::CommandHelper<frc2::Command, PullCommand>,
 
  private:
   IntakeSubsystem& intake_;
+  ShooterSubsystem& shooter_;
 
   bool is_done_ = false;
 };

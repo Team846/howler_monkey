@@ -28,24 +28,24 @@ void PrepareAutoShootCommand::Execute() {
 
   auto defaultShootSetpoint{super_.getAutoShootSetpoint()};
 
-  auto theta =
-      shooting_calculator_
-          .calculateLaunchAngles(
-              shooter_.shooting_exit_velocity_.value(),
-              vis_readings_.est_dist_from_speaker.to<double>() +
-                  super_.auto_shooter_x_.value().to<double>() / 12.0,
-              0.0, 0.0, super_.auto_shooter_height_.value().to<double>() / 12.0,
-              defaultShootSetpoint.wrist.to<double>())
-          .launch_angle;
+  // auto theta =
+  //     shooting_calculator_
+  //         .calculateLaunchAngles(
+  //             shooter_.shooting_exit_velocity_.value(),
+  //             vis_readings_.est_dist_from_speaker.to<double>() +
+  //                 super_.auto_shooter_x_.value().to<double>() / 12.0,
+  //             0.0, 0.0, super_.auto_shooter_height_.value().to<double>()
+  //             / 12.0, defaultShootSetpoint.wrist.to<double>())
+  //         .launch_angle;
 
   intake_.SetTarget({IntakeState::kHold});
   shooter_.SetTarget({ShooterState::kRun});
 
-  if (theta <= 1_deg) {
-    theta = defaultShootSetpoint.wrist;
-  }
+  // if (theta <= 1_deg) {
+  // theta = defaultShootSetpoint.wrist;
+  // }
 
-  defaultShootSetpoint.wrist = theta + defaultShootSetpoint.pivot;
+  defaultShootSetpoint.wrist += defaultShootSetpoint.pivot;
 
   // Log("Theta {}", theta);
 

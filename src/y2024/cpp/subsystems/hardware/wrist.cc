@@ -48,10 +48,13 @@ WristReadings WristSubsystem::GetNewReadings() {
     wrist_error_graph.Graph(*target_angle - readings.wrist_position);
   }
 
+  readings.wrist_velocity = wrist_esc_.GetVelocity();
+
   return readings;
 }
 
 void WristSubsystem::DirectWrite(WristTarget target) {
+  hard_limits_.OverrideLimits(target.override_limits);
   if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
     double output = dyFPID.calculate(*pos, readings().wrist_position,
                                      wrist_esc_.GetVelocityPercentage(),

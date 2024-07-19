@@ -20,9 +20,6 @@ StowCommand::StowCommand(RobotContainer& container)
 void StowCommand::Initialize() { Log("Stow Command Initialize"); }
 
 void StowCommand::Execute() {
-  intake_.SetTarget(intake_.ZeroTarget());
-  shooter_.SetTarget(shooter_.ZeroTarget());
-
   super_.SetTargetSetpoint(super_.getStowSetpoint());
 }
 

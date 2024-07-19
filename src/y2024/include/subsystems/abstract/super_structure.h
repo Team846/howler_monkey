@@ -74,7 +74,14 @@ class SuperStructureSubsystem
 
   bool VerifyHardware() override;
 
-  void ZeroSubsystem() { hasZeroed = true; }
+  void HomeWrist() { homing_wrist = true; }
+
+  void ZeroSubsystem() {
+    pivot_->ZeroSubsystem();
+    wrist_->ZeroSubsystem();
+    telescope_->ZeroSubsystem();
+    hasZeroed = true;
+  }
 
   bool GetHasZeroed() { return hasZeroed; }
 
@@ -88,31 +95,39 @@ class SuperStructureSubsystem
   }
 
   bool CheckValidAdjustment(PTWSetpoint adjusted) {
-    auto nextSumOutOfBounds = InverseKinematics::sumOutOfBounds(
-        InverseKinematics::degree_toCoordinate(
-            {(currentSetpoint.pivot + adjusted.pivot).to<double>(),
-             (currentSetpoint.wrist + adjusted.wrist).to<double>(),
-             (currentSetpoint.wrist + adjusted.wrist).to<double>()}));
+    auto intakeWithinBounds =
+        ArmKinematics::withinBounds(ArmKinematics::calculateCoordinatePosition(
+            {(currentSetpoint.pivot + adjusted.pivot),
+             (currentSetpoint.telescope + adjusted.telescope),
+             (currentSetpoint.wrist + adjusted.wrist)},
+            true));
 
-    auto currentSumOutOfBounds = InverseKinematics::sumOutOfBounds(
-        InverseKinematics::degree_toCoordinate(
-            {(currentSetpoint.pivot + manualAdjustments.pivot).to<double>(),
-             (currentSetpoint.wrist + manualAdjustments.wrist).to<double>(),
-             (currentSetpoint.wrist + manualAdjustments.wrist).to<double>()}));
+    if (!intakeWithinBounds) return false;
 
-    return (nextSumOutOfBounds < 0.05 ||
-            nextSumOutOfBounds <= currentSumOutOfBounds);
+    auto shooterInBounds =
+        ArmKinematics::withinBounds(ArmKinematics::calculateCoordinatePosition(
+            {(currentSetpoint.pivot + adjusted.pivot),
+             (currentSetpoint.telescope + adjusted.telescope),
+             (currentSetpoint.wrist + adjusted.wrist)},
+            false));
+
+    return shooterInBounds;
   };
 
   void AdjustSetpoint(PTWSetpoint newAdj) {
     auto newAdjusted = newAdj + manualAdjustments;
-    if (pivot_->WithinLimits(newAdjusted.pivot + currentSetpoint.pivot) &&
-        telescope_->WithinLimits(newAdjusted.telescope +
-                                 currentSetpoint.telescope) &&
-        wrist_->WithinLimits(newAdjusted.wrist + currentSetpoint.wrist)) {
-      if (CheckValidAdjustment(newAdjusted)) {
-        manualAdjustments = newAdjusted;
-      }
+
+    newAdjusted = {
+        pivot_->CapWithinLimits(newAdjusted.pivot + currentSetpoint.pivot) -
+            currentSetpoint.pivot,
+        telescope_->CapWithinLimits(newAdjusted.telescope +
+                                    currentSetpoint.telescope) -
+            currentSetpoint.telescope,
+        wrist_->CapWithinLimits(newAdjusted.wrist + currentSetpoint.wrist) -
+            currentSetpoint.wrist};
+
+    if (CheckValidAdjustment(newAdjusted)) {
+      manualAdjustments = newAdjusted;
     }
   }
 
@@ -148,19 +163,24 @@ class SuperStructureSubsystem
   frc846::Pref<units::inch_t> auto_shooter_x_{shooting_named_, "auto_shooter_x",
                                               13_in};
 
+  // For shooter positions
+  frc846::Loggable intake_point_arm_pose_{*this, "intake_point_arm_pose"};
+
+  frc846::Grapher<units::inch_t> intake_point_x_graph_{intake_point_arm_pose_,
+                                                       "x"};
+  frc846::Grapher<units::inch_t> intake_point_y_graph_{intake_point_arm_pose_,
+                                                       "y"};
+
+  frc846::Loggable shooter_point_arm_pose_{*this, "shooter_point_arm_pose"};
+  frc846::Grapher<units::inch_t> shooter_point_x_graph_{shooter_point_arm_pose_,
+                                                        "x"};
+  frc846::Grapher<units::inch_t> shooter_point_y_graph_{shooter_point_arm_pose_,
+                                                        "y"};
+
   /*
    */
 
   frc846::Loggable trap_named_{*this, "trap"};
-
-  frc846::Pref<units::inch_t> trap_start_x{trap_named_, "trap_start_x", 17_in};
-  frc846::Pref<units::inch_t> trap_start_y{trap_named_, "trap_start_y", 25_in};
-  frc846::Pref<units::inch_t> trap_end_x{trap_named_, "trap_fin_x", 25_in};
-  frc846::Pref<units::inch_t> trap_end_y{trap_named_, "trap_fin_y", 47_in};
-  frc846::Pref<units::degree_t> trap_start_angle{trap_named_, "trap_start_a",
-                                                 60_deg};
-  frc846::Pref<units::degree_t> trap_end_angle{trap_named_, "trap_end_a",
-                                               -10_deg};
 
   frc846::Pref<units::degree_t> pivot_pull_target_{
       trap_named_, "pivot_pull_target", -10_deg};
@@ -201,6 +221,8 @@ class SuperStructureSubsystem
 
  private:
   bool hasZeroed = false;
+  bool homing_wrist = false;
+  int wrist_home_counter = 0;
 
   SuperStructureReadings GetNewReadings() override;
 

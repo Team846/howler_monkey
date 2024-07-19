@@ -13,10 +13,12 @@
 
 struct WristReadings {
   units::degree_t wrist_position;
+  units::degrees_per_second_t wrist_velocity;
 };
 
 struct WristTarget {
   std::variant<units::degree_t, double> wrist_output;
+  bool override_limits = false;
 };
 
 class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
@@ -46,6 +48,8 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
       esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
   }
 
+  void DeZero() { hasZeroed = false; }
+
   void ZeroSubsystem() {
     hasZeroed = true;
     wrist_esc_.ZeroEncoder(wrist_home_offset_.value());
@@ -70,6 +74,11 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
 
   frc846::Pref<units::degrees_per_second_t> max_adjustment_rate_{
       *this, "max_adjustment_rate", units::degrees_per_second_t(80.0)};
+
+  frc846::Pref<units::degrees_per_second_t> homing_velocity_tolerance_{
+      *this, "homing_velocity_tolerance", 1.0_deg_per_s};
+  frc846::Pref<int> num_loops_homed_{*this, "num_loops_homed", 7};
+  frc846::Pref<double> homing_speed_{*this, "homing_speed", -0.2};
 
  private:
   bool hasZeroed = false;

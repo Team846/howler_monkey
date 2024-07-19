@@ -135,7 +135,8 @@ SwerveModuleReadings SwerveModuleSubsystem::GetNewReadings() {
 
   current_speed_ = readings.speed;
 
-  current_graph_.Graph(units::ampere_t(drive_esc_helper_.GetCurrent()));
+  // current_graph_.Graph(units::ampere_t(drive_esc_helper_.GetCurrent()));
+  current_graph_.Graph(-1_A);
 
   swerve_speed_graph_.Graph((units::unit_cast<double>(readings.speed)));
 

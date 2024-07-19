@@ -22,7 +22,7 @@ FRC846_CTRE_NAMESPACE()
 namespace frc846::control {
 
 struct DNC {
-  static constexpr double CANTimeout = 50.0;  // ms
+  static constexpr double CANTimeout = 20.0;  // ms
 
   static constexpr int numRetries = 5;
   static constexpr int maxQWaitLoops = 50;

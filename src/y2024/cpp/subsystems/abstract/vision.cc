@@ -98,13 +98,13 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
     robot_x += can_bus_latency_.value() * velocity_x;
 
-    auto flipped = frc846::util::FieldPoint::flip(
-        {{robot_x, robot_y}, bearing_},
-        !frc846::util::ShareTables::GetBoolean("is_red_side"), true);
+    // auto flipped = frc846::util::FieldPoint::flip(
+    //     {{robot_x, robot_y}, bearing_},
+    //     !frc846::util::ShareTables::GetBoolean("is_red_side"), true);
 
-    robot_y = flipped.point.y;
-    robot_x = flipped.point.x;
-    bearing_ = flipped.bearing;
+    // robot_y = flipped.point.y;
+    // robot_x = flipped.point.x;
+    // bearing_ = flipped.bearing;
 
     frc846::util::Vector2D<units::inch_t> local_tag_vec{
         newReadings.local_x_dist, newReadings.local_y_dist};
@@ -119,38 +119,23 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
     x_correction =
         (april_tag.x_pos - tag_x_dist) - (robot_x - latency * 1_s * velocity_x);
-
-    newReadings.est_dist_from_speaker_x =
-        robot_x + x_correction - field::points::kSpeaker().x;
-    if (!frc846::util::ShareTables::GetBoolean("is_red_side"))
-      newReadings.est_dist_from_speaker_x *= -1;
-
-    newReadings.est_dist_from_speaker_y =
-        units::math::abs(robot_y + y_correction - field::points::kSpeaker().y);
-
   } else {
     tag_in_sight_graph_.Graph(false);
-
-    robot_y += can_bus_latency_.value() * velocity_y;
-
-    robot_x += can_bus_latency_.value() * velocity_x;
-
-    auto flipped = frc846::util::FieldPoint::flip(
-        {{robot_x, robot_y}, bearing_},
-        !frc846::util::ShareTables::GetBoolean("is_red_side"), true);
-
-    robot_y = flipped.point.y;
-    robot_x = flipped.point.x;
-    bearing_ = flipped.bearing;
-
-    newReadings.est_dist_from_speaker_x =
-        robot_x + x_correction - field::points::kSpeaker().x;
-    if (!frc846::util::ShareTables::GetBoolean("is_red_side"))
-      newReadings.est_dist_from_speaker_x *= -1;
-
-    newReadings.est_dist_from_speaker_y =
-        units::math::abs(robot_y + y_correction - field::points::kSpeaker().y);
   }
+
+  robot_y += can_bus_latency_.value() * velocity_y + y_correction;
+
+  robot_x += can_bus_latency_.value() * velocity_x + x_correction;
+
+  newReadings.est_dist_from_speaker_x =
+      robot_x - field::points::kSpeaker(
+                    !frc846::util::ShareTables::GetBoolean("is_red_side"))
+                    .x;
+
+  newReadings.est_dist_from_speaker_y = 
+      robot_y - field::points::kSpeaker(
+                    !frc846::util::ShareTables::GetBoolean("is_red_side"))
+                    .y;
 
   auto point_target = frc846::util::Vector2D<units::foot_t>{
       -newReadings.est_dist_from_speaker_x,

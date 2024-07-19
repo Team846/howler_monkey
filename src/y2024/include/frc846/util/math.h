@@ -144,6 +144,7 @@ class FieldPoint {
   }
 
   static Position flip(Position point, bool should_flip, bool onlyY = false) {
+    if (onlyY) return flipOnlyY(point, should_flip);
     if (should_flip) {
       return Position{
           {field_size_x - point.point.x, field_size_y - point.point.y},

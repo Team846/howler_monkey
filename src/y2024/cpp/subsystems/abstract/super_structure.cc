@@ -16,5 +16,33 @@ void SuperStructureSubsystem::DirectWrite(SuperStructureTarget target) {
 
   pivot_->SetTarget({targetPos.pivot});
   telescope_->SetTarget({targetPos.telescope});
-  wrist_->SetTarget({targetPos.wrist});
+
+  if (homing_wrist) {
+    wrist_->SetTarget({wrist_->homing_speed_.value(), true});
+    if (wrist_->readings().wrist_velocity <=
+        wrist_->homing_velocity_tolerance_.value()) {
+      wrist_home_counter++;
+    } else {
+      wrist_home_counter = 0;
+    }
+    if (wrist_home_counter >= 30) {
+      wrist_->ZeroSubsystem();
+      homing_wrist = false;
+    }
+  } else {
+    wrist_->SetTarget({targetPos.wrist});
+  }
+
+  CoordinatePositions targetPosIntake{
+      ArmKinematics::calculateCoordinatePosition(
+          {targetPos.pivot, targetPos.telescope, targetPos.wrist}, true)};
+  CoordinatePositions targetPosShooter{
+      ArmKinematics::calculateCoordinatePosition(
+          {targetPos.pivot, targetPos.telescope, targetPos.wrist}, false)};
+
+  intake_point_x_graph_.Graph(targetPosIntake.forward_axis);
+  intake_point_y_graph_.Graph(targetPosIntake.upward_axis);
+
+  shooter_point_x_graph_.Graph(targetPosShooter.forward_axis);
+  shooter_point_y_graph_.Graph(targetPosShooter.upward_axis);
 }

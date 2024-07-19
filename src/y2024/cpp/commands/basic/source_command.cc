@@ -23,10 +23,7 @@ void SourceCommand::Execute() {
   super_.SetTargetSetpoint(super_.getSourceSetpoint());
 }
 
-void SourceCommand::End(bool interrupted) {
-  Log("Source Command Finished");
-  intake_.SetTarget(intake_.ZeroTarget());
-}
+void SourceCommand::End(bool interrupted) { Log("Source Command Finished"); }
 
 bool SourceCommand::IsFinished() {
   return super_.hasReachedSetpoint(super_.getSourceSetpoint()) &&

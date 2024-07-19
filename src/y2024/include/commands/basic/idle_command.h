@@ -10,7 +10,7 @@
 class IdleCommand : public frc2::CommandHelper<frc2::Command, IdleCommand>,
                     public frc846::Loggable {
  public:
-  IdleCommand(RobotContainer& container, bool onlyIntake);
+  IdleCommand(RobotContainer& container, bool idleIntake, bool idleShooter);
 
   void Initialize() override;
 
@@ -24,7 +24,8 @@ class IdleCommand : public frc2::CommandHelper<frc2::Command, IdleCommand>,
   IntakeSubsystem& intake_;
   ShooterSubsystem& shooter_;
 
-  bool onlyIntake_;
+  bool idleIntake_;
+  bool idleShooter_;
 
   bool is_done_ = false;
 };

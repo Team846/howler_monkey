@@ -9,8 +9,10 @@
 #include "frc846/wpilib/time.h"
 
 PullCommand::PullCommand(RobotContainer& container)
-    : frc846::Loggable{"pull_command"}, intake_(container.intake_) {
-  AddRequirements({&intake_});
+    : frc846::Loggable{"pull_command"},
+      intake_(container.intake_),
+      shooter_(container.shooter_) {
+  AddRequirements({&intake_, &shooter_});
   SetName("pull_command");
 }
 
@@ -21,6 +23,7 @@ void PullCommand::Initialize() {
 
 void PullCommand::Execute() {
   intake_.SetTarget({IntakeState::kPull});
+  shooter_.SetTarget({ShooterState::kIdle});
   is_done_ = true;
 }
 

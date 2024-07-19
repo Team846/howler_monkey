@@ -7,26 +7,50 @@ Preferences/MotionTargets/Pivot/shoot_position (deg).double | 70.000000
 Preferences/MotionTargets/Pivot/stow_position (deg).double | -17.000000
 Preferences/MotionTargets/Telescope/amp_position (in).double | 4.000000
 Preferences/MotionTargets/Wrist/amp_position (deg).double | 107.000000
-Preferences/MotionTargets/Wrist/auto_shoot_position (deg).double | 50.000000
-Preferences/MotionTargets/Wrist/intake_position (deg).double | 35.000000
+Preferences/MotionTargets/Wrist/auto_shoot_position (deg).double | 43.000000
+Preferences/MotionTargets/Wrist/intake_position (deg).double | 34.300000
 Preferences/MotionTargets/Wrist/preclimb_position (deg).double | -30.000000
-Preferences/MotionTargets/Wrist/shoot_position (deg).double | 105.000000
+Preferences/MotionTargets/Wrist/shoot_position (deg).double | 40.000000
 Preferences/MotionTargets/Wrist/stow_position (deg).double | -30.000000
+Preferences/field_points/5p_intake_one_y (in).double | 94.000000
+Preferences/field_points/5p_intake_three_deg (deg).double | 0.000000
+Preferences/field_points/5p_intake_three_x (in).double | 153.000000
+Preferences/field_points/5p_intake_three_y (in).double | 94.000000
+Preferences/field_points/5p_intake_two_deg (deg).double | 50.000000
+Preferences/field_points/5p_intake_two_x (in).double | 160.500000
+Preferences/field_points/5p_intake_two_y (in).double | 112.000000
+Preferences/field_points/5p_mid_one_deg (deg).double | 0.000000
+Preferences/field_points/5p_mid_one_x (in).double | 217.500000
+Preferences/field_points/5p_mid_one_y (in).double | 70.000000
+Preferences/field_points/5p_mid_three_deg (deg).double | 0.000000
+Preferences/field_points/5p_mid_three_x (in).double | 117.000000
+Preferences/field_points/5p_mid_three_y (in).double | 70.000000
+Preferences/field_points/5p_mid_two_deg (deg).double | 0.000000
+Preferences/field_points/5p_mid_two_x (in).double | 230.000000
+Preferences/field_points/5p_mid_two_y (in).double | 70.000000
+Preferences/field_points/5p_shoot_one_y (in).double | 51.000000
+Preferences/field_points/5p_shoot_three_x (in).double | 213.000000
+Preferences/field_points/5p_shoot_three_y (in).double | 52.000000
+Preferences/field_points/5p_shoot_two_y (in).double | 52.000000
 Preferences/field_points/testing_point_y (in).double | 10000.000000
-SuperStructure/shooting/auto_shooter_height (in).double | 21.000000
-SuperStructure/shooting/teleop_shooter_height (in).double | 44.000000
+SuperStructure/auto/post_shoot_wait (s).double | 0.100000
+SuperStructure/auto/pre_shoot_wait (s).double | 0.100000
+SuperStructure/shooting/auto_shooter_height (in).double | 23.000000
+SuperStructure/shooting/auto_shooter_x (in).double | 15.000000
+SuperStructure/shooting/teleop_shooter_height (in).double | 41.000000
 drivetrain/Configs/CurrentLimiting/target_threshold (A).double | 40.000000
 drivetrain/Configs/default_brake_mode.bool | false
 drivetrain/Configs/gear_ratio.double | 16.800000
 drivetrain/Gains/kF.double | 0.000000
 drivetrain/Gains/kP.double | 0.120000
-drivetrain/auto_max_speed (fps).double | 3.000000
+drivetrain/auto_max_speed (fps).double | 15.000000
 drivetrain/bearing_gains/d.double | -17.000000
 drivetrain/bearing_gains/p.double | 5.000000
+drivetrain/drive_esc/Configs/CurrentLimiting/target_threshold (A).double | 240.000000
 drivetrain/drive_esc/Gains/kF.double | 0.205000
 drivetrain/drive_esc/Gains/kP.double | 0.010000
 drivetrain/driver_speed_multiplier.double | 1.000000
-drivetrain/max_acceleration (fps_sq).double | 20.000000
+drivetrain/max_acceleration (fps_sq).double | 28.000000
 drivetrain/module_BL/cancoder_offset (deg).double | -81.300000
 drivetrain/module_BR/cancoder_offset (deg).double | -173.900000
 drivetrain/module_FL/cancoder_offset (deg).double | 100.400000
@@ -38,7 +62,7 @@ intake/Configs/ramp_time (s).double | 1.000000
 intake/Configs/use_ramp_rate.bool | true
 intake/Gains/kF.double | 0.000190
 intake/Gains/kP.double | 0.000000
-intake/base_intake_speed_ (fps).double | 5.000000
+intake/base_intake_speed_ (fps).double | 3.000000
 intake/intake_feed_speed_ (fps).double | 6.000000
 intake/release_speed.double | -0.500000
 intake/retract_speed.double | -0.300000
@@ -55,7 +79,8 @@ pivot/Gains/kF.double | 0.044000
 pivot/Gains/kP.double | 0.045000
 pivot/pivot_home_offset (deg).double | -17.000000
 pivot/pivot_tolerance (deg).double | 1.500000
-robot_container/init_bracers_.bool | false
+robot_container/init_bracers_.bool | true
+robot_container/init_drivetrain.bool | true
 robot_container/init_intake.bool | true
 robot_container/init_pivot.bool | true
 robot_container/init_shooter.bool | true
@@ -66,14 +91,14 @@ shooter/Gains/kF.double | 0.008000
 shooter/Gains/kP.double | 0.030000
 shooter/shooter_speed (fps).double | 100.000000
 shooter/shooter_spin.double | 0.100000
-shooter/shooting_exit_velocity.double | 44.000000
+shooter/shooting_exit_velocity.double | 33.000000
 shooter/vFPID/smart_current_limit (A).double | 15.000000
 telescope/Gains/kD.double | -0.100000
 vision/camera_x_offset (in).double | -7.000000
 vision/camera_y_offset (in).double | -10.000000
 vision/default_is_red_side.bool | true
 wrist/Configs/HardLimits/forward (deg).double | 130.000000
-wrist/Configs/HardLimits/reverse (deg).double | -49.000000
+wrist/Configs/HardLimits/reverse (deg).double | -30.000000
 wrist/Configs/HardLimits/use_position_limits.bool | true
 wrist/Configs/invert.bool | true
 wrist/Gains/kD.double | -1.200000

@@ -77,6 +77,7 @@ class BooleanStore:
 class NumericPref:
     store = NumericStore()
 
+    @staticmethod
     def valueChanged(table, key, value, isNew):
         print(f"Numeric Value changed: {key} -> {value}.")
         NumericPref.store.put(key, float(value))
@@ -101,6 +102,7 @@ class NumericPref:
 class BooleanPref:
     store = BooleanStore()
 
+    @staticmethod
     def valueChanged(table, key, value, isNew):
         print(f"Boolean Value changed: {key} -> {value}.")
         BooleanPref.store.put(key, bool(value))
@@ -123,6 +125,7 @@ class BooleanPref:
         return self.entry.getBoolean(self.defaultValue)
 
 class KillSwitch:
+    @staticmethod
     def reboot(table, key, value, isNew):
         if bool(value):
             subprocess.run(["reboot"])
