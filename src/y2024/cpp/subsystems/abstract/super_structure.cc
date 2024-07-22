@@ -28,9 +28,11 @@ void SuperStructureSubsystem::DirectWrite(SuperStructureTarget target) {
     if (wrist_home_counter >= 30) {
       wrist_->ZeroSubsystem();
       homing_wrist = false;
+      wrist_home_counter = 0;
     }
   } else {
     wrist_->SetTarget({targetPos.wrist});
+    wrist_home_counter = 0;
   }
 
   CoordinatePositions targetPosIntake{

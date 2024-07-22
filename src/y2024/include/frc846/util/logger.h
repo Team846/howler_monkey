@@ -56,25 +56,27 @@ class Logger {
 
     auto filename = "/home/lvuser/" + caller + ".log";
 
-    if (w_record) {
-      if (!std::filesystem::exists(filename) ||
-          std::filesystem::file_size(filename) > 1000000) {
-        std::ofstream t_file(filename, std::fstream::in | std::fstream::out |
-                                           std::fstream::trunc);
-        t_file << "Logger Overwrite "
-               << (fmt::format(
-                      "{}", twodp(frc::Timer::GetFPGATimestamp().to<double>())))
-               << "\n";
-        t_file << "Logger " << t_log << "\n";
-        t_file.close();
+    // if (w_record) {
+    //   if (!std::filesystem::exists(filename) ||
+    //       std::filesystem::file_size(filename) > 1000000) {
+    //     std::ofstream t_file(filename, std::fstream::in | std::fstream::out |
+    //                                        std::fstream::trunc);
+    //     t_file << "Logger Overwrite "
+    //            << (fmt::format(
+    //                   "{}",
+    //                   twodp(frc::Timer::GetFPGATimestamp().to<double>())))
+    //            << "\n";
+    //     t_file << "Logger " << t_log << "\n";
+    //     t_file.close();
 
-      } else {
-        std::ofstream t_file(
-            filename, std::fstream::in | std::fstream::out | std::fstream::app);
-        t_file << "Logger " << t_log << "\n";
-        t_file.close();
-      }
-    }
+    //   } else {
+    //     std::ofstream t_file(
+    //         filename, std::fstream::in | std::fstream::out |
+    //         std::fstream::app);
+    //     t_file << "Logger " << t_log << "\n";
+    //     t_file.close();
+    //   }
+    // }
   }
 
   template <typename... T>
@@ -97,25 +99,27 @@ class Logger {
 
     auto filename = "/home/lvuser/" + caller + ".log";
 
-    if (w_record) {
-      if (!std::filesystem::exists(filename) ||
-          std::filesystem::file_size(filename) > 1000000) {
-        std::ofstream t_file(filename, std::fstream::in | std::fstream::out |
-                                           std::fstream::trunc);
-        t_file << "Logger Overwrite "
-               << fmt::format(
-                      "{}", twodp(frc::Timer::GetFPGATimestamp().to<double>()))
-               << "\n";
-        t_file << "Logger " << t_log << "\n";
-        t_file.close();
+    // if (w_record) {
+    //   if (!std::filesystem::exists(filename) ||
+    //       std::filesystem::file_size(filename) > 1000000) {
+    //     std::ofstream t_file(filename, std::fstream::in | std::fstream::out |
+    //                                        std::fstream::trunc);
+    //     t_file << "Logger Overwrite "
+    //            << fmt::format(
+    //                   "{}",
+    //                   twodp(frc::Timer::GetFPGATimestamp().to<double>()))
+    //            << "\n";
+    //     t_file << "Logger " << t_log << "\n";
+    //     t_file.close();
 
-      } else {
-        std::ofstream t_file(
-            filename, std::fstream::in | std::fstream::out | std::fstream::app);
-        t_file << "Logger " << t_log << "\n";
-        t_file.close();
-      }
-    }
+    //   } else {
+    //     std::ofstream t_file(
+    //         filename, std::fstream::in | std::fstream::out |
+    //         std::fstream::app);
+    //     t_file << "Logger " << t_log << "\n";
+    //     t_file.close();
+    //   }
+    // }
   }
 
   template <typename... T>
@@ -138,25 +142,27 @@ class Logger {
 
     auto filename = "/home/lvuser/" + caller + ".log";
 
-    if (w_record) {
-      if (!std::filesystem::exists(filename) ||
-          std::filesystem::file_size(filename) > 1000000) {
-        std::ofstream t_file(filename, std::fstream::in | std::fstream::out |
-                                           std::fstream::trunc);
-        t_file << "Logger Overwrite "
-               << fmt::format(
-                      "{}", twodp(frc::Timer::GetFPGATimestamp().to<double>()))
-               << "\n";
-        t_file << "Logger " << t_log << "\n";
-        t_file.close();
+    // if (w_record) {
+    //   if (!std::filesystem::exists(filename) ||
+    //       std::filesystem::file_size(filename) > 1000000) {
+    //     std::ofstream t_file(filename, std::fstream::in | std::fstream::out |
+    //                                        std::fstream::trunc);
+    //     t_file << "Logger Overwrite "
+    //            << fmt::format(
+    //                   "{}",
+    //                   twodp(frc::Timer::GetFPGATimestamp().to<double>()))
+    //            << "\n";
+    //     t_file << "Logger " << t_log << "\n";
+    //     t_file.close();
 
-      } else {
-        std::ofstream t_file(
-            filename, std::fstream::in | std::fstream::out | std::fstream::app);
-        t_file << "Logger " << t_log << "\n";
-        t_file.close();
-      }
-    }
+    //   } else {
+    //     std::ofstream t_file(
+    //         filename, std::fstream::in | std::fstream::out |
+    //         std::fstream::app);
+    //     t_file << "Logger " << t_log << "\n";
+    //     t_file.close();
+    //   }
+    // }
   }
 
   /*

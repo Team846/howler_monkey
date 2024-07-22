@@ -28,7 +28,8 @@ FivePieceAuto::FivePieceAuto(RobotContainer& container, bool should_flip)
       frc2::InstantCommand{[&, flip = should_flip_] {
         auto pose_ = field::points::kFivePieceOrigin(flip);
         container.drivetrain_.SetPoint(pose_.point);
-        container.drivetrain_.SetBearing(should_flip_ ? 180_deg : 0_deg);
+        container.drivetrain_.SetBearing(flip ? 180_deg : 0_deg);
+        // std::cout << "Zeroing to " << should_flip ? 180 : 0 << std::endl;
       }},
       PrepareAutoShootCommand{container}, AutoShootCommand{container},
       frc2::WaitCommand{container.super_structure_.post_shoot_wait_.value()},

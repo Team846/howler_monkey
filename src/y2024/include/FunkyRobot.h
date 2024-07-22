@@ -11,6 +11,7 @@
 
 #include "autos/drive_auto.h"
 #include "autos/five_piece_auto.h"
+#include "autos/one_piece_auto.h"
 #include "frc/DigitalInput.h"
 #include "frc846/fstore.h"
 #include "frc846/util/pref.h"
@@ -88,6 +89,15 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
 
   frc2::CommandPtr five_piece_auto_blue =
       FivePieceAuto{container_, true}.ToPtr();
+
+  frc2::CommandPtr one_piece_auto_0 =
+      OnePieceAuto{container_, -60_deg, "left red"}.ToPtr();
+  frc2::CommandPtr one_piece_auto_1 =
+      OnePieceAuto{container_, 60_deg, "right red"}.ToPtr();
+  frc2::CommandPtr one_piece_auto_2 =
+      OnePieceAuto{container_, -60_deg + 180_deg, "left blue"}.ToPtr();
+  frc2::CommandPtr one_piece_auto_3 =
+      OnePieceAuto{container_, 60_deg + 180_deg, "right blue"}.ToPtr();
 
   //   frc2::CommandPtr testing_routine_ =
   //       TestingArmRoutine{container_, false}.ToPtr();

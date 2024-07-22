@@ -112,6 +112,10 @@ void FunkyRobot::StartCompetition() {
 
   auto_chooser_.SetDefaultOption("5p_red", five_piece_auto_red.get());
   auto_chooser_.AddOption("5p_blue", five_piece_auto_blue.get());
+  auto_chooser_.AddOption("OP_-60", one_piece_auto_0.get());
+  auto_chooser_.AddOption("OP_60", one_piece_auto_1.get());
+  auto_chooser_.AddOption("OP_-60+180", one_piece_auto_2.get());
+  auto_chooser_.AddOption("OP_60+180", one_piece_auto_3.get());
 
   // Other options
   frc::SmartDashboard::PutData(&auto_chooser_);
@@ -334,7 +338,7 @@ void FunkyRobot::InitTeleopTriggers() {
                                        }).ToPtr()));
 
   frc2::Trigger zero_wrist_trigger{
-      [&] { return container_.operator_.readings().back_button; }};
+      [&] { return container_.driver_.readings().b_button; }};
 
   zero_wrist_trigger.OnTrue(frc2::InstantCommand([this] {
                               container_.wrist_.ZeroSubsystem();

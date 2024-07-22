@@ -21,16 +21,20 @@ OperatorReadings OperatorSubsystem::GetNewReadings() {
   OperatorReadings readings{xbox_, trigger_threshold_.value()};
 
   if (readings.a_button != previous_readings_.a_button) {
-    Log("Operator [A button] state changed to {}", readings.a_button ? 1 : 0);
+    // Log("Operator [A button] state changed to {}", readings.a_button ? 1 :
+    // 0);
   }
   if (readings.b_button != previous_readings_.b_button) {
-    Log("Operator [B button] state changed to {}", readings.b_button ? 1 : 0);
+    // Log("Operator [B button] state changed to {}", readings.b_button ? 1 :
+    // 0);
   }
   if (readings.x_button != previous_readings_.x_button) {
-    Log("Operator [X button] state changed to {}", readings.x_button ? 1 : 0);
+    // Log("Operator [X button] state changed to {}", readings.x_button ? 1 :
+    // 0);
   }
   if (readings.y_button != previous_readings_.y_button) {
-    Log("Operator [Y button] state changed to {}", readings.y_button ? 1 : 0);
+    // Log("Operator [Y button] state changed to {}", readings.y_button ? 1 :
+    // 0);
   }
 
   if (readings.pov != previous_readings_.pov) {
@@ -55,50 +59,54 @@ OperatorReadings OperatorSubsystem::GetNewReadings() {
       default:
         break;
     }
-    Log("Operator [POV] state changed to {}", k);
+    // Log("Operator [POV] state changed to {}", k);
   }
 
   if (readings.right_trigger != previous_readings_.right_trigger) {
-    Log("Operator [Right Trigger] state changed to {}",
-        readings.right_trigger ? 1 : 0);
+    // Log("Operator [Right Trigger] state changed to {}",
+    // readings.right_trigger ? 1 : 0);
   }
   if (readings.right_bumper != previous_readings_.right_bumper) {
-    Log("Operator [Right Bumper] state changed to {}",
-        readings.right_bumper ? 1 : 0);
+    // Log("Operator [Right Bumper] state changed to {}",
+    // readings.right_bumper ? 1 : 0);
   }
   if (readings.left_trigger != previous_readings_.left_trigger) {
-    Log("Operator [Left Trigger] state changed to {}",
-        readings.left_trigger ? 1 : 0);
+    // Log("Operator [Left Trigger] state changed to {}",
+    // readings.left_trigger ? 1 : 0);
   }
   if (readings.left_bumper != previous_readings_.left_bumper) {
-    Log("Operator [Left Bumper] state changed to {}",
-        readings.left_bumper ? 1 : 0);
+    // Log("Operator [Left Bumper] state changed to {}",
+    // readings.left_bumper ? 1 : 0);
   }
 
   if (readings.start_button != previous_readings_.start_button) {
-    Log("Operator [Start Button] state changed to {}",
-        readings.start_button ? 1 : 0);
+    // Log("Operator [Start Button] state changed to {}",
+    // readings.start_button ? 1 : 0);
   }
   if (readings.back_button != previous_readings_.back_button) {
-    Log("Operator [Back Button] state changed to {}",
-        readings.back_button ? 1 : 0);
+    // Log("Operator [Back Button] state changed to {}",
+    // readings.back_button ? 1 : 0);
   }
 
   if ((std::abs(readings.left_stick_x) > 0.5) !=
       (std::abs(previous_readings_.left_stick_x) > 0.5)) {
-    Log("Operator [Left Stick X] value changed to {}", readings.left_stick_x);
+    // Log("Operator [Left Stick X] value changed to {}",
+    // readings.left_stick_x);
   }
   if ((std::abs(readings.left_stick_y) > 0.5) !=
       (std::abs(previous_readings_.left_stick_y) > 0.5)) {
-    Log("Operator [Left Stick Y] value changed to {}", readings.left_stick_y);
+    // Log("Operator [Left Stick Y] value changed to {}",
+    // readings.left_stick_y);
   }
   if ((std::abs(readings.right_stick_x) > 0.5) !=
       (std::abs(previous_readings_.right_stick_x) > 0.5)) {
-    Log("Operator [Right Stick X] value changed to {}", readings.right_stick_x);
+    // Log("Operator [Right Stick X] value changed to {}",
+    // readings.right_stick_x);
   }
   if ((std::abs(readings.right_stick_y) > 0.5) !=
       (std::abs(previous_readings_.right_stick_y) > 0.5)) {
-    Log("Operator [Right Stick Y] value changed to {}", readings.right_stick_y);
+    // Log("Operator [Right Stick Y] value changed to {}",
+    // readings.right_stick_y);
   }
 
   previous_readings_ = readings;

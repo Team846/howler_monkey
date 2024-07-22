@@ -219,6 +219,9 @@ class SuperStructureSubsystem
   PTWSetPref postscore_position_{"postscore_position", {0_deg, 0_in, 0_deg}};
   PTWSetpoint getPostScoreSetpoint() { return postscore_position_.get(); }
 
+  PTWSetPref pass_position_{"pass_position", {40_deg, 0_in, 20_deg}};
+  PTWSetpoint getPassSetpoint() { return pass_position_.get(); }
+
  private:
   bool hasZeroed = false;
   bool homing_wrist = false;

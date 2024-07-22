@@ -154,7 +154,7 @@ void DriveCommand::Execute() {
           -51.4_deg + units::degree_t(driver_adjust_));
     } else {
       drivetrain_target.rotation = DrivetrainRotationPosition(
-          51.4_deg + units::degree_t(driver_adjust_));
+          180_deg + 90_deg - 51.4_deg + units::degree_t(driver_adjust_));
     }
   } else {
     driver_adjust_ = 0.0;

@@ -135,7 +135,7 @@ class FieldPoint {
     if (onlyY) return flipOnlyY(point, should_flip);
 
     if (should_flip) {
-      return Position{{-point.x.value(), point.y.value()},
+      return Position{{-point.x.value(), field_size_y - point.y.value()},
                       180_deg - point.bearing.value()};
     } else {
       return Position{{point.x.value(), point.y.value()},

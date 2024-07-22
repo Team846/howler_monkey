@@ -10,7 +10,7 @@ from networktables import NetworkTables
 NetworkTables.initialize(server='roborio-846-frc.local')
 table = NetworkTables.getTable("AprilTags")
 
-validTagIds = [4, 7, 3, 8]
+validTagIds = [4, 7]
 
 aprilTagX=[0-14/12.0]*20
 aprilTagY=[6-6/12.0]*20

@@ -59,6 +59,11 @@ void WristSubsystem::DirectWrite(WristTarget target) {
     double output = dyFPID.calculate(*pos, readings().wrist_position,
                                      wrist_esc_.GetVelocityPercentage(),
                                      config_helper_.updateAndGetGains());
+    // if (units::math::abs(*pos - readings().wrist_position) < 5_deg) {
+    //   output = dyFPIDClose.calculate(*pos, readings().wrist_position,
+    //                                  wrist_esc_.GetVelocityPercentage(),
+    //                                  config_helper_.updateAndGetGains());
+    // }
 
     wrist_esc_.WriteDC(output);
 

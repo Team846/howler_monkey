@@ -39,13 +39,13 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
   }
 
   void Coast() {
-    if (auto esc = wrist_esc_.getESC())
-      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+    //   if (auto esc = wrist_esc_.getESC())
+    //     esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
   }
 
   void Brake() {
-    if (auto esc = wrist_esc_.getESC())
-      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+    //   if (auto esc = wrist_esc_.getESC())
+    //     esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
   }
 
   void DeZero() { hasZeroed = false; }
@@ -132,4 +132,17 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
                 .to<double>());
       },
       {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
+
+  frc846::Loggable close_dyFPID_loggable{*this, "CloseDynamicFPID"};
+
+  frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPIDClose{
+      close_dyFPID_loggable,
+      [this](units::degree_t pos) -> double {
+        return std::abs(
+            units::math::cos(
+                1_deg * frc846::util::ShareTables::GetDouble("pivot_position") +
+                readings().wrist_position - wrist_cg_offset_.value())
+                .to<double>());
+      },
+      {15_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
 };

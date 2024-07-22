@@ -58,49 +58,30 @@ DriverReadings DriverSubsystem::GetNewReadings() {
     Log("Driver [POV] state changed to {}", k);
   }
 
-  if (readings.right_trigger != previous_readings_.right_trigger) {
-    Log("Driver [Right Trigger] state changed to {}",
-        readings.right_trigger ? 1 : 0);
-  }
-  if (readings.right_bumper != previous_readings_.right_bumper) {
-    Log("Driver [Right Bumper] state changed to {}",
-        readings.right_bumper ? 1 : 0);
-  }
-  if (readings.left_trigger != previous_readings_.left_trigger) {
-    Log("Driver [Left Trigger] state changed to {}",
-        readings.left_trigger ? 1 : 0);
-  }
-  if (readings.left_bumper != previous_readings_.left_bumper) {
-    Log("Driver [Left Bumper] state changed to {}",
-        readings.left_bumper ? 1 : 0);
-  }
+  // if (readings.right_trigger != previous_readings_.right_trigger) {
+  //   Log("Driver [Right Trigger] state changed to {}",
+  //       readings.right_trigger ? 1 : 0);
+  // }
+  // if (readings.right_bumper != previous_readings_.right_bumper) {
+  //   Log("Driver [Right Bumper] state changed to {}",
+  //       readings.right_bumper ? 1 : 0);
+  // }
+  // if (readings.left_trigger != previous_readings_.left_trigger) {
+  //   Log("Driver [Left Trigger] state changed to {}",
+  //       readings.left_trigger ? 1 : 0);
+  // }
+  // if (readings.left_bumper != previous_readings_.left_bumper) {
+  //   Log("Driver [Left Bumper] state changed to {}",
+  //       readings.left_bumper ? 1 : 0);
+  // }
 
-  if (readings.start_button != previous_readings_.start_button) {
-    Log("Driver [Start Button] state changed to {}",
-        readings.start_button ? 1 : 0);
-  }
-  if (readings.back_button != previous_readings_.back_button) {
-    Log("Driver [Back Button] state changed to {}",
-        readings.back_button ? 1 : 0);
-  }
-
-  // if ((std::abs(readings.left_stick_x) > 0.5) !=
-  // (std::abs(previous_readings_.left_stick_x) > 0.5)) {
-  //   Log("Driver [Left Stick X] value changed to {}", readings.left_stick_x);
+  // if (readings.start_button != previous_readings_.start_button) {
+  //   Log("Driver [Start Button] state changed to {}",
+  //       readings.start_button ? 1 : 0);
   // }
-  // if ((std::abs(readings.left_stick_y) > 0.5) !=
-  // (std::abs(previous_readings_.left_stick_y) > 0.5)) {
-  //   Log("Driver [Left Stick Y] value changed to {}", readings.left_stick_y);
-  // }
-  // if ((std::abs(readings.right_stick_x) > 0.5) !=
-  // (std::abs(previous_readings_.right_stick_x) > 0.5)) {
-  //   Log("Driver [Right Stick X] value changed to {}",
-  //   readings.right_stick_x);
-  // }
-  // if ((std::abs(readings.right_stick_y) > 0.5) !=
-  // (std::abs(previous_readings_.right_stick_y) > 0.5)) {
-  //   Log("Driver [Right Stick Y] value changed to {}",
-  //   readings.right_stick_y);
+  // if (readings.back_button != previous_readings_.back_button) {
+  //   Log("Driver [Back Button] state changed to {}",
+  //       readings.back_button ? 1 : 0);
   // }
 
   previous_readings_ = readings;

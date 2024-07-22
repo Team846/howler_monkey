@@ -12,8 +12,8 @@ DeployIntakeCommand::DeployIntakeCommand(RobotContainer& container)
       intake_(container.intake_),
       shooter_(container.shooter_),
       super_(container.super_structure_) {
-  AddRequirements({&intake_, &shooter_, &container.pivot_, &container.wrist_,
-                   &container.telescope_});
+  AddRequirements(
+      {&intake_, &container.pivot_, &container.wrist_, &container.telescope_});
   SetName("deploy_intake_command");
 }
 

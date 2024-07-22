@@ -9,6 +9,7 @@
 #include "commands/basic/deploy_intake_command.h"
 #include "commands/basic/eject_command.h"
 #include "commands/basic/idle_command.h"
+#include "commands/basic/pass_command.h"
 #include "commands/basic/prepare_shoot_command.h"
 #include "commands/basic/pull_command.h"
 #include "commands/basic/shoot_command.h"
@@ -17,6 +18,16 @@
 #include "commands/basic/stow_command.h"
 #include "commands/basic/trap_command.h"
 #include "commands/basic/wrist_zero_command.h"
+
+bool shouldStow(RobotContainer& container) {
+  return !container.control_input_.readings().running_intake &&
+         !container.control_input_.readings().running_source &&
+         !container.control_input_.readings().running_pass &&
+         !container.control_input_.readings().running_amp &&
+         !container.control_input_.readings().running_prep_shoot &&
+         !container.control_input_.readings().running_super_shoot &&
+         container.control_input_.readings().stageOfTrap == 0;
+}
 
 void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
   frc2::Trigger amp_command_trigger{
@@ -46,6 +57,15 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
   point_blank_prep_speaker_trigger.OnTrue(
       PrepareShootCommand{container, false}.ToPtr());
   // point_blank_prep_speaker_trigger.OnFalse(StowCommand{container}.ToPtr());
+
+  frc2::Trigger pass_trigger{[&container] {
+    return container.control_input_.readings().running_pass;
+  }};
+
+  pass_trigger.OnTrue(PassCommand{container}.ToPtr());
+
+  point_blank_prep_speaker_trigger.OnTrue(
+      PrepareShootCommand{container, false}.ToPtr());
 
   frc2::Trigger prep_super_shot_trigger{[&container] {
     return container.control_input_.readings().running_super_shoot;
@@ -95,15 +115,7 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
 
   idle_intake.WhileTrue(IdleCommand{container, true, false}.ToPtr());
 
-  frc2::Trigger stow_trigger{[&container] {
-    return !container.control_input_.readings().running_intake &&
-           !container.control_input_.readings().running_source &&
-           !container.control_input_.readings().running_pass &&
-           !container.control_input_.readings().running_amp &&
-           !container.control_input_.readings().running_prep_shoot &&
-           !container.control_input_.readings().running_super_shoot &&
-           container.control_input_.readings().stageOfTrap == 0;
-  }};
+  frc2::Trigger stow_trigger{[&] { return shouldStow(container); }};
 
   stow_trigger.WhileTrue(StowCommand{container}.ToPtr());
 
@@ -116,8 +128,9 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
     }));
   }
 
-  frc2::Trigger wrist_zero_trigger{
-      [&container] { return container.operator_.readings().x_button; }};
+  frc2::Trigger wrist_zero_trigger{[&] {
+    return shouldStow(container) && container.driver_.readings().b_button;
+  }};
 
   wrist_zero_trigger.OnTrue(WristZeroCommand{container}.ToPtr());
 }

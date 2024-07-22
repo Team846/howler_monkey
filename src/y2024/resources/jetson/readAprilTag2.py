@@ -57,7 +57,7 @@ def process_frames():
     global h_frame_size
     global v_frame_size
 
-    validTagIds = [4, 7, 3, 8]
+    validTagIds = [4, 7]
 
     CAM_FOV_H = horizontal_fov_pref.get()
     CAM_FOV_V = vertical_fov_pref.get()
@@ -90,21 +90,18 @@ def process_frames():
         table.putNumber("tid", -1)
 
         try:
-            if tags == []: continue
+            for tag in tags:
+                if not (tag.tag_id in validTagIds): continue
 
-            tag = tags.__getitem__(0)
+                cx, cy = tag.center
 
-            if not (tag.tag_id in validTagIds): continue
+                tx = (cx - CAM_SZ_H/2) * (CAM_FOV_H / CAM_SZ_H)
+                ty = -((cy - CAM_SZ_V/2) * (CAM_FOV_V / CAM_SZ_V))
 
-            cx, cy = tag.center
+                table.putNumber("tid", tag.tag_id)
+                table.putNumber("tx", tx)
 
-            tx = (cx - CAM_SZ_H/2) * (CAM_FOV_H / CAM_SZ_H)
-            ty = -((cy - CAM_SZ_V/2) * (CAM_FOV_V / CAM_SZ_V))
-
-            table.putNumber("tid", tag.tag_id)
-            table.putNumber("tx", tx)
-
-            table.putNumber("ty", ty)
+                table.putNumber("ty", ty)
 
         except:
             pass
