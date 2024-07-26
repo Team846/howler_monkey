@@ -48,6 +48,10 @@ ControlInputReadings ControlInputSubsystem::GetNewReadings() {
     Log("ControlInput [Running Amp] state changed to {}",
         readings.running_amp ? 1 : 0);
   }
+  if (readings.running_super_amp != previous_readings_.running_super_amp) {
+    Log("ControlInput [Running Super Amp] state changed to {}",
+        readings.running_super_amp ? 1 : 0);
+  }
 
   if (readings.shooting != previous_readings_.shooting) {
     Log("ControlInput [Shooting] state changed to {}",
@@ -81,6 +85,15 @@ ControlInputReadings ControlInputSubsystem::GetNewReadings() {
   if (readings.coopertition_leds != previous_readings_.coopertition_leds) {
     Log("ControlInput [Co-op Leds] state changed to {}",
         readings.coopertition_leds ? 1 : 0);
+  }
+
+  if (readings.zero_bearing != previous_readings_.zero_bearing) {
+    Log("ControlInput [Drivetrain Zeroing] state changed to {}",
+        readings.zero_bearing ? 1 : 0);
+  }
+  if (readings.home_wrist != previous_readings_.home_wrist) {
+    Log("ControlInput [Wrist Homing] state changed to {}",
+        readings.home_wrist ? 1 : 0);
   }
 
   if (std::abs(readings.pivot_manual_adjust) > 0.01 &&
@@ -133,6 +146,8 @@ ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
 
   // AMP
   ci_readings_.running_amp = dr_readings.left_bumper;
+  // SUPER AMP
+  ci_readings_.running_super_amp = dr_readings.a_button;
 
   // INTAKE
   ci_readings_.running_intake = dr_readings.left_trigger;

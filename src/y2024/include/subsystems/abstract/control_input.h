@@ -17,6 +17,7 @@ struct ControlInputReadings {
   bool running_prep_shoot;
   bool running_super_shoot;
   bool running_amp;
+  bool running_super_amp;
 
   bool shooting;
 

@@ -20,6 +20,16 @@ struct field {
       }
     }
 
+    static frc846::util::Position kAmpNoFlip() {
+      return frc846::util::Position(
+          frc846::util::Vector2D<units::foot_t>(0_in, 0_in), 90_deg);
+    }
+
+    static frc846::util::Position kPreAmpNoFlip() {
+      return frc846::util::Position(
+          frc846::util::Vector2D<units::foot_t>(-2_ft, 0_in), 90_deg);
+    }
+
     // TESTING
     static frc846::util::FieldPoint testing_origin;
     static frc846::util::Position kTestingOrigin(bool should_flip) {

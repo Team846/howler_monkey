@@ -45,10 +45,6 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
   ll_latency_graph_.Graph(latency * 1_s);
 
-  auto speakerTag = frc846::util::ShareTables::GetBoolean("is_red_side")
-                        ? tag_locations[4]
-                        : tag_locations[8];
-
   units::degree_t bearing_ =
       units::degree_t(frc846::util::ShareTables::GetDouble("robot_bearing_"));
 
@@ -63,11 +59,6 @@ VisionReadings VisionSubsystem::GetNewReadings() {
 
   units::feet_per_second_t velocity_y = units::feet_per_second_t(
       frc846::util::ShareTables::GetDouble("velocity_y_"));
-
-  if (!frc846::util::ShareTables::GetBoolean("is_red_side")) {
-    velocity_x = -velocity_x;
-    velocity_y = -velocity_y;
-  }
 
   if (tag_locations.contains(tag_id)) {  // &&
     // frc846::util::ShareTables::GetString("mode").compare("kTeleop") == 0) {
@@ -132,7 +123,7 @@ VisionReadings VisionSubsystem::GetNewReadings() {
                     !frc846::util::ShareTables::GetBoolean("is_red_side"))
                     .x;
 
-  newReadings.est_dist_from_speaker_y = 
+  newReadings.est_dist_from_speaker_y =
       robot_y - field::points::kSpeaker(
                     !frc846::util::ShareTables::GetBoolean("is_red_side"))
                     .y;

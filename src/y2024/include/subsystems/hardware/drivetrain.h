@@ -89,6 +89,9 @@ class DrivetrainSubsystem
   frc846::Pref<units::feet_per_second_t> max_speed_{*this, "max_speed",
                                                     14.2_fps};
 
+  frc846::Pref<units::feet_per_second_t> close_drive_amp_max_speed_{
+      *this, "close_drive_amp_max_speed", 3_fps};
+
   frc846::Pref<units::ampere_t> current_limit_{*this, "current_limit", 90_A};
   frc846::Pref<units::ampere_t> motor_stall_current_{
       *this, "motor_stall_current", 366_A};
