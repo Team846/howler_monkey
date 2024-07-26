@@ -13,16 +13,16 @@
 
 #include "commands/basic/amp_command.h"
 #include "commands/basic/deploy_intake_command.h"
-#include "commands/basic/idle_command.h"
 #include "commands/basic/shoot_command.h"
 #include "commands/basic/spin_up_command.h"
-#include "commands/basic/stow_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/teleop/bracer_command.h"
-#include "commands/teleop/control_input_command.h"
 #include "commands/teleop/drive_command.h"
+#include "commands/teleop/idle_intake_command.h"
+#include "commands/teleop/idle_shooter_command.h"
 #include "commands/teleop/leds_command.h"
 #include "commands/teleop/operator_control.h"
+#include "commands/teleop/stow_command.h"
 #include "control_triggers.h"
 #include "frc/DataLogManager.h"
 #include "frc2/command/ParallelDeadlineGroup.h"
@@ -112,10 +112,10 @@ void FunkyRobot::StartCompetition() {
 
   auto_chooser_.SetDefaultOption("5p_red", five_piece_auto_red.get());
   auto_chooser_.AddOption("5p_blue", five_piece_auto_blue.get());
-  auto_chooser_.AddOption("OP_-60", one_piece_auto_0.get());
-  auto_chooser_.AddOption("OP_60", one_piece_auto_1.get());
-  auto_chooser_.AddOption("OP_-60+180", one_piece_auto_2.get());
-  auto_chooser_.AddOption("OP_60+180", one_piece_auto_3.get());
+  auto_chooser_.AddOption("OP_left_red", one_piece_auto_0.get());
+  auto_chooser_.AddOption("OP_right_red", one_piece_auto_1.get());
+  auto_chooser_.AddOption("OP_left_blue", one_piece_auto_2.get());
+  auto_chooser_.AddOption("OP_right_blue", one_piece_auto_3.get());
 
   // Other options
   frc::SmartDashboard::PutData(&auto_chooser_);
@@ -302,15 +302,17 @@ void FunkyRobot::EndCompetition() {
 
 void FunkyRobot::InitTeleopDefaults() {
   container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
-  container_.super_structure_.SetDefaultCommand(
+  container_.control_input_.SetDefaultCommand(
       OperatorControlCommand{container_});
+  container_.super_structure_.SetDefaultCommand(StowCommand{container_});
+  container_.intake_.SetDefaultCommand(IdleIntakeCommand{container_});
+  container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
   container_.bracer_.SetDefaultCommand(BracerCommand{container_});
-  container_.control_input_.SetDefaultCommand(ControlInputCommand{container_});
 }
 
 void FunkyRobot::InitTeleopTriggers() {
   frc2::Trigger drivetrain_zero_bearing_trigger{
-      [&] { return container_.driver_.readings().back_button; }};
+      [&] { return container_.control_input_.readings().zero_bearing; }};
 
   drivetrain_zero_bearing_trigger.WhileTrue(
       frc2::InstantCommand([this] {
@@ -323,26 +325,14 @@ void FunkyRobot::InitTeleopTriggers() {
     return frc846::util::ShareTables::GetBoolean("scorer_has_piece");
   }};
 
-  on_piece_trigger.OnTrue(frc2::InstantCommand([this] {
-                            DriverTarget driver_target{};
-                            driver_target.rumble = true;
-                            container_.driver_.SetTarget(driver_target);
-                          })
-                              .WithTimeout(1_s)
-                              .AndThen(frc2::WaitCommand(1_s).ToPtr())
-                              .AndThen(frc2::InstantCommand([this] {
-                                         DriverTarget driver_target{};
-                                         driver_target.rumble = false;
-                                         container_.driver_.SetTarget(
-                                             driver_target);
-                                       }).ToPtr()));
-
-  frc2::Trigger zero_wrist_trigger{
-      [&] { return container_.driver_.readings().b_button; }};
-
-  zero_wrist_trigger.OnTrue(frc2::InstantCommand([this] {
-                              container_.wrist_.ZeroSubsystem();
-                            }).ToPtr());
+  on_piece_trigger.OnTrue(
+      frc2::InstantCommand(
+          [this] { container_.control_input_.SetTarget({true, false}); })
+          .WithTimeout(1_s)
+          .AndThen(frc2::WaitCommand(1_s).ToPtr())
+          .AndThen(frc2::InstantCommand([this] {
+                     container_.control_input_.SetTarget({false, false});
+                   }).ToPtr()));
 
   ControlTriggerInitializer::InitTeleopTriggers(container_);
 }

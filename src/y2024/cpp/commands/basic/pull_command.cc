@@ -18,15 +18,13 @@ PullCommand::PullCommand(RobotContainer& container)
 
 void PullCommand::Initialize() {
   Log("Pull Command Initialize");
-  is_done_ = false;
 }
 
 void PullCommand::Execute() {
   intake_.SetTarget({IntakeState::kPull});
   shooter_.SetTarget({ShooterState::kIdle});
-  is_done_ = true;
 }
 
 void PullCommand::End(bool interrupted) { Log("Pull Command Finished"); }
 
-bool PullCommand::IsFinished() { return is_done_; }
+bool PullCommand::IsFinished() { return false; }

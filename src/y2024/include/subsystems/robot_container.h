@@ -29,8 +29,6 @@ class RobotContainer : public frc846::Loggable {
   frc846::Pref<bool> init_bracer_{*this, "init_bracers_", false};
   frc846::Pref<bool> init_vision_{*this, "init_vision_", true};
 
-  DriverSubsystem driver_;
-  OperatorSubsystem operator_;
   ControlInputSubsystem control_input_;
   DrivetrainSubsystem drivetrain_{init_drivetrain_.value()};
   IntakeSubsystem intake_{init_intake_.value()};
@@ -44,7 +42,7 @@ class RobotContainer : public frc846::Loggable {
   VisionSubsystem vision_{init_vision_.value()};
 
   std::vector<frc846::SubsystemBase*> all_subsystems_{
-      &driver_,  &operator_,        &control_input_, &drivetrain_, &intake_,
-      &shooter_, &wrist_,           &pivot_,         &telescope_,  &leds_,
-      &bracer_,  &super_structure_, &vision_};
+      &control_input_, &drivetrain_,      &intake_,    &shooter_,
+      &wrist_,         &pivot_,           &telescope_, &leds_,
+      &bracer_,        &super_structure_, &vision_};
 };

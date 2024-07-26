@@ -25,7 +25,5 @@ class StowCommand : public frc2::CommandHelper<frc2::Command, StowCommand>,
   bool IsFinished() override;
 
  private:
-  IntakeSubsystem& intake_;
-  ShooterSubsystem& shooter_;
   SuperStructureSubsystem& super_;
 };

@@ -11,7 +11,7 @@
 OperatorControlCommand::OperatorControlCommand(RobotContainer &container)
     : control_input_(container.control_input_),
       super_(container.super_structure_) {
-  AddRequirements({&super_});
+  AddRequirements({&control_input_});
   SetName("operator_control_command");
 }
 

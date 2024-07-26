@@ -30,4 +30,4 @@ void ShootCommand::End(bool interrupted) {
   Log("Shoot Command Finished");
 }
 
-bool ShootCommand::IsFinished() { return !control_input_.readings().shooting; }
+bool ShootCommand::IsFinished() { return false; }

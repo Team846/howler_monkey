@@ -11,7 +11,7 @@ WristZeroCommand::WristZeroCommand(RobotContainer& container)
     : frc846::Loggable{"wrist_zero_command"},
       super_(container.super_structure_) {
   AddRequirements(
-      {&container.pivot_, &container.telescope_, &container.wrist_});
+      {&super_});
   SetName("wrist_zero_command");
 }
 

@@ -19,7 +19,7 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
   bool IsFinished() override;
 
  private:
-  DriverSubsystem& driver_;
+  ControlInputSubsystem& control_input_;
   DrivetrainSubsystem& drivetrain_;
   SuperStructureSubsystem& super_;
   VisionSubsystem& vision_;

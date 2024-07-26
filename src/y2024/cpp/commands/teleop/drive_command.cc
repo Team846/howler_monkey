@@ -11,7 +11,7 @@
 #include "subsystems/hardware/swerve_module.h"
 
 DriveCommand::DriveCommand(RobotContainer& container)
-    : driver_(container.driver_),
+    : control_input_(container.control_input_),
       drivetrain_(container.drivetrain_),
       super_(container.super_structure_),
       vision_(container.vision_),
@@ -25,14 +25,12 @@ void DriveCommand::Execute() {
 
   // -----BUTTON MAPPINGS-----
 
-  // Left bumper   | robot centric translation
-  // Right bumper  | precision drive
+  // TODO: Add button mappings
 
   bool is_robot_centric = false;
-  // bool is_slow_drive = driver_.readings().right_bumper;
-  bool prep_align_speaker = driver_.readings().y_button;
-  bool amping = driver_.readings().left_bumper;
-  bool sourcing = driver_.readings().x_button;
+  bool prep_align_speaker = control_input_.readings().running_super_shoot;
+  bool amping = control_input_.readings().running_amp;
+  bool sourcing = control_input_.readings().running_source;
 
   bool flipping_controls =
       !frc846::util::ShareTables::GetBoolean("is_red_side");
@@ -40,11 +38,13 @@ void DriveCommand::Execute() {
   // -----TRANSLATION CONTROL-----
 
   double translate_x = frc846::util::HorizontalDeadband(
-      driver_.readings().left_stick_x, driver_.translation_deadband_.value(), 1,
-      driver_.translation_exponent_.value(), 1);
+      control_input_.readings().translate_x,
+      control_input_.driver_.translation_deadband_.value(), 1,
+      control_input_.driver_.translation_exponent_.value(), 1);
   double translate_y = frc846::util::HorizontalDeadband(
-      driver_.readings().left_stick_y, driver_.translation_deadband_.value(), 1,
-      driver_.translation_exponent_.value(), 1);
+      control_input_.readings().translate_y,
+      control_input_.driver_.translation_deadband_.value(), 1,
+      control_input_.driver_.translation_exponent_.value(), 1);
 
   if (flipping_controls) {
     translate_x = -translate_x;
@@ -61,25 +61,6 @@ void DriveCommand::Execute() {
   drivetrain_target.v_y = translate_y * drivetrain_.max_speed_.value() *
                           drivetrain_.driver_speed_multiplier_.value();
 
-  // Slow down translation if slow mode is active
-  // if (is_slow_drive) {
-  //   translate_x = frc846::util::HorizontalDeadband(
-  //       driver_.readings().left_stick_x *
-  //           std::abs(driver_.readings().left_stick_x),
-  //       driver_.translation_deadband_.value(), 1,
-  //       driver_.translation_exponent_.value(), 1);
-  //   translate_y = frc846::util::HorizontalDeadband(
-  //       driver_.readings().left_stick_y *
-  //           std::abs(driver_.readings().left_stick_y),
-  //       driver_.translation_deadband_.value(), 1,
-  //       driver_.translation_exponent_.value(), 1);
-  //   drivetrain_target.v_x = translate_x * drivetrain_.max_speed_.value() *
-  //                           drivetrain_.slow_mode_percent_.value();
-  //   drivetrain_target.v_y = (prep_align_speaker ? 0.0 : translate_y) *
-  //                           drivetrain_.max_speed_.value() *
-  //                           drivetrain_.slow_mode_percent_.value();
-  // }
-
   // Robot vs field oriented translation
   drivetrain_target.translation_reference =
       (is_robot_centric) ? DrivetrainTranslationReference::kRobot
@@ -90,17 +71,13 @@ void DriveCommand::Execute() {
   // -----STEER CONTROL-----
 
   double steer_x = frc846::util::HorizontalDeadband(
-      driver_.readings().right_stick_x, driver_.steer_deadband_.value(), 1,
-      driver_.steer_exponent_.value(), 1);
+      control_input_.readings().rotation,
+      control_input_.driver_.steer_deadband_.value(), 1,
+      control_input_.driver_.steer_exponent_.value(), 1);
 
   if (steer_x != 0) {
     // Manual steer
     auto target = steer_x * drivetrain_.max_omega();
-
-    // Slow down steering if slow mode is active
-    // if (is_slow_drive) {
-    //   target *= drivetrain_.slow_omega_percent_.value();
-    // }
 
     drivetrain_target.rotation = DrivetrainRotationVelocity(target);
   } else {
@@ -134,19 +111,14 @@ void DriveCommand::Execute() {
           DrivetrainRotationPosition(target_angle + theta_adjust);
     }
   } else if (amping) {
-    driver_adjust_ += driver_.readings().right_stick_x / 5.0;
+    driver_adjust_ += control_input_.readings().rotation / 5.0;
     driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
 
-    // if (!flipping_controls) {
     drivetrain_target.rotation =
         DrivetrainRotationPosition(90_deg + units::degree_t(driver_adjust_));
-    // } else {
-    //   drivetrain_target.rotation =
-    //       DrivetrainRotationPosition(-90_deg +
-    //       units::degree_t(driver_adjust_));
-    // }
+
   } else if (sourcing) {
-    driver_adjust_ += driver_.readings().right_stick_x / 5.0;
+    driver_adjust_ += control_input_.readings().rotation / 5.0;
     driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
 
     if (!flipping_controls) {

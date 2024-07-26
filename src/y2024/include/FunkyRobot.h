@@ -99,8 +99,6 @@ class FunkyRobot : public frc::RobotBase, public frc846::Loggable {
   frc2::CommandPtr one_piece_auto_3 =
       OnePieceAuto{container_, 60_deg + 180_deg, "right blue"}.ToPtr();
 
-  //   frc2::CommandPtr testing_routine_ =
-  //       TestingArmRoutine{container_, false}.ToPtr();
 
   frc::DigitalInput homing_switch_{0};
   frc::DigitalInput coasting_switch_{1};

@@ -7,9 +7,7 @@
 
 #include "commands/basic/auto_deploy_intake_command.h"
 #include "commands/basic/auto_shoot_command.h"
-#include "commands/basic/idle_command.h"
 #include "commands/basic/prepare_auto_shoot_command.h"
-#include "commands/basic/stow_command.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/speaker_trajectory_command.h"
 #include "field.h"

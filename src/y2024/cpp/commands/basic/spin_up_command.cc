@@ -16,14 +16,12 @@ SpinUpCommand::SpinUpCommand(RobotContainer& container)
 
 void SpinUpCommand::Initialize() {
   Log("Spin Up Command Initialize");
-  is_done_ = false;
 }
 
 void SpinUpCommand::Execute() {
   shooter_.SetTarget({ShooterState::kRun});
-  is_done_ = true;
 }
 
 void SpinUpCommand::End(bool interrupted) { Log("Spin Up Command Finished"); }
 
-bool SpinUpCommand::IsFinished() { return is_done_; }
+bool SpinUpCommand::IsFinished() { return false; }

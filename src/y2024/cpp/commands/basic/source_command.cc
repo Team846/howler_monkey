@@ -11,8 +11,8 @@ SourceCommand::SourceCommand(RobotContainer& container)
     : frc846::Loggable{"source_command"},
       super_(container.super_structure_),
       intake_(container.intake_) {
-  AddRequirements({&container.pivot_, &container.telescope_, &container.wrist_,
-                   &container.intake_});
+  AddRequirements({&super_,
+                   &intake_});
   SetName("source_command");
 }
 
@@ -26,6 +26,5 @@ void SourceCommand::Execute() {
 void SourceCommand::End(bool interrupted) { Log("Source Command Finished"); }
 
 bool SourceCommand::IsFinished() {
-  return super_.hasReachedSetpoint(super_.getSourceSetpoint()) &&
-         intake_.GetHasPiece();
+  return false;
 }

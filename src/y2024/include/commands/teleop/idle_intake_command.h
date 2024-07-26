@@ -3,14 +3,19 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/util/math.h"
+#include "subsystems/abstract/super_structure.h"
 #include "subsystems/hardware/intake.h"
+#include "subsystems/hardware/pivot.h"
 #include "subsystems/hardware/shooter.h"
+#include "subsystems/hardware/telescope.h"
+#include "subsystems/hardware/wrist.h"
 #include "subsystems/robot_container.h"
 
-class EjectCommand : public frc2::CommandHelper<frc2::Command, EjectCommand>,
-                     public frc846::Loggable {
+class IdleIntakeCommand
+    : public frc2::CommandHelper<frc2::Command, IdleIntakeCommand>,
+      public frc846::Loggable {
  public:
-  EjectCommand(RobotContainer& container);
+  IdleIntakeCommand(RobotContainer& container);
 
   void Initialize() override;
 

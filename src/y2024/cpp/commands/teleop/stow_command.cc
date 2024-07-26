@@ -1,4 +1,4 @@
-#include "commands/basic/stow_command.h"
+#include "commands/teleop/stow_command.h"
 
 #include <frc/RobotBase.h>
 
@@ -8,12 +8,8 @@
 #include "frc846/wpilib/time.h"
 
 StowCommand::StowCommand(RobotContainer& container)
-    : frc846::Loggable{"stow_command"},
-      intake_(container.intake_),
-      shooter_(container.shooter_),
-      super_(container.super_structure_) {
-  AddRequirements({&intake_, &shooter_, &container.pivot_,
-                   &container.telescope_, &container.wrist_});
+    : frc846::Loggable{"stow_command"}, super_(container.super_structure_) {
+  AddRequirements({&super_});
   SetName("stow_command");
 }
 
@@ -25,6 +21,4 @@ void StowCommand::Execute() {
 
 void StowCommand::End(bool interrupted) { Log("Stow Command Finished"); }
 
-bool StowCommand::IsFinished() {
-  return super_.hasReachedSetpoint(super_.getStowSetpoint());
-}
+bool StowCommand::IsFinished() { return false; }

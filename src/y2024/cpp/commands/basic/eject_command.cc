@@ -14,16 +14,10 @@ EjectCommand::EjectCommand(RobotContainer& container)
   SetName("eject_command");
 }
 
-void EjectCommand::Initialize() {
-  Log("Eject Command Initialize");
-  is_done_ = false;
-}
+void EjectCommand::Initialize() { Log("Eject Command Initialize"); }
 
-void EjectCommand::Execute() {
-  intake_.SetTarget({IntakeState::kRelease});
-  is_done_ = true;
-}
+void EjectCommand::Execute() { intake_.SetTarget({IntakeState::kRelease}); }
 
 void EjectCommand::End(bool interrupted) { Log("Eject Command Finished"); }
 
-bool EjectCommand::IsFinished() { return is_done_; }
+bool EjectCommand::IsFinished() { return false; }

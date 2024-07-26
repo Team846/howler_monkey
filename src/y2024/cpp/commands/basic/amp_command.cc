@@ -9,8 +9,7 @@
 
 AmpCommand::AmpCommand(RobotContainer& container)
     : frc846::Loggable{"amp_command"}, super_(container.super_structure_) {
-  AddRequirements(
-      {&container.pivot_, &container.telescope_, &container.wrist_});
+  AddRequirements({&super_});
   SetName("amp_command");
 }
 
@@ -22,6 +21,4 @@ void AmpCommand::Execute() {
 
 void AmpCommand::End(bool interrupted) { Log("Amp Command Finished"); }
 
-bool AmpCommand::IsFinished() {
-  return super_.hasReachedSetpoint(super_.getAmpSetpoint());
-}
+bool AmpCommand::IsFinished() { return false; }

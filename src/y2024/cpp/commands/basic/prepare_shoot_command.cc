@@ -17,7 +17,7 @@ PrepareShootCommand::PrepareShootCommand(RobotContainer& container,
       super_(container.super_structure_),
       control_input_(container.control_input_),
       super_shot_(super_shot) {
-  AddRequirements({&container.pivot_, &container.wrist_, &container.telescope_,
+  AddRequirements({&super_,
                    &intake_, &shooter_});
   SetName("prepare_shoot_command");
 }
@@ -31,7 +31,11 @@ void PrepareShootCommand::Execute() {
 
   auto shootSetpoint = super_.getShootSetpoint();
 
-  auto theta =
+  intake_.SetTarget({IntakeState::kHold});
+  shooter_.SetTarget({ShooterState::kRun});
+
+  if (super_shot_) {
+    auto theta =
       shooting_calculator_
           .calculateLaunchAngles(
               shooter_.shooting_exit_velocity_.value(),
@@ -43,10 +47,6 @@ void PrepareShootCommand::Execute() {
               shootSetpoint.wrist.to<double>())
           .launch_angle;
 
-  intake_.SetTarget({IntakeState::kHold});
-  shooter_.SetTarget({ShooterState::kRun});
-
-  if (super_shot_) {
     shootSetpoint.wrist = theta + shootSetpoint.pivot;
   } else {
     shootSetpoint.wrist += shootSetpoint.pivot;
@@ -59,27 +59,11 @@ void PrepareShootCommand::Execute() {
     frc846::util::ShareTables::SetBoolean("ready_to_shoot", false);
   }
 
-  // if (!super_.pivot_->WithinTolerance(shootSetpoint.pivot)) {
-  //   // shootSetpoint.wrist = super_.getStowSetpoint().wrist;
-  //   shootSetpoint.wrist -= 30_deg;
-  // }
-
   super_.SetTargetSetpoint(shootSetpoint);
 }
 
 void PrepareShootCommand::End(bool interrupted) {
-  intake_.SetTarget({IntakeState::kHold});
-  shooter_.SetTarget({ShooterState::kIdle});
-
   Log("Prepare Shoot Command Finished");
 }
 
-bool PrepareShootCommand::IsFinished() {
-  if (super_shot_) return !control_input_.readings().running_super_shoot;
-
-  return !control_input_.readings().running_prep_shoot;
-
-  // return super_.hasReachedSetpoint(super_.getShootSetpoint()) &&
-  //        shooter_.readings().error_percent <=
-  //            shooter_.shooter_speed_tolerance_.value();
-}
+bool PrepareShootCommand::IsFinished() { return false; }

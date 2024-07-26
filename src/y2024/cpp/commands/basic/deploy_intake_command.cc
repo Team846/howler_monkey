@@ -12,8 +12,7 @@ DeployIntakeCommand::DeployIntakeCommand(RobotContainer& container)
       intake_(container.intake_),
       shooter_(container.shooter_),
       super_(container.super_structure_) {
-  AddRequirements(
-      {&intake_, &container.pivot_, &container.wrist_, &container.telescope_});
+  AddRequirements({&intake_, &super_});
   SetName("deploy_intake_command");
 }
 
@@ -30,10 +29,6 @@ void DeployIntakeCommand::Execute() {
 
 void DeployIntakeCommand::End(bool interrupted) {
   Log("Deploy Intake Command Finished");
-  intake_.SetTarget(intake_.ZeroTarget());
 }
 
-bool DeployIntakeCommand::IsFinished() {
-  return super_.hasReachedSetpoint(super_.getIntakeSetpoint()) &&
-         intake_.GetHasPiece();
-}
+bool DeployIntakeCommand::IsFinished() { return false; }

@@ -5,6 +5,10 @@
 #include "subsystems/abstract/operator.h"
 
 struct ControlInputReadings {
+  double translate_x;
+  double translate_y;
+  double rotation;
+
   int stageOfTrap;
 
   bool running_intake;
@@ -26,9 +30,15 @@ struct ControlInputReadings {
 
   bool amping_leds;
   bool coopertition_leds;
+
+  bool home_wrist;
+  bool zero_bearing;
 };
 
-struct ControlInputTarget {};
+struct ControlInputTarget {
+  bool driver_rumble;
+  bool operator_rumble;
+};
 
 class ControlInputSubsystem
     : public frc846::Subsystem<ControlInputReadings, ControlInputTarget> {
@@ -41,15 +51,16 @@ class ControlInputSubsystem
 
   bool VerifyHardware() override;
 
-  void UpdateWithInput(ControlInputReadings newReadings);
+  ControlInputReadings UpdateWithInput();
+
+  DriverSubsystem driver_;
+  OperatorSubsystem operator_;
 
  private:
-  ControlInputReadings this_readings_{0,     false, false, false, false, false,
-                                      false, false, false, false, false, 0,
-                                      0,     0,     false, false};
-  ControlInputReadings previous_readings_{0,     false, false, false, false, false,
-                                    false, false, false, false, false, 0,
-                                    0,     0,     false, false};
+  ControlInputReadings previous_readings_{};
+
+  DriverReadings previous_driver_{};
+  OperatorReadings previous_operator_{};
 
   ControlInputReadings GetNewReadings() override;
 

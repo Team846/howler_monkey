@@ -3,14 +3,19 @@
 #include <frc2/command/CommandHelper.h>
 
 #include "frc846/util/math.h"
+#include "subsystems/abstract/super_structure.h"
 #include "subsystems/hardware/intake.h"
+#include "subsystems/hardware/pivot.h"
 #include "subsystems/hardware/shooter.h"
+#include "subsystems/hardware/telescope.h"
+#include "subsystems/hardware/wrist.h"
 #include "subsystems/robot_container.h"
 
-class IdleCommand : public frc2::CommandHelper<frc2::Command, IdleCommand>,
-                    public frc846::Loggable {
+class IdleShooterCommand
+    : public frc2::CommandHelper<frc2::Command, IdleShooterCommand>,
+      public frc846::Loggable {
  public:
-  IdleCommand(RobotContainer& container, bool idleIntake, bool idleShooter);
+  IdleShooterCommand(RobotContainer& container);
 
   void Initialize() override;
 
@@ -21,11 +26,5 @@ class IdleCommand : public frc2::CommandHelper<frc2::Command, IdleCommand>,
   bool IsFinished() override;
 
  private:
-  IntakeSubsystem& intake_;
   ShooterSubsystem& shooter_;
-
-  bool idleIntake_;
-  bool idleShooter_;
-
-  bool is_done_ = false;
 };

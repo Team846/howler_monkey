@@ -22,6 +22,4 @@ class SpinUpCommand : public frc2::CommandHelper<frc2::Command, SpinUpCommand>,
 
  private:
   ShooterSubsystem& shooter_;
-
-  bool is_done_ = false;
 };
