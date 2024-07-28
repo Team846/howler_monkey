@@ -8,7 +8,7 @@
 #include "subsystems/robot_container.h"
 
 class EjectCommand : public frc2::CommandHelper<frc2::Command, EjectCommand>,
-                     public frc846::Loggable {
+                     public frc846::base::Loggable {
  public:
   EjectCommand(RobotContainer& container);
 

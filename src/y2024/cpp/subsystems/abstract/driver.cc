@@ -3,7 +3,7 @@
 #include "frc846/util/share_tables.h"
 
 DriverSubsystem::DriverSubsystem()
-    : frc846::Subsystem<DriverReadings, DriverTarget>{"driver", true} {}
+    : frc846::base::Subsystem<DriverReadings, DriverTarget>{"driver", true} {}
 
 DriverTarget DriverSubsystem::ZeroTarget() const {
   DriverTarget target;

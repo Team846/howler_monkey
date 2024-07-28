@@ -13,7 +13,7 @@ namespace frc846::motion {
 
 class MotionTarget {
  public:
-  static frc846::Loggable preferences_loggable;
+  static frc846::base::Loggable preferences_loggable;
 };
 
 struct CurrentControlSettings {
@@ -25,7 +25,8 @@ struct CurrentControlSettings {
 
 class CurrentControl {
  public:
-  CurrentControl(frc846::Loggable& parent, CurrentControlSettings settings)
+  CurrentControl(frc846::base::Loggable& parent,
+                 CurrentControlSettings settings)
       : settings_{settings},
         smart_current_limit_{parent, "smart_current_limit",
                              settings.smart_current_limit},
@@ -68,7 +69,7 @@ class CurrentControl {
 template <typename V>
 class BrakingVelocityFPID {
  public:
-  BrakingVelocityFPID(frc846::Loggable& parent,
+  BrakingVelocityFPID(frc846::base::Loggable& parent,
                       CurrentControlSettings current_control_settings)
       : current_control_{parent, current_control_settings} {}
 
@@ -97,7 +98,7 @@ class BrakingPositionDyFPID {
                            units::inverse<units::second>>>;
 
  public:
-  BrakingPositionDyFPID(Loggable& parent,
+  BrakingPositionDyFPID(frc846::base::Loggable& parent,
                         std::function<double(X)> prop_ff_function,
                         CurrentControlSettings current_control_settings)
       : prop_ff_function_{prop_ff_function},

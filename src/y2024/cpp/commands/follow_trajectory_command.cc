@@ -11,7 +11,7 @@
 
 FollowTrajectoryCommand::FollowTrajectoryCommand(
     RobotContainer& container, std::vector<frc846::InputWaypoint> input_points)
-    : frc846::Loggable{"follow_trajectory_command"},
+    : frc846::base::Loggable{"follow_trajectory_command"},
       drivetrain_(container.drivetrain_),
       input_points_(input_points) {
   AddRequirements({&drivetrain_});

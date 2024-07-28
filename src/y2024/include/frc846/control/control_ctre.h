@@ -19,7 +19,7 @@ class TalonFXController : public BaseESC<X> {
   using A = units::ampere_t;  // current
 
  public:
-  TalonFXController(frc846::Loggable& parent, int canID,
+  TalonFXController(frc846::base::Loggable& parent, int canID,
                     frc846::control::ConfigHelper& config_helper,
                     frc846::control::HardLimitsConfigHelper<X>& hard_limits)
       : parent_{parent},
@@ -259,7 +259,7 @@ class TalonFXController : public BaseESC<X> {
     return true;
   }
 
-  frc846::Loggable& parent_;
+  frc846::base::Loggable& parent_;
   int canID_;
 
   frc846::control::ConfigHelper& config_helper_;

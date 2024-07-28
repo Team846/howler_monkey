@@ -9,7 +9,7 @@
 #include "frc846/wpilib/time.h"
 
 EjectCommand::EjectCommand(RobotContainer& container)
-    : frc846::Loggable{"eject_command"}, intake_(container.intake_) {
+    : frc846::base::Loggable{"eject_command"}, intake_(container.intake_) {
   AddRequirements({&intake_});
   SetName("eject_command");
 }

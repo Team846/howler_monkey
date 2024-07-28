@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "frc846/loggable.h"
+#include "frc846/base/loggable.h"
 #include "frc846/util/math.h"
 
 namespace frc846 {
@@ -41,7 +41,7 @@ Trajectory GenerateTrajectory(
     units::feet_per_second_squared_t robot_max_acceleration,
     units::feet_per_second_squared_t robot_max_deceleration,
     units::inch_t cut) {
-  Loggable loggable{"trajectory_generator"};
+  frc846::base::Loggable loggable{"trajectory_generator"};
 
   if (input_points.size() < 2) {
     loggable.Error("Not enough input points! {} points given",

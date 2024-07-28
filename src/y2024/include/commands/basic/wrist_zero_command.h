@@ -13,7 +13,7 @@
 
 class WristZeroCommand
     : public frc2::CommandHelper<frc2::Command, WristZeroCommand>,
-      public frc846::Loggable {
+      public frc846::base::Loggable {
  public:
   WristZeroCommand(RobotContainer& container);
 

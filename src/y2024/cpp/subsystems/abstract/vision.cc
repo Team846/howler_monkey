@@ -8,7 +8,7 @@
 #include "frc846/util/share_tables.h"
 
 VisionSubsystem::VisionSubsystem(bool init)
-    : frc846::Subsystem<VisionReadings, VisionTarget>("vision", init) {
+    : frc846::base::Subsystem<VisionReadings, VisionTarget>("vision", init) {
   if (init) {
   }
 }

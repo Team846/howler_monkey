@@ -1,7 +1,7 @@
 #pragma once
 
+#include "frc846/base/subsystem.h"
 #include "frc846/other/xbox.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
 #include "frc846/util/pref.h"
@@ -14,7 +14,7 @@ struct OperatorTarget {
 };
 
 class OperatorSubsystem
-    : public frc846::Subsystem<OperatorReadings, OperatorTarget> {
+    : public frc846::base::Subsystem<OperatorReadings, OperatorTarget> {
  public:
   OperatorSubsystem();
 
@@ -30,7 +30,7 @@ class OperatorSubsystem
 
   frc::XboxController xbox_{ports::operator_::kXbox_DSPort};
 
-  frc846::Loggable target_loggable_{*this, "target"};
+  frc846::base::Loggable target_loggable_{*this, "target"};
   frc846::Grapher<bool> target_rumble_graph_{target_loggable_, "rumble"};
 
   OperatorReadings previous_readings_;

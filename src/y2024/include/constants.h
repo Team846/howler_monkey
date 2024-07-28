@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "frc846/loggable.h"
+#include "frc846/base/loggable.h"
 #include "frc846/util/math.h"
 
 using namespace frc846::util;

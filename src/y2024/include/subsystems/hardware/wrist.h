@@ -1,9 +1,9 @@
 #pragma once
 
+#include "frc846/base/loggable.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
-#include "frc846/loggable.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -21,7 +21,8 @@ struct WristTarget {
   bool override_limits = false;
 };
 
-class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
+class WristSubsystem
+    : public frc846::base::Subsystem<WristReadings, WristTarget> {
  public:
   WristSubsystem(bool init);
 
@@ -83,18 +84,18 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
  private:
   bool hasZeroed = false;
 
-  frc846::Loggable gains_{*this, "gains"};
+  frc846::base::Loggable gains_{*this, "gains"};
   frc846::Pref<double> k_{gains_, "k", 0.0};
   frc846::Pref<double> p_{gains_, "p", 0.0};
   frc846::Pref<double> d_{gains_, "d", 0.0};
 
-  frc846::Loggable readings_named_{*this, "readings"};
+  frc846::base::Loggable readings_named_{*this, "readings"};
 
   frc846::Grapher<units::degree_t> wrist_pos_graph{target_named_, "wrist_pos"};
   frc846::Grapher<units::degree_t> wrist_error_graph{target_named_,
                                                      "wrist_error"};
 
-  frc846::Loggable target_named_{*this, "target"};
+  frc846::base::Loggable target_named_{*this, "target"};
 
   frc846::Grapher<double> target_wrist_duty_cycle_graph{target_named_,
                                                         "wrist_duty_cycle"};
@@ -120,7 +121,7 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
 
   void DirectWrite(WristTarget target) override;
 
-  frc846::Loggable dyFPID_loggable{*this, "DynamicFPID"};
+  frc846::base::Loggable dyFPID_loggable{*this, "DynamicFPID"};
 
   frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPID{
       dyFPID_loggable,
@@ -133,7 +134,7 @@ class WristSubsystem : public frc846::Subsystem<WristReadings, WristTarget> {
       },
       {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
 
-  frc846::Loggable close_dyFPID_loggable{*this, "CloseDynamicFPID"};
+  frc846::base::Loggable close_dyFPID_loggable{*this, "CloseDynamicFPID"};
 
   frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPIDClose{
       close_dyFPID_loggable,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "frc846/subsystem.h"
+#include "frc846/base/subsystem.h"
 #include "subsystems/abstract/driver.h"
 #include "subsystems/abstract/operator.h"
 
@@ -42,7 +42,7 @@ struct ControlInputTarget {
 };
 
 class ControlInputSubsystem
-    : public frc846::Subsystem<ControlInputReadings, ControlInputTarget> {
+    : public frc846::base::Subsystem<ControlInputReadings, ControlInputTarget> {
  public:
   ControlInputSubsystem();
 

@@ -2,7 +2,7 @@
 
 #include <frc/AddressableLED.h>
 
-#include "frc846/subsystem.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "ports.h"
 
@@ -26,7 +26,7 @@ struct LEDsTarget {
   LEDsState state;
 };
 
-class LEDsSubsystem : public frc846::Subsystem<LEDsReadings, LEDsTarget> {
+class LEDsSubsystem : public frc846::base::Subsystem<LEDsReadings, LEDsTarget> {
  public:
   LEDsSubsystem(bool init);
 

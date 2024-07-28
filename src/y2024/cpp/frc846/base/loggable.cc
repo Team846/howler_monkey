@@ -1,8 +1,8 @@
-#include "frc846/loggable.h"
+#include "frc846/base/loggable.h"
 
 #include <sstream>
 
-namespace frc846 {
+namespace frc846::base {
 
 std::string Loggable::Join(std::string p, std::string n) { return p + "/" + n; }
 

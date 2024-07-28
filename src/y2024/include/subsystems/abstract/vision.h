@@ -4,7 +4,7 @@
 #include <units/length.h>
 
 #include "frc/smartdashboard/Smartdashboard.h"
-#include "frc846/subsystem.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "networktables/NetworkTable.h"
 #include "networktables/NetworkTableEntry.h"
@@ -34,7 +34,8 @@ struct AprilTagData {
   units::inch_t height;
 };
 
-class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
+class VisionSubsystem
+    : public frc846::base::Subsystem<VisionReadings, VisionTarget> {
  public:
   VisionSubsystem(bool init);
 
@@ -51,7 +52,7 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
   frc846::Grapher<int> tag_id_graph_{*this, "tag_id"};
   frc846::Grapher<units::millisecond_t> ll_latency_graph_{*this, "ll_latency"};
 
-  frc846::Loggable readings_named{*this, "readings"};
+  frc846::base::Loggable readings_named{*this, "readings"};
   frc846::Grapher<units::foot_t> speaker_x_dist_graph_{readings_named,
                                                        "speaker_dist_x"};
   frc846::Grapher<units::foot_t> speaker_y_dist_graph_{readings_named,

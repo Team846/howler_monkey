@@ -10,7 +10,7 @@
 #include "frc846/wpilib/time.h"
 
 CloseDriveAmpCommand::CloseDriveAmpCommand(RobotContainer& container)
-    : frc846::Loggable{"close_drive_amp_command"},
+    : frc846::base::Loggable{"close_drive_amp_command"},
       drivetrain_(container.drivetrain_) {
   AddRequirements({&drivetrain_});
   SetName("close_drive_amp_command");

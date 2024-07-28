@@ -12,7 +12,7 @@
 #include "subsystems/robot_container.h"
 
 class AmpCommand : public frc2::CommandHelper<frc2::Command, AmpCommand>,
-                   public frc846::Loggable {
+                   public frc846::base::Loggable {
  public:
   AmpCommand(RobotContainer& container);
 

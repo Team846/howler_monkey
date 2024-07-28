@@ -9,7 +9,7 @@
 #include "subsystems/abstract/super_structure.h"
 
 PassCommand::PassCommand(RobotContainer& container)
-    : frc846::Loggable{"pass_command"},
+    : frc846::base::Loggable{"pass_command"},
       intake_(container.intake_),
       shooter_(container.shooter_),
       super_(container.super_structure_),
@@ -27,8 +27,6 @@ void PassCommand::Execute() {
   super_.SetTargetSetpoint(super_.getPassSetpoint());
 }
 
-void PassCommand::End(bool interrupted) {
-  Log("Pass Command Finished");
-}
+void PassCommand::End(bool interrupted) { Log("Pass Command Finished"); }
 
 bool PassCommand::IsFinished() { return false; }

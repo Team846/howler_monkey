@@ -9,7 +9,7 @@
 
 class FollowTrajectoryCommand
     : public frc2::CommandHelper<frc2::Command, FollowTrajectoryCommand>,
-      public frc846::Loggable {
+      public frc846::base::Loggable {
  public:
   FollowTrajectoryCommand(RobotContainer& container,
                           std::vector<frc846::InputWaypoint> input_points);

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "frc846/base/loggable.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
-#include "frc846/loggable.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -19,7 +19,7 @@ struct TelescopeTarget {
 };
 
 class TelescopeSubsystem
-    : public frc846::Subsystem<TelescopeReadings, TelescopeTarget> {
+    : public frc846::base::Subsystem<TelescopeReadings, TelescopeTarget> {
  public:
   TelescopeSubsystem(bool init);
 
@@ -69,13 +69,13 @@ class TelescopeSubsystem
   frc846::Pref<units::inch_t> telescope_tolerance_{*this, "telescope_tolerance",
                                                    0.25_in};
 
-  frc846::Loggable readings_named_{*this, "readings"};
+  frc846::base::Loggable readings_named_{*this, "readings"};
 
   frc846::Grapher<units::inch_t> tele_pos_graph{readings_named_, "tele_pos"};
   frc846::Grapher<units::inch_t> tele_error_graph{readings_named_,
                                                   "tele_error"};
 
-  frc846::Loggable target_named_{*this, "target"};
+  frc846::base::Loggable target_named_{*this, "target"};
 
   frc846::Grapher<double> target_tele_duty_cycle_graph{target_named_,
                                                        "tele_duty_cycle"};

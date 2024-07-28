@@ -8,7 +8,7 @@
 #include "subsystems/robot_container.h"
 
 class PullCommand : public frc2::CommandHelper<frc2::Command, PullCommand>,
-                    public frc846::Loggable {
+                    public frc846::base::Loggable {
  public:
   PullCommand(RobotContainer& container);
 

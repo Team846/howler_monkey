@@ -7,7 +7,7 @@
 #include "initializer_list"
 
 IntakeSubsystem::IntakeSubsystem(bool init)
-    : frc846::Subsystem<IntakeReadings, IntakeTarget>{"intake", init} {
+    : frc846::base::Subsystem<IntakeReadings, IntakeTarget>{"intake", init} {
   if (init) {
     intake_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
 

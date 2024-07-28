@@ -11,9 +11,9 @@
 #include <variant>
 
 #include "frc/DataLogManager.h"
-#include "util/logger.h"
+#include "frc846/base/logger.h"
 
-namespace frc846 {
+namespace frc846::base {
 class Loggable {
  public:
   Loggable(const Loggable& parent_, std::string name)
@@ -27,16 +27,16 @@ class Loggable {
 
   template <typename... T>
   void Log(fmt::format_string<T...> fmt, T&&... args) const {
-    logger.Log(name_, fmt, std::forward<T>(args)...);
+    logger.Log(fmt, std::forward<T>(args)...);
   }
   template <typename... T>
   void Warn(fmt::format_string<T...> fmt, T&&... args) {
-    logger.Warn(name_, fmt, std::forward<T>(args)...);
+    logger.Warn(fmt, std::forward<T>(args)...);
     warn_count_++;
   }
   template <typename... T>
   void Error(fmt::format_string<T...> fmt, T&&... args) {
-    logger.Error(name_, fmt, std::forward<T>(args)...);
+    logger.Error(fmt, std::forward<T>(args)...);
     error_count_++;
   }
 
@@ -51,6 +51,6 @@ class Loggable {
   static unsigned int warn_count_;
   static unsigned int error_count_;
 
-  frc846::Logger logger;
+  frc846::base::FunkyLogger logger;
 };
-}  // namespace frc846
+}  // namespace frc846::base

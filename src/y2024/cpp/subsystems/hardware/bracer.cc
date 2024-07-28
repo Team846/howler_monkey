@@ -4,7 +4,7 @@
 #include "frc846/util/share_tables.h"
 
 BracerSubsystem::BracerSubsystem(bool init)
-    : frc846::Subsystem<BracerReadings, BracerTarget>{"bracer", init} {
+    : frc846::base::Subsystem<BracerReadings, BracerTarget>{"bracer", init} {
   if (init) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", false);
   }

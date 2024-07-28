@@ -13,7 +13,7 @@
 
 class IdleShooterCommand
     : public frc2::CommandHelper<frc2::Command, IdleShooterCommand>,
-      public frc846::Loggable {
+      public frc846::base::Loggable {
  public:
   IdleShooterCommand(RobotContainer& container);
 

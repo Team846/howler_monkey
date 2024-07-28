@@ -3,7 +3,7 @@
 #include "frc846/util/share_tables.h"
 
 ControlInputSubsystem::ControlInputSubsystem()
-    : frc846::Subsystem<ControlInputReadings, ControlInputTarget>{
+    : frc846::base::Subsystem<ControlInputReadings, ControlInputTarget>{
           "control_input", true} {}
 
 ControlInputTarget ControlInputSubsystem::ZeroTarget() const {

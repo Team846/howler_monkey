@@ -9,7 +9,7 @@
 #include "subsystems/abstract/super_structure.h"
 
 PrepareAutoShootCommand::PrepareAutoShootCommand(RobotContainer& container)
-    : frc846::Loggable{"prepare_auto_shoot_command"},
+    : frc846::base::Loggable{"prepare_auto_shoot_command"},
       intake_(container.intake_),
       shooter_(container.shooter_),
       vision_(container.vision_),

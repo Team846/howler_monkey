@@ -5,7 +5,7 @@
 #include "units/math.h"
 
 WristSubsystem::WristSubsystem(bool init)
-    : frc846::Subsystem<WristReadings, WristTarget>{"wrist", init} {
+    : frc846::base::Subsystem<WristReadings, WristTarget>{"wrist", init} {
   if (init) {
     wrist_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
   }

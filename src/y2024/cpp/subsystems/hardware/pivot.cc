@@ -4,7 +4,7 @@
 #include "frc846/util/share_tables.h"
 
 PivotSubsystem::PivotSubsystem(bool init)
-    : frc846::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
+    : frc846::base::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
   if (init) {
     pivot_three_.OverrideInvert();
     pivot_four_.OverrideInvert();

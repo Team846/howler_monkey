@@ -27,7 +27,7 @@
 #include "frc/DataLogManager.h"
 #include "frc2/command/ParallelDeadlineGroup.h"
 #include "frc2/command/WaitCommand.h"
-#include "frc846/loggable.h"
+#include "frc846/base/loggable.h"
 #include "frc846/other/sendable_callback.h"
 #include "frc846/other/xbox.h"
 #include "frc846/wpilib/time.h"
@@ -37,7 +37,7 @@
 #include "subsystems/hardware/telescope.h"
 #include "subsystems/hardware/wrist.h"
 
-FunkyRobot::FunkyRobot() : frc846::Loggable{"funky_robot"} {
+FunkyRobot::FunkyRobot() : frc846::base::Loggable{"funky_robot"} {
   next_loop_time_ = frc846::wpilib::CurrentFPGATime();
 
   int32_t status = 0x00;
@@ -279,8 +279,8 @@ void FunkyRobot::StartCompetition() {
     // Update graphs
     time_remaining_graph_.Graph(frc::DriverStation::GetMatchTime().to<int>());
 
-    warnings_graph_.Graph(frc846::Loggable::GetWarnCount());
-    errors_graph_.Graph(frc846::Loggable::GetErrorCount());
+    warnings_graph_.Graph(frc846::base::Loggable::GetWarnCount());
+    errors_graph_.Graph(frc846::base::Loggable::GetErrorCount());
 
     can_usage_graph_.Graph(
         frc::RobotController::GetCANStatus().percentBusUtilization * 0x64);
@@ -290,7 +290,7 @@ void FunkyRobot::StartCompetition() {
 
     // Check loop time
     if (loop_time > kPeriod * 0x03) {
-      Warn("Bad loop overrun: {} (loop period: {})",
+      Warn("Loop overrun: {} (loop period: {})",
            loop_time.convert<units::millisecond>(), kPeriod);
     }
   }

@@ -3,10 +3,10 @@
 #include "frc/AnalogInput.h"
 #include "frc/AnalogTrigger.h"
 #include "frc/filter/SlewRateLimiter.h"
+#include "frc846/base/loggable.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
-#include "frc846/loggable.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -25,7 +25,7 @@ struct ShooterTarget {
 };
 
 class ShooterSubsystem
-    : public frc846::Subsystem<ShooterReadings, ShooterTarget> {
+    : public frc846::base::Subsystem<ShooterReadings, ShooterTarget> {
  public:
   ShooterSubsystem(bool init);
 
@@ -47,7 +47,7 @@ class ShooterSubsystem
       *this, "shooter_speed_tolerance", 0.05};
 
  private:
-  frc846::Loggable readings_named_{*this, "readings"};
+  frc846::base::Loggable readings_named_{*this, "readings"};
   frc846::Grapher<double> readings_shooting_speed_left_graph{
       readings_named_, "readings_shooting_speed_left_graph"};
   frc846::Grapher<double> readings_shooting_speed_right_graph{
@@ -58,7 +58,7 @@ class ShooterSubsystem
   frc846::Grapher<double> shooter_left_error_graph_{readings_named_,
                                                     "shooter_left_error_graph"};
 
-  frc846::Loggable target_named_{*this, "target"};
+  frc846::base::Loggable target_named_{*this, "target"};
   frc846::Grapher<bool> target_is_shooting_graph{target_named_,
                                                  "target_is_shooting_graph"};
   frc846::Grapher<double> target_shooting_speed_graph{
@@ -86,7 +86,7 @@ class ShooterSubsystem
 
   void DirectWrite(ShooterTarget target) override;
 
-  frc846::Loggable vFPID_loggable{*this, "vFPID"};
+  frc846::base::Loggable vFPID_loggable{*this, "vFPID"};
 
   frc846::motion::BrakingVelocityFPID<units::feet_per_second_t> braking_v_FPID{
       vFPID_loggable,

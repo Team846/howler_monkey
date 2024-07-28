@@ -15,9 +15,9 @@
 #include "subsystems/hardware/telescope.h"
 #include "subsystems/hardware/wrist.h"
 
-class RobotContainer : public frc846::Loggable {
+class RobotContainer : public frc846::base::Loggable {
  public:
-  RobotContainer() : frc846::Loggable{"robot_container"} {}
+  RobotContainer() : frc846::base::Loggable{"robot_container"} {}
 
   frc846::Pref<bool> init_drivetrain_{*this, "init_drivetrain", true};
   frc846::Pref<bool> init_intake_{*this, "init_intake", false};
@@ -41,7 +41,7 @@ class RobotContainer : public frc846::Loggable {
   SuperStructureSubsystem super_structure_{&pivot_, &wrist_, &telescope_};
   VisionSubsystem vision_{init_vision_.value()};
 
-  std::vector<frc846::SubsystemBase*> all_subsystems_{
+  std::vector<frc846::base::SubsystemBase*> all_subsystems_{
       &control_input_, &drivetrain_,      &intake_,    &shooter_,
       &wrist_,         &pivot_,           &telescope_, &leds_,
       &bracer_,        &super_structure_, &vision_};

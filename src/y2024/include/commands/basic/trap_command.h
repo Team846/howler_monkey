@@ -12,7 +12,7 @@
 #include "subsystems/robot_container.h"
 
 class TrapCommand : public frc2::CommandHelper<frc2::Command, TrapCommand>,
-                    public frc846::Loggable {
+                    public frc846::base::Loggable {
  public:
   TrapCommand(RobotContainer& container, int stage);
 

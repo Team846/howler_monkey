@@ -8,10 +8,9 @@
 #include "frc846/wpilib/time.h"
 
 WristZeroCommand::WristZeroCommand(RobotContainer& container)
-    : frc846::Loggable{"wrist_zero_command"},
+    : frc846::base::Loggable{"wrist_zero_command"},
       super_(container.super_structure_) {
-  AddRequirements(
-      {&super_});
+  AddRequirements({&super_});
   SetName("wrist_zero_command");
 }
 

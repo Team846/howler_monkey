@@ -3,9 +3,9 @@
 #include <frc2/command/InstantCommand.h>
 #include <frc2/command/SubsystemBase.h>
 
-#include "frc846/loggable.h"
+#include "frc846/base/loggable.h"
 
-namespace frc846 {
+namespace frc846::base {
 
 #define FRC846_VERIFY(expr, ok, fail_msg)    \
   do {                                       \
@@ -37,13 +37,13 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
  public:
   // Construct a new subsystem.
   explicit Subsystem(std::string name, bool init = false)
-      : frc846::SubsystemBase{name}, init_{init} {
+      : frc846::base::SubsystemBase{name}, init_{init} {
     if (init_) Init();
   }
 
   // Construct a subsystem as a child of another subsystem.
   Subsystem(const Loggable& parent, std::string name, bool init = false)
-      : frc846::SubsystemBase{parent, name}, init_{init} {
+      : frc846::base::SubsystemBase{parent, name}, init_{init} {
     if (init_) Init();
   }
 
@@ -121,4 +121,4 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
   virtual void DirectWrite(Target target) = 0;
 };
 
-}  // namespace frc846
+}  // namespace frc846::base

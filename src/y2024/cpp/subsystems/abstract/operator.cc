@@ -3,7 +3,8 @@
 #include "frc846/util/share_tables.h"
 
 OperatorSubsystem::OperatorSubsystem()
-    : frc846::Subsystem<OperatorReadings, OperatorTarget>{"operator", true} {}
+    : frc846::base::Subsystem<OperatorReadings, OperatorTarget>{"operator",
+                                                                true} {}
 
 OperatorTarget OperatorSubsystem::ZeroTarget() const {
   OperatorTarget target;

@@ -8,7 +8,8 @@
 #include "frc846/wpilib/time.h"
 
 IdleShooterCommand::IdleShooterCommand(RobotContainer& container)
-    : frc846::Loggable{"idle_shooter_command"}, shooter_(container.shooter_) {
+    : frc846::base::Loggable{"idle_shooter_command"},
+      shooter_(container.shooter_) {
   AddRequirements({&shooter_});
   SetName("idle_shooter_command");
 }

@@ -13,7 +13,7 @@
 #include "subsystems/robot_container.h"
 
 class PassCommand : public frc2::CommandHelper<frc2::Command, PassCommand>,
-                    public frc846::Loggable {
+                    public frc846::base::Loggable {
  public:
   PassCommand(RobotContainer& container);
 

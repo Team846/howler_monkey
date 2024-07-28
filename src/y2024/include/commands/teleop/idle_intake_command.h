@@ -13,7 +13,7 @@
 
 class IdleIntakeCommand
     : public frc2::CommandHelper<frc2::Command, IdleIntakeCommand>,
-      public frc846::Loggable {
+      public frc846::base::Loggable {
  public:
   IdleIntakeCommand(RobotContainer& container);
 

@@ -4,7 +4,7 @@
 #include "frc846/util/share_tables.h"
 
 ShooterSubsystem::ShooterSubsystem(bool init)
-    : frc846::Subsystem<ShooterReadings, ShooterTarget>{"shooter", init} {
+    : frc846::base::Subsystem<ShooterReadings, ShooterTarget>{"shooter", init} {
   if (init) {
     shooter_esc_one_.OverrideInvert();
 

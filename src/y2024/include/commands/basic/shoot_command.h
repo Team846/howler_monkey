@@ -8,7 +8,7 @@
 #include "subsystems/robot_container.h"
 
 class ShootCommand : public frc2::CommandHelper<frc2::Command, ShootCommand>,
-                     public frc846::Loggable {
+                     public frc846::base::Loggable {
  public:
   ShootCommand(RobotContainer& container);
 

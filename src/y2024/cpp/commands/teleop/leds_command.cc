@@ -4,7 +4,7 @@
 
 #include "constants.h"
 #include "field.h"
-#include "frc846/loggable.h"
+#include "frc846/base/loggable.h"
 #include "frc846/util/math.h"
 
 LEDsCommand::LEDsCommand(RobotContainer &container)

@@ -12,7 +12,7 @@
 #include "subsystems/robot_container.h"
 
 class StowCommand : public frc2::CommandHelper<frc2::Command, StowCommand>,
-                    public frc846::Loggable {
+                    public frc846::base::Loggable {
  public:
   StowCommand(RobotContainer& container);
 

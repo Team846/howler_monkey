@@ -23,7 +23,7 @@ class REVSparkController : public BaseESC<X> {
   using A = units::ampere_t;  // current
 
  public:
-  REVSparkController(frc846::Loggable& parent, int canID,
+  REVSparkController(frc846::base::Loggable& parent, int canID,
                      frc846::control::ConfigHelper& config_helper,
                      frc846::control::HardLimitsConfigHelper<X>& hard_limits)
       : parent_{parent},
@@ -351,7 +351,7 @@ class REVSparkController : public BaseESC<X> {
     return true;
   }
 
-  frc846::Loggable& parent_;
+  frc846::base::Loggable& parent_;
   int canID_;
 
   frc846::control::ConfigHelper& config_helper_;

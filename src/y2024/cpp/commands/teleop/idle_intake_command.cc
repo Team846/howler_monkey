@@ -8,7 +8,8 @@
 #include "frc846/wpilib/time.h"
 
 IdleIntakeCommand::IdleIntakeCommand(RobotContainer& container)
-    : frc846::Loggable{"idle_intake_command"}, intake_(container.intake_) {
+    : frc846::base::Loggable{"idle_intake_command"},
+      intake_(container.intake_) {
   AddRequirements({&intake_});
   SetName("idle_intake_command");
 }

@@ -8,10 +8,10 @@
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <string>
 
+#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
 #include "frc846/ctre_namespace.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/conversions.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
@@ -35,9 +35,9 @@ struct SwerveModuleTarget {
 };
 
 class SwerveModuleSubsystem
-    : public frc846::Subsystem<SwerveModuleReadings, SwerveModuleTarget> {
+    : public frc846::base::Subsystem<SwerveModuleReadings, SwerveModuleTarget> {
  public:
-  SwerveModuleSubsystem(const frc846::Loggable& drivetrain, bool init,
+  SwerveModuleSubsystem(const frc846::base::Loggable& drivetrain, bool init,
                         std::string location,
                         units::degree_t fallback_cancoder_offset,
                         frc846::control::ConfigHelper* drive_esc_config_helper,
@@ -75,7 +75,7 @@ class SwerveModuleSubsystem
 
   units::feet_per_second_t current_speed_;
 
-  frc846::Loggable target_loggable_{*this, "target"};
+  frc846::base::Loggable target_loggable_{*this, "target"};
   frc846::Grapher<units::feet_per_second_t> target_speed_graph_{
       target_loggable_, "speed"};
   frc846::Grapher<units::degree_t> target_direction_graph_{target_loggable_,

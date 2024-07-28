@@ -8,7 +8,8 @@
 #include "frc846/wpilib/time.h"
 
 AmpCommand::AmpCommand(RobotContainer& container)
-    : frc846::Loggable{"amp_command"}, super_(container.super_structure_) {
+    : frc846::base::Loggable{"amp_command"},
+      super_(container.super_structure_) {
   AddRequirements({&super_});
   SetName("amp_command");
 }

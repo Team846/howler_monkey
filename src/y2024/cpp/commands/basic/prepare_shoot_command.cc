@@ -10,15 +10,14 @@
 
 PrepareShootCommand::PrepareShootCommand(RobotContainer& container,
                                          bool super_shot)
-    : frc846::Loggable{"prepare_shoot_command"},
+    : frc846::base::Loggable{"prepare_shoot_command"},
       intake_(container.intake_),
       shooter_(container.shooter_),
       vision_(container.vision_),
       super_(container.super_structure_),
       control_input_(container.control_input_),
       super_shot_(super_shot) {
-  AddRequirements({&super_,
-                   &intake_, &shooter_});
+  AddRequirements({&super_, &intake_, &shooter_});
   SetName("prepare_shoot_command");
 }
 
@@ -36,16 +35,16 @@ void PrepareShootCommand::Execute() {
 
   if (super_shot_) {
     auto theta =
-      shooting_calculator_
-          .calculateLaunchAngles(
-              shooter_.shooting_exit_velocity_.value(),
-              vis_readings_.est_dist_from_speaker.to<double>() +
-                  super_.teleop_shooter_x_.value().to<double>() / 12.0,
-              vis_readings_.velocity_in_component,
-              vis_readings_.velocity_orth_component,
-              super_.teleop_shooter_height_.value().to<double>() / 12.0,
-              shootSetpoint.wrist.to<double>())
-          .launch_angle;
+        shooting_calculator_
+            .calculateLaunchAngles(
+                shooter_.shooting_exit_velocity_.value(),
+                vis_readings_.est_dist_from_speaker.to<double>() +
+                    super_.teleop_shooter_x_.value().to<double>() / 12.0,
+                vis_readings_.velocity_in_component,
+                vis_readings_.velocity_orth_component,
+                super_.teleop_shooter_height_.value().to<double>() / 12.0,
+                shootSetpoint.wrist.to<double>())
+            .launch_angle;
 
     shootSetpoint.wrist = theta + shootSetpoint.pivot;
   } else {

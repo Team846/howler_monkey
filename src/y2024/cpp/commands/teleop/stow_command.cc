@@ -8,7 +8,8 @@
 #include "frc846/wpilib/time.h"
 
 StowCommand::StowCommand(RobotContainer& container)
-    : frc846::Loggable{"stow_command"}, super_(container.super_structure_) {
+    : frc846::base::Loggable{"stow_command"},
+      super_(container.super_structure_) {
   AddRequirements({&super_});
   SetName("stow_command");
 }

@@ -10,7 +10,7 @@
 
 AwaitPieceStateCommand::AwaitPieceStateCommand(RobotContainer& container,
                                                bool has_piece)
-    : frc846::Loggable{"await_piece_state_command"},
+    : frc846::base::Loggable{"await_piece_state_command"},
       intake_(container.intake_),
       has_piece_(has_piece) {
   AddRequirements({});

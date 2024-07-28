@@ -8,11 +8,10 @@
 #include "frc846/wpilib/time.h"
 
 SourceCommand::SourceCommand(RobotContainer& container)
-    : frc846::Loggable{"source_command"},
+    : frc846::base::Loggable{"source_command"},
       super_(container.super_structure_),
       intake_(container.intake_) {
-  AddRequirements({&super_,
-                   &intake_});
+  AddRequirements({&super_, &intake_});
   SetName("source_command");
 }
 
@@ -25,6 +24,4 @@ void SourceCommand::Execute() {
 
 void SourceCommand::End(bool interrupted) { Log("Source Command Finished"); }
 
-bool SourceCommand::IsFinished() {
-  return false;
-}
+bool SourceCommand::IsFinished() { return false; }

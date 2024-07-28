@@ -12,7 +12,7 @@
 #include "subsystems/robot_container.h"
 
 class SourceCommand : public frc2::CommandHelper<frc2::Command, SourceCommand>,
-                      public frc846::Loggable {
+                      public frc846::base::Loggable {
  public:
   SourceCommand(RobotContainer& container);
 

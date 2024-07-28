@@ -8,7 +8,7 @@
 #include "frc846/wpilib/time.h"
 
 TrapCommand::TrapCommand(RobotContainer& container, int stage)
-    : frc846::Loggable{"trap_command"},
+    : frc846::base::Loggable{"trap_command"},
       intake_(container.intake_),
       shooter_(container.shooter_),
       super_(container.super_structure_),

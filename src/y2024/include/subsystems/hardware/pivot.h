@@ -2,10 +2,10 @@
 
 #include "frc/filter/SlewRateLimiter.h"
 #include "frc/trajectory/TrapezoidProfile.h"
+#include "frc846/base/loggable.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
-#include "frc846/loggable.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -21,7 +21,8 @@ struct PivotTarget {
   std::variant<units::degree_t, double> pivot_output;
 };
 
-class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
+class PivotSubsystem
+    : public frc846::base::Subsystem<PivotReadings, PivotTarget> {
  public:
   PivotSubsystem(bool init);
 
@@ -89,14 +90,14 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
  private:
   bool hasZeroed = false;
 
-  frc846::Loggable readings_named_{*this, "readings"};
+  frc846::base::Loggable readings_named_{*this, "readings"};
 
   frc846::Grapher<units::degree_t> pivot_pos_graph{readings_named_,
                                                    "pivot_pos"};
   frc846::Grapher<units::degree_t> pivot_error_graph{readings_named_,
                                                      "pivot_error"};
 
-  frc846::Loggable target_named_{*this, "target"};
+  frc846::base::Loggable target_named_{*this, "target"};
 
   frc846::Grapher<double> target_pivot_duty_cycle_graph{target_named_,
                                                         "pivot_duty_cycle"};
@@ -132,7 +133,7 @@ class PivotSubsystem : public frc846::Subsystem<PivotReadings, PivotTarget> {
 
   void DirectWrite(PivotTarget target) override;
 
-  frc846::Loggable dyFPID_loggable{*this, "DynamicFPID"};
+  frc846::base::Loggable dyFPID_loggable{*this, "DynamicFPID"};
 
   frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPID{
       dyFPID_loggable,

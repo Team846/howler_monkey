@@ -5,7 +5,7 @@
 #include <units/time.h>
 #include <units/voltage.h>
 
-#include "frc846/subsystem.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/util/pref.h"
 
 namespace frc846::control {
@@ -29,7 +29,8 @@ struct CurrentLimiting {
 
 class CurrentLimitingPrefs {
  public:
-  CurrentLimitingPrefs(Loggable& parent, CurrentLimiting default_limiting)
+  CurrentLimitingPrefs(frc846::base::Loggable& parent,
+                       CurrentLimiting default_limiting)
       : rep{parent, "CurrentLimiting"},
         target_threshold{rep, "target_threshold",
                          default_limiting.target_threshold},
@@ -41,7 +42,7 @@ class CurrentLimitingPrefs {
   }
 
  private:
-  Loggable rep;
+  frc846::base::Loggable rep;
   frc846::Pref<units::ampere_t> target_threshold;
   frc846::Pref<units::millisecond_t> peak_time_theshold;
 };
@@ -55,7 +56,7 @@ struct Gains {
 
 class GainsPrefs {
  public:
-  GainsPrefs(Loggable& parent, Gains default_gains)
+  GainsPrefs(frc846::base::Loggable& parent, Gains default_gains)
       : rep{parent, "Gains"},
         kP{rep, "kP", default_gains.kP},
         kD{rep, "kD", default_gains.kD},
@@ -64,7 +65,7 @@ class GainsPrefs {
   Gains get() { return {kP.value(), kD.value(), kF.value()}; }
 
  private:
-  Loggable rep;
+  frc846::base::Loggable rep;
   frc846::Pref<double> kP;
   frc846::Pref<double> kD;
   frc846::Pref<double> kF;
@@ -94,8 +95,9 @@ struct HardLimits {
 template <class X>
 class HardLimitsConfigHelper {
  public:
-  HardLimitsConfigHelper(Loggable& parent, HardLimits<X> default_limits)
-      : rep{parent, Loggable::Join("Configs", "HardLimits")},
+  HardLimitsConfigHelper(frc846::base::Loggable& parent,
+                         HardLimits<X> default_limits)
+      : rep{parent, frc846::base::Loggable::Join("Configs", "HardLimits")},
         forward_{rep, "forward", default_limits.forward},
         reverse_{rep, "reverse", default_limits.reverse},
         using_position_limits_{rep, "use_position_limits",
@@ -130,7 +132,7 @@ class HardLimitsConfigHelper {
   }
 
  private:
-  Loggable rep;
+  frc846::base::Loggable rep;
   frc846::Pref<X> forward_;
   frc846::Pref<X> reverse_;
   frc846::Pref<bool> using_position_limits_;
@@ -168,7 +170,7 @@ struct MotorConfig {
 
 class MotorConfigPrefs {
  public:
-  MotorConfigPrefs(Loggable& parent, MotorConfig default_config)
+  MotorConfigPrefs(frc846::base::Loggable& parent, MotorConfig default_config)
       : rep{parent, "Configs"},
         invert_{rep, "invert", default_config.invert},
         gear_ratio_{rep, "gear_ratio", default_config.gear_ratio},
@@ -195,7 +197,7 @@ class MotorConfigPrefs {
   }
 
  private:
-  Loggable rep;
+  frc846::base::Loggable rep;
   frc846::Pref<bool> invert_;
   frc846::Pref<double> gear_ratio_;
   frc846::Pref<bool> default_brake_;
@@ -208,7 +210,8 @@ class MotorConfigPrefs {
 
 class ConfigHelper {
  public:
-  ConfigHelper(Loggable& parent, MotorConfig config, Gains default_gains)
+  ConfigHelper(frc846::base::Loggable& parent, MotorConfig config,
+               Gains default_gains)
       : parent_{parent},
         motor_config_{parent, config},
         gains_{parent, default_gains} {
@@ -238,7 +241,7 @@ class ConfigHelper {
  private:
   bool deq(double a, double b) { return std::abs(a - b) <= 0.000002; }
 
-  Loggable& parent_;
+  frc846::base::Loggable& parent_;
   MotorConfigPrefs motor_config_;
   GainsPrefs gains_;
 

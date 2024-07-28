@@ -4,7 +4,7 @@
 
 #include "constants.h"
 #include "field.h"
-#include "frc846/loggable.h"
+#include "frc846/base/loggable.h"
 #include "frc846/util/math.h"
 #include "frc846/util/share_tables.h"
 #include "subsystems/hardware/drivetrain.h"

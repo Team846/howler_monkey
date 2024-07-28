@@ -8,7 +8,7 @@
 #include "frc846/wpilib/time.h"
 
 DeployIntakeCommand::DeployIntakeCommand(RobotContainer& container)
-    : frc846::Loggable{"deploy_intake_command"},
+    : frc846::base::Loggable{"deploy_intake_command"},
       intake_(container.intake_),
       shooter_(container.shooter_),
       super_(container.super_structure_) {

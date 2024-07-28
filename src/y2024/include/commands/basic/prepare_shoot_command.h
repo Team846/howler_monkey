@@ -14,7 +14,7 @@
 
 class PrepareShootCommand
     : public frc2::CommandHelper<frc2::Command, PrepareShootCommand>,
-      public frc846::Loggable {
+      public frc846::base::Loggable {
  public:
   PrepareShootCommand(RobotContainer& container, bool super_shot);
 

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "frc846/base/subsystem.h"
 #include "frc846/other/xbox.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
 #include "frc846/util/pref.h"
@@ -13,7 +13,8 @@ struct DriverTarget {
   bool rumble;
 };
 
-class DriverSubsystem : public frc846::Subsystem<DriverReadings, DriverTarget> {
+class DriverSubsystem
+    : public frc846::base::Subsystem<DriverReadings, DriverTarget> {
  public:
   DriverSubsystem();
 
@@ -36,7 +37,7 @@ class DriverSubsystem : public frc846::Subsystem<DriverReadings, DriverTarget> {
 
   frc::XboxController xbox_{ports::driver_::kXbox_DSPort};
 
-  frc846::Loggable target_loggable_{*this, "target"};
+  frc846::base::Loggable target_loggable_{*this, "target"};
   frc846::Grapher<bool> target_rumble_graph_{target_loggable_, "rumble"};
 
   DriverReadings previous_readings_;

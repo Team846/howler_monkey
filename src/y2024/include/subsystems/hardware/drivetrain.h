@@ -11,8 +11,8 @@
 #include <variant>
 
 #include "frc/filter/SlewRateLimiter.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/other/swerve_odometry.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/conversions.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
@@ -52,7 +52,7 @@ struct DrivetrainTarget {
 };
 
 class DrivetrainSubsystem
-    : public frc846::Subsystem<DrivetrainReadings, DrivetrainTarget> {
+    : public frc846::base::Subsystem<DrivetrainReadings, DrivetrainTarget> {
  public:
   DrivetrainSubsystem(bool initialize = true);
 
@@ -145,7 +145,7 @@ class DrivetrainSubsystem
   frc846::Pref<units::degrees_per_second_t> angular_velocity_threshold_{
       *this, "angular_velocity_threshold", 1_deg_per_s};
 
-  frc846::Loggable align_gains_loggable_{*this, "align_gains"};
+  frc846::base::Loggable align_gains_loggable_{*this, "align_gains"};
   frc846::Pref<double> align_gains_p_{align_gains_loggable_, "p", 3.5};
 
   // Auto align tolerance
@@ -184,26 +184,26 @@ class DrivetrainSubsystem
   frc846::Pref<units::inch_t> wheel_radius_{*this, "wheel_radius", 1.93_in};
 
   // Rotation position gains.
-  frc846::Loggable bearing_gains_loggable_{*this, "bearing_gains"};
+  frc846::base::Loggable bearing_gains_loggable_{*this, "bearing_gains"};
   frc846::Pref<double> bearing_gains_p_{bearing_gains_loggable_, "p", 8.3};
   frc846::Pref<double> bearing_gains_d_{bearing_gains_loggable_, "d", -4.7};
 
   // Pose graphers.
-  frc846::Loggable pose_loggable_{*this, "pose"};
+  frc846::base::Loggable pose_loggable_{*this, "pose"};
   frc846::Grapher<units::foot_t> pose_x_graph_{pose_loggable_, "x"};
   frc846::Grapher<units::foot_t> pose_y_graph_{pose_loggable_, "y"};
   frc846::Grapher<units::degree_t> pose_bearing_graph{pose_loggable_,
                                                       "bearing"};
 
   // Velocity graphers.
-  frc846::Loggable velocity_loggable_{*this, "velocity"};
+  frc846::base::Loggable velocity_loggable_{*this, "velocity"};
   frc846::Grapher<units::feet_per_second_t> v_x_graph_{velocity_loggable_,
                                                        "v_x"};
   frc846::Grapher<units::feet_per_second_t> v_y_graph_{velocity_loggable_,
                                                        "v_y"};
 
   // Target graphers.
-  frc846::Loggable target_loggable_{*this, "target"};
+  frc846::base::Loggable target_loggable_{*this, "target"};
   frc846::Grapher<units::feet_per_second_t> target_v_x_graph_{target_loggable_,
                                                               "v_x"};
   frc846::Grapher<units::feet_per_second_t> target_v_y_graph_{target_loggable_,
@@ -222,8 +222,8 @@ class DrivetrainSubsystem
   frc846::SwerveOdometry odometry_;
   units::angle::degree_t bearing_offset_;
 
-  frc846::Loggable drive_esc_loggable_{*this, "drive_esc"};
-  frc846::Loggable steer_esc_loggable_{*this, "steer_esc"};
+  frc846::base::Loggable drive_esc_loggable_{*this, "drive_esc"};
+  frc846::base::Loggable steer_esc_loggable_{*this, "steer_esc"};
   frc::Field2d m_field;
 
   frc846::control::ConfigHelper drive_config_helper_{
@@ -246,7 +246,8 @@ class DrivetrainSubsystem
       {0.12, 0.0},
   };
 
-  frc846::Loggable current_braking_loggable{*this, "smart_current_braking"};
+  frc846::base::Loggable current_braking_loggable{*this,
+                                                  "smart_current_braking"};
 
   frc846::motion::CurrentControl current_braking{
       current_braking_loggable,

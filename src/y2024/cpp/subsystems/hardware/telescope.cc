@@ -4,7 +4,8 @@
 #include "frc846/util/share_tables.h"
 
 TelescopeSubsystem::TelescopeSubsystem(bool init)
-    : frc846::Subsystem<TelescopeReadings, TelescopeTarget>{"telescope", init} {
+    : frc846::base::Subsystem<TelescopeReadings, TelescopeTarget>{"telescope",
+                                                                  init} {
   if (init) {
     telescope_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
   }

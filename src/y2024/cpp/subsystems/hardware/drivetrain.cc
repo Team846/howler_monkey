@@ -11,8 +11,8 @@ double vel_readings_composite_x;
 double vel_readings_composite_y;
 
 DrivetrainSubsystem::DrivetrainSubsystem(bool initialize)
-    : frc846::Subsystem<DrivetrainReadings, DrivetrainTarget>{"drivetrain",
-                                                              initialize} {
+    : frc846::base::Subsystem<DrivetrainReadings, DrivetrainTarget>{
+          "drivetrain", initialize} {
   bearing_offset_ = 0_deg;
   ZeroOdometry();
   frc::SmartDashboard::PutData("Field", &m_field);

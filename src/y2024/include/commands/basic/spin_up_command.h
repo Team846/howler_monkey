@@ -8,7 +8,7 @@
 #include "subsystems/robot_container.h"
 
 class SpinUpCommand : public frc2::CommandHelper<frc2::Command, SpinUpCommand>,
-                      public frc846::Loggable {
+                      public frc846::base::Loggable {
  public:
   SpinUpCommand(RobotContainer& container);
 

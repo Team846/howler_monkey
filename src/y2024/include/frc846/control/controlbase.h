@@ -12,9 +12,9 @@
 #include <variant>
 
 #include "frc/RobotController.h"
+#include "frc846/base/loggable.h"
 #include "frc846/control/config.h"
 #include "frc846/ctre_namespace.h"
-#include "frc846/loggable.h"
 #include "frc846/util/conversions.h"
 
 FRC846_CTRE_NAMESPACE()
@@ -210,7 +210,7 @@ class BaseESC {
   virtual units::ampere_t GetCurrent() = 0;
 
  protected:
-  void Q(Loggable& lg, std::function<bool()> f) {
+  void Q(frc846::base::Loggable& lg, std::function<bool()> f) {
     int numLoops = 0;
     do {
       numLoops++;

@@ -11,7 +11,7 @@
 
 SpeakerTrajectoryCommand::SpeakerTrajectoryCommand(
     RobotContainer& container, std::vector<frc846::InputWaypoint> input_points)
-    : frc846::Loggable{"speaker_trajectory_command"},
+    : frc846::base::Loggable{"speaker_trajectory_command"},
       drivetrain_(container.drivetrain_),
       vision_(container.vision_),
       input_points_(input_points) {

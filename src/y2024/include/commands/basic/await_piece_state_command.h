@@ -9,7 +9,7 @@
 
 class AwaitPieceStateCommand
     : public frc2::CommandHelper<frc2::Command, AwaitPieceStateCommand>,
-      public frc846::Loggable {
+      public frc846::base::Loggable {
  public:
   AwaitPieceStateCommand(RobotContainer& container, bool has_piece);
 

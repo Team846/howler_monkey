@@ -5,17 +5,16 @@
 static constexpr auto kMotorType = rev::CANSparkMax::MotorType::kBrushless;
 
 SwerveModuleSubsystem::SwerveModuleSubsystem(
-    const frc846::Loggable& drivetrain, bool init, std::string location,
+    const frc846::base::Loggable& drivetrain, bool init, std::string location,
     units::degree_t fallback_cancoder_offset,
     frc846::control::ConfigHelper* drive_esc_config_helper,
     frc846::control::ConfigHelper* steer_esc_config_helper, int drive_esc_id,
     int steer_esc_id, int cancoder_id,
     frc846::Pref<units::feet_per_second_t>& max_speed,
     frc846::motion::CurrentControl& current_control)
-    : frc846::Subsystem<SwerveModuleReadings, SwerveModuleTarget>{drivetrain,
-                                                                  "module_" +
-                                                                      location,
-                                                                  init},
+    : frc846::base::Subsystem<SwerveModuleReadings,
+                              SwerveModuleTarget>{drivetrain,
+                                                  "module_" + location, init},
       cancoder_offset_{*this, "cancoder_offset", fallback_cancoder_offset},
       drive_esc_helper_{*this, drive_esc_id, *drive_esc_config_helper,
                         disabled_hard_limits_drive_},

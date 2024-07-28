@@ -4,16 +4,16 @@
 #include <initializer_list>
 #include <variant>
 
-#include "frc846/loggable.h"
+#include "frc846/base/loggable.h"
 
 namespace frc846::control {
 
 using SequenceSegment = std::pair<std::function<void()>, std::function<bool()>>;
 using Sequence = std::vector<SequenceSegment>;
 
-class Sequencer : Loggable {
+class Sequencer : frc846::base::Loggable {
  public:
-  Sequencer(std::string name) : Loggable(name) {};
+  Sequencer(std::string name) : frc846::base::Loggable(name) {};
 
   void execute(std::string sequence_id, Sequence sequence,
                int forcedStage = -1) {

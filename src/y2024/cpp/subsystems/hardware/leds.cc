@@ -3,7 +3,7 @@
 #include "frc846/util/share_tables.h"
 
 LEDsSubsystem::LEDsSubsystem(bool init)
-    : frc846::Subsystem<LEDsReadings, LEDsTarget>("leds", init) {
+    : frc846::base::Subsystem<LEDsReadings, LEDsTarget>("leds", init) {
   if (init) {
     leds_.SetLength(kLength);
     leds_.SetData(leds_buffer_);

@@ -3,9 +3,9 @@
 // #include "frc/AnalogInput.h"
 // #include "frc/AnalogTrigger.h"
 // #include "frc/filter/SlewRateLimiter.h"
+#include "frc846/base/loggable.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
-#include "frc846/loggable.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -21,7 +21,8 @@ struct IntakeTarget {
   IntakeState target_state;
 };
 
-class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
+class IntakeSubsystem
+    : public frc846::base::Subsystem<IntakeReadings, IntakeTarget> {
  public:
   IntakeSubsystem(bool init);
 
@@ -48,7 +49,7 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
 
   units::feet_per_second_t target_intaking_speed;
 
-  frc846::Loggable readings_named_{*this, "readings"};
+  frc846::base::Loggable readings_named_{*this, "readings"};
   frc846::Grapher<bool> readings_has_piece_graph{readings_named_,
                                                  "readings_has_piece"};
 
@@ -59,7 +60,7 @@ class IntakeSubsystem : public frc846::Subsystem<IntakeReadings, IntakeTarget> {
   frc846::Grapher<double> intake_current_draw_{readings_named_,
                                                "intake_current_draw"};
 
-  frc846::Loggable target_named_{*this, "target"};
+  frc846::base::Loggable target_named_{*this, "target"};
   frc846::Grapher<bool> target_is_intaking_graph{target_named_,
                                                  "target_is_intaking_graph"};
 

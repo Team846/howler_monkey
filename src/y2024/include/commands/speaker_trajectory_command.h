@@ -10,7 +10,7 @@
 
 class SpeakerTrajectoryCommand
     : public frc2::CommandHelper<frc2::Command, SpeakerTrajectoryCommand>,
-      public frc846::Loggable {
+      public frc846::base::Loggable {
  public:
   SpeakerTrajectoryCommand(RobotContainer& container,
                            std::vector<frc846::InputWaypoint> input_points);

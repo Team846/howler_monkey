@@ -13,7 +13,7 @@
 
 class AutoDeployIntakeCommand
     : public frc2::CommandHelper<frc2::Command, AutoDeployIntakeCommand>,
-      public frc846::Loggable {
+      public frc846::base::Loggable {
  public:
   AutoDeployIntakeCommand(RobotContainer& container);
 

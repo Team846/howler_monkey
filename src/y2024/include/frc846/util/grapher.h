@@ -11,15 +11,15 @@ namespace frc846 {
 //
 // TODO add graphing to file
 template <class T>
-class Grapher : public Loggable {
+class Grapher : public frc846::base::Loggable {
  public:
-  Grapher(const Loggable& parent, std::string name);
+  Grapher(const frc846::base::Loggable& parent, std::string name);
 
  private:
-  Grapher(const Loggable& parent, std::string name,
+  Grapher(const frc846::base::Loggable& parent, std::string name,
           std::function<void(std::string_view, T)> put_nt)
-      : Loggable{parent, fmt::format("{}_graph", name)},
-        full_key_(Loggable::Join(parent.name(), name)),
+      : frc846::base::Loggable{parent, fmt::format("{}_graph", name)},
+        full_key_(frc846::base::Loggable::Join(parent.name(), name)),
         put_nt_(put_nt) {}
 
  public:
@@ -31,7 +31,7 @@ class Grapher : public Loggable {
 };
 
 template <class U>
-Grapher<U>::Grapher(const Loggable& parent, std::string name)
+Grapher<U>::Grapher(const frc846::base::Loggable& parent, std::string name)
     : Grapher{
           parent,
           fmt::format("{} ({})", name,
@@ -44,18 +44,22 @@ Grapher<U>::Grapher(const Loggable& parent, std::string name)
 }
 
 template <>
-inline Grapher<bool>::Grapher(const Loggable& parent, std::string name)
+inline Grapher<bool>::Grapher(const frc846::base::Loggable& parent,
+                              std::string name)
     : Grapher{parent, name, frc::SmartDashboard::PutBoolean} {}
 
 template <>
-inline Grapher<double>::Grapher(const Loggable& parent, std::string name)
+inline Grapher<double>::Grapher(const frc846::base::Loggable& parent,
+                                std::string name)
     : Grapher{parent, name, frc::SmartDashboard::PutNumber} {}
 
 template <>
-inline Grapher<int>::Grapher(const Loggable& parent, std::string name)
+inline Grapher<int>::Grapher(const frc846::base::Loggable& parent,
+                             std::string name)
     : Grapher{parent, name, frc::SmartDashboard::PutNumber} {}
 
 template <>
-inline Grapher<std::string>::Grapher(const Loggable& parent, std::string name)
+inline Grapher<std::string>::Grapher(const frc846::base::Loggable& parent,
+                                     std::string name)
     : Grapher{parent, name, frc::SmartDashboard::PutString} {}
 }  // namespace frc846

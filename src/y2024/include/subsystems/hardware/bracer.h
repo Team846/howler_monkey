@@ -4,9 +4,9 @@
 #include "frc/PWM.h"
 #include "frc/Servo.h"
 #include "frc/motorcontrol/Spark.h"
+#include "frc846/base/loggable.h"
+#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
-#include "frc846/loggable.h"
-#include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -20,7 +20,8 @@ struct BracerTarget {
   BracerState state;
 };
 
-class BracerSubsystem : public frc846::Subsystem<BracerReadings, BracerTarget> {
+class BracerSubsystem
+    : public frc846::base::Subsystem<BracerReadings, BracerTarget> {
  public:
   BracerSubsystem(bool init);
 
@@ -34,7 +35,7 @@ class BracerSubsystem : public frc846::Subsystem<BracerReadings, BracerTarget> {
   frc846::Grapher<bool> left_climb_{*this, "left_hook_engaged"};
   frc846::Grapher<bool> right_climb_{*this, "right_hook_engaged"};
 
-  frc846::Loggable target_named_{*this, "target"};
+  frc846::base::Loggable target_named_{*this, "target"};
 
   frc846::Grapher<bool> target_extend_{target_named_, "extend"};
 
