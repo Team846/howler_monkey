@@ -21,6 +21,10 @@ struct VisionReadings {
   units::inch_t tag_distance;
   units::degree_t tag_angle_difference;
 
+  units::degree_t note_angle;
+  bool note_detected;
+  units::foot_t note_distance;
+
   double velocity_in_component;
   double velocity_orth_component;
 };
@@ -77,6 +81,7 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
 
   frc846::Pref<units::millisecond_t> can_bus_latency_{*this, "can_bus_latency",
                                                       20_ms};
+                              
 
   // SPEAKER = Blue 7, Red 4
   std::map<int, AprilTagData> tag_locations{
@@ -93,6 +98,17 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
 
   units::inch_t x_correction = 0_in;
   units::inch_t y_correction = 0_in;
+
+  units::inch_t x_gpd_correction = 0_in;
+  units::inch_t y_gpd_correction = 0_in;
+
+
+  // gpd
+  std::shared_ptr<nt::NetworkTable> gpdTable = nt::NetworkTableInstance::GetDefault().GetTable("gpd");
+  frc846::Grapher<units::foot_t> note_x_distance_graph_{readings_named, "note_x_distance_graph"};
+  frc846::Grapher<units::foot_t> note_y_distance_graph_{readings_named, "note_y_distance_graph"};
+  frc846::Grapher<units::second_t> note_camera_latency_{readings_named, "note_camera_latency_graph"};
+
 
   VisionReadings GetNewReadings() override;
 

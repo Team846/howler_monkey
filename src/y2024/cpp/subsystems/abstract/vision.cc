@@ -180,7 +180,23 @@ VisionReadings VisionSubsystem::GetNewReadings() {
   tag_distance_graph_.Graph(newReadings.tag_distance);
   tag_angle_difference_graph_.Graph(newReadings.tag_angle_difference);
   velocity_in_component_graph_.Graph(newReadings.velocity_in_component);
+  #include <cmath> // Include the header file for the sqrt function
+
   velocity_orth_component_graph_.Graph(newReadings.velocity_orth_component);
+
+  // gpd
+
+  double note_x = gpdTable->GetNumber("note_x", 0.0);
+  double note_y = gpdTable->GetNumber("note_y", 0.0);
+  double camera_latency = gpdTable->GetNumber("latency", 0.0);
+
+  if (note_x != 0.0 || note_y != 0.0) {
+    newReadings.note_detected = true;
+    newReadings.note_angle = units::degree_t(units::math::atan2(note_x, note_y));
+    newReadings.note_distance = units::foot_t(std::sqrt(static_cast<double>(note_x * note_x + note_y * note_y))); 
+  } else {
+    newReadings.note_detected = false;
+  }
 
   return newReadings;
 }

@@ -33,6 +33,7 @@ void DriveCommand::Execute() {
   bool prep_align_speaker = driver_.readings().y_button;
   bool amping = driver_.readings().left_bumper;
   bool sourcing = driver_.readings().x_button;
+  bool targeting_note = driver_.readings().b_button;
 
   bool flipping_controls =
       !frc846::util::ShareTables::GetBoolean("is_red_side");
@@ -88,7 +89,12 @@ void DriveCommand::Execute() {
   drivetrain_target.control = kOpenLoop;
 
   // -----STEER CONTROL-----
-
+  if (targeting_note && vision_.readings().note_detected) {
+    // Turn towards the note
+    drivetrain_target.rotation = DrivetrainRotationPosition(vision_.readings().note_angle);  
+    drivetrain_target.control = kClosedLoop;
+    
+  } else {
   double steer_x = frc846::util::HorizontalDeadband(
       driver_.readings().right_stick_x, driver_.steer_deadband_.value(), 1,
       driver_.steer_exponent_.value(), 1);
@@ -158,7 +164,7 @@ void DriveCommand::Execute() {
     }
   } else {
     driver_adjust_ = 0.0;
-  }
+  }}
 
   drivetrain_.SetTarget(drivetrain_target);
 }
