@@ -36,8 +36,8 @@ struct LogMessage {
   @return: string representation of the LogMessage struct
   */
   std::string pack() {
-    return std::to_string(type) + "," + sender + "," + content + "," +
-           std::to_string(timestamp) + "," + std::to_string(period) + "," +
+    return std::to_string(type) + ";" + sender + ";" + content + ";" +
+           std::to_string(timestamp) + ";" + std::to_string(period) + ";" +
            std::to_string(period_timestamp);
   }
 };
@@ -91,6 +91,9 @@ class FunkyLogger {
     return ((float)value) / std::pow(10, num_places);
   }
 
+  /*
+  Handles a log message. Formats the message, applies custom compression, and sends to logging server.
+  */
   template <typename... T>
   void HandleLogMessage(int type, fmt::format_string<T...> fmt,
                         T&&... args) const {
@@ -102,7 +105,7 @@ class FunkyLogger {
     std::string temp_content = fmt::format(
         std::forward<fmt::format_string<T...>>(fmt), std::forward<T>(args)...);
     temp_content.erase(
-        std::remove(temp_content.begin(), temp_content.end(), ','),
+        std::remove(temp_content.begin(), temp_content.end(), ';'),
         temp_content.end());
 
     msg.content = temp_content;

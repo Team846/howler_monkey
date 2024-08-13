@@ -14,6 +14,10 @@
 #include "frc846/base/logger.h"
 
 namespace frc846::base {
+
+/*
+A class that provides logging functionality to any class that inherits from it.
+*/
 class Loggable {
  public:
   Loggable(const Loggable& parent_, std::string name)

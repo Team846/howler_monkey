@@ -26,20 +26,20 @@ void FunkyLogSystem::LogThread(int rateLimit, std::string logFileName) {
 
     mtx.lock();
 
-    while (!messages.empty()) {
-      LogMessage msg = messages.front();
+    while (!FunkyLogSystem::messages.empty()) {
+      LogMessage msg = FunkyLogSystem::messages.front();
       runningCharCounter += msg.char_count;
       if (runningCharCounter > rateLimit) {
         break;
       }
 
       logBundle += msg.pack() + "\n";
-      messages.pop();
+      FunkyLogSystem::messages.pop();
     }
 
     mtx.unlock();
 
-    if (!logBundle.empty()) {
+    if (logBundle.size() > 1) {
       std::ofstream log_out(
           logPath, std::fstream::in | std::fstream::out | std::fstream::trunc);
       log_out << logBundle << std::endl;

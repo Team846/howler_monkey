@@ -11,10 +11,10 @@ std::pair<uint8_t, bool> Compression::char_conv(char x) {
   uint8_t val = 0;
   bool is_upper = (x >= 'A' && x <= 'Z');
 
-  x = std::toupper(x);
+  x = std::tolower(x);
 
   const std::string ENCODING =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()[]<>|;:',./?~_-\n ";
+      "\nabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()[]<>|;:',./?~_- ";
 
   size_t pos = ENCODING.find(x);
   if (pos != std::string::npos) {

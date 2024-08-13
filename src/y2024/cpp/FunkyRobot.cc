@@ -38,6 +38,8 @@
 #include "subsystems/hardware/wrist.h"
 
 FunkyRobot::FunkyRobot() : frc846::base::Loggable{"funky_robot"} {
+  frc846::base::FunkyLogSystem::Start(20000);
+
   next_loop_time_ = frc846::wpilib::CurrentFPGATime();
 
   int32_t status = 0x00;
@@ -62,9 +64,8 @@ void FunkyRobot::StartCompetition() {
   // Disable live window
   frc::LiveWindow::DisableAllTelemetry();
 
-  frc::DataLogManager::Start();
-
-  frc::DriverStation::StartDataLog(frc::DataLogManager::GetLog());
+  // frc::DataLogManager::Start();
+  // frc::DriverStation::StartDataLog(frc::DataLogManager::GetLog());
 
   // std::thread visionThread(VisionThread);
   // visionThread.detach();
@@ -253,7 +254,6 @@ void FunkyRobot::StartCompetition() {
       // container_.drivetrain_.ZeroBearing();
     }
     if (!coasting_switch_.Get() && word.IsDisabled()) {
-      std::cout << "All Coast" << std::endl;
       container_.pivot_.Coast();
       container_.telescope_.Coast();
       container_.wrist_.Coast();

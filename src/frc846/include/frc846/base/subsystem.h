@@ -102,6 +102,7 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
 
   auto GetTarget() { return target_; }
 
+  // Callable by main process to write to hardware.
   void WriteToHardware(Target target) {
     if (init_) {
       SetTarget(target);
