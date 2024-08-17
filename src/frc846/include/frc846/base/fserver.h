@@ -1,13 +1,13 @@
 #pragma once
 
+#include <chrono>
 #include <cstdint>
-#include <vector>
 #include <iostream>
+#include <mutex>
 #include <queue>
 #include <thread>
 #include <unordered_set>
-#include <mutex>
-#include <chrono>
+#include <vector>
 
 #ifdef _WIN32
 
@@ -17,9 +17,9 @@ Required for hardware simulation.
 */
 
 #include <winsock2.h>
-#include <ws2tcpip.h> 
+#include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
-typedef int socklen_t; 
+typedef int socklen_t;
 
 #else
 
@@ -46,9 +46,7 @@ class LoggingServer {
 
  public:
   LoggingServer() : messages{}, clients{} {
-
-  
-  #ifdef _WIN32
+#ifdef _WIN32
     /*
     Configuring Windows Socket API.
     */
@@ -59,16 +57,13 @@ class LoggingServer {
       std::cerr << "WSAStartup failed: " << result << std::endl;
       exit(EXIT_FAILURE);
     }
-  #endif
-  
+#endif
   }
 
   ~LoggingServer() {
-
-  #ifdef _WIN32
+#ifdef _WIN32
     WSACleanup();
-  #endif
-  
+#endif
   }
 
   /*
@@ -92,21 +87,21 @@ class LoggingServer {
     if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
       return;
 
-    std::thread sender([&] () {
+    std::thread sender([&]() {
       while (true) {
-        while (messages.empty()) {
+        do {
           std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        }
+        } while (messages.empty() || clients.empty());
 
         msg_mtx.lock();
         auto msg = messages.front();
-        messages.pop();
         msg_mtx.unlock();
 
         cli_mtx.lock();
         for (const auto &client : clients) {
-          sendto(sockfd, reinterpret_cast<const char *>(msg.data()), msg.size(), 0,
-            reinterpret_cast<const struct sockaddr *>(&(client.addr)), sizeof(client.addr));
+          sendto(sockfd, reinterpret_cast<const char *>(msg.data()), msg.size(),
+                 0, reinterpret_cast<const struct sockaddr *>(&(client.addr)),
+                 sizeof(client.addr));
         }
         cli_mtx.unlock();
       }
@@ -115,16 +110,15 @@ class LoggingServer {
     std::thread receiver([&]() {
       char buffer[1024];
       std::chrono::milliseconds lastPruneTime{getTime()};
-      for (std::chrono::milliseconds t{lastPruneTime};;t = getTime()) {
-        if (recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr *)&cliaddr,
-                 &len) > 0) {
+      for (std::chrono::milliseconds t{lastPruneTime};; t = getTime()) {
+        if (recvfrom(sockfd, buffer, sizeof(buffer), 0,
+                     (struct sockaddr *)&cliaddr, &len) > 0) {
           bool exists = false;
           cli_mtx.lock();
           for (LoggingClient &client : clients) {
             if (client.addr.sin_addr.s_addr == cliaddr.sin_addr.s_addr) {
               if (client.addr.sin_port != cliaddr.sin_port) {
                 client.addr.sin_port = cliaddr.sin_port;
-                std::cout << "Logging client port updated." << std::endl;
               }
               client.lastKeepAlive = getTime();
               exists = true;
@@ -133,16 +127,15 @@ class LoggingServer {
           }
           if (!exists) {
             clients.push_back({cliaddr, getTime()});
-            std::cout << "Connecting to logging client: " << inet_ntoa(cliaddr.sin_addr) << "." << std::endl;
           }
           cli_mtx.unlock();
         }
         if (t - lastPruneTime > std::chrono::milliseconds(500)) {
           cli_mtx.lock();
           for (size_t i = 0; i < clients.size(); i++) {
-            if (getTime() - clients[i].lastKeepAlive > std::chrono::milliseconds(5000)) {
+            if (getTime() - clients[i].lastKeepAlive >
+                std::chrono::milliseconds(5000)) {
               clients.erase(clients.begin() + i);
-              std::cout << "Removing logging client." << std::endl;
             }
           }
           cli_mtx.unlock();
@@ -159,7 +152,7 @@ class LoggingServer {
   Adds message to the sending queue. Messages will not be sent out unless server
   has been started. Blocking operation while server is reading message.
   */
-  void AddMessage(const std::vector<uint8_t>& message) {
+  void AddMessage(const std::vector<uint8_t> &message) {
     msg_mtx.lock();
     messages.push(message);
     msg_mtx.unlock();

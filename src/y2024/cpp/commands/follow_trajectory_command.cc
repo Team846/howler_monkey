@@ -1,61 +1,56 @@
 #include "commands/follow_trajectory_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/other/trajectory_generator.h"
-#include "frc846/util/math.h"
-#include "frc846/wpilib/time.h"
-#include "subsystems/hardware/swerve_module.h"
-
 FollowTrajectoryCommand::FollowTrajectoryCommand(
     RobotContainer& container, std::vector<frc846::InputWaypoint> input_points)
-    : frc846::base::Loggable{"follow_trajectory_command"},
-      drivetrain_(container.drivetrain_),
+    : frc846::robot::GenericCommand<
+          RobotContainer, FollowTrajectoryCommand>{container,
+                                                   "follow_trajectory_command"},
       input_points_(input_points) {
-  AddRequirements({&drivetrain_});
-  SetName("follow_trajectory_command");
+  AddRequirements({&container_.drivetrain_});
 }
 
-void FollowTrajectoryCommand::Initialize() {
+void FollowTrajectoryCommand::OnInit() {
   Log("Starting Trajectory");
   for (frc846::InputWaypoint i : input_points_) {
     Log("points x{} y{} bearing {}", i.pos.point.x, i.pos.point.y,
         i.pos.bearing);
   }
-  Log("initial pose x{}, y{}, bearing {}", drivetrain_.readings().pose.point.x,
-      drivetrain_.readings().pose.point.y, drivetrain_.readings().pose.bearing);
+  Log("initial pose x{}, y{}, bearing {}",
+      container_.drivetrain_.GetReadings().pose.point.x,
+      container_.drivetrain_.GetReadings().pose.point.y,
+      container_.drivetrain_.GetReadings().pose.bearing);
   target_idx_ = 1;
   is_done_ = false;
 
   start_time_ = frc846::wpilib::CurrentFPGATime();
 
   auto points = input_points_;
-  points.insert(points.begin(), 1, {drivetrain_.readings().pose, 0_fps});
+  points.insert(points.begin(), 1,
+                {container_.drivetrain_.GetReadings().pose, 0_fps});
 
-  trajectory_ =
-      frc846::GenerateTrajectory(points, drivetrain_.auto_max_speed_.value(),
-                                 drivetrain_.max_acceleration_.value(),
-                                 drivetrain_.max_deceleration_.value());
+  trajectory_ = frc846::GenerateTrajectory(
+      points, container_.drivetrain_.auto_max_speed_.value(),
+      container_.drivetrain_.max_acceleration_.value(),
+      container_.drivetrain_.max_deceleration_.value());
 
   if (trajectory_.size() < 4) {
     Error("trajectory size ({}) is less than 4 - ending!", trajectory_.size());
     is_done_ = true;
   } else {
     current_extrapolated_point_ = trajectory_[1].pos.point.Extrapolate(
-        trajectory_[0].pos.point, drivetrain_.extrapolation_distance_.value());
+        trajectory_[0].pos.point,
+        container_.drivetrain_.extrapolation_distance_.value());
   }
 }
 
-void FollowTrajectoryCommand::Execute() {
+void FollowTrajectoryCommand::Periodic() {
   // Just in case trajectory size was < 2
   if (is_done_) {
     return;
   }
 
   if (HasCrossedWaypoint(trajectory_[target_idx_], trajectory_[target_idx_ - 1],
-                         drivetrain_.readings().pose.point,
+                         container_.drivetrain_.GetReadings().pose.point,
                          current_extrapolated_point_)) {
     target_idx_++;
     Log("Cross waypoint - now on {}/{}", target_idx_ + 1, trajectory_.size());
@@ -69,11 +64,11 @@ void FollowTrajectoryCommand::Execute() {
     current_extrapolated_point_ =
         trajectory_[target_idx_].pos.point.Extrapolate(
             trajectory_[target_idx_ - 1].pos.point,
-            drivetrain_.extrapolation_distance_.value());
+            container_.drivetrain_.extrapolation_distance_.value());
   }
 
-  auto delta_pos =
-      current_extrapolated_point_ - drivetrain_.readings().pose.point;
+  auto delta_pos = current_extrapolated_point_ -
+                   container_.drivetrain_.GetReadings().pose.point;
   auto direction = units::math::atan2(delta_pos.y, delta_pos.x);
 
   DrivetrainTarget target;
@@ -84,23 +79,15 @@ void FollowTrajectoryCommand::Execute() {
       DrivetrainRotationPosition(trajectory_[target_idx_].pos.bearing);
   target.control = kClosedLoop;
 
-  drivetrain_.SetTarget(target);
+  container_.drivetrain_.SetTarget(target);
 }
 
-void FollowTrajectoryCommand::End(bool interrupted) {
+void FollowTrajectoryCommand::OnEnd(bool interrupted) {
   (void)interrupted;
-  drivetrain_.SetTargetZero();
+  container_.drivetrain_.SetTargetZero();
 }
 
-bool FollowTrajectoryCommand::IsFinished() {
-  if (frc::RobotBase::IsSimulation() &&
-      frc846::wpilib::CurrentFPGATime() - start_time_ > 3_s) {
-    Log("Ending after 3s!");
-    return true;
-  }
-
-  return is_done_;
-}
+bool FollowTrajectoryCommand::IsFinished() { return is_done_; }
 
 // https://math.stackexchange.com/questions/274712/calculate-on-which-side-of-a-straight-line-is-a-given-point-located
 bool FollowTrajectoryCommand::HasCrossedWaypoint(

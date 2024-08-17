@@ -56,4 +56,4 @@ units::degree_t CoterminalSum(units::degree_t angle,
   }
 }
 
-}  // namespace frc846
+}  // namespace frc846::util

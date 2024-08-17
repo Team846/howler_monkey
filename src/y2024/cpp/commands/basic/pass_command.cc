@@ -1,32 +1,22 @@
 #include "commands/basic/pass_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/wpilib/time.h"
-#include "subsystems/abstract/super_structure.h"
-
 PassCommand::PassCommand(RobotContainer& container)
-    : frc846::base::Loggable{"pass_command"},
-      intake_(container.intake_),
-      shooter_(container.shooter_),
-      super_(container.super_structure_),
-      control_input_(container.control_input_) {
-  AddRequirements({&super_, &intake_, &shooter_});
-  SetName("pass_command");
+    : frc846::robot::GenericCommand<RobotContainer, PassCommand>{
+          container, "pass_command"} {
+  AddRequirements({&container_.super_structure_, &container_.intake_,
+                   &container_.shooter_});
 }
 
-void PassCommand::Initialize() { Log("Pass Command Initialize"); }
+void PassCommand::OnInit() {}
 
-void PassCommand::Execute() {
-  intake_.SetTarget({IntakeState::kHold});
-  shooter_.SetTarget({ShooterState::kRun});
+void PassCommand::Periodic() {
+  container_.intake_.SetTarget({IntakeState::kHold});
+  container_.shooter_.SetTarget({ShooterState::kRun});
 
-  super_.SetTargetSetpoint(super_.getPassSetpoint());
+  container_.super_structure_.SetTargetSetpoint(
+      container_.super_structure_.getPassSetpoint());
 }
 
-void PassCommand::End(bool interrupted) { Log("Pass Command Finished"); }
+void PassCommand::OnEnd(bool interrupted) {}
 
 bool PassCommand::IsFinished() { return false; }

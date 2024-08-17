@@ -8,8 +8,7 @@ SendableCallback::SendableCallback(std::function<void()> callback)
     : callback_(callback) {}
 void SendableCallback::InitSendable(wpi::SendableBuilder& builder) {
   builder.SetSmartDashboardType("Command");
-  builder.AddStringProperty(
-      ".name", [] { return "Run"; }, nullptr);
+  builder.AddStringProperty(".name", [] { return "Run"; }, nullptr);
   builder.AddBooleanProperty(
       "running", [] { return false; },
       [this](bool value) {

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "frc846/base/loggable.h"
-#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -19,7 +19,8 @@ struct TelescopeTarget {
 };
 
 class TelescopeSubsystem
-    : public frc846::base::Subsystem<TelescopeReadings, TelescopeTarget> {
+    : public frc846::robot::GenericSubsystem<TelescopeReadings,
+                                             TelescopeTarget> {
  public:
   TelescopeSubsystem(bool init);
 
@@ -48,7 +49,7 @@ class TelescopeSubsystem
   }
 
   bool WithinTolerance(units::inch_t pos) {
-    return (units::math::abs(pos - readings().extension) <
+    return (units::math::abs(pos - GetReadings().extension) <
             telescope_tolerance_.value());
   }
 
@@ -94,7 +95,7 @@ class TelescopeSubsystem
   frc846::control::REVSparkController<units::inch_t> telescope_esc_{
       *this, ports::positioning_::kTele_CANID, config_helper_, hard_limits_};
 
-  TelescopeReadings GetNewReadings() override;
+  TelescopeReadings ReadFromHardware() override;
 
-  void DirectWrite(TelescopeTarget target) override;
+  void WriteToHardware(TelescopeTarget target) override;
 };

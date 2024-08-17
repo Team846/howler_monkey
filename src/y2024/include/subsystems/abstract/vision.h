@@ -4,7 +4,7 @@
 #include <units/length.h>
 
 #include "frc/smartdashboard/Smartdashboard.h"
-#include "frc846/base/subsystem.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "networktables/NetworkTable.h"
 #include "networktables/NetworkTableEntry.h"
@@ -35,7 +35,7 @@ struct AprilTagData {
 };
 
 class VisionSubsystem
-    : public frc846::base::Subsystem<VisionReadings, VisionTarget> {
+    : public frc846::robot::GenericSubsystem<VisionReadings, VisionTarget> {
  public:
   VisionSubsystem(bool init);
 
@@ -95,7 +95,7 @@ class VisionSubsystem
   units::inch_t x_correction = 0_in;
   units::inch_t y_correction = 0_in;
 
-  VisionReadings GetNewReadings() override;
+  VisionReadings ReadFromHardware() override;
 
-  void DirectWrite(VisionTarget target) override;
+  void WriteToHardware(VisionTarget target) override;
 };

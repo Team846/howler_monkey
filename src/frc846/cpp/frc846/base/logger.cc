@@ -1,6 +1,8 @@
 #include "frc846/base/logger.h"
 
 #include <fstream>
+#include <functional>
+#include <future>
 #include <iostream>
 #include <thread>
 

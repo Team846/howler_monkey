@@ -4,7 +4,8 @@
 #include "frc846/util/share_tables.h"
 
 PivotSubsystem::PivotSubsystem(bool init)
-    : frc846::base::Subsystem<PivotReadings, PivotTarget>{"pivot", init} {
+    : frc846::robot::GenericSubsystem<PivotReadings, PivotTarget>{"pivot",
+                                                                  init} {
   if (init) {
     pivot_three_.OverrideInvert();
     pivot_four_.OverrideInvert();
@@ -63,7 +64,7 @@ bool PivotSubsystem::VerifyHardware() {
   return true;
 }
 
-PivotReadings PivotSubsystem::GetNewReadings() {
+PivotReadings PivotSubsystem::ReadFromHardware() {
   PivotReadings readings;
 
   readings.pivot_position = pivot_one_.GetPosition();
@@ -73,16 +74,17 @@ PivotReadings PivotSubsystem::GetNewReadings() {
 
   pivot_pos_graph.Graph(readings.pivot_position);
 
-  if (auto target_angle = std::get_if<units::degree_t>(&target_.pivot_output)) {
+  auto target_pivot_output = GetTarget().pivot_output;
+  if (auto target_angle = std::get_if<units::degree_t>(&target_pivot_output)) {
     pivot_error_graph.Graph(*target_angle - readings.pivot_position);
   }
 
   return readings;
 }
 
-void PivotSubsystem::DirectWrite(PivotTarget target) {
+void PivotSubsystem::WriteToHardware(PivotTarget target) {
   if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
-    double output = dyFPID.calculate(*pos, readings().pivot_position,
+    double output = dyFPID.calculate(*pos, GetReadings().pivot_position,
                                      pivot_one_.GetVelocityPercentage(),
                                      config_helper_.updateAndGetGains());
 

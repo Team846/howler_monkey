@@ -1,23 +1,18 @@
 #pragma once
 
-#include <frc2/command/CommandHelper.h>
-
-#include "frc846/control/motion.h"
-#include "subsystems/abstract/control_input.h"
-#include "subsystems/abstract/super_structure.h"
-#include "subsystems/hardware/leds.h"
+#include "frc846/robot/GenericCommand.h"
 #include "subsystems/robot_container.h"
 
-class LEDsCommand : public frc2::CommandHelper<frc2::Command, LEDsCommand> {
+class LEDsCommand
+    : public frc846::robot::GenericCommand<RobotContainer, LEDsCommand> {
  public:
   LEDsCommand(RobotContainer& container);
 
-  void Execute() override;
+  void OnInit() override;
+
+  void Periodic() override;
+
+  void OnEnd(bool interrupted) override;
 
   bool IsFinished() override;
-
- private:
-  ControlInputSubsystem& control_input_;
-  LEDsSubsystem& leds_;
-  SuperStructureSubsystem& super_;
 };

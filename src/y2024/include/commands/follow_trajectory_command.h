@@ -1,30 +1,26 @@
 #pragma once
 
-#include <frc2/command/CommandHelper.h>
-
 #include "frc846/other/trajectory_generator.h"
+#include "frc846/robot/GenericCommand.h"
 #include "frc846/util/math.h"
-#include "subsystems/hardware/drivetrain.h"
 #include "subsystems/robot_container.h"
 
 class FollowTrajectoryCommand
-    : public frc2::CommandHelper<frc2::Command, FollowTrajectoryCommand>,
-      public frc846::base::Loggable {
+    : public frc846::robot::GenericCommand<RobotContainer,
+                                           FollowTrajectoryCommand> {
  public:
   FollowTrajectoryCommand(RobotContainer& container,
                           std::vector<frc846::InputWaypoint> input_points);
 
-  void Initialize() override;
+  void OnInit() override;
 
-  void Execute() override;
+  void Periodic() override;
 
-  void End(bool interrupted) override;
+  void OnEnd(bool interrupted) override;
 
   bool IsFinished() override;
 
  private:
-  DrivetrainSubsystem& drivetrain_;
-
   std::vector<frc846::InputWaypoint> input_points_;
   frc846::Trajectory trajectory_;
 

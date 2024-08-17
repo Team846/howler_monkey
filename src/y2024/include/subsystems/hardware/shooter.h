@@ -4,9 +4,9 @@
 #include "frc/AnalogTrigger.h"
 #include "frc/filter/SlewRateLimiter.h"
 #include "frc846/base/loggable.h"
-#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -25,7 +25,7 @@ struct ShooterTarget {
 };
 
 class ShooterSubsystem
-    : public frc846::base::Subsystem<ShooterReadings, ShooterTarget> {
+    : public frc846::robot::GenericSubsystem<ShooterReadings, ShooterTarget> {
  public:
   ShooterSubsystem(bool init);
 
@@ -82,9 +82,9 @@ class ShooterSubsystem
       *this, ports::scorer_::kShooterTwoController_CANID, config_helper_,
       hard_limits_};
 
-  ShooterReadings GetNewReadings() override;
+  ShooterReadings ReadFromHardware() override;
 
-  void DirectWrite(ShooterTarget target) override;
+  void WriteToHardware(ShooterTarget target) override;
 
   frc846::base::Loggable vFPID_loggable{*this, "vFPID"};
 

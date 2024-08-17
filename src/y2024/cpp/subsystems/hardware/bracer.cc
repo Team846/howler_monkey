@@ -4,7 +4,8 @@
 #include "frc846/util/share_tables.h"
 
 BracerSubsystem::BracerSubsystem(bool init)
-    : frc846::base::Subsystem<BracerReadings, BracerTarget>{"bracer", init} {
+    : frc846::robot::GenericSubsystem<BracerReadings, BracerTarget>{"bracer",
+                                                                    init} {
   if (init) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", false);
   }
@@ -25,7 +26,7 @@ bool BracerSubsystem::VerifyHardware() {
   return true;
 }
 
-BracerReadings BracerSubsystem::GetNewReadings() {
+BracerReadings BracerSubsystem::ReadFromHardware() {
   BracerReadings readings;
 
   left_climb_.Graph(left_switch_.Get());
@@ -37,7 +38,7 @@ BracerReadings BracerSubsystem::GetNewReadings() {
   return readings;
 }
 
-void BracerSubsystem::DirectWrite(BracerTarget target) {
+void BracerSubsystem::WriteToHardware(BracerTarget target) {
   if (target.state == BracerState::kExtend) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", true);
     bracer_.Set(1.0);

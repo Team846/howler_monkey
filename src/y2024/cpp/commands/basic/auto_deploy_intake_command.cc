@@ -1,39 +1,24 @@
 #include "commands/basic/auto_deploy_intake_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/wpilib/time.h"
-
 AutoDeployIntakeCommand::AutoDeployIntakeCommand(RobotContainer& container)
-    : frc846::base::Loggable{"auto_deploy_intake_command"},
-      intake_(container.intake_),
-      shooter_(container.shooter_),
-      super_(container.super_structure_) {
-  AddRequirements({&intake_, &shooter_, &container.pivot_, &container.wrist_,
-                   &container.telescope_});
-  SetName("auto_deploy_intake_command");
+    : frc846::robot::GenericCommand<RobotContainer, AutoDeployIntakeCommand>{
+          container, "auto_deploy_intake_command"} {
+  AddRequirements({&container_.intake_, &container_.shooter_,
+                   &container_.super_structure_});
 }
 
-void AutoDeployIntakeCommand::Initialize() {
-  Log("Auto Deploy Intake Command Initialize");
+void AutoDeployIntakeCommand::OnInit() {}
 
-  is_done_ = false;
+void AutoDeployIntakeCommand::Periodic() {
+  container_.intake_.SetTarget({kIntake});
+
+  container_.super_structure_.SetTargetSetpoint(
+      container_.super_structure_.getIntakeSetpoint());
 }
 
-void AutoDeployIntakeCommand::Execute() {
-  intake_.SetTarget({kIntake});
-  // shooter_.SetTarget({kIdle});
+void AutoDeployIntakeCommand::OnEnd(bool interrupted) {}
 
-  super_.SetTargetSetpoint(super_.getIntakeSetpoint());
-
-  is_done_ = true;
+bool AutoDeployIntakeCommand::IsFinished() {
+  return container_.super_structure_.hasReachedSetpoint(
+      container_.super_structure_.getIntakeSetpoint());
 }
-
-void AutoDeployIntakeCommand::End(bool interrupted) {
-  Log("Auto Deploy Intake Command Finished");
-}
-
-bool AutoDeployIntakeCommand::IsFinished() { return is_done_; }

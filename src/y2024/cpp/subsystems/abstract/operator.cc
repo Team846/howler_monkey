@@ -3,8 +3,8 @@
 #include "frc846/util/share_tables.h"
 
 OperatorSubsystem::OperatorSubsystem()
-    : frc846::base::Subsystem<OperatorReadings, OperatorTarget>{"operator",
-                                                                true} {}
+    : frc846::robot::GenericSubsystem<OperatorReadings, OperatorTarget>{
+          "operator", true} {}
 
 OperatorTarget OperatorSubsystem::ZeroTarget() const {
   OperatorTarget target;
@@ -18,7 +18,7 @@ bool OperatorSubsystem::VerifyHardware() {
   return ok;
 }
 
-OperatorReadings OperatorSubsystem::GetNewReadings() {
+OperatorReadings OperatorSubsystem::ReadFromHardware() {
   OperatorReadings readings{xbox_, trigger_threshold_.value()};
 
   previous_readings_ = readings;
@@ -26,7 +26,7 @@ OperatorReadings OperatorSubsystem::GetNewReadings() {
   return readings;
 }
 
-void OperatorSubsystem::DirectWrite(OperatorTarget target) {
+void OperatorSubsystem::WriteToHardware(OperatorTarget target) {
   target_rumble_graph_.Graph(target.rumble);
 
   auto rumble = target.rumble || frc846::util::ShareTables::GetBoolean(

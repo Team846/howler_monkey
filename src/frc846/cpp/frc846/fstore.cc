@@ -12,11 +12,10 @@
 #include <variant>
 #include <vector>
 
-#include "frc/DataLogManager.h"
-
 namespace frc846 {
 
 std::vector<std::string> FunkyStore::changes = std::vector<std::string>();
+frc846::base::Loggable FunkyStore::fstore_loggable{"FunkyStore"};
 
 bool FunkyStore::hasChanged = false;
 
@@ -259,17 +258,18 @@ void FunkyStore::WriteToDisk() {
 }
 
 void FunkyStore::AppendToChangeLog() {
-  auto filename = "/home/lvuser/preferences.changelog";
-  std::map<std::string, std::variant<int, double, std::string, bool>>::iterator
-      it;
-  std::ofstream t_file(
-      filename, std::fstream::in | std::fstream::out | std::fstream::app);
-  t_file << "#SAVE#" << std::endl;
-  for (auto line : changes) {
-    t_file << line << std::endl;
-  }
+  // auto filename = "/home/lvuser/preferences.changelog";
+  // std::map<std::string, std::variant<int, double, std::string,
+  // bool>>::iterator
+  //     it;
+  // std::ofstream t_file(
+  //     filename, std::fstream::in | std::fstream::out | std::fstream::app);
+  // t_file << "#SAVE#" << std::endl;
+  // for (auto line : changes) {
+  //   t_file << line << std::endl;
+  // }
   changes.clear();
-  t_file.close();
+  // t_file.close();
 }
 
 }  // namespace frc846

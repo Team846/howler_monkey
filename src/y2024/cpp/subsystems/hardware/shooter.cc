@@ -4,7 +4,8 @@
 #include "frc846/util/share_tables.h"
 
 ShooterSubsystem::ShooterSubsystem(bool init)
-    : frc846::base::Subsystem<ShooterReadings, ShooterTarget>{"shooter", init} {
+    : frc846::robot::GenericSubsystem<ShooterReadings, ShooterTarget>{"shooter",
+                                                                      init} {
   if (init) {
     shooter_esc_one_.OverrideInvert();
 
@@ -36,7 +37,7 @@ bool ShooterSubsystem::VerifyHardware() {
   return true;
 }
 
-ShooterReadings ShooterSubsystem::GetNewReadings() {
+ShooterReadings ShooterSubsystem::ReadFromHardware() {
   ShooterReadings readings;
 
   double shooter_one_velocity = shooter_esc_one_.GetVelocity().to<double>();
@@ -61,7 +62,7 @@ ShooterReadings ShooterSubsystem::GetNewReadings() {
   return readings;
 }
 
-void ShooterSubsystem::DirectWrite(ShooterTarget target) {
+void ShooterSubsystem::WriteToHardware(ShooterTarget target) {
   if (target.target_state == kRun) {
     shooter_esc_one_.WriteDC(
         braking_v_FPID.calculate(shooter_speed_.value() * (1 + spin_.value()),

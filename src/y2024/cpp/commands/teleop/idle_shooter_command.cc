@@ -1,27 +1,17 @@
 #include "commands/teleop/idle_shooter_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/wpilib/time.h"
-
 IdleShooterCommand::IdleShooterCommand(RobotContainer& container)
-    : frc846::base::Loggable{"idle_shooter_command"},
-      shooter_(container.shooter_) {
-  AddRequirements({&shooter_});
-  SetName("idle_shooter_command");
+    : frc846::robot::GenericCommand<RobotContainer, IdleShooterCommand>{
+          container, "idle_shooter_command"} {
+  AddRequirements({&container_.shooter_});
 }
 
-void IdleShooterCommand::Initialize() { Log("Idle Intake Command Initialize"); }
+void IdleShooterCommand::OnInit() {}
 
-void IdleShooterCommand::Execute() {
-  shooter_.SetTarget({ShooterState::kIdle});
+void IdleShooterCommand::Periodic() {
+  container_.shooter_.SetTarget({ShooterState::kIdle});
 }
 
-void IdleShooterCommand::End(bool interrupted) {
-  Log("Idle Shooter Command Finished");
-}
+void IdleShooterCommand::OnEnd(bool interrupted) {}
 
 bool IdleShooterCommand::IsFinished() { return false; }

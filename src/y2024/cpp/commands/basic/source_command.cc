@@ -1,27 +1,19 @@
 #include "commands/basic/source_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/wpilib/time.h"
-
 SourceCommand::SourceCommand(RobotContainer& container)
-    : frc846::base::Loggable{"source_command"},
-      super_(container.super_structure_),
-      intake_(container.intake_) {
-  AddRequirements({&super_, &intake_});
-  SetName("source_command");
+    : frc846::robot::GenericCommand<RobotContainer, SourceCommand>{
+          container, "source_command"} {
+  AddRequirements({&container_.super_structure_, &container_.intake_});
 }
 
-void SourceCommand::Initialize() { Log("Source Command Initialize"); }
+void SourceCommand::OnInit() {}
 
-void SourceCommand::Execute() {
-  intake_.SetTarget({IntakeState::kIntake});
-  super_.SetTargetSetpoint(super_.getSourceSetpoint());
+void SourceCommand::Periodic() {
+  container_.intake_.SetTarget({IntakeState::kIntake});
+  container_.super_structure_.SetTargetSetpoint(
+      container_.super_structure_.getSourceSetpoint());
 }
 
-void SourceCommand::End(bool interrupted) { Log("Source Command Finished"); }
+void SourceCommand::OnEnd(bool interrupted) {}
 
 bool SourceCommand::IsFinished() { return false; }

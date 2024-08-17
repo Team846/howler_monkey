@@ -1,7 +1,7 @@
 #pragma once
 
-#include "frc846/base/subsystem.h"
 #include "frc846/other/xbox.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
 #include "frc846/util/pref.h"
@@ -14,7 +14,7 @@ struct OperatorTarget {
 };
 
 class OperatorSubsystem
-    : public frc846::base::Subsystem<OperatorReadings, OperatorTarget> {
+    : public frc846::robot::GenericSubsystem<OperatorReadings, OperatorTarget> {
  public:
   OperatorSubsystem();
 
@@ -35,7 +35,7 @@ class OperatorSubsystem
 
   OperatorReadings previous_readings_;
 
-  OperatorReadings GetNewReadings() override;
+  OperatorReadings ReadFromHardware() override;
 
-  void DirectWrite(OperatorTarget target) override;
+  void WriteToHardware(OperatorTarget target) override;
 };

@@ -5,18 +5,18 @@
 
 #include "frc846/base/loggable.h"
 
-namespace frc846::base {
+namespace frc846::robot {
 
-#define FRC846_VERIFY(expr, ok, fail_msg)    \
-  do {                                       \
-    if (!(expr)) {                           \
-      ok = false;                            \
-      Error("HARDWARE ERROR: {}", fail_msg); \
-    }                                        \
+#define FRC846_VERIFY(expr, ok, fail_msg)         \
+  do {                                            \
+    if (!(expr)) {                                \
+      ok = false;                                 \
+      Error("Verification failed: {}", fail_msg); \
+    }                                             \
   } while (0)
 
 // Non-templated subsystem base class.
-class SubsystemBase : public Loggable {
+class SubsystemBase : public frc846::base::Loggable {
  public:
   SubsystemBase(std::string name) : Loggable{name} {}
   SubsystemBase(Loggable parent, std::string name) : Loggable{parent, name} {}
@@ -33,66 +33,58 @@ class SubsystemBase : public Loggable {
 
 // Base class for robot subsystems.
 template <class Readings, class Target>
-class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
+class GenericSubsystem : public frc2::SubsystemBase, public SubsystemBase {
  public:
   // Construct a new subsystem.
-  explicit Subsystem(std::string name, bool init = false)
-      : frc846::base::SubsystemBase{name}, init_{init} {
+  explicit GenericSubsystem(std::string name, bool init = false)
+      : frc846::robot::SubsystemBase{name}, init_{init} {
     if (init_) Init();
   }
 
   // Construct a subsystem as a child of another subsystem.
-  Subsystem(const Loggable& parent, std::string name, bool init = false)
-      : frc846::base::SubsystemBase{parent, name}, init_{init} {
+  GenericSubsystem(const Loggable& parent, std::string name, bool init = false)
+      : frc846::robot::SubsystemBase{parent, name}, init_{init} {
     if (init_) Init();
   }
 
-  void enable() {
-    init_ = true;
-    if (!initialized) Init();
-  }
-
-  void disable() { init_ = false; }
   bool is_initialized() { return init_; }
 
-  Subsystem(const Subsystem&) = delete;
-  Subsystem& operator=(const Subsystem&) = delete;
+  GenericSubsystem(const GenericSubsystem&) = delete;
+  GenericSubsystem& operator=(const GenericSubsystem&) = delete;
 
-  virtual ~Subsystem() = default;
+  virtual ~GenericSubsystem() { Warn("Destroying subsystem"); };
 
  private:
   // Common constructor.
   void Init() {
     SetName(name());
-    Log("Initializing");
-    initialized = true;
+    Log("Initializing subsystem");
   }
 
   bool init_;
-  bool initialized;
 
  public:
   // Get the zero state target.
   virtual Target ZeroTarget() const = 0;
 
   // Fetches new readings and update subsystem readings state.
-  void UpdateReadings() override {
-    if (init_) {
-      readings_ = GetNewReadings();
+  void UpdateReadings() override final {
+    if (is_initialized()) {
+      readings_ = ReadFromHardware();
     } else {
       readings_ = Readings{};
     }
   }
 
   // Writes to subsystem hardware with the latest target output.
-  void UpdateHardware() override {
-    if (init_) DirectWrite(target_);
+  void UpdateHardware() override final {
+    if (is_initialized()) WriteToHardware(target_);
   }
 
   virtual bool VerifyHardware() override = 0;
 
   // Get the latest readings.
-  Readings readings() const { return readings_; };
+  Readings GetReadings() const { return readings_; };
 
   // Set the subystem target state.
   void SetTarget(Target target) { target_ = target; }
@@ -102,24 +94,16 @@ class Subsystem : public frc2::SubsystemBase, public SubsystemBase {
 
   auto GetTarget() { return target_; }
 
-  // Callable by main process to write to hardware.
-  void WriteToHardware(Target target) {
-    if (init_) {
-      SetTarget(target);
-      UpdateHardware();
-    }
-  }
-
- protected:
+ private:
   Readings readings_;
   Target target_;
 
- private:
+ protected:
   // Fetches and return new readings.
-  virtual Readings GetNewReadings() = 0;
+  virtual Readings ReadFromHardware() = 0;
 
   // Writes output to hardware.
-  virtual void DirectWrite(Target target) = 0;
+  virtual void WriteToHardware(Target target) = 0;
 };
 
-}  // namespace frc846::base
+}  // namespace frc846::robot

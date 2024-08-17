@@ -5,7 +5,8 @@
 #include "units/math.h"
 
 WristSubsystem::WristSubsystem(bool init)
-    : frc846::base::Subsystem<WristReadings, WristTarget>{"wrist", init} {
+    : frc846::robot::GenericSubsystem<WristReadings, WristTarget>{"wrist",
+                                                                  init} {
   if (init) {
     wrist_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
   }
@@ -34,7 +35,7 @@ bool WristSubsystem::VerifyHardware() {
   return true;
 }
 
-WristReadings WristSubsystem::GetNewReadings() {
+WristReadings WristSubsystem::ReadFromHardware() {
   WristReadings readings;
 
   readings.wrist_position = wrist_esc_.GetPosition();
@@ -44,7 +45,8 @@ WristReadings WristSubsystem::GetNewReadings() {
 
   wrist_pos_graph.Graph(readings.wrist_position);
 
-  if (auto target_angle = std::get_if<units::degree_t>(&target_.wrist_output)) {
+  auto target_output = GetTarget().wrist_output;
+  if (auto target_angle = std::get_if<units::degree_t>(&target_output)) {
     wrist_error_graph.Graph(*target_angle - readings.wrist_position);
   }
 
@@ -53,10 +55,10 @@ WristReadings WristSubsystem::GetNewReadings() {
   return readings;
 }
 
-void WristSubsystem::DirectWrite(WristTarget target) {
+void WristSubsystem::WriteToHardware(WristTarget target) {
   hard_limits_.OverrideLimits(target.override_limits);
   if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
-    double output = dyFPID.calculate(*pos, readings().wrist_position,
+    double output = dyFPID.calculate(*pos, GetReadings().wrist_position,
                                      wrist_esc_.GetVelocityPercentage(),
                                      config_helper_.updateAndGetGains());
     // if (units::math::abs(*pos - readings().wrist_position) < 5_deg) {

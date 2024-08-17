@@ -1,65 +1,63 @@
 #include "commands/basic/trap_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/wpilib/time.h"
-
 TrapCommand::TrapCommand(RobotContainer& container, int stage)
-    : frc846::base::Loggable{"trap_command"},
-      intake_(container.intake_),
-      shooter_(container.shooter_),
-      super_(container.super_structure_),
+    : frc846::robot::GenericCommand<RobotContainer,
+                                    TrapCommand>{container, "trap_command"},
       stage_{stage} {
-  AddRequirements({&intake_, &shooter_, &container.pivot_,
-                   &container.telescope_, &container.wrist_});
-  SetName("trap_command");
+  AddRequirements({&container_.intake_, &container_.shooter_,
+                   &container_.super_structure_});
 }
 
-void TrapCommand::Initialize() { Log("Trap Command Initialize"); }
+void TrapCommand::OnInit() {}
 
-void TrapCommand::Execute() {
+void TrapCommand::Periodic() {
   if (stage_ == 1) {
-    intake_.SetTarget(intake_.ZeroTarget());
-    shooter_.SetTarget(shooter_.ZeroTarget());
+    container_.intake_.SetTarget(container_.intake_.ZeroTarget());
+    container_.shooter_.SetTarget(container_.shooter_.ZeroTarget());
 
-    super_.SetTargetSetpoint(super_.getPreClimbSetpoint());
+    container_.super_structure_.SetTargetSetpoint(
+        container_.super_structure_.getPreClimbSetpoint());
   }
   if (stage_ == 2) {
-    intake_.SetTarget(intake_.ZeroTarget());
-    shooter_.SetTarget(shooter_.ZeroTarget());
+    container_.intake_.SetTarget(container_.intake_.ZeroTarget());
+    container_.shooter_.SetTarget(container_.shooter_.ZeroTarget());
 
-    auto pullClimbTarget = super_.getPreClimbSetpoint();
-    pullClimbTarget.pivot = super_.pivot_pull_target_.value();
-    super_.SetTargetSetpoint(pullClimbTarget);
+    auto pullClimbTarget = container_.super_structure_.getPreClimbSetpoint();
+    pullClimbTarget.pivot =
+        container_.super_structure_.pivot_pull_target_.value();
+    container_.super_structure_.SetTargetSetpoint(pullClimbTarget);
   }
   if (stage_ == 3) {
-    intake_.SetTarget(intake_.ZeroTarget());
-    shooter_.SetTarget(shooter_.ZeroTarget());
+    container_.intake_.SetTarget(container_.intake_.ZeroTarget());
+    container_.shooter_.SetTarget(container_.shooter_.ZeroTarget());
 
-    super_.SetTargetSetpoint(super_.getPreScoreSetpoint());
+    container_.super_structure_.SetTargetSetpoint(
+        container_.super_structure_.getPreScoreSetpoint());
   }
   if (stage_ == 4) {
-    intake_.SetTarget(intake_.ZeroTarget());
-    shooter_.SetTarget(shooter_.ZeroTarget());
+    container_.intake_.SetTarget(container_.intake_.ZeroTarget());
+    container_.shooter_.SetTarget(container_.shooter_.ZeroTarget());
 
-    super_.SetTargetSetpoint(super_.getTrapScoreSetpoint());
+    container_.super_structure_.SetTargetSetpoint(
+        container_.super_structure_.getTrapScoreSetpoint());
   }
   if (stage_ == 5) {
-    shooter_.SetTarget(shooter_.ZeroTarget());
+    container_.shooter_.SetTarget(container_.shooter_.ZeroTarget());
 
-    intake_.SetTarget({IntakeState::kRelease});
+    container_.intake_.SetTarget({IntakeState::kRelease});
+
+    container_.super_structure_.SetTargetSetpoint(
+        container_.super_structure_.getTrapScoreSetpoint());
   }
   if (stage_ == 6) {
-    intake_.SetTarget(intake_.ZeroTarget());
-    shooter_.SetTarget(shooter_.ZeroTarget());
+    container_.intake_.SetTarget(container_.intake_.ZeroTarget());
+    container_.shooter_.SetTarget(container_.shooter_.ZeroTarget());
 
-    super_.SetTargetSetpoint(super_.getPostScoreSetpoint());
+    container_.super_structure_.SetTargetSetpoint(
+        container_.super_structure_.getPostScoreSetpoint());
   }
 }
 
-void TrapCommand::End(bool interrupted) { Log("Trap Command Finished"); }
+void TrapCommand::OnEnd(bool interrupted) {}
 
 bool TrapCommand::IsFinished() { return false; }

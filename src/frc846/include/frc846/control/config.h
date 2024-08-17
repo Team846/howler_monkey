@@ -5,7 +5,6 @@
 #include <units/time.h>
 #include <units/voltage.h>
 
-#include "frc846/base/subsystem.h"
 #include "frc846/util/pref.h"
 
 namespace frc846::control {

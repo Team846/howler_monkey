@@ -7,7 +7,8 @@
 #include "initializer_list"
 
 IntakeSubsystem::IntakeSubsystem(bool init)
-    : frc846::base::Subsystem<IntakeReadings, IntakeTarget>{"intake", init} {
+    : frc846::robot::GenericSubsystem<IntakeReadings, IntakeTarget>{"intake",
+                                                                    init} {
   if (init) {
     intake_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
 
@@ -43,7 +44,7 @@ bool IntakeSubsystem::VerifyHardware() {
   return true;
 }
 
-IntakeReadings IntakeSubsystem::GetNewReadings() {
+IntakeReadings IntakeSubsystem::ReadFromHardware() {
   IntakeReadings readings;
 
   has_piece_ = in_limit_switch.has_value() && in_limit_switch.value().Get();
@@ -67,7 +68,7 @@ IntakeReadings IntakeSubsystem::GetNewReadings() {
   return readings;
 }
 
-void IntakeSubsystem::DirectWrite(IntakeTarget target) {
+void IntakeSubsystem::WriteToHardware(IntakeTarget target) {
   target_intaking_speed = 0.0_fps;
 
   if (target.target_state == kIntake) {

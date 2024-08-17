@@ -1,24 +1,17 @@
 #include "commands/teleop/bracer_command.h"
 
-#include <utility>
-
-#include "constants.h"
-#include "field.h"
-#include "frc846/base/loggable.h"
-#include "frc846/util/math.h"
-
 BracerCommand::BracerCommand(RobotContainer &container)
-    : control_input_(container.control_input_),
-      bracer_(container.bracer_),
-      super_(container.super_structure_) {
-  AddRequirements({&bracer_});
-  SetName("bracer_command");
+    : frc846::robot::GenericCommand<RobotContainer, BracerCommand>{
+          container, "bracer_command"} {
+  AddRequirements({&container_.bracer_});
 }
 
-void BracerCommand::Execute() {
-  ControlInputReadings ci_readings_{control_input_.readings()};
+void BracerCommand::OnInit() {}
 
-  BracerTarget target = bracer_.ZeroTarget();
+void BracerCommand::Periodic() {
+  ControlInputReadings ci_readings_{container_.control_input_.GetReadings()};
+
+  BracerTarget target = container_.bracer_.ZeroTarget();
 
   if (ci_readings_.stageOfTrap != 0) {
     target.state = BracerState::kExtend;
@@ -39,7 +32,9 @@ void BracerCommand::Execute() {
     target.state = BracerState::kStow;
 
   prev_ci_readings_ = ci_readings_;
-  bracer_.SetTarget(target);
+  container_.bracer_.SetTarget(target);
 }
+
+void BracerCommand::OnEnd(bool interrupted) {}
 
 bool BracerCommand::IsFinished() { return false; }

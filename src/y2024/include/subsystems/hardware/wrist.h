@@ -1,9 +1,9 @@
 #pragma once
 
 #include "frc846/base/loggable.h"
-#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -22,7 +22,7 @@ struct WristTarget {
 };
 
 class WristSubsystem
-    : public frc846::base::Subsystem<WristReadings, WristTarget> {
+    : public frc846::robot::GenericSubsystem<WristReadings, WristTarget> {
  public:
   WristSubsystem(bool init);
 
@@ -35,7 +35,7 @@ class WristSubsystem
   bool GetHasZeroed() { return hasZeroed; }
 
   bool WithinTolerance(units::degree_t pos) {
-    return (units::math::abs(pos - readings().wrist_position) <
+    return (units::math::abs(pos - GetReadings().wrist_position) <
             wrist_tolerance_.value());
   }
 
@@ -117,9 +117,9 @@ class WristSubsystem
   frc846::control::REVSparkController<units::degree_t> wrist_esc_{
       *this, ports::positioning_::kWrist_CANID, config_helper_, hard_limits_};
 
-  WristReadings GetNewReadings() override;
+  WristReadings ReadFromHardware() override;
 
-  void DirectWrite(WristTarget target) override;
+  void WriteToHardware(WristTarget target) override;
 
   frc846::base::Loggable dyFPID_loggable{*this, "DynamicFPID"};
 
@@ -129,7 +129,7 @@ class WristSubsystem
         return std::abs(
             units::math::cos(
                 1_deg * frc846::util::ShareTables::GetDouble("pivot_position") +
-                readings().wrist_position - wrist_cg_offset_.value())
+                GetReadings().wrist_position - wrist_cg_offset_.value())
                 .to<double>());
       },
       {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
@@ -142,7 +142,7 @@ class WristSubsystem
         return std::abs(
             units::math::cos(
                 1_deg * frc846::util::ShareTables::GetDouble("pivot_position") +
-                readings().wrist_position - wrist_cg_offset_.value())
+                GetReadings().wrist_position - wrist_cg_offset_.value())
                 .to<double>());
       },
       {15_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};

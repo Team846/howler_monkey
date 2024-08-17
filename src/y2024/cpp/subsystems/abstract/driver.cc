@@ -3,7 +3,8 @@
 #include "frc846/util/share_tables.h"
 
 DriverSubsystem::DriverSubsystem()
-    : frc846::base::Subsystem<DriverReadings, DriverTarget>{"driver", true} {}
+    : frc846::robot::GenericSubsystem<DriverReadings, DriverTarget>{"driver",
+                                                                    true} {}
 
 DriverTarget DriverSubsystem::ZeroTarget() const {
   DriverTarget target;
@@ -17,7 +18,7 @@ bool DriverSubsystem::VerifyHardware() {
   return ok;
 }
 
-DriverReadings DriverSubsystem::GetNewReadings() {
+DriverReadings DriverSubsystem::ReadFromHardware() {
   DriverReadings readings{xbox_, trigger_threshold_.value()};
 
   previous_readings_ = readings;
@@ -25,7 +26,7 @@ DriverReadings DriverSubsystem::GetNewReadings() {
   return readings;
 }
 
-void DriverSubsystem::DirectWrite(DriverTarget target) {
+void DriverSubsystem::WriteToHardware(DriverTarget target) {
   target_rumble_graph_.Graph(target.rumble);
 
   auto rumble =

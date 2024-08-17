@@ -1,25 +1,18 @@
 #include "commands/teleop/stow_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/wpilib/time.h"
-
 StowCommand::StowCommand(RobotContainer& container)
-    : frc846::base::Loggable{"stow_command"},
-      super_(container.super_structure_) {
-  AddRequirements({&super_});
-  SetName("stow_command");
+    : frc846::robot::GenericCommand<RobotContainer, StowCommand>{
+          container, "stow_command"} {
+  AddRequirements({&container_.super_structure_});
 }
 
-void StowCommand::Initialize() { Log("Stow Command Initialize"); }
+void StowCommand::OnInit() {}
 
-void StowCommand::Execute() {
-  super_.SetTargetSetpoint(super_.getStowSetpoint());
+void StowCommand::Periodic() {
+  container_.super_structure_.SetTargetSetpoint(
+      container_.super_structure_.getStowSetpoint());
 }
 
-void StowCommand::End(bool interrupted) { Log("Stow Command Finished"); }
+void StowCommand::OnEnd(bool interrupted) {}
 
 bool StowCommand::IsFinished() { return false; }

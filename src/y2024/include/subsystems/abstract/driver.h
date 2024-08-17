@@ -1,7 +1,7 @@
 #pragma once
 
-#include "frc846/base/subsystem.h"
 #include "frc846/other/xbox.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
 #include "frc846/util/pref.h"
@@ -14,7 +14,7 @@ struct DriverTarget {
 };
 
 class DriverSubsystem
-    : public frc846::base::Subsystem<DriverReadings, DriverTarget> {
+    : public frc846::robot::GenericSubsystem<DriverReadings, DriverTarget> {
  public:
   DriverSubsystem();
 
@@ -42,7 +42,7 @@ class DriverSubsystem
 
   DriverReadings previous_readings_;
 
-  DriverReadings GetNewReadings() override;
+  DriverReadings ReadFromHardware() override;
 
-  void DirectWrite(DriverTarget target) override;
+  void WriteToHardware(DriverTarget target) override;
 };

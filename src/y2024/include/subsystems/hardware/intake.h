@@ -4,8 +4,8 @@
 // #include "frc/AnalogTrigger.h"
 // #include "frc/filter/SlewRateLimiter.h"
 #include "frc846/base/loggable.h"
-#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -22,7 +22,7 @@ struct IntakeTarget {
 };
 
 class IntakeSubsystem
-    : public frc846::base::Subsystem<IntakeReadings, IntakeTarget> {
+    : public frc846::robot::GenericSubsystem<IntakeReadings, IntakeTarget> {
  public:
   IntakeSubsystem(bool init);
 
@@ -81,7 +81,7 @@ class IntakeSubsystem
   std::optional<rev::SparkLimitSwitch> in_limit_switch;
   std::optional<rev::SparkLimitSwitch> out_limit_switch;
 
-  IntakeReadings GetNewReadings() override;
+  IntakeReadings ReadFromHardware() override;
 
-  void DirectWrite(IntakeTarget target) override;
+  void WriteToHardware(IntakeTarget target) override;
 };

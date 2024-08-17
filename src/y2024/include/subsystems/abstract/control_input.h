@@ -1,6 +1,6 @@
 #pragma once
 
-#include "frc846/base/subsystem.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "subsystems/abstract/driver.h"
 #include "subsystems/abstract/operator.h"
 
@@ -42,11 +42,12 @@ struct ControlInputTarget {
 };
 
 class ControlInputSubsystem
-    : public frc846::base::Subsystem<ControlInputReadings, ControlInputTarget> {
+    : public frc846::robot::GenericSubsystem<ControlInputReadings,
+                                             ControlInputTarget> {
  public:
   ControlInputSubsystem();
 
-  void Setup() override {};
+  void Setup() override;
 
   ControlInputTarget ZeroTarget() const override;
 
@@ -63,7 +64,7 @@ class ControlInputSubsystem
   DriverReadings previous_driver_{};
   OperatorReadings previous_operator_{};
 
-  ControlInputReadings GetNewReadings() override;
+  ControlInputReadings ReadFromHardware() override;
 
-  void DirectWrite(ControlInputTarget target) override;
+  void WriteToHardware(ControlInputTarget target) override;
 };

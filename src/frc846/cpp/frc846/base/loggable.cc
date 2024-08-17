@@ -13,4 +13,4 @@ unsigned int Loggable::GetErrorCount() { return error_count_; }
 unsigned int Loggable::warn_count_ = 0;
 unsigned int Loggable::error_count_ = 0;
 
-}  // namespace frc846
+}  // namespace frc846::base

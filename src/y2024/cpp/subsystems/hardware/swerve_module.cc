@@ -12,9 +12,10 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
     int steer_esc_id, int cancoder_id,
     frc846::Pref<units::feet_per_second_t>& max_speed,
     frc846::motion::CurrentControl& current_control)
-    : frc846::base::Subsystem<SwerveModuleReadings,
-                              SwerveModuleTarget>{drivetrain,
-                                                  "module_" + location, init},
+    : frc846::robot::GenericSubsystem<SwerveModuleReadings,
+                                      SwerveModuleTarget>{drivetrain,
+                                                          "module_" + location,
+                                                          init},
       cancoder_offset_{*this, "cancoder_offset", fallback_cancoder_offset},
       drive_esc_helper_{*this, drive_esc_id, *drive_esc_config_helper,
                         disabled_hard_limits_drive_},
@@ -125,7 +126,7 @@ bool SwerveModuleSubsystem::VerifyHardware() {
   return ok;
 }
 
-SwerveModuleReadings SwerveModuleSubsystem::GetNewReadings() {
+SwerveModuleReadings SwerveModuleSubsystem::ReadFromHardware() {
   SwerveModuleReadings readings;
 
   readings.speed = drive_esc_helper_.GetVelocity();
@@ -142,14 +143,14 @@ SwerveModuleReadings SwerveModuleSubsystem::GetNewReadings() {
   return readings;
 }
 
-void SwerveModuleSubsystem::DirectWrite(SwerveModuleTarget target) {
+void SwerveModuleSubsystem::WriteToHardware(SwerveModuleTarget target) {
   target_speed_graph_.Graph(target.speed);
   target_direction_graph_.Graph(target.direction);
   direction_graph_.Graph(steer_esc_helper_.GetPosition());
   cancoder_graph_.Graph(-cancoder_.GetAbsolutePosition().GetValue());
 
   auto [normalized_angle, reverse_drive] =
-      NormalizedDirection(readings().direction, target.direction);
+      NormalizedDirection(GetReadings().direction, target.direction);
 
   if (target.speed == 0_fps) {
     normalized_angle = last_direction_;

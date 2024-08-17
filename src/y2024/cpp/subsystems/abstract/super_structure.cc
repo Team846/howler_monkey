@@ -2,6 +2,8 @@
 
 #include "frc846/util/share_tables.h"
 
+void SuperStructureSubsystem::Setup() {};
+
 SuperStructureTarget SuperStructureSubsystem::ZeroTarget() const {
   SuperStructureTarget target;
   return target;
@@ -9,9 +11,11 @@ SuperStructureTarget SuperStructureSubsystem::ZeroTarget() const {
 
 bool SuperStructureSubsystem::VerifyHardware() { return true; }
 
-SuperStructureReadings SuperStructureSubsystem::GetNewReadings() { return {}; }
+SuperStructureReadings SuperStructureSubsystem::ReadFromHardware() {
+  return {};
+}
 
-void SuperStructureSubsystem::DirectWrite(SuperStructureTarget target) {
+void SuperStructureSubsystem::WriteToHardware(SuperStructureTarget target) {
   PTWSetpoint targetPos = currentSetpoint + manualAdjustments;
 
   pivot_->SetTarget({targetPos.pivot});
@@ -19,7 +23,7 @@ void SuperStructureSubsystem::DirectWrite(SuperStructureTarget target) {
 
   if (homing_wrist) {
     wrist_->SetTarget({wrist_->homing_speed_.value(), true});
-    if (wrist_->readings().wrist_velocity <=
+    if (wrist_->GetReadings().wrist_velocity <=
         wrist_->homing_velocity_tolerance_.value()) {
       wrist_home_counter++;
     } else {

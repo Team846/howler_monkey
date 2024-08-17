@@ -1,23 +1,17 @@
 #include "commands/basic/eject_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/util/share_tables.h"
-#include "frc846/wpilib/time.h"
-
 EjectCommand::EjectCommand(RobotContainer& container)
-    : frc846::base::Loggable{"eject_command"}, intake_(container.intake_) {
-  AddRequirements({&intake_});
-  SetName("eject_command");
+    : frc846::robot::GenericCommand<RobotContainer, EjectCommand>{
+          container, "eject_command"} {
+  AddRequirements({&container_.intake_});
 }
 
-void EjectCommand::Initialize() { Log("Eject Command Initialize"); }
+void EjectCommand::OnInit() {}
 
-void EjectCommand::Execute() { intake_.SetTarget({IntakeState::kRelease}); }
+void EjectCommand::Periodic() {
+  container_.intake_.SetTarget({IntakeState::kRelease});
+}
 
-void EjectCommand::End(bool interrupted) { Log("Eject Command Finished"); }
+void EjectCommand::OnEnd(bool interrupted) {}
 
 bool EjectCommand::IsFinished() { return false; }

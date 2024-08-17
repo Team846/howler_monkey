@@ -3,7 +3,7 @@
 #include "frc846/util/share_tables.h"
 
 LEDsSubsystem::LEDsSubsystem(bool init)
-    : frc846::base::Subsystem<LEDsReadings, LEDsTarget>("leds", init) {
+    : frc846::robot::GenericSubsystem<LEDsReadings, LEDsTarget>("leds", init) {
   if (init) {
     leds_.SetLength(kLength);
     leds_.SetData(leds_buffer_);
@@ -15,9 +15,9 @@ LEDsTarget LEDsSubsystem::ZeroTarget() const { return {kLEDSNotReady}; }
 
 bool LEDsSubsystem::VerifyHardware() { return true; }
 
-LEDsReadings LEDsSubsystem::GetNewReadings() { return {}; }
+LEDsReadings LEDsSubsystem::ReadFromHardware() { return {}; }
 
-void LEDsSubsystem::DirectWrite(LEDsTarget target) {
+void LEDsSubsystem::WriteToHardware(LEDsTarget target) {
   if (target.state == kLEDSZeroing) {
     if (loops % 18 < 9) {
       for (int i = 0; i < kLength; i++) {

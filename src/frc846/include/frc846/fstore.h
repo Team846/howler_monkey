@@ -12,7 +12,7 @@
 #include <variant>
 #include <vector>
 
-#include "frc/DataLogManager.h"
+#include "frc846/base/loggable.h"
 
 namespace frc846 {
 
@@ -43,12 +43,15 @@ class FunkyStore {
   static std::variant<int, double, std::string, bool> stringToVariant(
       const std::string& str, const std::string& data);
 
+  static frc846::base::Loggable fstore_loggable;
+
   FunkyStore() { HardReadPrefs(); };
 
   void Refresh() {
     if (counter % 30 == 0) {
       if (hasChanged) {
-        frc::DataLogManager::Log("SAVE triggered");
+        fstore_loggable.Log("Prefs changed, writing to disk.");
+
         WriteToDisk();
 
         hasChanged = false;

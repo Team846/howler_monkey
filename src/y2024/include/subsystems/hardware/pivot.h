@@ -3,9 +3,9 @@
 #include "frc/filter/SlewRateLimiter.h"
 #include "frc/trajectory/TrapezoidProfile.h"
 #include "frc846/base/loggable.h"
-#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -22,7 +22,7 @@ struct PivotTarget {
 };
 
 class PivotSubsystem
-    : public frc846::base::Subsystem<PivotReadings, PivotTarget> {
+    : public frc846::robot::GenericSubsystem<PivotReadings, PivotTarget> {
  public:
   PivotSubsystem(bool init);
 
@@ -35,7 +35,7 @@ class PivotSubsystem
   bool GetHasZeroed() { return hasZeroed; }
 
   bool WithinTolerance(units::degree_t pos) {
-    return (units::math::abs(pos - readings().pivot_position) <
+    return (units::math::abs(pos - GetReadings().pivot_position) <
             pivot_tolerance_.value());
   }
 
@@ -129,9 +129,9 @@ class PivotSubsystem
       *this, ports::positioning_::kPivotFour_CANID, config_helper_,
       hard_limits_};
 
-  PivotReadings GetNewReadings() override;
+  PivotReadings ReadFromHardware() override;
 
-  void DirectWrite(PivotTarget target) override;
+  void WriteToHardware(PivotTarget target) override;
 
   frc846::base::Loggable dyFPID_loggable{*this, "DynamicFPID"};
 
@@ -139,7 +139,7 @@ class PivotSubsystem
       dyFPID_loggable,
       [this](units::degree_t pos) -> double {
         return std::abs(
-            units::math::cos(readings().pivot_position).to<double>());
+            units::math::cos(GetReadings().pivot_position).to<double>());
       },
       {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
 };

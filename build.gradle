@@ -2,6 +2,7 @@ plugins {
     id "cpp"
     id "google-test-test-suite"
     id "edu.wpi.first.GradleRIO" version "2024.3.1"
+    id 'com.diffplug.spotless' version '6.20.0'
 }
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -44,7 +45,7 @@ model {
             if (includeDesktopSupport) {
                 targetPlatform wpi.platforms.desktop
             }
-      
+
             sources.cpp {
                 source {
                     srcDir 'src/frc846/cpp'
@@ -87,3 +88,32 @@ model {
     //     }
     // }
 }
+
+spotless {
+    cpp {
+        target fileTree('.') {
+            include '**/*.cpp', '**/*.cc', '**/*.h', '**/*.hpp'
+            exclude '**/build/**', '**/build-*/**'
+        }
+
+        clangFormat('18.1.8').style('Google')
+    }
+    groovyGradle {
+        target fileTree('.') {
+            include '**/*.gradle'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+check.dependsOn spotlessApply
+
+task runCppcheck(type: Exec) {
+    commandLine 'cppcheck', '--enable=all', '--template=gcc', '--force', '--suppress=missingIncludeSystem', '--suppress=missingInclude', '--check-level=exhaustive', 'src/'
+}
+
+check.dependsOn runCppcheck

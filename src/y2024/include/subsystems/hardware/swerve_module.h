@@ -8,10 +8,10 @@
 #include <ctre/phoenix6/CANcoder.hpp>
 #include <string>
 
-#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
 #include "frc846/ctre_namespace.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/conversions.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
@@ -35,7 +35,8 @@ struct SwerveModuleTarget {
 };
 
 class SwerveModuleSubsystem
-    : public frc846::base::Subsystem<SwerveModuleReadings, SwerveModuleTarget> {
+    : public frc846::robot::GenericSubsystem<SwerveModuleReadings,
+                                             SwerveModuleTarget> {
  public:
   SwerveModuleSubsystem(const frc846::base::Loggable& drivetrain, bool init,
                         std::string location,
@@ -112,9 +113,9 @@ class SwerveModuleSubsystem
 
   frc846::motion::CurrentControl& current_control_;
 
-  SwerveModuleReadings GetNewReadings() override;
+  SwerveModuleReadings ReadFromHardware() override;
 
-  void DirectWrite(SwerveModuleTarget target) override;
+  void WriteToHardware(SwerveModuleTarget target) override;
 
   SwerveModuleTarget last_target{};
 };

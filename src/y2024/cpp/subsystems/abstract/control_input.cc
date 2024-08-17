@@ -3,8 +3,10 @@
 #include "frc846/util/share_tables.h"
 
 ControlInputSubsystem::ControlInputSubsystem()
-    : frc846::base::Subsystem<ControlInputReadings, ControlInputTarget>{
+    : frc846::robot::GenericSubsystem<ControlInputReadings, ControlInputTarget>{
           "control_input", true} {}
+
+void ControlInputSubsystem::Setup() {}
 
 ControlInputTarget ControlInputSubsystem::ZeroTarget() const {
   ControlInputTarget target;
@@ -15,7 +17,7 @@ ControlInputTarget ControlInputSubsystem::ZeroTarget() const {
 
 bool ControlInputSubsystem::VerifyHardware() { return true; }
 
-ControlInputReadings ControlInputSubsystem::GetNewReadings() {
+ControlInputReadings ControlInputSubsystem::ReadFromHardware() {
   driver_.UpdateReadings();
   operator_.UpdateReadings();
 
@@ -114,7 +116,7 @@ ControlInputReadings ControlInputSubsystem::GetNewReadings() {
   return readings;
 }
 
-void ControlInputSubsystem::DirectWrite(ControlInputTarget target) {
+void ControlInputSubsystem::WriteToHardware(ControlInputTarget target) {
   driver_.SetTarget({target.driver_rumble});
   operator_.SetTarget({target.operator_rumble});
 
@@ -124,8 +126,8 @@ void ControlInputSubsystem::DirectWrite(ControlInputTarget target) {
 
 ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
   ControlInputReadings ci_readings_{};
-  DriverReadings dr_readings{driver_.readings()};
-  OperatorReadings op_readings{operator_.readings()};
+  DriverReadings dr_readings{driver_.GetReadings()};
+  OperatorReadings op_readings{operator_.GetReadings()};
 
   // MOTION
   ci_readings_.translate_x = dr_readings.left_stick_x;

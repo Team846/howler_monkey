@@ -92,7 +92,8 @@ class FunkyLogger {
   }
 
   /*
-  Handles a log message. Formats the message, applies custom compression, and sends to logging server.
+  Handles a log message. Formats the message, applies custom compression, and
+  sends to logging server.
   */
   template <typename... T>
   void HandleLogMessage(int type, fmt::format_string<T...> fmt,

@@ -1,25 +1,18 @@
 #include "commands/basic/amp_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/wpilib/time.h"
-
 AmpCommand::AmpCommand(RobotContainer& container)
-    : frc846::base::Loggable{"amp_command"},
-      super_(container.super_structure_) {
-  AddRequirements({&super_});
-  SetName("amp_command");
+    : frc846::robot::GenericCommand<RobotContainer, AmpCommand>{container,
+                                                                "amp_command"} {
+  AddRequirements({&container_.super_structure_});
 }
 
-void AmpCommand::Initialize() { Log("Amp Command Initialize"); }
+void AmpCommand::OnInit() {}
 
-void AmpCommand::Execute() {
-  super_.SetTargetSetpoint(super_.getAmpSetpoint());
+void AmpCommand::Periodic() {
+  container_.super_structure_.SetTargetSetpoint(
+      container_.super_structure_.getAmpSetpoint());
 }
 
-void AmpCommand::End(bool interrupted) { Log("Amp Command Finished"); }
+void AmpCommand::OnEnd(bool interrupted) {}
 
 bool AmpCommand::IsFinished() { return false; }

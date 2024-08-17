@@ -10,7 +10,6 @@
 #include <type_traits>
 #include <variant>
 
-#include "frc/DataLogManager.h"
 #include "frc846/base/logger.h"
 
 namespace frc846::base {

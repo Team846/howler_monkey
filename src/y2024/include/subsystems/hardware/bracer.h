@@ -5,8 +5,8 @@
 #include "frc/Servo.h"
 #include "frc/motorcontrol/Spark.h"
 #include "frc846/base/loggable.h"
-#include "frc846/base/subsystem.h"
 #include "frc846/control/control.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/pref.h"
 #include "ports.h"
@@ -21,7 +21,7 @@ struct BracerTarget {
 };
 
 class BracerSubsystem
-    : public frc846::base::Subsystem<BracerReadings, BracerTarget> {
+    : public frc846::robot::GenericSubsystem<BracerReadings, BracerTarget> {
  public:
   BracerSubsystem(bool init);
 
@@ -44,7 +44,7 @@ class BracerSubsystem
   frc::DigitalInput left_switch_{3};
   frc::DigitalInput right_switch_{4};
 
-  BracerReadings GetNewReadings() override;
+  BracerReadings ReadFromHardware() override;
 
-  void DirectWrite(BracerTarget target) override;
+  void WriteToHardware(BracerTarget target) override;
 };

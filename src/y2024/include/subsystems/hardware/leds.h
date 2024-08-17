@@ -2,7 +2,7 @@
 
 #include <frc/AddressableLED.h>
 
-#include "frc846/base/subsystem.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/grapher.h"
 #include "ports.h"
 
@@ -26,7 +26,8 @@ struct LEDsTarget {
   LEDsState state;
 };
 
-class LEDsSubsystem : public frc846::base::Subsystem<LEDsReadings, LEDsTarget> {
+class LEDsSubsystem
+    : public frc846::robot::GenericSubsystem<LEDsReadings, LEDsTarget> {
  public:
   LEDsSubsystem(bool init);
 
@@ -46,10 +47,10 @@ class LEDsSubsystem : public frc846::base::Subsystem<LEDsReadings, LEDsTarget> {
 
   frc::AddressableLED leds_{ports::leds_::kPWMPort};
 
-  LEDsReadings GetNewReadings() override;
+  LEDsReadings ReadFromHardware() override;
 
   int loops = 0;
   int first_pixel_hue_ = 0;
 
-  void DirectWrite(LEDsTarget target) override;
+  void WriteToHardware(LEDsTarget target) override;
 };

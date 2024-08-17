@@ -1,8 +1,8 @@
 #pragma once
 
 #include "constants.h"
-#include "frc846/base/subsystem.h"
 #include "frc846/control/motion.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/pref.h"
 #include "frc846/util/share_tables.h"
 #include "subsystems/hardware/pivot.h"
@@ -47,8 +47,8 @@ struct SuperStructureReadings {};
 struct SuperStructureTarget {};
 
 class SuperStructureSubsystem
-    : public frc846::base::Subsystem<SuperStructureReadings,
-                                     SuperStructureTarget> {
+    : public frc846::robot::GenericSubsystem<SuperStructureReadings,
+                                             SuperStructureTarget> {
  private:
   PTWSetpoint currentSetpoint;
   PTWSetpoint manualAdjustments;
@@ -60,8 +60,9 @@ class SuperStructureSubsystem
 
   SuperStructureSubsystem(PivotSubsystem* pivot, WristSubsystem* wrist,
                           TelescopeSubsystem* telescope)
-      : frc846::base::Subsystem<SuperStructureReadings,
-                                SuperStructureTarget>{"SuperStructure", true},
+      : frc846::robot::GenericSubsystem<SuperStructureReadings,
+                                        SuperStructureTarget>{"SuperStructure",
+                                                              true},
         pivot_{pivot},
         wrist_{wrist},
         telescope_{telescope} {
@@ -69,7 +70,7 @@ class SuperStructureSubsystem
                        wrist_->wrist_home_offset_.value()};
   };
 
-  void Setup() override {};
+  void Setup() override;
 
   SuperStructureTarget ZeroTarget() const override;
 
@@ -229,7 +230,7 @@ class SuperStructureSubsystem
   bool homing_wrist = false;
   int wrist_home_counter = 0;
 
-  SuperStructureReadings GetNewReadings() override;
+  SuperStructureReadings ReadFromHardware() override;
 
-  void DirectWrite(SuperStructureTarget target) override;
+  void WriteToHardware(SuperStructureTarget target) override;
 };

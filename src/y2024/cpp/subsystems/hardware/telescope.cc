@@ -4,8 +4,8 @@
 #include "frc846/util/share_tables.h"
 
 TelescopeSubsystem::TelescopeSubsystem(bool init)
-    : frc846::base::Subsystem<TelescopeReadings, TelescopeTarget>{"telescope",
-                                                                  init} {
+    : frc846::robot::GenericSubsystem<TelescopeReadings, TelescopeTarget>{
+          "telescope", init} {
   if (init) {
     telescope_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
   }
@@ -37,7 +37,7 @@ bool TelescopeSubsystem::VerifyHardware() {
   return true;
 }
 
-TelescopeReadings TelescopeSubsystem::GetNewReadings() {
+TelescopeReadings TelescopeSubsystem::ReadFromHardware() {
   TelescopeReadings readings;
 
   readings.extension = telescope_esc_.GetPosition();
@@ -47,14 +47,15 @@ TelescopeReadings TelescopeSubsystem::GetNewReadings() {
 
   tele_pos_graph.Graph(readings.extension);
 
-  if (auto target_ext = std::get_if<units::inch_t>(&target_.extension)) {
+  auto target_output = GetTarget().extension;
+  if (auto target_ext = std::get_if<units::inch_t>(&target_output)) {
     tele_error_graph.Graph(*target_ext - readings.extension);
   }
 
   return readings;
 }
 
-void TelescopeSubsystem::DirectWrite(TelescopeTarget target) {
+void TelescopeSubsystem::WriteToHardware(TelescopeTarget target) {
   if (auto pos = std::get_if<units::inch_t>(&target.extension)) {
     telescope_esc_.WritePosition(*pos);
 

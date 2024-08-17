@@ -13,23 +13,32 @@
 #include "commands/follow_trajectory_command.h"
 #include "field.h"
 #include "frc2/command/WaitCommand.h"
+#include "frc2/command/WaitUntilCommand.h"
+#include "frc846/util/math.h"
 
-frc2::CommandPtr SuperAmpCommand(RobotContainer& container, bool is_red_side) {
-  return //frc2::ParallelDeadlineGroup{
-      //frc2::SequentialCommandGroup{
-          FollowTrajectoryCommand{container,
-                                  {{{field::points::kPreAmpNoFlip()}, 0_fps}}}.ToPtr(); //,
-    //       CloseDriveAmpCommand{container},
-    //       frc2::ParallelDeadlineGroup{
-    //           frc2::SequentialCommandGroup{
-    //               AwaitPieceStateCommand{container, false},
-    //               frc2::WaitCommand{0.5_s},
-    //           },
-    //           EjectCommand{container}},
-    //       FollowTrajectoryCommand{container,
-    //                               {{{field::points::kPreAmpNoFlip()}, 0_fps}}}},
-    //   AmpCommand{container},
-    //   frc2::ParallelDeadlineGroup{frc2::WaitCommand{1_s},
-    //                               PullCommand{container}}}
-    //   .ToPtr();
-}
+SuperAmpCommand::SuperAmpCommand(RobotContainer& container, bool is_red_side)
+    : frc846::robot::GenericCommandGroup<RobotContainer, SuperAmpCommand,
+                                         frc2::SequentialCommandGroup>{
+          container, "super_amp_command",
+          frc2::SequentialCommandGroup{
+
+              frc2::ParallelDeadlineGroup{frc2::WaitCommand{1_s},
+                                          PullCommand{container}},
+              frc2::ParallelDeadlineGroup{
+                  frc2::SequentialCommandGroup{
+                      FollowTrajectoryCommand{
+                          container,
+                          {{{field::points::kPreAmpNoFlip()}, 0_fps}}},
+                      CloseDriveAmpCommand{container},
+                      frc2::ParallelDeadlineGroup{
+                          frc2::SequentialCommandGroup{
+                              AwaitPieceStateCommand{container, false},
+                              frc2::WaitCommand{0.5_s},
+                          },
+                          EjectCommand{container}},
+                  },
+                  AmpCommand{container}},
+              FollowTrajectoryCommand{
+                  container, {{{field::points::kPreAmpNoFlip()}, 0_fps}}},
+
+          }} {}

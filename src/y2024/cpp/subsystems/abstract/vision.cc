@@ -8,7 +8,8 @@
 #include "frc846/util/share_tables.h"
 
 VisionSubsystem::VisionSubsystem(bool init)
-    : frc846::base::Subsystem<VisionReadings, VisionTarget>("vision", init) {
+    : frc846::robot::GenericSubsystem<VisionReadings, VisionTarget>("vision",
+                                                                    init) {
   if (init) {
   }
 }
@@ -20,7 +21,7 @@ VisionTarget VisionSubsystem::ZeroTarget() const {
 
 bool VisionSubsystem::VerifyHardware() { return true; }
 
-VisionReadings VisionSubsystem::GetNewReadings() {
+VisionReadings VisionSubsystem::ReadFromHardware() {
   if (auto alliance = frc::DriverStation::GetAlliance()) {
     if (alliance.value() == frc::DriverStation::Alliance::kRed) {
       frc846::util::ShareTables::SetBoolean("is_red_side", true);
@@ -161,4 +162,4 @@ VisionReadings VisionSubsystem::GetNewReadings() {
   return newReadings;
 }
 
-void VisionSubsystem::DirectWrite(VisionTarget target) {}
+void VisionSubsystem::WriteToHardware(VisionTarget target) {}

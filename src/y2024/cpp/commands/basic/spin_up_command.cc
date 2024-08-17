@@ -1,23 +1,17 @@
 #include "commands/basic/spin_up_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/util/share_tables.h"
-#include "frc846/wpilib/time.h"
-
 SpinUpCommand::SpinUpCommand(RobotContainer& container)
-    : frc846::base::Loggable{"spin_up_command"}, shooter_(container.shooter_) {
-  AddRequirements({&shooter_});
-  SetName("spin_up_command");
+    : frc846::robot::GenericCommand<RobotContainer, SpinUpCommand>{
+          container, "spin_up_command"} {
+  AddRequirements({&container_.shooter_});
 }
 
-void SpinUpCommand::Initialize() { Log("Spin Up Command Initialize"); }
+void SpinUpCommand::OnInit() {}
 
-void SpinUpCommand::Execute() { shooter_.SetTarget({ShooterState::kRun}); }
+void SpinUpCommand::Periodic() {
+  container_.shooter_.SetTarget({ShooterState::kRun});
+}
 
-void SpinUpCommand::End(bool interrupted) { Log("Spin Up Command Finished"); }
+void SpinUpCommand::OnEnd(bool interrupted) {}
 
 bool SpinUpCommand::IsFinished() { return false; }

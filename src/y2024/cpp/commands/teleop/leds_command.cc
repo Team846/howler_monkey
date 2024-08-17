@@ -1,22 +1,15 @@
 #include "commands/teleop/leds_command.h"
 
-#include <utility>
-
-#include "constants.h"
-#include "field.h"
-#include "frc846/base/loggable.h"
-#include "frc846/util/math.h"
-
 LEDsCommand::LEDsCommand(RobotContainer &container)
-    : control_input_(container.control_input_),
-      leds_(container.leds_),
-      super_(container.super_structure_) {
-  AddRequirements({&leds_});
-  SetName("leds_command");
+    : frc846::robot::GenericCommand<RobotContainer, LEDsCommand>{
+          container, "leds_command"} {
+  AddRequirements({&container_.leds_});
 }
 
-void LEDsCommand::Execute() {
-  ControlInputReadings ci_readings_{control_input_.readings()};
+void LEDsCommand::OnInit() {}
+
+void LEDsCommand::Periodic() {
+  ControlInputReadings ci_readings_{container_.control_input_.GetReadings()};
 
   LEDsState lstate;
 
@@ -24,7 +17,7 @@ void LEDsCommand::Execute() {
     lstate = LEDsState::kLEDSAutonomous;
   } else if (frc846::util::ShareTables::GetBoolean("zero sequence")) {
     lstate = LEDsState::kLEDSZeroing;
-  } else if (super_.GetHasZeroed()) {
+  } else if (container_.super_structure_.GetHasZeroed()) {
     lstate = LEDsState::kLEDSNotReady;
   } else if (frc846::util::ShareTables::GetString("mode") == "disabled") {
     lstate = LEDsState::kLEDSDisabled;
@@ -45,7 +38,9 @@ void LEDsCommand::Execute() {
     lstate = LEDsState::kLEDSTeleop;
   }
 
-  leds_.SetTarget({lstate});
+  container_.leds_.SetTarget({lstate});
 }
+
+void LEDsCommand::OnEnd(bool interrupted) {}
 
 bool LEDsCommand::IsFinished() { return false; }

@@ -158,7 +158,8 @@ class FieldPoint {
     return flip(*this, should_flip, onlyY);
   }
 
-  frc846::base::Loggable& point_names_ = *(new frc846::base::Loggable("Preferences/field_points"));
+  frc846::base::Loggable& point_names_ =
+      *(new frc846::base::Loggable("Preferences/field_points"));
 
   FieldPoint(std::string name)
       : x{point_names_, name + "_x", 0.0_in},

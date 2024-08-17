@@ -1,32 +1,18 @@
 #include "commands/basic/prepare_auto_shoot_command.h"
 
-#include <frc/RobotBase.h>
-
-#include <cmath>
-
-#include "frc846/util/math.h"
-#include "frc846/wpilib/time.h"
-#include "subsystems/abstract/super_structure.h"
-
 PrepareAutoShootCommand::PrepareAutoShootCommand(RobotContainer& container)
-    : frc846::base::Loggable{"prepare_auto_shoot_command"},
-      intake_(container.intake_),
-      shooter_(container.shooter_),
-      vision_(container.vision_),
-      super_(container.super_structure_) {
-  AddRequirements({&container.pivot_, &container.wrist_, &container.telescope_,
-                   &intake_, &shooter_});
-  SetName("prepare_auto_shoot_command");
+    : frc846::robot::GenericCommand<RobotContainer, PrepareAutoShootCommand>{
+          container, "prepare_auto_shoot_command"} {
+  AddRequirements({&container_.super_structure_, &container_.intake_,
+                   &container_.shooter_});
 }
 
-void PrepareAutoShootCommand::Initialize() {
-  Log("Prepare Auto Shoot Command Initialize");
-}
+void PrepareAutoShootCommand::OnInit() {}
 
-void PrepareAutoShootCommand::Execute() {
-  VisionReadings vis_readings_ = vision_.readings();
+void PrepareAutoShootCommand::Periodic() {
+  // VisionReadings vis_readings_ = container_.vision_.GetReadings();
 
-  auto defaultShootSetpoint{super_.getAutoShootSetpoint()};
+  auto defaultShootSetpoint{container_.super_structure_.getAutoShootSetpoint()};
 
   // auto theta =
   //     shooting_calculator_
@@ -38,8 +24,8 @@ void PrepareAutoShootCommand::Execute() {
   //             / 12.0, defaultShootSetpoint.wrist.to<double>())
   //         .launch_angle;
 
-  intake_.SetTarget({IntakeState::kHold});
-  shooter_.SetTarget({ShooterState::kRun});
+  container_.intake_.SetTarget({IntakeState::kHold});
+  container_.shooter_.SetTarget({ShooterState::kRun});
 
   // if (theta <= 1_deg) {
   // theta = defaultShootSetpoint.wrist;
@@ -49,15 +35,14 @@ void PrepareAutoShootCommand::Execute() {
 
   // Log("Theta {}", theta);
 
-  super_.SetTargetSetpoint(defaultShootSetpoint);
+  container_.super_structure_.SetTargetSetpoint(defaultShootSetpoint);
 }
 
-void PrepareAutoShootCommand::End(bool interrupted) {
-  Log("Prepare Auto Shoot Command Finished");
-}
+void PrepareAutoShootCommand::OnEnd(bool interrupted) {}
 
 bool PrepareAutoShootCommand::IsFinished() {
-  return shooter_.readings().error_percent <=
-             shooter_.shooter_speed_tolerance_.value() &&
-         super_.pivot_->WithinTolerance(super_.getAutoShootSetpoint().pivot);
+  return container_.shooter_.GetReadings().error_percent <=
+             container_.shooter_.shooter_speed_tolerance_.value() &&
+         container_.super_structure_.pivot_->WithinTolerance(
+             container_.super_structure_.getAutoShootSetpoint().pivot);
 }

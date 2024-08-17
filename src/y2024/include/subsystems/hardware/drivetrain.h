@@ -11,8 +11,8 @@
 #include <variant>
 
 #include "frc/filter/SlewRateLimiter.h"
-#include "frc846/base/subsystem.h"
 #include "frc846/other/swerve_odometry.h"
+#include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/conversions.h"
 #include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
@@ -52,7 +52,8 @@ struct DrivetrainTarget {
 };
 
 class DrivetrainSubsystem
-    : public frc846::base::Subsystem<DrivetrainReadings, DrivetrainTarget> {
+    : public frc846::robot::GenericSubsystem<DrivetrainReadings,
+                                             DrivetrainTarget> {
  public:
   DrivetrainSubsystem(bool initialize = true);
 
@@ -315,7 +316,7 @@ class DrivetrainSubsystem
 
   AHRS gyro_{frc::SerialPort::kMXP};
 
-  DrivetrainReadings GetNewReadings() override;
+  DrivetrainReadings ReadFromHardware() override;
 
-  void DirectWrite(DrivetrainTarget target) override;
+  void WriteToHardware(DrivetrainTarget target) override;
 };
