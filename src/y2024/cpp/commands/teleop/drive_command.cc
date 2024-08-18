@@ -91,9 +91,9 @@ void DriveCommand::Execute() {
   // -----STEER CONTROL-----
   if (targeting_note && vision_.readings().note_detected) {
     // Turn towards the note
-    drivetrain_target.rotation = DrivetrainRotationPosition(vision_.readings().note_angle);  
-    drivetrain_target.control = kClosedLoop;
-    
+    drivetrain_target.rotation = DrivetrainRotationPosition(vision_.readings().note_angle); 
+    drivetrain_target.translation_reference = kRobot; 
+        
   } else {
   double steer_x = frc846::util::HorizontalDeadband(
       driver_.readings().right_stick_x, driver_.steer_deadband_.value(), 1,
