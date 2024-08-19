@@ -113,7 +113,8 @@ spotless {
 check.dependsOn spotlessApply
 
 task runCppcheck(type: Exec) {
-    commandLine 'cppcheck', '--enable=all', '--template=gcc', '--force', '--suppress=missingIncludeSystem', '--suppress=missingInclude', '--check-level=exhaustive', 'src/'
+    commandLine 'cppcheck', '--enable=all', '--template=gcc',
+            '--force', '--suppress=missingIncludeSystem', '--suppress=missingInclude', '--check-level=exhaustive', 'src/'
 }
 
 check.dependsOn runCppcheck

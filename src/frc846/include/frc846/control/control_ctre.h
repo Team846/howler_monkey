@@ -168,8 +168,10 @@ class TalonFXController : public BaseESC<X> {
   void Init() { esc_ = new ctre::phoenix6::hardware::TalonFX(canID_); }
 
   int Configure(std::vector<DataTag> data_tags) {
+    parent_.Log("Attempting to configure TalonFX with CAN ID {}", canID_);
+
     if (!esc_) {
-      parent_.Error("ESC not created");
+      parent_.Error("Failed to configure TalonFX with CAN ID {}", canID_);
       return 1;
     }
 

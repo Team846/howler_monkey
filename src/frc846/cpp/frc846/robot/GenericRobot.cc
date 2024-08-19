@@ -2,6 +2,7 @@
 
 #include <cameraserver/CameraServer.h>
 #include <frc/DSControlWord.h>
+#include <frc/DataLogManager.h>
 #include <frc/RobotController.h>
 #include <frc/livewindow/LiveWindow.h>
 #include <frc/shuffleboard/Shuffleboard.h>
@@ -11,7 +12,6 @@
 #include <frc2/command/button/Trigger.h>
 #include <hal/Notifier.h>
 
-#include "frc/DataLogManager.h"
 #include "frc2/command/ParallelDeadlineGroup.h"
 #include "frc2/command/WaitCommand.h"
 #include "frc846/base/loggable.h"

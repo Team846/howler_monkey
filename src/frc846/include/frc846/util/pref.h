@@ -1,11 +1,11 @@
 #pragma once
 
+#include <frc/Preferences.h>
 #include <networktables/NetworkTableInstance.h>
 #include <units/base.h>
 
 #include <type_traits>
 
-#include "frc/Preferences.h"
 #include "frc846/base/loggable.h"
 #include "frc846/fstore.h"
 

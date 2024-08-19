@@ -1,6 +1,7 @@
 #pragma once
 
 #include <AHRS.h>
+#include <frc/filter/SlewRateLimiter.h>
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <units/angle.h>
@@ -10,7 +11,6 @@
 #include <array>
 #include <variant>
 
-#include "frc/filter/SlewRateLimiter.h"
 #include "frc846/other/swerve_odometry.h"
 #include "frc846/robot/GenericSubsystem.h"
 #include "frc846/util/conversions.h"

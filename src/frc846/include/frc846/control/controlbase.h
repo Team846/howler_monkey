@@ -1,5 +1,6 @@
 #pragma once
 
+#include <frc/RobotController.h>
 #include <rev/CANSparkFlex.h>
 #include <rev/CANSparkMax.h>
 #include <units/current.h>
@@ -11,7 +12,6 @@
 #include <thread>
 #include <variant>
 
-#include "frc/RobotController.h"
 #include "frc846/base/loggable.h"
 #include "frc846/control/config.h"
 #include "frc846/ctre_namespace.h"

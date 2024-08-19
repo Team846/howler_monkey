@@ -191,17 +191,20 @@ class REVSparkController : public BaseESC<X> {
   }
 
   int Configure(std::vector<DataTag> data_tags) {
+    parent_.Log("Attempting to configure REV Motor Controller with CAN ID {}.",
+                canID_);
+
     if (!esc_) {
-      parent_.Error("ESC not created");
+      parent_.Error("Failed to configure REV Motor Controller with CAN ID {}",
+                    canID_);
       return 1;
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
     if (!CheckOK(esc_->SetCANTimeout(DNC::CANTimeout))) {
-      parent_.Error("NOT configuring controller");
-      // return 1;  // does not configure
-      //  controller in this case
+      // parent_.Error("Error in setting CAN timeout, not configuring
+      // controller."); return 1;  // does not configure controller in this case
     }
 
     /* Setting configs */

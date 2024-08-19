@@ -1,7 +1,8 @@
 #pragma once
 
-#include "frc/filter/SlewRateLimiter.h"
-#include "frc/trajectory/TrapezoidProfile.h"
+#include <frc/filter/SlewRateLimiter.h>
+#include <frc/trajectory/TrapezoidProfile.h>
+
 #include "frc846/base/loggable.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
