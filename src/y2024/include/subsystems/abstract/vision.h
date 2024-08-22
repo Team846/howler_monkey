@@ -76,6 +76,15 @@ class VisionSubsystem : public frc846::Subsystem<VisionReadings, VisionTarget> {
   frc846::Grapher<double> velocity_orth_component_graph_{
       readings_named, "velocity_orth_component"};
 
+  frc846::Grapher<bool> note_detected_graph_{
+      readings_named, "note_detected"};
+
+  frc846::Grapher<units::angle::degree_t> note_angle_graph_{
+      readings_named, "note_angle"};
+
+  frc846::Grapher<units::length::foot_t> note_distance_graph_{
+      readings_named, "note_distance"};
+
   std::shared_ptr<nt::NetworkTable> table =
       nt::NetworkTableInstance::GetDefault().GetTable("AprilTags");
 

@@ -20,7 +20,7 @@ VisionTarget VisionSubsystem::ZeroTarget() const {
 
 bool VisionSubsystem::VerifyHardware() { return true; }
 
-VisionReadings VisionSubsystem::GetNewReadings() {
+VisionReadings VisionSubsystem::GetNewReadings() { 
   if (auto alliance = frc::DriverStation::GetAlliance()) {
     if (alliance.value() == frc::DriverStation::Alliance::kRed) {
       frc846::util::ShareTables::SetBoolean("is_red_side", true);
@@ -180,24 +180,28 @@ VisionReadings VisionSubsystem::GetNewReadings() {
   tag_distance_graph_.Graph(newReadings.tag_distance);
   tag_angle_difference_graph_.Graph(newReadings.tag_angle_difference);
   velocity_in_component_graph_.Graph(newReadings.velocity_in_component);
-  #include <cmath> // Include the header file for the sqrt function
 
   velocity_orth_component_graph_.Graph(newReadings.velocity_orth_component);
 
+
+
   // gpd
 
-  double note_x = gpdTable->GetNumber("note_x", 0.0);
-  double note_y = gpdTable->GetNumber("note_y", 0.0);
+  auto note_x = 1_ft* gpdTable->GetNumber("note_x", 0.0);
+  auto note_y = 1_ft* gpdTable->GetNumber("note_y", 0.0);
   double camera_latency = gpdTable->GetNumber("latency", 0.0);
 
-  if (note_x != 0.0 || note_y != 0.0) {
+  if (note_x != 0.0_ft || note_y != 0.0_ft) {
     newReadings.note_detected = true;
-    newReadings.note_angle = units::degree_t(units::math::atan2(note_x, note_y));
-    newReadings.note_distance = units::foot_t(std::sqrt(static_cast<double>(note_x * note_x + note_y * note_y))); 
+    newReadings.note_angle = units::math::atan2(note_x, note_y);
+    newReadings.note_distance = units::math::sqrt((note_x * note_x + note_y * note_y)); 
   } else {
     newReadings.note_detected = false;
   }
 
+    note_detected_graph_.Graph(newReadings.note_detected);
+    note_angle_graph_.Graph(newReadings.note_angle);
+    note_distance_graph_.Graph(newReadings.note_distance);
   return newReadings;
 }
 
