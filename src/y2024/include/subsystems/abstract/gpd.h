@@ -1,4 +1,3 @@
-using namespace std;
 #pragma once
 
 #include <units/angle.h>
@@ -7,6 +6,8 @@ using namespace std;
 #include "frc/smartdashboard/Smartdashboard.h"
 #include "frc846/subsystem.h"
 #include "frc846/util/grapher.h"
+#include "subsystems/hardware/drivetrain.h"
+#include "frc846/util/math.h"
 #include "networktables/NetworkTable.h"
 #include "networktables/NetworkTableEntry.h"
 #include "networktables/NetworkTableInstance.h"
@@ -16,8 +17,8 @@ using namespace std;
 struct GPDTarget {};
 struct GPDReadings {
   bool note_detected;
-  vector<units::degree_t> note_angle;
-  vector<vector<units::foot_t>> points;
+  std::vector<frc846::util::Vector2D<units::foot_t>> points;
+  frc846::util::Vector2D<units::foot_t> closest_note;
 };
 
 class GPDSubsystem : public frc846::Subsystem<GPDReadings, GPDTarget> {
@@ -25,6 +26,10 @@ class GPDSubsystem : public frc846::Subsystem<GPDReadings, GPDTarget> {
   GPDSubsystem(bool init);
 
   void Setup() override {};
+
+  frc846::util::Vector2D<units::foot_t> getBestNote(const std::vector<frc846::util::Vector2D<units::foot_t>>& notes,
+                                                    const frc846::util::Vector2D<units::foot_t>& robot_position,
+                                                    const frc846::util::Vector2D<units::feet_per_second_t>& robot_velocity);
 
   GPDTarget ZeroTarget() const override;
 
@@ -41,9 +46,6 @@ class GPDSubsystem : public frc846::Subsystem<GPDReadings, GPDTarget> {
     frc846::Grapher<units::second_t> note_camera_latency_{readings_named, "note_camera_latency_graph"};
 
     std::shared_ptr<nt::NetworkTable> raspiPreferences = nt::NetworkTableInstance::GetDefault().GetTable("RaspiPreferences");
-
-    frc846::Grapher<units::angle::degree_t> note_angle_graph_{
-        readings_named, "note_angle"};
 
     frc846::Grapher<units::length::foot_t> note_distance_graph_{
         readings_named, "note_distance"};
