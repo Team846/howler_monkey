@@ -1,3 +1,4 @@
+using namespace std;
 #pragma once
 
 #include <units/angle.h>
@@ -14,11 +15,9 @@
 
 struct GPDTarget {};
 struct GPDReadings {
-  units::degree_t note_angle;
   bool note_detected;
-  units::foot_t note_distance;
-  units::foot_t note_x;
-  units::foot_t note_y;
+  vector<units::degree_t> note_angle;
+  vector<vector<units::foot_t>> points;
 };
 
 class GPDSubsystem : public frc846::Subsystem<GPDReadings, GPDTarget> {
@@ -40,6 +39,8 @@ class GPDSubsystem : public frc846::Subsystem<GPDReadings, GPDTarget> {
     frc846::Grapher<units::foot_t> note_x_distance_graph_{readings_named, "note_x_distance_graph"};
     frc846::Grapher<units::foot_t> note_y_distance_graph_{readings_named, "note_y_distance_graph"};
     frc846::Grapher<units::second_t> note_camera_latency_{readings_named, "note_camera_latency_graph"};
+
+    std::shared_ptr<nt::NetworkTable> raspiPreferences = nt::NetworkTableInstance::GetDefault().GetTable("RaspiPreferences");
 
     frc846::Grapher<units::angle::degree_t> note_angle_graph_{
         readings_named, "note_angle"};
