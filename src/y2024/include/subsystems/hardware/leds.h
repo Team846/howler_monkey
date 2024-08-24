@@ -2,8 +2,8 @@
 
 #include <frc/AddressableLED.h>
 
+#include "frc846/ntinf/grapher.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/grapher.h"
 #include "ports.h"
 
 enum LEDsState {

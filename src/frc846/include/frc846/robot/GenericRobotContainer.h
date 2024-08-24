@@ -1,7 +1,7 @@
 #pragma once
 
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/pref.h"
 
 namespace frc846::robot {
 

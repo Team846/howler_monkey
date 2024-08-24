@@ -11,12 +11,11 @@
 #include <array>
 #include <variant>
 
+#include "frc846/ntinf/grapher.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/other/swerve_odometry.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/conversions.h"
-#include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
-#include "frc846/util/pref.h"
 #include "frc846/wpilib/time.h"
 #include "ports.h"
 #include "subsystems/hardware/swerve_module.h"
@@ -87,21 +86,23 @@ class DrivetrainSubsystem
   void SetMap();
 
   // Max drivetrain speed (NEO SDS Mk4i L1 -> 12 theoretical).
-  frc846::Pref<units::feet_per_second_t> max_speed_{*this, "max_speed",
-                                                    14.2_fps};
+  frc846::ntinf::Pref<units::feet_per_second_t> max_speed_{*this, "max_speed",
+                                                           14.2_fps};
 
-  frc846::Pref<units::feet_per_second_t> close_drive_amp_max_speed_{
+  frc846::ntinf::Pref<units::feet_per_second_t> close_drive_amp_max_speed_{
       *this, "close_drive_amp_max_speed", 3_fps};
 
-  frc846::Pref<units::ampere_t> current_limit_{*this, "current_limit", 90_A};
-  frc846::Pref<units::ampere_t> motor_stall_current_{
+  frc846::ntinf::Pref<units::ampere_t> current_limit_{*this, "current_limit",
+                                                      90_A};
+  frc846::ntinf::Pref<units::ampere_t> motor_stall_current_{
       *this, "motor_stall_current", 366_A};
 
-  frc846::Pref<double> braking_constant_{*this, "braking_constant", 0.15};
+  frc846::ntinf::Pref<double> braking_constant_{*this, "braking_constant",
+                                                0.15};
 
-  frc846::Pref<units::feet_per_second_t> vx_ramp_rate_limit{
+  frc846::ntinf::Pref<units::feet_per_second_t> vx_ramp_rate_limit{
       *this, "ramp_rate_vx", 30_fps};
-  frc846::Pref<units::feet_per_second_t> vy_ramp_rate_limit{
+  frc846::ntinf::Pref<units::feet_per_second_t> vy_ramp_rate_limit{
       *this, "ramp_rate_vy", 100_fps};
 
   frc::SlewRateLimiter<units::fps> vx_ramp_rate_{vx_ramp_rate_limit.value() /
@@ -110,20 +111,23 @@ class DrivetrainSubsystem
                                                  1_s};
 
   // Closed loop tuned for this
-  frc846::Pref<units::feet_per_second_t> auto_max_speed_{
+  frc846::ntinf::Pref<units::feet_per_second_t> auto_max_speed_{
       *this, "auto_max_speed", 11.2_fps};
 
-  frc846::Pref<double> driver_speed_multiplier_{*this,
-                                                "driver_speed_multiplier", 1.0};
+  frc846::ntinf::Pref<double> driver_speed_multiplier_{
+      *this, "driver_speed_multiplier", 1.0};
 
-  frc846::Pref<double> slow_mode_percent_{*this, "slow_mode_percent", 0.04};
-  frc846::Pref<double> slow_omega_percent_{*this, "slow_omega_percent", 0.12};
-  frc846::Pref<double> pov_control_speed_{*this, "pov_control_speed_", 1.0};
-  frc846::Pref<double> max_horizontal_strafe_{*this, "pov_control_speed_",
-                                              10.0};
+  frc846::ntinf::Pref<double> slow_mode_percent_{*this, "slow_mode_percent",
+                                                 0.04};
+  frc846::ntinf::Pref<double> slow_omega_percent_{*this, "slow_omega_percent",
+                                                  0.12};
+  frc846::ntinf::Pref<double> pov_control_speed_{*this, "pov_control_speed_",
+                                                 1.0};
+  frc846::ntinf::Pref<double> max_horizontal_strafe_{
+      *this, "pov_control_speed_", 10.0};
 
-  frc846::Pref<units::feet_per_second_t> velocity_error{*this, "velocity_error",
-                                                        0_fps};
+  frc846::ntinf::Pref<units::feet_per_second_t> velocity_error{
+      *this, "velocity_error", 0_fps};
 
   // Max turning speed.
   units::degrees_per_second_t max_omega() const {
@@ -132,26 +136,26 @@ class DrivetrainSubsystem
   }
 
   // Max drivetrain acceleration for trajectory generation.
-  frc846::Pref<units::feet_per_second_squared_t> max_acceleration_{
+  frc846::ntinf::Pref<units::feet_per_second_squared_t> max_acceleration_{
       *this, "max_acceleration", 8_fps_sq};
 
   // Max drivetrain deceleration for trajectory generation.
-  frc846::Pref<units::feet_per_second_squared_t> max_deceleration_{
+  frc846::ntinf::Pref<units::feet_per_second_squared_t> max_deceleration_{
       *this, "max_deceleration", 10_fps_sq};
 
   // Lookahead distance during trajectory following.
-  frc846::Pref<units::inch_t> extrapolation_distance_{
+  frc846::ntinf::Pref<units::inch_t> extrapolation_distance_{
       *this, "extrapolation_distance", 8_in};
 
-  frc846::Pref<units::degrees_per_second_t> angular_velocity_threshold_{
+  frc846::ntinf::Pref<units::degrees_per_second_t> angular_velocity_threshold_{
       *this, "angular_velocity_threshold", 1_deg_per_s};
 
   frc846::base::Loggable align_gains_loggable_{*this, "align_gains"};
-  frc846::Pref<double> align_gains_p_{align_gains_loggable_, "p", 3.5};
+  frc846::ntinf::Pref<double> align_gains_p_{align_gains_loggable_, "p", 3.5};
 
   // Auto align tolerance
-  frc846::Pref<units::inch_t> align_tolerance_{align_gains_loggable_,
-                                               "align_tolerance", 0.3_in};
+  frc846::ntinf::Pref<units::inch_t> align_tolerance_{
+      align_gains_loggable_, "align_tolerance", 0.3_in};
 
   // Convert a translation vector and the drivetrain angular velocity to the
   // individual module outputs.
@@ -170,11 +174,12 @@ class DrivetrainSubsystem
   int lastRelocalize = 0;
 
   // Drivetrain dimensions.
-  frc846::Pref<units::inch_t> width_{*this, "width", 21.75_in};
-  frc846::Pref<units::inch_t> height_{*this, "height", 26.75_in};
+  frc846::ntinf::Pref<units::inch_t> width_{*this, "width", 21.75_in};
+  frc846::ntinf::Pref<units::inch_t> height_{*this, "height", 26.75_in};
 
   // How much to scale the max turning speed by.
-  frc846::Pref<double> percent_max_omega_{*this, "percent_max_omega", 0.45};
+  frc846::ntinf::Pref<double> percent_max_omega_{*this, "percent_max_omega",
+                                                 0.45};
 
   // Distance from center of robot to module.
   units::inch_t module_radius_ =
@@ -182,42 +187,45 @@ class DrivetrainSubsystem
                         units::math::pow<2>(height_.value() / 2));
 
   // Wheel radius for odometry. 4" wheels.
-  frc846::Pref<units::inch_t> wheel_radius_{*this, "wheel_radius", 1.93_in};
+  frc846::ntinf::Pref<units::inch_t> wheel_radius_{*this, "wheel_radius",
+                                                   1.93_in};
 
   // Rotation position gains.
   frc846::base::Loggable bearing_gains_loggable_{*this, "bearing_gains"};
-  frc846::Pref<double> bearing_gains_p_{bearing_gains_loggable_, "p", 8.3};
-  frc846::Pref<double> bearing_gains_d_{bearing_gains_loggable_, "d", -4.7};
+  frc846::ntinf::Pref<double> bearing_gains_p_{bearing_gains_loggable_, "p",
+                                               8.3};
+  frc846::ntinf::Pref<double> bearing_gains_d_{bearing_gains_loggable_, "d",
+                                               -4.7};
 
   // Pose graphers.
   frc846::base::Loggable pose_loggable_{*this, "pose"};
-  frc846::Grapher<units::foot_t> pose_x_graph_{pose_loggable_, "x"};
-  frc846::Grapher<units::foot_t> pose_y_graph_{pose_loggable_, "y"};
-  frc846::Grapher<units::degree_t> pose_bearing_graph{pose_loggable_,
-                                                      "bearing"};
+  frc846::ntinf::Grapher<units::foot_t> pose_x_graph_{pose_loggable_, "x"};
+  frc846::ntinf::Grapher<units::foot_t> pose_y_graph_{pose_loggable_, "y"};
+  frc846::ntinf::Grapher<units::degree_t> pose_bearing_graph{pose_loggable_,
+                                                             "bearing"};
 
   // Velocity graphers.
   frc846::base::Loggable velocity_loggable_{*this, "velocity"};
-  frc846::Grapher<units::feet_per_second_t> v_x_graph_{velocity_loggable_,
-                                                       "v_x"};
-  frc846::Grapher<units::feet_per_second_t> v_y_graph_{velocity_loggable_,
-                                                       "v_y"};
+  frc846::ntinf::Grapher<units::feet_per_second_t> v_x_graph_{
+      velocity_loggable_, "v_x"};
+  frc846::ntinf::Grapher<units::feet_per_second_t> v_y_graph_{
+      velocity_loggable_, "v_y"};
 
   // Target graphers.
   frc846::base::Loggable target_loggable_{*this, "target"};
-  frc846::Grapher<units::feet_per_second_t> target_v_x_graph_{target_loggable_,
-                                                              "v_x"};
-  frc846::Grapher<units::feet_per_second_t> target_v_y_graph_{target_loggable_,
-                                                              "v_y"};
-  frc846::Grapher<std::string> target_translation_reference_graph_{
+  frc846::ntinf::Grapher<units::feet_per_second_t> target_v_x_graph_{
+      target_loggable_, "v_x"};
+  frc846::ntinf::Grapher<units::feet_per_second_t> target_v_y_graph_{
+      target_loggable_, "v_y"};
+  frc846::ntinf::Grapher<std::string> target_translation_reference_graph_{
       target_loggable_,
       "translation_reference",
   };
-  frc846::Grapher<units::degree_t> target_rotation_position_graph_{
+  frc846::ntinf::Grapher<units::degree_t> target_rotation_position_graph_{
       target_loggable_, "rotation_position"};
-  frc846::Grapher<units::degrees_per_second_t> target_rotation_velocity_graph_{
-      target_loggable_, "rotation_velocity"};
-  //   frc846::Grapher<units::degree_t> bearing_error{target_loggable_,
+  frc846::ntinf::Grapher<units::degrees_per_second_t>
+      target_rotation_velocity_graph_{target_loggable_, "rotation_velocity"};
+  //   frc846::ntinf::Grapher<units::degree_t> bearing_error{target_loggable_,
   //   "bearing_error"};
 
   frc846::SwerveOdometry odometry_;

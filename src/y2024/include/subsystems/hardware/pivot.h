@@ -6,9 +6,9 @@
 #include "frc846/base/loggable.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
+#include "frc846/ntinf/grapher.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/grapher.h"
-#include "frc846/util/pref.h"
 #include "ports.h"
 #include "units/angular_velocity.h"
 #include "units/length.h"
@@ -79,13 +79,13 @@ class PivotSubsystem
     return hard_limits_.CapWithinLimits(pos);
   }
 
-  frc846::Pref<units::degree_t> pivot_tolerance_{*this, "pivot_tolerance",
-                                                 0.5_deg};
+  frc846::ntinf::Pref<units::degree_t> pivot_tolerance_{
+      *this, "pivot_tolerance", 0.5_deg};
 
-  frc846::Pref<units::degree_t> pivot_home_offset_{*this, "pivot_home_offset",
-                                                   -17_deg};
+  frc846::ntinf::Pref<units::degree_t> pivot_home_offset_{
+      *this, "pivot_home_offset", -17_deg};
 
-  frc846::Pref<units::degrees_per_second_t> max_adjustment_rate_{
+  frc846::ntinf::Pref<units::degrees_per_second_t> max_adjustment_rate_{
       *this, "max_adjustment_rate", units::degrees_per_second_t(60.0)};
 
  private:
@@ -93,18 +93,18 @@ class PivotSubsystem
 
   frc846::base::Loggable readings_named_{*this, "readings"};
 
-  frc846::Grapher<units::degree_t> pivot_pos_graph{readings_named_,
-                                                   "pivot_pos"};
-  frc846::Grapher<units::degree_t> pivot_error_graph{readings_named_,
-                                                     "pivot_error"};
+  frc846::ntinf::Grapher<units::degree_t> pivot_pos_graph{readings_named_,
+                                                          "pivot_pos"};
+  frc846::ntinf::Grapher<units::degree_t> pivot_error_graph{readings_named_,
+                                                            "pivot_error"};
 
   frc846::base::Loggable target_named_{*this, "target"};
 
-  frc846::Grapher<double> target_pivot_duty_cycle_graph{target_named_,
-                                                        "pivot_duty_cycle"};
+  frc846::ntinf::Grapher<double> target_pivot_duty_cycle_graph{
+      target_named_, "pivot_duty_cycle"};
 
-  frc846::Grapher<units::degree_t> target_pivot_pos_graph{target_named_,
-                                                          "pivot_pos"};
+  frc846::ntinf::Grapher<units::degree_t> target_pivot_pos_graph{target_named_,
+                                                                 "pivot_pos"};
 
   frc846::control::ConfigHelper config_helper_{
       *this,

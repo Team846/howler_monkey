@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-#include "pref.h"
+#include "frc846/ntinf/pref.h"
 
 namespace frc846::util {
 
@@ -174,9 +174,9 @@ class FieldPoint {
         bearing{point_names_, name + "_deg", deg},
         name_(name) {}
 
-  Pref<units::inch_t> x;
-  Pref<units::inch_t> y;
-  Pref<units::degree_t> bearing;
+  frc846::ntinf::Pref<units::inch_t> x;
+  frc846::ntinf::Pref<units::inch_t> y;
+  frc846::ntinf::Pref<units::degree_t> bearing;
   std::string name_;
 
  private:

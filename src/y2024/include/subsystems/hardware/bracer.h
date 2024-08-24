@@ -7,9 +7,9 @@
 
 #include "frc846/base/loggable.h"
 #include "frc846/control/control.h"
+#include "frc846/ntinf/grapher.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/grapher.h"
-#include "frc846/util/pref.h"
 #include "ports.h"
 #include "units/length.h"
 
@@ -33,12 +33,12 @@ class BracerSubsystem
   bool VerifyHardware() override;
 
  private:
-  frc846::Grapher<bool> left_climb_{*this, "left_hook_engaged"};
-  frc846::Grapher<bool> right_climb_{*this, "right_hook_engaged"};
+  frc846::ntinf::Grapher<bool> left_climb_{*this, "left_hook_engaged"};
+  frc846::ntinf::Grapher<bool> right_climb_{*this, "right_hook_engaged"};
 
   frc846::base::Loggable target_named_{*this, "target"};
 
-  frc846::Grapher<bool> target_extend_{target_named_, "extend"};
+  frc846::ntinf::Grapher<bool> target_extend_{target_named_, "extend"};
 
   frc::Spark bracer_{ports::bracer_::kPWM_Left};
 

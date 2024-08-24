@@ -1,7 +1,7 @@
 #pragma once
 
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericRobotContainer.h"
-#include "frc846/util/pref.h"
 #include "subsystems/abstract/control_input.h"
 #include "subsystems/abstract/driver.h"
 #include "subsystems/abstract/operator.h"
@@ -18,15 +18,15 @@
 
 class RobotContainer : public frc846::robot::GenericRobotContainer {
  public:
-  frc846::Pref<bool> init_drivetrain_{*this, "init_drivetrain", true};
-  frc846::Pref<bool> init_intake_{*this, "init_intake", false};
-  frc846::Pref<bool> init_shooter_{*this, "init_shooter", false};
-  frc846::Pref<bool> init_wrist_{*this, "init_wrist", false};
-  frc846::Pref<bool> init_pivot_{*this, "init_pivot", true};
-  frc846::Pref<bool> init_telescope_{*this, "init_telescope", false};
-  frc846::Pref<bool> init_leds_{*this, "init_leds", true};
-  frc846::Pref<bool> init_bracer_{*this, "init_bracers_", false};
-  frc846::Pref<bool> init_vision_{*this, "init_vision_", true};
+  frc846::ntinf::Pref<bool> init_drivetrain_{*this, "init_drivetrain", true};
+  frc846::ntinf::Pref<bool> init_intake_{*this, "init_intake", false};
+  frc846::ntinf::Pref<bool> init_shooter_{*this, "init_shooter", false};
+  frc846::ntinf::Pref<bool> init_wrist_{*this, "init_wrist", false};
+  frc846::ntinf::Pref<bool> init_pivot_{*this, "init_pivot", true};
+  frc846::ntinf::Pref<bool> init_telescope_{*this, "init_telescope", false};
+  frc846::ntinf::Pref<bool> init_leds_{*this, "init_leds", true};
+  frc846::ntinf::Pref<bool> init_bracer_{*this, "init_bracers_", false};
+  frc846::ntinf::Pref<bool> init_vision_{*this, "init_vision_", true};
 
   ControlInputSubsystem control_input_;
   DrivetrainSubsystem drivetrain_{init_drivetrain_.value()};

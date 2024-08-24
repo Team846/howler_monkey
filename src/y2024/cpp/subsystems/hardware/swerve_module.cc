@@ -10,7 +10,7 @@ SwerveModuleSubsystem::SwerveModuleSubsystem(
     frc846::control::ConfigHelper* drive_esc_config_helper,
     frc846::control::ConfigHelper* steer_esc_config_helper, int drive_esc_id,
     int steer_esc_id, int cancoder_id,
-    frc846::Pref<units::feet_per_second_t>& max_speed,
+    frc846::ntinf::Pref<units::feet_per_second_t>& max_speed,
     frc846::motion::CurrentControl& current_control)
     : frc846::robot::GenericSubsystem<SwerveModuleReadings,
                                       SwerveModuleTarget>{drivetrain,
@@ -161,7 +161,6 @@ void SwerveModuleSubsystem::WriteToHardware(SwerveModuleTarget target) {
   units::feet_per_second_t target_velocity =
       target.speed * (reverse_drive ? -1 : 1);
 
-  double drive_output;
   if (target.control == kClosedLoop) {
     if (last_target.control != kClosedLoop) {
       drive_esc_helper_.SetVoltageCompensationAuton(true);
@@ -173,7 +172,7 @@ void SwerveModuleSubsystem::WriteToHardware(SwerveModuleTarget target) {
       drive_esc_helper_.SetVoltageCompensationAuton(false);
     }
 
-    drive_output = target_velocity / max_speed_.value();
+    double drive_output = target_velocity / max_speed_.value();
 
     drive_output = current_control_.calculate(
         drive_esc_helper_.GetVelocityPercentage(), drive_output);

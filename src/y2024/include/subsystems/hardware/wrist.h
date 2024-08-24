@@ -3,9 +3,9 @@
 #include "frc846/base/loggable.h"
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
+#include "frc846/ntinf/grapher.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/grapher.h"
-#include "frc846/util/pref.h"
 #include "ports.h"
 #include "units/angular_velocity.h"
 #include "units/length.h"
@@ -65,43 +65,44 @@ class WristSubsystem
     return hard_limits_.CapWithinLimits(pos);
   }
 
-  frc846::Pref<units::degree_t> wrist_tolerance_{*this, "wrist_tolerance",
-                                                 1.2_deg};
+  frc846::ntinf::Pref<units::degree_t> wrist_tolerance_{
+      *this, "wrist_tolerance", 1.2_deg};
 
-  frc846::Pref<units::degree_t> wrist_home_offset_{*this, "home_offset_wrist",
-                                                   -49_deg};
-  frc846::Pref<units::degree_t> wrist_cg_offset_{*this, "cg_offset_wrist",
-                                                 60_deg};
+  frc846::ntinf::Pref<units::degree_t> wrist_home_offset_{
+      *this, "home_offset_wrist", -49_deg};
+  frc846::ntinf::Pref<units::degree_t> wrist_cg_offset_{
+      *this, "cg_offset_wrist", 60_deg};
 
-  frc846::Pref<units::degrees_per_second_t> max_adjustment_rate_{
+  frc846::ntinf::Pref<units::degrees_per_second_t> max_adjustment_rate_{
       *this, "max_adjustment_rate", units::degrees_per_second_t(80.0)};
 
-  frc846::Pref<units::degrees_per_second_t> homing_velocity_tolerance_{
+  frc846::ntinf::Pref<units::degrees_per_second_t> homing_velocity_tolerance_{
       *this, "homing_velocity_tolerance", 1.0_deg_per_s};
-  frc846::Pref<int> num_loops_homed_{*this, "num_loops_homed", 7};
-  frc846::Pref<double> homing_speed_{*this, "homing_speed", -0.2};
+  frc846::ntinf::Pref<int> num_loops_homed_{*this, "num_loops_homed", 7};
+  frc846::ntinf::Pref<double> homing_speed_{*this, "homing_speed", -0.2};
 
  private:
   bool hasZeroed = false;
 
   frc846::base::Loggable gains_{*this, "gains"};
-  frc846::Pref<double> k_{gains_, "k", 0.0};
-  frc846::Pref<double> p_{gains_, "p", 0.0};
-  frc846::Pref<double> d_{gains_, "d", 0.0};
+  frc846::ntinf::Pref<double> k_{gains_, "k", 0.0};
+  frc846::ntinf::Pref<double> p_{gains_, "p", 0.0};
+  frc846::ntinf::Pref<double> d_{gains_, "d", 0.0};
 
   frc846::base::Loggable readings_named_{*this, "readings"};
 
-  frc846::Grapher<units::degree_t> wrist_pos_graph{target_named_, "wrist_pos"};
-  frc846::Grapher<units::degree_t> wrist_error_graph{target_named_,
-                                                     "wrist_error"};
+  frc846::ntinf::Grapher<units::degree_t> wrist_pos_graph{target_named_,
+                                                          "wrist_pos"};
+  frc846::ntinf::Grapher<units::degree_t> wrist_error_graph{target_named_,
+                                                            "wrist_error"};
 
   frc846::base::Loggable target_named_{*this, "target"};
 
-  frc846::Grapher<double> target_wrist_duty_cycle_graph{target_named_,
-                                                        "wrist_duty_cycle"};
+  frc846::ntinf::Grapher<double> target_wrist_duty_cycle_graph{
+      target_named_, "wrist_duty_cycle"};
 
-  frc846::Grapher<units::degree_t> target_wrist_pos_graph{target_named_,
-                                                          "wrist_pos"};
+  frc846::ntinf::Grapher<units::degree_t> target_wrist_pos_graph{target_named_,
+                                                                 "wrist_pos"};
 
   frc846::control::ConfigHelper config_helper_{
       *this,

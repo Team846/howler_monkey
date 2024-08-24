@@ -15,7 +15,6 @@
 #include "frc846/base/loggable.h"
 #include "frc846/control/config.h"
 #include "frc846/ctre_namespace.h"
-#include "frc846/util/conversions.h"
 
 FRC846_CTRE_NAMESPACE()
 

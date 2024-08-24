@@ -6,7 +6,7 @@
 #include <units/voltage.h>
 
 #include "config.h"
-#include "frc846/util/pref.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/util/share_tables.h"
 
 namespace frc846::motion {
@@ -62,8 +62,8 @@ class CurrentControl {
  private:
   CurrentControlSettings settings_;
 
-  frc846::Pref<units::ampere_t> smart_current_limit_;
-  frc846::Pref<double> braking_constant_;
+  frc846::ntinf::Pref<units::ampere_t> smart_current_limit_;
+  frc846::ntinf::Pref<double> braking_constant_;
 };
 
 template <typename V>

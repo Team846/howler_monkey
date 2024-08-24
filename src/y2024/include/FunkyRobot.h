@@ -5,9 +5,9 @@
 #include "autos/drive_auto.h"
 #include "autos/five_piece_auto.h"
 #include "autos/one_piece_auto.h"
-#include "frc846/fstore.h"
+#include "frc846/ntinf/fstore.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericRobot.h"
-#include "frc846/util/pref.h"
 #include "subsystems/robot_container.h"
 
 class FunkyRobot : public frc846::robot::GenericRobot {

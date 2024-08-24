@@ -2,9 +2,9 @@
 
 #include "frc846/base/loggable.h"
 #include "frc846/control/control.h"
+#include "frc846/ntinf/grapher.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/grapher.h"
-#include "frc846/util/pref.h"
 #include "ports.h"
 #include "units/length.h"
 #include "units/math.h"
@@ -61,28 +61,29 @@ class TelescopeSubsystem
     return hard_limits_.CapWithinLimits(pos);
   }
 
-  frc846::Pref<units::feet_per_second_t> max_adjustment_rate_{
+  frc846::ntinf::Pref<units::feet_per_second_t> max_adjustment_rate_{
       *this, "max_adjustment_rate", 0.5_fps};
 
  private:
   bool hasZeroed = false;
 
-  frc846::Pref<units::inch_t> telescope_tolerance_{*this, "telescope_tolerance",
-                                                   0.25_in};
+  frc846::ntinf::Pref<units::inch_t> telescope_tolerance_{
+      *this, "telescope_tolerance", 0.25_in};
 
   frc846::base::Loggable readings_named_{*this, "readings"};
 
-  frc846::Grapher<units::inch_t> tele_pos_graph{readings_named_, "tele_pos"};
-  frc846::Grapher<units::inch_t> tele_error_graph{readings_named_,
-                                                  "tele_error"};
+  frc846::ntinf::Grapher<units::inch_t> tele_pos_graph{readings_named_,
+                                                       "tele_pos"};
+  frc846::ntinf::Grapher<units::inch_t> tele_error_graph{readings_named_,
+                                                         "tele_error"};
 
   frc846::base::Loggable target_named_{*this, "target"};
 
-  frc846::Grapher<double> target_tele_duty_cycle_graph{target_named_,
-                                                       "tele_duty_cycle"};
+  frc846::ntinf::Grapher<double> target_tele_duty_cycle_graph{
+      target_named_, "tele_duty_cycle"};
 
-  frc846::Grapher<units::inch_t> target_tele_pos_graph{target_named_,
-                                                       "tele_pos"};
+  frc846::ntinf::Grapher<units::inch_t> target_tele_pos_graph{target_named_,
+                                                              "tele_pos"};
 
   frc846::control::ConfigHelper config_helper_{
       *this,

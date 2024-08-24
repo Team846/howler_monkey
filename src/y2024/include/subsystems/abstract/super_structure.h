@@ -2,8 +2,8 @@
 
 #include "constants.h"
 #include "frc846/control/motion.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/pref.h"
 #include "frc846/util/share_tables.h"
 #include "subsystems/hardware/pivot.h"
 #include "subsystems/hardware/telescope.h"
@@ -38,9 +38,9 @@ class PTWSetPref {
   }
 
  private:
-  frc846::Pref<units::degree_t> pivot;
-  frc846::Pref<units::degree_t> wrist;
-  frc846::Pref<units::inch_t> telescope;
+  frc846::ntinf::Pref<units::degree_t> pivot;
+  frc846::ntinf::Pref<units::degree_t> wrist;
+  frc846::ntinf::Pref<units::inch_t> telescope;
 };
 
 struct SuperStructureReadings {};
@@ -146,46 +146,46 @@ class SuperStructureSubsystem
   /*
    */
 
-  frc846::Pref<double> manual_control_deadband_{
+  frc846::ntinf::Pref<double> manual_control_deadband_{
       *this, "manual_control_deadband", 0.05};
 
   frc846::base::Loggable auto_named_{*this, "auto"};
-  frc846::Pref<units::second_t> post_shoot_wait_{auto_named_, "post_shoot_wait",
-                                                 1_s};
-  frc846::Pref<units::second_t> pre_shoot_wait_{auto_named_, "pre_shoot_wait",
-                                                1_s};
+  frc846::ntinf::Pref<units::second_t> post_shoot_wait_{auto_named_,
+                                                        "post_shoot_wait", 1_s};
+  frc846::ntinf::Pref<units::second_t> pre_shoot_wait_{auto_named_,
+                                                       "pre_shoot_wait", 1_s};
 
   frc846::base::Loggable shooting_named_{*this, "shooting"};
-  frc846::Pref<units::inch_t> teleop_shooter_height_{
+  frc846::ntinf::Pref<units::inch_t> teleop_shooter_height_{
       shooting_named_, "teleop_shooter_height", 39_in};
-  frc846::Pref<units::inch_t> teleop_shooter_x_{shooting_named_,
-                                                "teleop_shooter_x", 4_in};
-  frc846::Pref<units::inch_t> auto_shooter_height_{
+  frc846::ntinf::Pref<units::inch_t> teleop_shooter_x_{
+      shooting_named_, "teleop_shooter_x", 4_in};
+  frc846::ntinf::Pref<units::inch_t> auto_shooter_height_{
       shooting_named_, "auto_shooter_height", 21_in};
-  frc846::Pref<units::inch_t> auto_shooter_x_{shooting_named_, "auto_shooter_x",
-                                              13_in};
+  frc846::ntinf::Pref<units::inch_t> auto_shooter_x_{shooting_named_,
+                                                     "auto_shooter_x", 13_in};
 
   // For shooter positions
   frc846::base::Loggable intake_point_arm_pose_{*this, "intake_point_arm_pose"};
 
-  frc846::Grapher<units::inch_t> intake_point_x_graph_{intake_point_arm_pose_,
-                                                       "x"};
-  frc846::Grapher<units::inch_t> intake_point_y_graph_{intake_point_arm_pose_,
-                                                       "y"};
+  frc846::ntinf::Grapher<units::inch_t> intake_point_x_graph_{
+      intake_point_arm_pose_, "x"};
+  frc846::ntinf::Grapher<units::inch_t> intake_point_y_graph_{
+      intake_point_arm_pose_, "y"};
 
   frc846::base::Loggable shooter_point_arm_pose_{*this,
                                                  "shooter_point_arm_pose"};
-  frc846::Grapher<units::inch_t> shooter_point_x_graph_{shooter_point_arm_pose_,
-                                                        "x"};
-  frc846::Grapher<units::inch_t> shooter_point_y_graph_{shooter_point_arm_pose_,
-                                                        "y"};
+  frc846::ntinf::Grapher<units::inch_t> shooter_point_x_graph_{
+      shooter_point_arm_pose_, "x"};
+  frc846::ntinf::Grapher<units::inch_t> shooter_point_y_graph_{
+      shooter_point_arm_pose_, "y"};
 
   /*
    */
 
   frc846::base::Loggable trap_named_{*this, "trap"};
 
-  frc846::Pref<units::degree_t> pivot_pull_target_{
+  frc846::ntinf::Pref<units::degree_t> pivot_pull_target_{
       trap_named_, "pivot_pull_target", -10_deg};
 
   /*

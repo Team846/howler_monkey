@@ -7,10 +7,10 @@
 #include <hal/Types.h>
 #include <units/time.h>
 
-#include "frc846/fstore.h"
+#include "frc846/ntinf/fstore.h"
+#include "frc846/ntinf/grapher.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericRobotContainer.h"
-#include "frc846/util/grapher.h"
-#include "frc846/util/pref.h"
 
 namespace frc846::robot {
 
@@ -46,18 +46,19 @@ class GenericRobot : public frc::RobotBase, public frc846::base::Loggable {
  private:
   GenericRobotContainer* generic_robot_container_;
 
-  frc846::Grapher<int> time_remaining_graph_{*this, "time"};
+  frc846::ntinf::Grapher<int> time_remaining_graph_{*this, "time"};
 
-  frc846::Grapher<int> warnings_graph_{*this, "warnings"};
-  frc846::Grapher<int> errors_graph_{*this, "errors"};
+  frc846::ntinf::Grapher<int> warnings_graph_{*this, "warnings"};
+  frc846::ntinf::Grapher<int> errors_graph_{*this, "errors"};
 
-  frc846::Grapher<double> can_usage_graph_{*this, "CAN_usage"};
-  frc846::Grapher<units::millisecond_t> loop_time_graph_{*this, "loop_time"};
+  frc846::ntinf::Grapher<double> can_usage_graph_{*this, "CAN_usage"};
+  frc846::ntinf::Grapher<units::millisecond_t> loop_time_graph_{*this,
+                                                                "loop_time"};
 
   frc2::Command* auto_command_ = nullptr;
   frc::SendableChooser<frc2::Command*> auto_chooser_;
 
-  frc846::FunkyStore robotStore{};
+  frc846::ntinf::FunkyStore robotStore{};
 };
 
 };  // namespace frc846::robot

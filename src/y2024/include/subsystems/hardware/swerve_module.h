@@ -11,11 +11,10 @@
 #include "frc846/control/control.h"
 #include "frc846/control/motion.h"
 #include "frc846/ctre_namespace.h"
+#include "frc846/ntinf/grapher.h"
+#include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/conversions.h"
-#include "frc846/util/grapher.h"
 #include "frc846/util/math.h"
-#include "frc846/util/pref.h"
 
 // FRC846_CTRE_NAMESPACE()
 
@@ -38,14 +37,14 @@ class SwerveModuleSubsystem
     : public frc846::robot::GenericSubsystem<SwerveModuleReadings,
                                              SwerveModuleTarget> {
  public:
-  SwerveModuleSubsystem(const frc846::base::Loggable& drivetrain, bool init,
-                        std::string location,
-                        units::degree_t fallback_cancoder_offset,
-                        frc846::control::ConfigHelper* drive_esc_config_helper,
-                        frc846::control::ConfigHelper* steer_esc_config_helper,
-                        int drive_esc_id, int steer_esc_id, int cancoder_id,
-                        frc846::Pref<units::feet_per_second_t>& max_speed,
-                        frc846::motion::CurrentControl& current_control);
+  SwerveModuleSubsystem(
+      const frc846::base::Loggable& drivetrain, bool init, std::string location,
+      units::degree_t fallback_cancoder_offset,
+      frc846::control::ConfigHelper* drive_esc_config_helper,
+      frc846::control::ConfigHelper* steer_esc_config_helper, int drive_esc_id,
+      int steer_esc_id, int cancoder_id,
+      frc846::ntinf::Pref<units::feet_per_second_t>& max_speed,
+      frc846::motion::CurrentControl& current_control);
 
   void Setup() override {};
 
@@ -66,7 +65,7 @@ class SwerveModuleSubsystem
 
  private:
   // CANcoder magnet offset.
-  frc846::Pref<units::degree_t> cancoder_offset_;
+  frc846::ntinf::Pref<units::degree_t> cancoder_offset_;
 
   // Magic value to offset steer position by (factors in CANcoder reading,
   // CANcoder offset, and Talon relative encoder start reading).
@@ -77,23 +76,25 @@ class SwerveModuleSubsystem
   units::feet_per_second_t current_speed_;
 
   frc846::base::Loggable target_loggable_{*this, "target"};
-  frc846::Grapher<units::feet_per_second_t> target_speed_graph_{
+  frc846::ntinf::Grapher<units::feet_per_second_t> target_speed_graph_{
       target_loggable_, "speed"};
-  frc846::Grapher<units::degree_t> target_direction_graph_{target_loggable_,
-                                                           "direction"};
-  frc846::Grapher<units::degree_t> cancoder_graph_{*this, "cancoder"};
+  frc846::ntinf::Grapher<units::degree_t> target_direction_graph_{
+      target_loggable_, "direction"};
+  frc846::ntinf::Grapher<units::degree_t> cancoder_graph_{*this, "cancoder"};
 
-  frc846::Grapher<units::degree_t> direction_graph_{*this, "direction"};
-  frc846::Grapher<units::ampere_t> current_graph_{*this, "current"};
+  frc846::ntinf::Grapher<units::degree_t> direction_graph_{*this, "direction"};
+  frc846::ntinf::Grapher<units::ampere_t> current_graph_{*this, "current"};
 
-  frc846::Grapher<double> swerve_target_graph_{*this, "swerve_target_graph_"};
+  frc846::ntinf::Grapher<double> swerve_target_graph_{*this,
+                                                      "swerve_target_graph_"};
 
-  frc846::Grapher<double> swerve_speed_graph_{*this, "swerve_speed_graph_"};
+  frc846::ntinf::Grapher<double> swerve_speed_graph_{*this,
+                                                     "swerve_speed_graph_"};
 
-  frc846::Grapher<double> upper_dc_current_limiting_{
+  frc846::ntinf::Grapher<double> upper_dc_current_limiting_{
       *this, "upper_dc_current_limiting"};
 
-  frc846::Grapher<double> lower_dc_current_limiting_{
+  frc846::ntinf::Grapher<double> lower_dc_current_limiting_{
       *this, "lower_dc_current_limiting"};
 
   frc846::control::HardLimitsConfigHelper<units::foot_t>
@@ -109,7 +110,7 @@ class SwerveModuleSubsystem
 
   ctre::CANcoder cancoder_;
 
-  frc846::Pref<units::feet_per_second_t>& max_speed_;
+  frc846::ntinf::Pref<units::feet_per_second_t>& max_speed_;
 
   frc846::motion::CurrentControl& current_control_;
 

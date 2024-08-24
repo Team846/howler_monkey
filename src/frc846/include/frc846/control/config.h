@@ -5,7 +5,7 @@
 #include <units/time.h>
 #include <units/voltage.h>
 
-#include "frc846/util/pref.h"
+#include "frc846/ntinf/pref.h"
 
 namespace frc846::control {
 
@@ -42,8 +42,8 @@ class CurrentLimitingPrefs {
 
  private:
   frc846::base::Loggable rep;
-  frc846::Pref<units::ampere_t> target_threshold;
-  frc846::Pref<units::millisecond_t> peak_time_theshold;
+  frc846::ntinf::Pref<units::ampere_t> target_threshold;
+  frc846::ntinf::Pref<units::millisecond_t> peak_time_theshold;
 };
 
 struct Gains {
@@ -65,9 +65,9 @@ class GainsPrefs {
 
  private:
   frc846::base::Loggable rep;
-  frc846::Pref<double> kP;
-  frc846::Pref<double> kD;
-  frc846::Pref<double> kF;
+  frc846::ntinf::Pref<double> kP;
+  frc846::ntinf::Pref<double> kD;
+  frc846::ntinf::Pref<double> kF;
 };
 
 enum MotorIdleMode { kDefaultCoast, kDefaultBrake };
@@ -132,12 +132,12 @@ class HardLimitsConfigHelper {
 
  private:
   frc846::base::Loggable rep;
-  frc846::Pref<X> forward_;
-  frc846::Pref<X> reverse_;
-  frc846::Pref<bool> using_position_limits_;
+  frc846::ntinf::Pref<X> forward_;
+  frc846::ntinf::Pref<X> reverse_;
+  frc846::ntinf::Pref<bool> using_position_limits_;
 
-  frc846::Pref<double> peak_output_forward_;
-  frc846::Pref<double> peak_output_reverse_;
+  frc846::ntinf::Pref<double> peak_output_forward_;
+  frc846::ntinf::Pref<double> peak_output_reverse_;
 
   bool override_limits_ = false;
 };
@@ -197,14 +197,14 @@ class MotorConfigPrefs {
 
  private:
   frc846::base::Loggable rep;
-  frc846::Pref<bool> invert_;
-  frc846::Pref<double> gear_ratio_;
-  frc846::Pref<bool> default_brake_;
+  frc846::ntinf::Pref<bool> invert_;
+  frc846::ntinf::Pref<double> gear_ratio_;
+  frc846::ntinf::Pref<bool> default_brake_;
   CurrentLimitingPrefs current_limiting_;
-  frc846::Pref<units::second_t> ramp_time_;
-  frc846::Pref<bool> using_ramp_rate_;
-  frc846::Pref<units::volt_t> voltage_compensation_;
-  frc846::Pref<units::volt_t> auton_voltage_compensation_;
+  frc846::ntinf::Pref<units::second_t> ramp_time_;
+  frc846::ntinf::Pref<bool> using_ramp_rate_;
+  frc846::ntinf::Pref<units::volt_t> voltage_compensation_;
+  frc846::ntinf::Pref<units::volt_t> auton_voltage_compensation_;
 };
 
 class ConfigHelper {
