@@ -171,7 +171,9 @@ ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
   // MANUAL FEED
   ci_readings_.manual_feed = op_readings.pov == frc846::XboxPOV::kLeft;
   // MANUAL SPIN UP
-  ci_readings_.manual_spin_up = op_readings.pov == frc846::XboxPOV::kDown;
+  ci_readings_.manual_spin_up = op_readings.pov == frc846::XboxPOV::kDown ||
+                                ci_readings_.running_prep_shoot ||
+                                ci_readings_.running_super_shoot;
 
   // MANUAL ADJUSTMENTS
   ci_readings_.pivot_manual_adjust = op_readings.left_stick_y;

@@ -16,11 +16,12 @@
 #include "frc2/command/WaitCommand.h"
 #include "frc846/base/loggable.h"
 #include "frc846/other/sendable_callback.h"
+#include "frc846/robot/GenericCommand.h"
 #include "frc846/wpilib/time.h"
 
 namespace frc846::robot {
 
-GenericRobot::GenericRobot(GenericRobotContainer *container)
+GenericRobot::GenericRobot(GenericRobotContainer* container)
     : frc846::base::Loggable{"robot"}, generic_robot_container_{container} {
   next_loop_time_ = frc846::wpilib::CurrentFPGATime();
 
@@ -192,13 +193,14 @@ void GenericRobot::VerifyHardware() {
   generic_robot_container_->VerifyHardware();
 }
 
-void GenericRobot::AddAutos(frc2::Command *defaultOption,
-                            std::vector<frc2::Command *> otherOptions) {
+void GenericRobot::AddAutos(frc2::Command* defaultOption,
+                            std::vector<frc2::Command*> otherOptions) {
   auto_chooser_.SetDefaultOption(defaultOption->GetName(), defaultOption);
   for (auto option : otherOptions) {
     auto_chooser_.AddOption(option->GetName(), option);
   }
   frc::SmartDashboard::PutData(&auto_chooser_);
+  frc::SmartDashboard::UpdateValues();
 }
 
 };  // namespace frc846::robot

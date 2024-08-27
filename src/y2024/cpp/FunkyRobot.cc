@@ -59,10 +59,10 @@ void FunkyRobot::OnInitialize() {
                                  container_.wrist_.Brake();
                                }));
 
-  AddAutos(drive_auto_.get(),
-           {five_piece_auto_red.get(), five_piece_auto_blue.get(),
-            one_piece_auto_0.get(), one_piece_auto_1.get(),
-            one_piece_auto_2.get(), one_piece_auto_3.get()});
+  AddAutos(five_piece_auto_red.get(),
+           {five_piece_auto_blue.get(), one_piece_auto_0.get(),
+            one_piece_auto_1.get(), one_piece_auto_2.get(),
+            one_piece_auto_3.get(), drive_auto_.get()});
 }
 
 void FunkyRobot::InitTeleop() {
@@ -94,12 +94,33 @@ void FunkyRobot::InitTeleop() {
 
   on_piece_trigger.OnTrue(
       frc2::InstantCommand(
-          [this] { container_.control_input_.SetTarget({true, false}); })
+          [&] { container_.control_input_.SetTarget({true, false}); })
           .WithTimeout(1_s)
           .AndThen(frc2::WaitCommand(1_s).ToPtr())
-          .AndThen(frc2::InstantCommand([this] {
+          .AndThen(frc2::InstantCommand([&] {
                      container_.control_input_.SetTarget({false, false});
                    }).ToPtr()));
+
+  frc2::Trigger on_coast_trigger{[&] { return coasting_switch_.Get(); }};
+
+  on_coast_trigger.OnTrue(frc2::InstantCommand([&] {
+                            container_.pivot_.Coast();
+                            container_.telescope_.Coast();
+                          })
+                              .WithTimeout(1_s)
+                              .AndThen(frc2::WaitCommand(7_s).ToPtr())
+                              .AndThen(frc2::InstantCommand([&] {
+                                         container_.pivot_.Brake();
+                                         container_.telescope_.Brake();
+                                       }).ToPtr()));
+
+  frc2::Trigger homing_trigger{[&] { return homing_switch_.Get(); }};
+
+  homing_trigger.OnTrue(frc2::InstantCommand([&] {
+                          container_.wrist_.ZeroSubsystem();
+                          container_.pivot_.ZeroSubsystem();
+                          container_.telescope_.ZeroSubsystem();
+                        }).ToPtr());
 
   ControlTriggerInitializer::InitTeleopTriggers(container_);
 }

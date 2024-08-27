@@ -6,8 +6,7 @@ PrepareShootCommand::PrepareShootCommand(RobotContainer& container,
           RobotContainer, PrepareShootCommand>{container,
                                                "prepare_shoot_command"},
       super_shot_(super_shot) {
-  AddRequirements({&container_.super_structure_, &container_.intake_,
-                   &container_.shooter_});
+  AddRequirements({&container_.super_structure_});
 }
 
 void PrepareShootCommand::OnInit() {}
@@ -17,8 +16,8 @@ void PrepareShootCommand::Periodic() {
 
   auto shootSetpoint = container_.super_structure_.getShootSetpoint();
 
-  container_.intake_.SetTarget({IntakeState::kHold});
-  container_.shooter_.SetTarget({ShooterState::kRun});
+  // container_.intake_.SetTarget({IntakeState::kHold});
+  // container_.shooter_.SetTarget({ShooterState::kRun});
 
   if (super_shot_) {
     auto theta =
