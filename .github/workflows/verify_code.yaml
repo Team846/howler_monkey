@@ -16,6 +16,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install CppCheck
+      run: sudo apt-get install cppcheck
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
