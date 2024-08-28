@@ -24,7 +24,7 @@ jobs:
         wget -O cppcheck.tar.gz https://github.com/danmar/cppcheck/archive/refs/tags/2.12.1.tar.gz
         tar -xzf cppcheck.tar.gz
         cd cppcheck-2.12.1
-        make SRCDIR=build CFGDIR=cfg HAVE_RULES=yes
+        make MATCHCOMPILER=yes CFGDIR=cfg HAVE_RULES=yes
         sudo cp cppcheck /usr/local/bin/
 
     - name: Grant execute permission for gradlew
