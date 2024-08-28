@@ -21,7 +21,7 @@ jobs:
 
     - name: Download and Install PCRE
       run: |
-        wget https://sourceforge.net/projects/pcre/files/pcre/8.45/pcre-8.45.tar.gz/download
+        wget -O pcre-8.45.tar.gz https://sourceforge.net/projects/pcre/files/pcre/8.45/pcre-8.45.tar.gz/download
         tar -xzf pcre-8.45.tar.gz
         cd pcre-8.45
         ./configure
