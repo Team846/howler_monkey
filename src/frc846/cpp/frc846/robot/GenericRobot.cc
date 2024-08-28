@@ -66,6 +66,8 @@ void GenericRobot::StartCompetition() {
   generic_robot_container_->Setup();
   generic_robot_container_->ZeroTargets();
 
+  OnInitialize();
+
   // Report to driver station that robot is ready
   Log("\n********** Robot initialized **********\n");
   HAL_ObserveUserProgramStarting();
