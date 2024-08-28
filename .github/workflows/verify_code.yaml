@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
-      run: sudo apt-get install -y wget
+      run: sudo apt-get install -y wget build-essential libpcre3-dev
 
     - name: Download and Install CppCheck
       run: |
