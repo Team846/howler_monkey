@@ -98,6 +98,11 @@ ControlInputReadings ControlInputSubsystem::ReadFromHardware() {
         readings.home_wrist ? 1 : 0);
   }
 
+  if (readings.save_trim != previous_readings_.save_trim) {
+    Log("ControlInput [Save Trim] state changed to {}",
+        readings.save_trim ? 1 : 0);
+  }
+
   if (std::abs(readings.pivot_manual_adjust) > 0.01 &&
       !(std::abs(previous_readings_.pivot_manual_adjust) > 0.01)) {
     Log("ControlInput [Pivot Manual Adjustment]");
@@ -190,6 +195,9 @@ ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
   // RESETS
   ci_readings_.home_wrist = dr_readings.b_button;
   ci_readings_.zero_bearing = dr_readings.back_button;
+
+  // SAVE TRIM
+  ci_readings_.save_trim = op_readings.x_button;
 
   previous_operator_ = op_readings;
   previous_driver_ = dr_readings;

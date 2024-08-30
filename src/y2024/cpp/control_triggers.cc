@@ -18,6 +18,29 @@
 #include "commands/complex/super_amp_command.h"
 
 void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
+  frc2::Trigger drivetrain_zero_bearing_trigger{
+      [&] { return container.control_input_.GetReadings().zero_bearing; }};
+
+  drivetrain_zero_bearing_trigger.WhileTrue(
+      frc2::InstantCommand([&] {
+        container.drivetrain_.SetBearing(
+            frc846::util::ShareTables::GetBoolean("is_red_side") ? 0_deg
+                                                                 : 180_deg);
+      }).ToPtr());
+
+  frc2::Trigger on_piece_trigger{[&] {
+    return frc846::util::ShareTables::GetBoolean("scorer_has_piece");
+  }};
+
+  on_piece_trigger.OnTrue(
+      frc2::InstantCommand(
+          [&] { container.control_input_.SetTarget({true, false}); })
+          .WithTimeout(1_s)
+          .AndThen(frc2::WaitCommand(1_s).ToPtr())
+          .AndThen(frc2::InstantCommand([&] {
+                     container.control_input_.SetTarget({false, false});
+                   }).ToPtr()));
+
   frc2::Trigger amp_command_trigger{[&container] {
     return container.control_input_.GetReadings().running_amp;
   }};
@@ -106,4 +129,11 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
   }};
 
   wrist_zero_trigger.OnTrue(WristZeroCommand{container}.ToPtr());
+
+  frc2::Trigger wrist_trim_save_trigger{
+      [&] { return container.control_input_.GetReadings().save_trim; }};
+
+  wrist_trim_save_trigger.OnTrue(frc2::InstantCommand([&] {
+                                   container.super_structure_.SaveAdjustments();
+                                 }).ToPtr());
 }

@@ -53,6 +53,9 @@ class SuperStructureSubsystem
   PTWSetpoint currentSetpoint;
   PTWSetpoint manualAdjustments;
 
+  PTWSetpoint lastAdjustments;
+  PTWSetpoint savedAdjustments;
+
  public:
   PivotSubsystem* pivot_;
   WristSubsystem* wrist_;
@@ -92,6 +95,7 @@ class SuperStructureSubsystem
         currentSetpoint.wrist != newSetpoint.wrist ||
         currentSetpoint.telescope != newSetpoint.telescope) {
       currentSetpoint = newSetpoint;
+      lastAdjustments = manualAdjustments;
       ClearAdjustments();
     }
   }
@@ -134,7 +138,12 @@ class SuperStructureSubsystem
   }
 
   void ClearAdjustments() {
-    manualAdjustments = PTWSetpoint{0.0_deg, 0.0_in, 0.0_deg};
+    manualAdjustments = {savedAdjustments.pivot, savedAdjustments.telescope,
+                         savedAdjustments.wrist};
+  }
+
+  void SaveAdjustments() {
+    savedAdjustments = {0.0_deg, 0.0_in, lastAdjustments.wrist};
   }
 
   bool hasReachedSetpoint(PTWSetpoint setpoint) {

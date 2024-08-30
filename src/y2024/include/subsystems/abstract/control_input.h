@@ -34,6 +34,8 @@ struct ControlInputReadings {
 
   bool home_wrist;
   bool zero_bearing;
+
+  bool save_trim;
 };
 
 struct ControlInputTarget {

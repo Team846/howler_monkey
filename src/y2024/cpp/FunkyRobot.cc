@@ -78,29 +78,6 @@ void FunkyRobot::InitTeleop() {
   container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
   container_.bracer_.SetDefaultCommand(BracerCommand{container_});
 
-  frc2::Trigger drivetrain_zero_bearing_trigger{
-      [&] { return container_.control_input_.GetReadings().zero_bearing; }};
-
-  drivetrain_zero_bearing_trigger.WhileTrue(
-      frc2::InstantCommand([this] {
-        container_.drivetrain_.SetBearing(
-            frc846::util::ShareTables::GetBoolean("is_red_side") ? 0_deg
-                                                                 : 180_deg);
-      }).ToPtr());
-
-  frc2::Trigger on_piece_trigger{[&] {
-    return frc846::util::ShareTables::GetBoolean("scorer_has_piece");
-  }};
-
-  on_piece_trigger.OnTrue(
-      frc2::InstantCommand(
-          [&] { container_.control_input_.SetTarget({true, false}); })
-          .WithTimeout(1_s)
-          .AndThen(frc2::WaitCommand(1_s).ToPtr())
-          .AndThen(frc2::InstantCommand([&] {
-                     container_.control_input_.SetTarget({false, false});
-                   }).ToPtr()));
-
   frc2::Trigger on_coast_trigger{[&] { return coasting_switch_.Get(); }};
 
   on_coast_trigger.OnTrue(frc2::InstantCommand([&] {
