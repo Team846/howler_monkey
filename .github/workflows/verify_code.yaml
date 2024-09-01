@@ -47,6 +47,9 @@ jobs:
         ./configure
         make
         sudo make install
+        
+    - name: Set Library Path
+      run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/local.conf && sudo ldconfig
 
     - name: Download and Install CppCheck
       if: steps.cache-deps.outputs.cache-hit != 'true'
