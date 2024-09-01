@@ -20,8 +20,8 @@ jobs:
     - name: Setup cache directory for PCRE and CppCheck
       id: cache-setup
       run: |
-        echo "pcre-8.45" > cache-directory.txt
-        echo "cppcheck-2.12.1" >> cache-directory.txt
+        echo "pcre-8.45" > cache-directory-2.txt
+        echo "cppcheck-2.12.1" >> cache-directory-2.txt
 
     - name: Cache PCRE and CppCheck
       id: cache-deps
@@ -30,7 +30,7 @@ jobs:
         path: |
           /usr/local/bin/cppcheck
           /usr/local/lib/libpcre.so*
-        key: ${{ runner.os }}-build-${{ hashFiles('cache-directory.txt') }}
+        key: ${{ runner.os }}-build-${{ hashFiles('cache-directory-2.txt') }}
         restore-keys: |
           ${{ runner.os }}-build-
 
@@ -59,6 +59,7 @@ jobs:
         cd cppcheck-2.12.1
         make MATCHCOMPILER=yes HAVE_RULES=yes CFGDIR=cfg
         sudo cp cppcheck /usr/local/bin/
+        sudo cp -r cfg /usr/local/bin/cfg
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
