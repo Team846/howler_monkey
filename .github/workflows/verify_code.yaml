@@ -84,5 +84,11 @@ jobs:
     - name: Install clang-format
       run: sudo apt-get update && sudo apt-get install -y clang-format
 
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Install Roborio Toolchain
+      run: ./gradlew installRoborioToolchain
+
     # - name: Spotless Check
     #   run: ./gradlew spotlessCheck -PfromCI
