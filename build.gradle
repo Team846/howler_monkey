@@ -96,7 +96,7 @@ spotless {
             exclude '**/build/**', '**/build-*/**'
         }
 
-        clangFormat('18.1.8').style('Google')
+        clangFormat().style('Google')
     }
     groovyGradle {
         target fileTree('.') {
