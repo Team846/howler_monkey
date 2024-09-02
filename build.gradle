@@ -99,7 +99,7 @@ spotless {
         clangFormat(selectedClangVersion).style('Google')
     }
     groovyGradle {
-        target fileTree('.') {
+        target fileTree('src') {
             include '**/*.gradle'
             exclude '**/build/**', '**/build-*/**'
         }
