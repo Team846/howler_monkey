@@ -1,3 +1,8 @@
+ext {
+    CIClangVersion = '14.0.0-1ubuntu1.1'
+    defaultClangVersion = '18.1.8'
+}
+
 plugins {
     id "cpp"
     id "google-test-test-suite"
@@ -95,8 +100,8 @@ spotless {
             include '**/*.cpp', '**/*.cc', '**/*.h', '**/*.hpp'
             exclude '**/build/**', '**/build-*/**'
         }
-
-        clangFormat().style('Google')
+        def selectedClangVersion = project.hasProperty('fromCI') ? CIClangVersion : defaultClangVersion
+        clangFormat(selectedClangVersion).style('Google')
     }
     groovyGradle {
         target fileTree('.') {
