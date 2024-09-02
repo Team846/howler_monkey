@@ -24,7 +24,7 @@ jobs:
         echo "cppcheck-2.12.1" >> cache-directory-2.txt
 
     - name: Install clang-format
-      run: sudo apt-get update && sudo apt-get install -y clang-format-18.1.8
+      run: sudo apt-get update && sudo apt-get install -y clang-format
 
     - name: Cache PCRE and CppCheck
       id: cache-deps
