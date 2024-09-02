@@ -60,6 +60,9 @@ jobs:
         make MATCHCOMPILER=yes HAVE_RULES=yes CFGDIR=cfg
         sudo cp cppcheck /usr/local/bin/
         sudo cp -r cfg /usr/local/bin/cfg
+
+    - name: Install clang-format
+      run: sudo apt install clang-format
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
