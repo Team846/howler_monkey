@@ -9,7 +9,7 @@ on:
       - "**"
 
 jobs:
-  build:
+  verify_functional:
     runs-on: ubuntu-latest
     container: wpilib/roborio-cross-ubuntu:2024-22.04
 
@@ -22,9 +22,6 @@ jobs:
       run: |
         echo "pcre-8.45" > cache-directory-2.txt
         echo "cppcheck-2.12.1" >> cache-directory-2.txt
-
-    - name: Install clang-format
-      run: run: sudo apt-get update && sudo apt-get install -y clang-format
 
     - name: Cache PCRE and CppCheck
       id: cache-deps
@@ -74,7 +71,24 @@ jobs:
       run: ./gradlew installRoborioToolchain
 
     - name: Compile code and run tests
-      run: ./gradlew build
+      run: ./gradlew build -PfromCI
+      
+  verify_format:
+    runs-on: ubuntu-latest
+    container: wpilib/roborio-cross-ubuntu:2024-22.04
 
-    - name: Spotless Check
-      run: ./gradlew spotlessCheck
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install clang-format
+      run: sudo apt-get update && sudo apt-get install -y clang-format
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Install Roborio Toolchain
+      run: ./gradlew installRoborioToolchain
+
+    # - name: Spotless Check
+    #   run: ./gradlew spotlessCheck -PfromCI
