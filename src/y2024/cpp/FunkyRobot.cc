@@ -66,17 +66,17 @@ void FunkyRobot::OnInitialize() {
 }
 
 void FunkyRobot::InitTeleop() {
-  container_.pivot_.Brake();
-  container_.telescope_.Brake();
-  container_.wrist_.Brake();
+  // container_.pivot_.Brake();
+  // container_.telescope_.Brake();
+  // container_.wrist_.Brake();
 
   container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
   container_.control_input_.SetDefaultCommand(
       OperatorControlCommand{container_});
-  container_.super_structure_.SetDefaultCommand(StowCommand{container_});
-  container_.intake_.SetDefaultCommand(IdleIntakeCommand{container_});
-  container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
-  container_.bracer_.SetDefaultCommand(BracerCommand{container_});
+  // container_.super_structure_.SetDefaultCommand(StowCommand{container_});
+  // container_.intake_.SetDefaultCommand(IdleIntakeCommand{container_});
+  // container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
+  // container_.bracer_.SetDefaultCommand(BracerCommand{container_});
 
   frc2::Trigger drivetrain_zero_bearing_trigger{
       [&] { return container_.control_input_.GetReadings().zero_bearing; }};
@@ -88,39 +88,39 @@ void FunkyRobot::InitTeleop() {
                                                                  : 180_deg);
       }).ToPtr());
 
-  frc2::Trigger on_piece_trigger{[&] {
-    return frc846::util::ShareTables::GetBoolean("scorer_has_piece");
-  }};
+  // frc2::Trigger on_piece_trigger{[&] {
+  //   return frc846::util::ShareTables::GetBoolean("scorer_has_piece");
+  // }};
 
-  on_piece_trigger.OnTrue(
-      frc2::InstantCommand(
-          [&] { container_.control_input_.SetTarget({true, false}); })
-          .WithTimeout(1_s)
-          .AndThen(frc2::WaitCommand(1_s).ToPtr())
-          .AndThen(frc2::InstantCommand([&] {
-                     container_.control_input_.SetTarget({false, false});
-                   }).ToPtr()));
+  // on_piece_trigger.OnTrue(
+  //     frc2::InstantCommand(
+  //         [&] { container_.control_input_.SetTarget({true, false}); })
+  //         .WithTimeout(1_s)
+  //         .AndThen(frc2::WaitCommand(1_s).ToPtr())
+  //         .AndThen(frc2::InstantCommand([&] {
+  //                    container_.control_input_.SetTarget({false, false});
+  //                  }).ToPtr()));
 
-  frc2::Trigger on_coast_trigger{[&] { return coasting_switch_.Get(); }};
+  // frc2::Trigger on_coast_trigger{[&] { return coasting_switch_.Get(); }};
 
-  on_coast_trigger.OnTrue(frc2::InstantCommand([&] {
-                            container_.pivot_.Coast();
-                            container_.telescope_.Coast();
-                          })
-                              .WithTimeout(1_s)
-                              .AndThen(frc2::WaitCommand(7_s).ToPtr())
-                              .AndThen(frc2::InstantCommand([&] {
-                                         container_.pivot_.Brake();
-                                         container_.telescope_.Brake();
-                                       }).ToPtr()));
+  // on_coast_trigger.OnTrue(frc2::InstantCommand([&] {
+  //                           // container_.pivot_.Coast();
+  //                           // container_.telescope_.Coast();
+  //                         })
+  //                             .WithTimeout(1_s)
+  //                             .AndThen(frc2::WaitCommand(7_s).ToPtr())
+  //                             .AndThen(frc2::InstantCommand([&] {
+  //                                        container_.pivot_.Brake();
+  //                                        container_.telescope_.Brake();
+  //                                      }).ToPtr()));
 
-  frc2::Trigger homing_trigger{[&] { return homing_switch_.Get(); }};
+  // frc2::Trigger homing_trigger{[&] { return homing_switch_.Get(); }};
 
-  homing_trigger.OnTrue(frc2::InstantCommand([&] {
-                          container_.wrist_.ZeroSubsystem();
-                          container_.pivot_.ZeroSubsystem();
-                          container_.telescope_.ZeroSubsystem();
-                        }).ToPtr());
+  // homing_trigger.OnTrue(frc2::InstantCommand([&] {
+  //                         container_.wrist_.ZeroSubsystem();
+  //                         container_.pivot_.ZeroSubsystem();
+  //                         container_.telescope_.ZeroSubsystem();
+  //                       }).ToPtr());
 
   ControlTriggerInitializer::InitTeleopTriggers(container_);
 }

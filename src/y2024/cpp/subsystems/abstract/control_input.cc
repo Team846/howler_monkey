@@ -98,6 +98,11 @@ ControlInputReadings ControlInputSubsystem::ReadFromHardware() {
         readings.home_wrist ? 1 : 0);
   }
 
+  if (readings.targeting_note != previous_readings_.targeting_note) {
+    Log("ControlInput [Targeting Note] state changed to {}",
+        readings.targeting_note ? 1 : 0);
+  }
+
   if (std::abs(readings.pivot_manual_adjust) > 0.01 &&
       !(std::abs(previous_readings_.pivot_manual_adjust) > 0.01)) {
     Log("ControlInput [Pivot Manual Adjustment]");
@@ -190,6 +195,9 @@ ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
   // RESETS
   ci_readings_.home_wrist = dr_readings.b_button;
   ci_readings_.zero_bearing = dr_readings.back_button;
+
+  // GPD
+  ci_readings_.targeting_note = dr_readings.rsb;
 
   previous_operator_ = op_readings;
   previous_driver_ = dr_readings;

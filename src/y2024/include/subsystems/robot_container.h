@@ -4,6 +4,7 @@
 #include "frc846/robot/GenericRobotContainer.h"
 #include "subsystems/abstract/control_input.h"
 #include "subsystems/abstract/driver.h"
+#include "subsystems/abstract/gpd.h"
 #include "subsystems/abstract/operator.h"
 #include "subsystems/abstract/super_structure.h"
 #include "subsystems/abstract/vision.h"
@@ -27,6 +28,7 @@ class RobotContainer : public frc846::robot::GenericRobotContainer {
   frc846::ntinf::Pref<bool> init_leds_{*this, "init_leds", true};
   frc846::ntinf::Pref<bool> init_bracer_{*this, "init_bracers_", false};
   frc846::ntinf::Pref<bool> init_vision_{*this, "init_vision_", true};
+  frc846::ntinf::Pref<bool> init_gpd{*this, "init_gpd", true};
 
   ControlInputSubsystem control_input_;
   DrivetrainSubsystem drivetrain_{init_drivetrain_.value()};
@@ -39,10 +41,11 @@ class RobotContainer : public frc846::robot::GenericRobotContainer {
   LEDsSubsystem leds_{init_leds_.value()};
   SuperStructureSubsystem super_structure_{&pivot_, &wrist_, &telescope_};
   VisionSubsystem vision_{init_vision_.value()};
+  GPDSubsystem gpd_{init_gpd.value()};
 
   RobotContainer() {
     RegisterSubsystems({&control_input_, &drivetrain_, &intake_, &shooter_,
                         &wrist_, &pivot_, &telescope_, &bracer_, &leds_,
-                        &super_structure_, &vision_});
+                        &super_structure_, &vision_, &gpd_});
   }
 };
