@@ -39,16 +39,14 @@ void SuperStructureSubsystem::WriteToHardware(SuperStructureTarget target) {
     wrist_home_counter = 0;
   }
 
-  CoordinatePositions targetPosIntake{
-      ArmKinematics::calculateCoordinatePosition(
-          {targetPos.pivot, targetPos.telescope, targetPos.wrist}, true)};
-  CoordinatePositions targetPosShooter{
-      ArmKinematics::calculateCoordinatePosition(
-          {targetPos.pivot, targetPos.telescope, targetPos.wrist}, false)};
+  auto target_end_effector_positions = arm_kinematics_calculator.calculate(
+      {targetPos.pivot, targetPos.telescope, targetPos.wrist});
 
-  intake_point_x_graph_.Graph(targetPosIntake.forward_axis);
-  intake_point_y_graph_.Graph(targetPosIntake.upward_axis);
+  intake_point_x_graph_.Graph(target_end_effector_positions.intake_position[0]);
+  intake_point_y_graph_.Graph(target_end_effector_positions.intake_position[1]);
 
-  shooter_point_x_graph_.Graph(targetPosShooter.forward_axis);
-  shooter_point_y_graph_.Graph(targetPosShooter.upward_axis);
+  shooter_point_x_graph_.Graph(
+      target_end_effector_positions.shooter_position[0]);
+  shooter_point_y_graph_.Graph(
+      target_end_effector_positions.shooter_position[1]);
 }

@@ -15,12 +15,13 @@ OnePieceAuto::OnePieceAuto(RobotContainer& container,
           container, "1p_auto_" + num,
           frc2::SequentialCommandGroup{
 
-              frc2::InstantCommand{[&, s = start_angle] {
-                container.drivetrain_.SetBearing(s);
-                Log("OP: Zeroing to {}", s.to<double>());
-              }},
-              PrepareAutoShootCommand{container}, AutoShootCommand{container},
-              frc2::WaitCommand{
-                  container.super_structure_.post_shoot_wait_.value()}
+              // frc2::InstantCommand{[&, s = start_angle] {
+              //   container.drivetrain_.SetBearing(s);
+              //   Log("OP: Zeroing to {}", s.to<double>());
+              // }},
+              // PrepareAutoShootCommand{container},
+              // AutoShootCommand{container},
+              // frc2::WaitCommand{
+              //     container.super_structure_.post_shoot_wait_.value()}
 
           }} {}

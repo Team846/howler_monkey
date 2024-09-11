@@ -4,15 +4,13 @@
 
 #include <functional>
 
-namespace frc846::other {
+namespace frc846::ntinf {
 
-// Like an instant command but works when robot is disabled.
-//
 // Use with SmartDashboard::PutData to have buttons call functions on
 // Shuffleboard.
-class SendableCallback : public wpi::Sendable {
+class NTAction : public wpi::Sendable {
  public:
-  SendableCallback(std::function<void()> callback);
+  NTAction(std::function<void()> callback);
 
   void InitSendable(wpi::SendableBuilder& builder);
 
@@ -20,4 +18,4 @@ class SendableCallback : public wpi::Sendable {
   std::function<void()> callback_;
 };
 
-}  // namespace frc846::other
+}  // namespace frc846::ntinf

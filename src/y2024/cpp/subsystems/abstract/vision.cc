@@ -4,7 +4,7 @@
 #include <units/math.h>
 
 #include "field.h"
-#include "frc846/util/math.h"
+#include "frc846/math/vectors.h"
 #include "frc846/util/share_tables.h"
 
 VisionSubsystem::VisionSubsystem(bool init)
@@ -94,17 +94,17 @@ VisionReadings VisionSubsystem::ReadFromHardware() {
     //     {{robot_x, robot_y}, bearing_},
     //     !frc846::util::ShareTables::GetBoolean("is_red_side"), true);
 
-    // robot_y = flipped.point.y;
-    // robot_x = flipped.point.x;
+    // robot_y = flipped.point[1];
+    // robot_x = flipped.point[0];
     // bearing_ = flipped.bearing;
 
-    frc846::util::Vector2D<units::inch_t> local_tag_vec{
+    frc846::math::VectorND<units::inch_t, 2> local_tag_vec{
         newReadings.local_x_dist, newReadings.local_y_dist};
-    auto tag_vec = local_tag_vec.Rotate(bearing_);
+    auto tag_vec = local_tag_vec.rotate(bearing_);
 
-    units::inch_t tag_x_dist = tag_vec.x;
+    units::inch_t tag_x_dist = tag_vec[0];
 
-    units::inch_t tag_y_dist = tag_vec.y;
+    units::inch_t tag_y_dist = tag_vec[1];
 
     y_correction =
         (april_tag.y_pos - tag_y_dist) - (robot_y - latency * 1_s * velocity_y);
@@ -121,28 +121,26 @@ VisionReadings VisionSubsystem::ReadFromHardware() {
 
   newReadings.est_dist_from_speaker_x =
       robot_x - field::points::kSpeaker(
-                    !frc846::util::ShareTables::GetBoolean("is_red_side"))
-                    .x;
+                    !frc846::util::ShareTables::GetBoolean("is_red_side"))[0];
 
   newReadings.est_dist_from_speaker_y =
       robot_y - field::points::kSpeaker(
-                    !frc846::util::ShareTables::GetBoolean("is_red_side"))
-                    .y;
+                    !frc846::util::ShareTables::GetBoolean("is_red_side"))[1];
 
-  auto point_target = frc846::util::Vector2D<units::foot_t>{
+  auto point_target = frc846::math::VectorND<units::foot_t, 2>{
       -newReadings.est_dist_from_speaker_x,
       -newReadings.est_dist_from_speaker_y};
 
   newReadings.velocity_in_component =
-      ((velocity_x * point_target.x + velocity_y * point_target.y) /
-       point_target.Magnitude())
+      ((velocity_x * point_target[0] + velocity_y * point_target[1]) /
+       point_target.magnitude())
           .to<double>();
 
-  point_target = point_target.Rotate(90_deg);
+  point_target = point_target.rotate(90_deg);
 
   newReadings.velocity_orth_component =
-      ((velocity_x * point_target.x + velocity_y * point_target.y) /
-       point_target.Magnitude())
+      ((velocity_x * point_target[0] + velocity_y * point_target[1]) /
+       point_target.magnitude())
           .to<double>();
 
   newReadings.est_dist_from_speaker = units::math::sqrt(

@@ -11,21 +11,20 @@
 #include <array>
 #include <variant>
 
+#include "frc846/math/fieldpoints.h"
 #include "frc846/ntinf/grapher.h"
 #include "frc846/ntinf/pref.h"
 #include "frc846/other/swerve_odometry.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/math.h"
 #include "frc846/wpilib/time.h"
 #include "ports.h"
 #include "subsystems/hardware/swerve_module.h"
 
 struct DrivetrainReadings {
   bool is_gyro_connected;
-  frc846::util::Position pose;
+  frc846::math::FieldPoint pose;
   units::degrees_per_second_t angular_velocity;
   units::degree_t tilt;
-  frc846::util::Vector2D<units::feet_per_second_t> velocity;
 };
 
 // Robot vs field oriented translation control.
@@ -77,7 +76,7 @@ class DrivetrainSubsystem
   void ZeroOdometry();
 
   // Set odometry point.
-  void SetPoint(frc846::util::Vector2D<units::foot_t> point);
+  void SetPoint(frc846::math::VectorND<units::foot_t, 2> point);
 
   // Set bearing.
   void SetBearing(units::degree_t bearing);
@@ -159,9 +158,9 @@ class DrivetrainSubsystem
 
   // Convert a translation vector and the drivetrain angular velocity to the
   // individual module outputs.
-  static std::array<frc846::util::Vector2D<units::feet_per_second_t>,
+  static std::array<frc846::math::VectorND<units::feet_per_second_t, 2>,
                     kModuleCount>
-  SwerveControl(frc846::util::Vector2D<units::feet_per_second_t> translation,
+  SwerveControl(frc846::math::VectorND<units::feet_per_second_t, 2> translation,
                 units::degrees_per_second_t rotation_speed, units::inch_t width,
                 units::inch_t height, units::inch_t radius,
                 units::feet_per_second_t max_speed);
@@ -171,8 +170,6 @@ class DrivetrainSubsystem
   bool VerifyHardware() override;
 
  private:
-  int lastRelocalize = 0;
-
   // Drivetrain dimensions.
   frc846::ntinf::Pref<units::inch_t> width_{*this, "width", 21.75_in};
   frc846::ntinf::Pref<units::inch_t> height_{*this, "height", 26.75_in};
@@ -239,7 +236,7 @@ class DrivetrainSubsystem
       drive_esc_loggable_,
       {false,
        (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) *
-           frc846::util::Circumference(wheel_radius_.value()).to<double>() /
+           frc846::math::Circumference(wheel_radius_.value()).to<double>() /
            12.0,
        frc846::control::MotorIdleMode::kDefaultBrake,
        {80_A}},

@@ -15,7 +15,7 @@
 #include "frc2/command/ParallelDeadlineGroup.h"
 #include "frc2/command/WaitCommand.h"
 #include "frc846/base/loggable.h"
-#include "frc846/other/sendable_callback.h"
+#include "frc846/ntinf/ntaction.h"
 #include "frc846/robot/GenericCommand.h"
 #include "frc846/wpilib/time.h"
 
@@ -57,7 +57,7 @@ void GenericRobot::StartCompetition() {
 
   frc::SmartDashboard::PutData(
       "verify_hardware",
-      new frc846::other::SendableCallback([this] { VerifyHardware(); }));
+      new frc846::ntinf::NTAction([this] { VerifyHardware(); }));
 
   // Verify robot hardware
   VerifyHardware();

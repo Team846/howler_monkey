@@ -28,11 +28,24 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
                                                                  : 180_deg);
       }).ToPtr());
 
-  frc2::Trigger on_piece_trigger{[&] {
-    return frc846::util::ShareTables::GetBoolean("scorer_has_piece");
-  }};
+  frc2::Trigger on_piece_trigger{
+      [&] { return container.intake_.GetHasPiece(); }};
 
   on_piece_trigger.OnTrue(
+      frc2::InstantCommand(
+          [&] { container.control_input_.SetTarget({true, false}); })
+          .WithTimeout(1_s)
+          .AndThen(frc2::WaitCommand(1_s).ToPtr())
+          .AndThen(frc2::InstantCommand([&] {
+                     container.control_input_.SetTarget({false, false});
+                   }).ToPtr()));
+
+  frc2::Trigger shooter_spinup_trigger{[&] {
+    return container.shooter_.GetReadings().error_percent <=
+           container.shooter_.shooter_speed_tolerance_.value();
+  }};
+
+  shooter_spinup_trigger.OnTrue(
       frc2::InstantCommand(
           [&] { container.control_input_.SetTarget({true, false}); })
           .WithTimeout(1_s)
@@ -112,7 +125,7 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
   frc2::Trigger shoot_trigger{
       [&container] { return container.control_input_.GetReadings().shooting; }};
 
-  shoot_trigger.WhileTrue(ShootCommand{container}.ToPtr());
+  shoot_trigger.OnTrue(ShootCommand{container}.ToPtr());
 
   for (int i = 0; i <= 6; i++) {
     frc2::Trigger trap_stage_trigger{[&container, i] {
@@ -130,10 +143,17 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
 
   wrist_zero_trigger.OnTrue(WristZeroCommand{container}.ToPtr());
 
-  frc2::Trigger wrist_trim_save_trigger{
-      [&] { return container.control_input_.GetReadings().save_trim; }};
+  frc2::Trigger wrist_trim_up_trigger{
+      [&] { return container.control_input_.GetReadings().trim_up; }};
 
-  wrist_trim_save_trigger.OnTrue(frc2::InstantCommand([&] {
-                                   container.super_structure_.SaveAdjustments();
+  wrist_trim_up_trigger.OnTrue(frc2::InstantCommand([&] {
+                                 container.super_structure_.TrimUp();
+                               }).ToPtr());
+
+  frc2::Trigger wrist_trim_down_trigger{
+      [&] { return container.control_input_.GetReadings().trim_down; }};
+
+  wrist_trim_down_trigger.OnTrue(frc2::InstantCommand([&] {
+                                   container.super_structure_.TrimDown();
                                  }).ToPtr());
 }

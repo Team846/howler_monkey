@@ -3,7 +3,7 @@
 #include <signal.h>
 
 #include "FunkyRobot.h"
-// #include "frc846/math/vectors.h"
+
 // #include <execinfo.h>
 // #include <dirent.h>
 // #include <algorithm>
@@ -125,10 +125,6 @@ int main() {
   file status: "  << std::endl;
     }
   }*/
-
-  // frc846::math::VectorND<units::inch_t, 3> v1{{1_in, 2_in, 3_in}};
-  // frc846::math::VectorND<units::inch_t, 2> v2{5_deg, 1_in};
-  // frc846::math::VectorND<units::inch_t, 3> v3{5_deg, 1_in};
 
   std::cout << "Starting robot code [2024]..." << std::endl;
   return frc::StartRobot<FunkyRobot>();

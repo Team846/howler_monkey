@@ -1,12 +1,11 @@
-#include "frc846/other/sendable_callback.h"
-
 #include <wpi/sendable/SendableBuilder.h>
 
-namespace frc846::other {
+#include "frc846/ntinf/ntaction.h"
 
-SendableCallback::SendableCallback(std::function<void()> callback)
-    : callback_(callback) {}
-void SendableCallback::InitSendable(wpi::SendableBuilder& builder) {
+namespace frc846::ntinf {
+
+NTAction::NTAction(std::function<void()> callback) : callback_(callback) {}
+void NTAction::InitSendable(wpi::SendableBuilder& builder) {
   builder.SetSmartDashboardType("Command");
   builder.AddStringProperty(".name", [] { return "Run"; }, nullptr);
   builder.AddBooleanProperty(
@@ -18,4 +17,4 @@ void SendableCallback::InitSendable(wpi::SendableBuilder& builder) {
       });
 }
 
-}  // namespace frc846::other
+}  // namespace frc846::ntinf

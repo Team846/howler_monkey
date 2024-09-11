@@ -100,15 +100,23 @@ class BrakingPositionDyFPID {
  public:
   BrakingPositionDyFPID(frc846::base::Loggable& parent,
                         std::function<double(X)> prop_ff_function,
-                        CurrentControlSettings current_control_settings)
+                        CurrentControlSettings current_control_settings,
+                        frc846::control::HardLimitsConfigHelper<X>* hard_limits)
       : prop_ff_function_{prop_ff_function},
-        current_control_{parent, current_control_settings} {}
+        current_control_{parent, current_control_settings},
+        hard_limits_{hard_limits} {}
 
   double calculate(X target_pos, X current_pos,
                    double current_velocity_percentage,  // Only using dyF, P, D
                    frc846::control::Gains g) {
-    double error =
-        target_pos.template to<double>() - current_pos.template to<double>();
+    auto hard_limits_vals = hard_limits_->get();
+
+    double target_pos_capped =
+        std::max(std::min(hard_limits_vals.forward.template to<double>(),
+                          target_pos.template to<double>()),
+                 hard_limits_vals.reverse.template to<double>());
+
+    double error = target_pos_capped - current_pos.template to<double>();
 
     double target_output = g.kF * prop_ff_function_(current_pos) +
                            g.kP * error + g.kD * current_velocity_percentage;
@@ -121,6 +129,8 @@ class BrakingPositionDyFPID {
   std::function<double(X)> prop_ff_function_;
 
   CurrentControl current_control_;
+
+  frc846::control::HardLimitsConfigHelper<X>* hard_limits_;
 };
 
 struct GenericMotionWaypoint {

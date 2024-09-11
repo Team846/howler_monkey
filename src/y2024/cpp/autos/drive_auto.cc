@@ -9,7 +9,6 @@
 #include "field.h"
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
-#include "frc846/util/math.h"
 
 DriveAuto::DriveAuto(RobotContainer& container)
     : frc846::robot::GenericCommandGroup<RobotContainer, DriveAuto,
@@ -17,16 +16,16 @@ DriveAuto::DriveAuto(RobotContainer& container)
           container, "drive_auto",
           frc2::SequentialCommandGroup{
 
-              frc2::InstantCommand{[&] {
-                auto pose_ = field::points::kTestingOrigin(false);
-                container.drivetrain_.SetPoint(pose_.point);
-                container.drivetrain_.SetBearing(pose_.bearing);
-              }},
-              FollowTrajectoryCommand{
-                  container,
-                  {
-                      {field::points::kTestingPoint(false), 0_fps},
-                  },
-              }
+              //   frc2::InstantCommand{[&] {
+              //     auto pose_ = field::points::kTestingOrigin(false);
+              //     container.drivetrain_.SetPoint(pose_.point);
+              //     container.drivetrain_.SetBearing(pose_.bearing);
+              //   }},
+              //   FollowTrajectoryCommand{
+              //       container,
+              //       {
+              //           {field::points::kTestingPoint(false), 0_fps},
+              //       },
+              //   }
 
           }} {}

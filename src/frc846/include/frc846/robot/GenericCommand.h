@@ -5,7 +5,7 @@
 #include <frc2/command/InstantCommand.h>
 #include <frc2/command/SequentialCommandGroup.h>
 
-#include "frc846/util/math.h"
+#include "frc846/base/Loggable.h"
 #include "frc846/wpilib/time.h"
 
 namespace frc846::robot {

@@ -13,8 +13,8 @@
 #include "frc2/command/WaitCommand.h"
 
 AutoIntakeAndShootCommand::AutoIntakeAndShootCommand(
-    RobotContainer& container, frc846::InputWaypoint intake_point,
-    frc846::InputWaypoint mid_point, frc846::InputWaypoint shoot_point)
+    RobotContainer& container, frc846::Waypoint intake_point,
+    frc846::Waypoint mid_point, frc846::Waypoint shoot_point)
     : frc846::robot::GenericCommandGroup<RobotContainer,
                                          AutoIntakeAndShootCommand,
                                          frc2::SequentialCommandGroup>{

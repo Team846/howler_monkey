@@ -14,16 +14,6 @@ void PrepareAutoShootCommand::Periodic() {
 
   auto defaultShootSetpoint{container_.super_structure_.getAutoShootSetpoint()};
 
-  // auto theta =
-  //     shooting_calculator_
-  //         .calculateLaunchAngles(
-  //             shooter_.shooting_exit_velocity_.value(),
-  //             vis_readings_.est_dist_from_speaker.to<double>() +
-  //                 super_.auto_shooter_x_.value().to<double>() / 12.0,
-  //             0.0, 0.0, super_.auto_shooter_height_.value().to<double>()
-  //             / 12.0, defaultShootSetpoint.wrist.to<double>())
-  //         .launch_angle;
-
   container_.intake_.SetTarget({IntakeState::kHold});
   container_.shooter_.SetTarget({ShooterState::kRun});
 
@@ -32,8 +22,6 @@ void PrepareAutoShootCommand::Periodic() {
   // }
 
   defaultShootSetpoint.wrist += defaultShootSetpoint.pivot;
-
-  // Log("Theta {}", theta);
 
   container_.super_structure_.SetTargetSetpoint(defaultShootSetpoint);
 }

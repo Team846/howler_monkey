@@ -1,6 +1,6 @@
 #pragma once
 
-#include "constants.h"
+#include "calculators/arm_kinematics_calculator.h"
 #include "frc846/control/motion.h"
 #include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericSubsystem.h"
@@ -53,8 +53,7 @@ class SuperStructureSubsystem
   PTWSetpoint currentSetpoint;
   PTWSetpoint manualAdjustments;
 
-  PTWSetpoint lastAdjustments;
-  PTWSetpoint savedAdjustments;
+  units::degree_t wrist_trim_amt = 0_deg;
 
  public:
   PivotSubsystem* pivot_;
@@ -95,29 +94,17 @@ class SuperStructureSubsystem
         currentSetpoint.wrist != newSetpoint.wrist ||
         currentSetpoint.telescope != newSetpoint.telescope) {
       currentSetpoint = newSetpoint;
-      lastAdjustments = manualAdjustments;
       ClearAdjustments();
     }
   }
 
   bool CheckValidAdjustment(PTWSetpoint adjusted) {
-    auto intakeWithinBounds =
-        ArmKinematics::withinBounds(ArmKinematics::calculateCoordinatePosition(
+    return true;
+    return arm_kinematics_calculator.WithinBounds(
+        arm_kinematics_calculator.calculate(
             {(currentSetpoint.pivot + adjusted.pivot),
              (currentSetpoint.telescope + adjusted.telescope),
-             (currentSetpoint.wrist + adjusted.wrist)},
-            true));
-
-    if (!intakeWithinBounds) return false;
-
-    auto shooterInBounds =
-        ArmKinematics::withinBounds(ArmKinematics::calculateCoordinatePosition(
-            {(currentSetpoint.pivot + adjusted.pivot),
-             (currentSetpoint.telescope + adjusted.telescope),
-             (currentSetpoint.wrist + adjusted.wrist)},
-            false));
-
-    return shooterInBounds;
+             (currentSetpoint.wrist + adjusted.wrist)}));
   };
 
   void AdjustSetpoint(PTWSetpoint newAdj) {
@@ -138,18 +125,29 @@ class SuperStructureSubsystem
   }
 
   void ClearAdjustments() {
-    manualAdjustments = {savedAdjustments.pivot, savedAdjustments.telescope,
-                         savedAdjustments.wrist};
-  }
-
-  void SaveAdjustments() {
-    savedAdjustments = {0.0_deg, 0.0_in, lastAdjustments.wrist};
+    manualAdjustments = {0.0_deg, 0.0_in, wrist_trim_amt};
   }
 
   bool hasReachedSetpoint(PTWSetpoint setpoint) {
     return pivot_->WithinTolerance(setpoint.pivot) &&
            wrist_->WithinTolerance(setpoint.wrist) &&
            telescope_->WithinTolerance(setpoint.telescope);
+  }
+
+  /*
+   */
+
+  frc846::ntinf::Pref<units::degree_t> wrist_trim_inc{
+      *this, "wrist_trim_increment", 0.5_deg};
+
+  void TrimUp() {
+    wrist_trim_amt += wrist_trim_inc.value();
+    manualAdjustments.wrist += wrist_trim_inc.value();
+  }
+
+  void TrimDown() {
+    wrist_trim_amt -= wrist_trim_inc.value();
+    manualAdjustments.wrist -= wrist_trim_inc.value();
   }
 
   /*
@@ -238,6 +236,8 @@ class SuperStructureSubsystem
   bool hasZeroed = false;
   bool homing_wrist = false;
   int wrist_home_counter = 0;
+
+  ArmKinematicsCalculator arm_kinematics_calculator;
 
   SuperStructureReadings ReadFromHardware() override;
 

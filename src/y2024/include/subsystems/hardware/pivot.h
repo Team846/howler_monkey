@@ -142,5 +142,6 @@ class PivotSubsystem
         return std::abs(
             units::math::cos(GetReadings().pivot_position).to<double>());
       },
-      {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
+      {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3},
+      &hard_limits_};
 };

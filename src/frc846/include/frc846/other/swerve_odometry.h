@@ -2,7 +2,8 @@
 
 #include <array>
 
-#include "frc846/util/math.h"
+#include "frc846/math/collection.h"
+#include "frc846/math/vectors.h"
 #include "units/base.h"
 
 namespace frc846 {
@@ -12,20 +13,20 @@ class SwerveOdometry {
   static constexpr int kModuleCount = 4;
 
  public:
-  SwerveOdometry(util::Position initial_pose = {{0_ft, 0_ft}, 0_deg});
+  SwerveOdometry(frc846::math::VectorND<units::foot_t, 2> initial_position);
 
-  util::Position pose() const { return pose_; }
+  frc846::math::VectorND<units::foot_t, 2>& position() { return position_; }
 
-  void Update(
-      std::array<util::Vector2D<units::foot_t>, kModuleCount> wheel_vecs,
-      units::radian_t omega);
+  void Update(std::array<frc846::math::VectorND<units::foot_t, 2>, kModuleCount>
+                  wheel_vecs,
+              units::radian_t omega);
 
-  void SetPoint(util::Vector2D<units::foot_t> point);
+  void SetPoint(frc846::math::VectorND<units::foot_t, 2> point);
 
   void Zero();
 
  private:
-  util::Position pose_;
+  frc846::math::VectorND<units::foot_t, 2> position_;
   std::array<units::foot_t, kModuleCount> prev_wheel_distances_ = {};
 };
 

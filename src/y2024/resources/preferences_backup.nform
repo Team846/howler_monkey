@@ -1,7 +1,8 @@
 Default.int | 0
 Preferences/MotionTargets/Pivot/amp_position (deg).double | 70.000000
 Preferences/MotionTargets/Pivot/auto_shoot_position (deg).double | 10.000000
-Preferences/MotionTargets/Pivot/intake_position (deg).double | -11.000000
+Preferences/MotionTargets/Pivot/intake_position (deg).double | -17.000000
+Preferences/MotionTargets/Pivot/pass_position (deg).double | 70.000000
 Preferences/MotionTargets/Pivot/preclimb_position (deg).double | 83.000000
 Preferences/MotionTargets/Pivot/prescore_position (deg).double | 80.000000
 Preferences/MotionTargets/Pivot/shoot_position (deg).double | 70.000000
@@ -11,13 +12,14 @@ Preferences/MotionTargets/Pivot/trapscore_position (deg).double | 80.000000
 Preferences/MotionTargets/Telescope/amp_position (in).double | 4.000000
 Preferences/MotionTargets/Telescope/trapscore_position (in).double | 3.000000
 Preferences/MotionTargets/Wrist/amp_position (deg).double | 120.000000
-Preferences/MotionTargets/Wrist/auto_shoot_position (deg).double | 45.500000
-Preferences/MotionTargets/Wrist/intake_position (deg).double | 47.500000
+Preferences/MotionTargets/Wrist/auto_shoot_position (deg).double | 50.500000
+Preferences/MotionTargets/Wrist/intake_position (deg).double | 32.000000
+Preferences/MotionTargets/Wrist/pass_position (deg).double | 80.000000
 Preferences/MotionTargets/Wrist/preclimb_position (deg).double | -30.000000
 Preferences/MotionTargets/Wrist/prescore_position (deg).double | 40.000000
-Preferences/MotionTargets/Wrist/shoot_position (deg).double | 40.600000
+Preferences/MotionTargets/Wrist/shoot_position (deg).double | 34.300000
 Preferences/MotionTargets/Wrist/source_position (deg).double | -10.000000
-Preferences/MotionTargets/Wrist/stow_position (deg).double | -30.000000
+Preferences/MotionTargets/Wrist/stow_position (deg).double | -40.000000
 Preferences/MotionTargets/Wrist/trapscore_position (deg).double | 80.000000
 Preferences/field_points/5p_intake_one_y (in).double | 94.000000
 Preferences/field_points/5p_intake_three_deg (deg).double | 0.000000
@@ -45,7 +47,7 @@ SuperStructure/auto/pre_shoot_wait (s).double | 0.100000
 SuperStructure/manual_control_deadband.double | 0.150000
 SuperStructure/shooting/auto_shooter_height (in).double | 23.000000
 SuperStructure/shooting/auto_shooter_x (in).double | 15.000000
-SuperStructure/shooting/teleop_shooter_height (in).double | 39.500000
+SuperStructure/shooting/teleop_shooter_height (in).double | 39.000000
 drivetrain/Configs/CurrentLimiting/target_threshold (A).double | 40.000000
 drivetrain/Configs/default_brake_mode.bool | false
 drivetrain/Configs/gear_ratio.double | 16.800000
@@ -65,6 +67,7 @@ drivetrain/module_FL/cancoder_offset (deg).double | 100.400000
 drivetrain/module_FR/cancoder_offset (deg).double | 24.400000
 drivetrain/percent_max_omega.double | 0.450000
 drivetrain/pov_control_speed_.double | 10.000000
+drivetrain/tolerated_skid.double | 1.500000
 drivetrain/wheel_radius (in).double | 2.000000
 intake/Configs/ramp_time (s).double | 1.000000
 intake/Configs/use_ramp_rate.bool | true
@@ -99,20 +102,24 @@ shooter/Gains/kF.double | 0.008000
 shooter/Gains/kP.double | 0.030000
 shooter/shooter_speed (fps).double | 100.000000
 shooter/shooter_spin.double | 0.000000
-shooter/shooting_exit_velocity.double | 36.500000
+shooter/shooting_exit_velocity.double | 36.000000
 shooter/vFPID/smart_current_limit (A).double | 15.000000
 telescope/Gains/kD.double | -0.100000
 vision/camera_x_offset (in).double | -7.000000
 vision/camera_y_offset (in).double | -10.000000
+vision/can_bus_latency (ms).double | 20.000000
 vision/default_is_red_side.bool | true
+wrist/CloseDynamicFPID/smart_current_limit (A).double | 15.000000
 wrist/Configs/HardLimits/forward (deg).double | 130.000000
-wrist/Configs/HardLimits/reverse (deg).double | -30.000000
+wrist/Configs/HardLimits/reverse (deg).double | -42.000000
 wrist/Configs/HardLimits/use_position_limits.bool | true
+wrist/Configs/default_brake_mode.bool | false
 wrist/Configs/invert.bool | true
-wrist/DynamicFPID/smart_current_limit (A).double | 40.000000
-wrist/Gains/kD.double | -1.200000
-wrist/Gains/kF.double | 0.070000
-wrist/Gains/kP.double | 0.020000
-wrist/home_offset_wrist (deg).double | -30.000000
+wrist/DynamicFPID/smart_current_limit (A).double | 50.000000
+wrist/Gains/kD.double | -1.650000
+wrist/Gains/kF.double | -0.065000
+wrist/Gains/kP.double | 0.033000
+wrist/cg_offset_wrist (deg).double | 155.000000
+wrist/home_offset_wrist (deg).double | -42.000000
 wrist/homing_speed.double | -0.350000
 wrist/homing_velocity_tolerance (deg_per_s).double | 0.500000

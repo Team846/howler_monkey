@@ -1,6 +1,12 @@
-#include "frc846/util/math.h"
+#include "frc846/math/collection.h"
 
-namespace frc846::util {
+#include <cmath>
+
+namespace frc846::math {
+
+bool DEquals(double x, double y, double epsilon) {
+  return std::abs(x - y) < epsilon;
+}
 
 double HorizontalDeadband(double input, double x_intercept, double max,
                           double exponent, double sensitivity) {
@@ -56,4 +62,4 @@ units::degree_t CoterminalSum(units::degree_t angle,
   }
 }
 
-}  // namespace frc846::util
+}  // namespace frc846::math

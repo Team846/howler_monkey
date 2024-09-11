@@ -22,61 +22,42 @@
 #include "commands/teleop/operator_control.h"
 #include "commands/teleop/stow_command.h"
 #include "control_triggers.h"
-#include "frc846/other/sendable_callback.h"
+#include "frc846/ntinf/ntaction.h"
 
 FunkyRobot::FunkyRobot() : GenericRobot{&container_} {}
 
 void FunkyRobot::OnInitialize() {
   // Add dashboard buttons
   frc::SmartDashboard::PutData(
-      "zero_modules", new frc846::other::SendableCallback(
+      "zero_modules", new frc846::ntinf::NTAction(
                           [this] { container_.drivetrain_.ZeroModules(); }));
   frc::SmartDashboard::PutData("zero_bearing",
-                               new frc846::other::SendableCallback([this] {
+                               new frc846::ntinf::NTAction([this] {
                                  container_.drivetrain_.SetBearing(0_deg);
                                }));
 
   frc::SmartDashboard::PutData(
-      "zero_odometry", new frc846::other::SendableCallback(
+      "zero_odometry", new frc846::ntinf::NTAction(
                            [this] { container_.drivetrain_.ZeroOdometry(); }));
 
   frc::SmartDashboard::PutData("zero_subsystems",
-                               new frc846::other::SendableCallback([this] {
+                               new frc846::ntinf::NTAction([this] {
                                  container_.super_structure_.ZeroSubsystem();
                                }));
 
   frc::SmartDashboard::PutData("coast_subsystems",
-                               new frc846::other::SendableCallback([this] {
+                               new frc846::ntinf::NTAction([this] {
                                  container_.pivot_.Coast();
                                  container_.telescope_.Coast();
                                  container_.wrist_.Coast();
                                }));
 
   frc::SmartDashboard::PutData("brake_subsystems",
-                               new frc846::other::SendableCallback([this] {
+                               new frc846::ntinf::NTAction([this] {
                                  container_.pivot_.Brake();
                                  container_.telescope_.Brake();
                                  container_.wrist_.Brake();
                                }));
-
-  AddAutos(five_piece_auto_red.get(),
-           {five_piece_auto_blue.get(), one_piece_auto_0.get(),
-            one_piece_auto_1.get(), one_piece_auto_2.get(),
-            one_piece_auto_3.get(), drive_auto_.get()});
-}
-
-void FunkyRobot::InitTeleop() {
-  container_.pivot_.Brake();
-  container_.telescope_.Brake();
-  container_.wrist_.Brake();
-
-  container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
-  container_.control_input_.SetDefaultCommand(
-      OperatorControlCommand{container_});
-  container_.super_structure_.SetDefaultCommand(StowCommand{container_});
-  container_.intake_.SetDefaultCommand(IdleIntakeCommand{container_});
-  container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
-  container_.bracer_.SetDefaultCommand(BracerCommand{container_});
 
   frc2::Trigger on_coast_trigger{[&] { return coasting_switch_.Get(); }};
 
@@ -98,6 +79,25 @@ void FunkyRobot::InitTeleop() {
                           container_.pivot_.ZeroSubsystem();
                           container_.telescope_.ZeroSubsystem();
                         }).ToPtr());
+
+  AddAutos(five_piece_auto_red.get(),
+           {five_piece_auto_blue.get(), one_piece_auto_0.get(),
+            one_piece_auto_1.get(), one_piece_auto_2.get(),
+            one_piece_auto_3.get(), drive_auto_.get()});
+}
+
+void FunkyRobot::InitTeleop() {
+  container_.pivot_.Brake();
+  container_.telescope_.Brake();
+  container_.wrist_.Brake();
+
+  container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
+  container_.control_input_.SetDefaultCommand(
+      OperatorControlCommand{container_});
+  container_.super_structure_.SetDefaultCommand(StowCommand{container_});
+  container_.intake_.SetDefaultCommand(IdleIntakeCommand{container_});
+  container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
+  container_.bracer_.SetDefaultCommand(BracerCommand{container_});
 
   ControlTriggerInitializer::InitTeleopTriggers(container_);
 }

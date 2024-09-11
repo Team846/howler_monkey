@@ -126,25 +126,28 @@ class WristSubsystem
 
   frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPID{
       dyFPID_loggable,
-      [this](units::degree_t pos) -> double {
+      [&](units::degree_t pos) -> double {
         return std::abs(
             units::math::cos(
-                1_deg * frc846::util::ShareTables::GetDouble("pivot_position") +
-                GetReadings().wrist_position - wrist_cg_offset_.value())
+                1_deg * frc846::util::ShareTables::GetDouble("pivot_position") -
+                GetReadings().wrist_position + wrist_cg_offset_.value())
                 .to<double>());
       },
-      {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
+      {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3},
+      &hard_limits_};
 
-  frc846::base::Loggable close_dyFPID_loggable{*this, "CloseDynamicFPID"};
+  // frc846::base::Loggable close_dyFPID_loggable{*this, "CloseDynamicFPID"};
 
-  frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPIDClose{
-      close_dyFPID_loggable,
-      [this](units::degree_t pos) -> double {
-        return std::abs(
-            units::math::cos(
-                1_deg * frc846::util::ShareTables::GetDouble("pivot_position") +
-                GetReadings().wrist_position - wrist_cg_offset_.value())
-                .to<double>());
-      },
-      {15_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3}};
+  // frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPIDClose{
+  //     close_dyFPID_loggable,
+  //     [this](units::degree_t pos) -> double {
+  //       return std::abs(
+  //           units::math::cos(
+  //               1_deg *
+  //               frc846::util::ShareTables::GetDouble("pivot_position") -
+  //               GetReadings().wrist_position + wrist_cg_offset_.value())
+  //               .to<double>());
+  //     },
+  //     {15_A, frc846::control::DefaultSpecifications::stall_current_neo,
+  //     0.3}};
 };

@@ -7,6 +7,9 @@ PrepareShootCommand::PrepareShootCommand(RobotContainer& container,
                                                "prepare_shoot_command"},
       super_shot_(super_shot) {
   AddRequirements({&container_.super_structure_});
+
+  ShootingCalculatorConstants sc_constants{78.0_in};
+  shooting_calculator_.setConstants(sc_constants);
 }
 
 void PrepareShootCommand::OnInit() {}
@@ -20,21 +23,16 @@ void PrepareShootCommand::Periodic() {
   // container_.shooter_.SetTarget({ShooterState::kRun});
 
   if (super_shot_) {
-    auto theta =
-        shooting_calculator_
-            .calculateLaunchAngles(
-                container_.shooter_.shooting_exit_velocity_.value(),
-                vis_readings_.est_dist_from_speaker.to<double>() +
-                    container_.super_structure_.teleop_shooter_x_.value()
-                            .to<double>() /
-                        12.0,
-                vis_readings_.velocity_in_component,
-                vis_readings_.velocity_orth_component,
-                container_.super_structure_.teleop_shooter_height_.value()
-                        .to<double>() /
-                    12.0,
-                shootSetpoint.wrist.to<double>())
-            .launch_angle;
+    ShootingCalculatorInput sc_input = {
+        vis_readings_.est_dist_from_speaker +
+            container_.super_structure_.teleop_shooter_x_.value(),
+        vis_readings_.velocity_in_component * 1_fps,
+        vis_readings_.velocity_orth_component * 1_fps,
+        container_.super_structure_.teleop_shooter_height_.value(),
+        shootSetpoint.wrist,
+        container_.shooter_.shooting_exit_velocity_.value() * 1_fps};
+
+    auto theta = shooting_calculator_.calculate(sc_input).launch_angle;
 
     shootSetpoint.wrist = theta + shootSetpoint.pivot;
   } else {

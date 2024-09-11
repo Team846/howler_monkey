@@ -14,7 +14,6 @@
 #include "field.h"
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
-#include "frc846/util/math.h"
 
 SuperAmpCommand::SuperAmpCommand(RobotContainer& container, bool is_red_side)
     : frc846::robot::GenericCommandGroup<RobotContainer, SuperAmpCommand,
@@ -27,8 +26,7 @@ SuperAmpCommand::SuperAmpCommand(RobotContainer& container, bool is_red_side)
               frc2::ParallelDeadlineGroup{
                   frc2::SequentialCommandGroup{
                       FollowTrajectoryCommand{
-                          container,
-                          {{{field::points::kPreAmpNoFlip()}, 0_fps}}},
+                          container, {{field::points::kPreAmpNoFlip()}}},
                       CloseDriveAmpCommand{container},
                       frc2::ParallelDeadlineGroup{
                           frc2::SequentialCommandGroup{
@@ -38,7 +36,5 @@ SuperAmpCommand::SuperAmpCommand(RobotContainer& container, bool is_red_side)
                           EjectCommand{container}},
                   },
                   AmpCommand{container}},
-              FollowTrajectoryCommand{
-                  container, {{{field::points::kPreAmpNoFlip()}, 0_fps}}},
-
-          }} {}
+              FollowTrajectoryCommand{container,
+                                      {{field::points::kPreAmpNoFlip()}}}}} {}
