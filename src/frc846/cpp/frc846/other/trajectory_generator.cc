@@ -54,36 +54,36 @@ Trajectory GenerateTrajectory(
 
   for (unsigned int i = input_points.size() - 1; i > 0; --i) {
     auto interpolated_points = InterpolatePoints(
-        input_points[i].pos.point, input_points[i - 1].pos.point,
-        input_points[i].pos.bearing, input_points[i - 1].pos.bearing, cut);
+        input_points[i].point, input_points[i - 1].point,
+        input_points[i].bearing, input_points[i - 1].bearing, cut);
     interpolated_points.erase(interpolated_points.begin());
 
-    trajectory.push_back({input_points[i].pos});
+    trajectory.push_back({input_points[i]});
 
     for (auto point : interpolated_points) {
       point.velocity[0] = robot_max_v;
       trajectory.push_back({point});
     }
   }
-  trajectory.push_back({input_points[0].pos});
+  trajectory.push_back({input_points[0]});
 
   for (unsigned int i = 1; i < trajectory.size(); ++i) {
     auto delta_pos =
-        (trajectory[i].pos.point - trajectory[i - 1].pos.point).magnitude();
+        (trajectory[i].point - trajectory[i - 1].point).magnitude();
 
     // v₂² = v₁² + 2aΔx
     // 2aΔx = v₂² - v₁²
     // a = (v₂² - v₁²) / (2Δx)
     auto deceleration =
-        (units::math::pow<2>(trajectory[i].pos.velocity.magnitude()) -
-         units::math::pow<2>(trajectory[i - 1].pos.velocity.magnitude())) /
+        (units::math::pow<2>(trajectory[i].velocity.magnitude()) -
+         units::math::pow<2>(trajectory[i - 1].velocity.magnitude())) /
         (2 * delta_pos);
     if (deceleration > robot_max_deceleration) {
       // v₂² = v₁² + 2aΔx
       // v₂² = sqrt(v₁² + 2aΔx)
 
-      trajectory[i].pos.velocity[0] = units::math::sqrt(
-          units::math::pow<2>(trajectory[i - 1].pos.velocity.magnitude()) +
+      trajectory[i].velocity[0] = units::math::sqrt(
+          units::math::pow<2>(trajectory[i - 1].velocity.magnitude()) +
           2 * robot_max_deceleration * delta_pos);
     }
   }
@@ -92,20 +92,20 @@ Trajectory GenerateTrajectory(
 
   for (unsigned int i = 1; i < trajectory.size(); ++i) {
     auto delta_pos =
-        (trajectory[i].pos.point - trajectory[i - 1].pos.point).magnitude();
+        (trajectory[i].point - trajectory[i - 1].point).magnitude();
 
     // v₂² = v₁² + 2aΔx
     // 2aΔx = v₂² - v₁²
     // a = (v₂² - v₁²) / (2Δx)
     auto acceleration =
-        (units::math::pow<2>(trajectory[i].pos.velocity.magnitude()) -
-         units::math::pow<2>(trajectory[i - 1].pos.velocity.magnitude())) /
+        (units::math::pow<2>(trajectory[i].velocity.magnitude()) -
+         units::math::pow<2>(trajectory[i - 1].velocity.magnitude())) /
         (2 * delta_pos);
     if (acceleration > robot_max_acceleration) {
       // v₂² = v₁² + 2aΔx
       // v₂² = sqrt(v₁² + 2aΔx)
-      trajectory[i].pos.velocity[0] = units::math::sqrt(
-          units::math::pow<2>(trajectory[i - 1].pos.velocity.magnitude()) +
+      trajectory[i].velocity[0] = units::math::sqrt(
+          units::math::pow<2>(trajectory[i - 1].velocity.magnitude()) +
           2 * robot_max_acceleration * delta_pos);
 
       // trajectory[i].v =
@@ -117,10 +117,10 @@ Trajectory GenerateTrajectory(
 
   // If any point has 0 speed, just set it to the previous speed.
   for (unsigned int i = 0; i < trajectory.size(); ++i) {
-    if (trajectory[i].pos.velocity.magnitude() == 0_fps) {
-      trajectory[i].pos.velocity.magnitude() =
-          i == 0 ? trajectory[1].pos.velocity.magnitude()
-                 : trajectory[i - 1].pos.velocity.magnitude();
+    if (trajectory[i].velocity.magnitude() == 0_fps) {
+      trajectory[i].velocity.magnitude() =
+          i == 0 ? trajectory[1].velocity.magnitude()
+                 : trajectory[i - 1].velocity.magnitude();
     }
   }
 

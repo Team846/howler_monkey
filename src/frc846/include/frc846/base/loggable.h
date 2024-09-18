@@ -1,5 +1,6 @@
 #pragma once
 
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <networktables/NetworkTableInstance.h>
 #include <units/base.h>
 
@@ -41,6 +42,26 @@ class Loggable {
   void Error(fmt::format_string<T...> fmt, T&&... args) {
     logger.Error(fmt, std::forward<T>(args)...);
     error_count_++;
+  }
+
+  // Puts a double entry on the smart dashboard.
+  void Graph(std::string key, double value) {
+    frc::SmartDashboard::PutNumber(name_ + "/" + key, value);
+  }
+
+  // Puts an integer entry on the smart dashboard.
+  void Graph(std::string key, int value) {
+    frc::SmartDashboard::PutNumber(name_ + "/" + key, value);
+  }
+
+  // Puts a boolean entry on the smart dashboard.
+  void Graph(std::string key, bool value) {
+    frc::SmartDashboard::PutBoolean(name_ + "/" + key, value);
+  }
+
+  // Puts a string entry on the smart dashboard.
+  void Graph(std::string key, std::string value) {
+    frc::SmartDashboard::PutString(name_ + "/" + key, value);
   }
 
   static unsigned int GetWarnCount();

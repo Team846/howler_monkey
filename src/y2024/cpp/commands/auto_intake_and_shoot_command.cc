@@ -13,8 +13,8 @@
 #include "frc2/command/WaitCommand.h"
 
 AutoIntakeAndShootCommand::AutoIntakeAndShootCommand(
-    RobotContainer& container, frc846::Waypoint intake_point,
-    frc846::Waypoint mid_point, frc846::Waypoint shoot_point)
+    RobotContainer& container, std::vector<frc846::Waypoint> intake_path,
+    std::vector<frc846::Waypoint> shoot_path)
     : frc846::robot::GenericCommandGroup<RobotContainer,
                                          AutoIntakeAndShootCommand,
                                          frc2::SequentialCommandGroup>{
@@ -22,10 +22,10 @@ AutoIntakeAndShootCommand::AutoIntakeAndShootCommand(
           frc2::SequentialCommandGroup{
 
               AutoDeployIntakeCommand{container},
-              FollowTrajectoryCommand{container, {mid_point, intake_point}},
+              FollowTrajectoryCommand{container, intake_path},
               frc2::ParallelDeadlineGroup{
                   frc2::SequentialCommandGroup{
-                      FollowTrajectoryCommand{container, {shoot_point}},
+                      FollowTrajectoryCommand{container, shoot_path},
                       frc2::WaitCommand(
                           container.super_structure_.pre_shoot_wait_.value())},
                   PrepareAutoShootCommand{container}},

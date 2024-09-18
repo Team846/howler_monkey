@@ -24,5 +24,5 @@ bool ShootCommand::IsFinished() {
     num_loops_ = 0;
   }
 
-  return num_loops_ > 20;
+  return num_loops_ > 70;
 }

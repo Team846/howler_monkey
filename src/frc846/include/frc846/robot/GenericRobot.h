@@ -29,6 +29,10 @@ class GenericRobot : public frc::RobotBase, public frc846::base::Loggable {
 
   virtual void OnInitialize() = 0;
 
+  virtual void OnDisable() = 0;
+
+  virtual void OnPeriodic() = 0;
+
   virtual void InitTeleop() = 0;
   virtual void InitTest() = 0;
 

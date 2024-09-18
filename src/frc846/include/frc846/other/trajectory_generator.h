@@ -7,9 +7,7 @@
 
 namespace frc846 {
 
-struct Waypoint {
-  frc846::math::FieldPoint pos;
-};
+using Waypoint = frc846::math::FieldPoint;
 
 using Trajectory = std::vector<Waypoint>;
 

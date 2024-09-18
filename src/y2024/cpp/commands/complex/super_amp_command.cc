@@ -26,7 +26,7 @@ SuperAmpCommand::SuperAmpCommand(RobotContainer& container, bool is_red_side)
               frc2::ParallelDeadlineGroup{
                   frc2::SequentialCommandGroup{
                       FollowTrajectoryCommand{
-                          container, {{field::points::kPreAmpNoFlip()}}},
+                          container, {{field::points.kPreAmpNoFlip()}}},
                       CloseDriveAmpCommand{container},
                       frc2::ParallelDeadlineGroup{
                           frc2::SequentialCommandGroup{
@@ -37,4 +37,4 @@ SuperAmpCommand::SuperAmpCommand(RobotContainer& container, bool is_red_side)
                   },
                   AmpCommand{container}},
               FollowTrajectoryCommand{container,
-                                      {{field::points::kPreAmpNoFlip()}}}}} {}
+                                      {{field::points.kPreAmpNoFlip()}}}}} {}

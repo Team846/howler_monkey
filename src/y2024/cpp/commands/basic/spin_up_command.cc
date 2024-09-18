@@ -6,10 +6,21 @@ SpinUpCommand::SpinUpCommand(RobotContainer& container)
   AddRequirements({&container_.shooter_});
 }
 
-void SpinUpCommand::OnInit() {}
+void SpinUpCommand::OnInit() {
+  has_spinned_up_ = false;
+  start_time = frc846::wpilib::CurrentFPGATime();
+}
 
 void SpinUpCommand::Periodic() {
   container_.shooter_.SetTarget({ShooterState::kRun});
+  if (container_.shooter_.GetReadings().error_percent <
+      container_.shooter_.shooter_speed_tolerance_.value()) {
+    if (has_spinned_up_ == false) {
+      Log("Shooter took {}s to spin up.",
+          frc846::wpilib::CurrentFPGATime() - start_time);
+      has_spinned_up_ = true;
+    }
+  }
 }
 
 void SpinUpCommand::OnEnd(bool interrupted) {}

@@ -13,6 +13,7 @@
 #include "commands/basic/deploy_intake_command.h"
 #include "commands/basic/shoot_command.h"
 #include "commands/basic/spin_up_command.h"
+#include "commands/complex/stow_zero_action.h"
 #include "commands/follow_trajectory_command.h"
 #include "commands/teleop/bracer_command.h"
 #include "commands/teleop/drive_command.h"
@@ -59,47 +60,55 @@ void FunkyRobot::OnInitialize() {
                                  container_.wrist_.Brake();
                                }));
 
-  frc2::Trigger on_coast_trigger{[&] { return coasting_switch_.Get(); }};
-
-  on_coast_trigger.OnTrue(frc2::InstantCommand([&] {
-                            container_.pivot_.Coast();
-                            container_.telescope_.Coast();
-                          })
-                              .WithTimeout(1_s)
-                              .AndThen(frc2::WaitCommand(7_s).ToPtr())
-                              .AndThen(frc2::InstantCommand([&] {
-                                         container_.pivot_.Brake();
-                                         container_.telescope_.Brake();
-                                       }).ToPtr()));
-
-  frc2::Trigger homing_trigger{[&] { return homing_switch_.Get(); }};
-
-  homing_trigger.OnTrue(frc2::InstantCommand([&] {
-                          container_.wrist_.ZeroSubsystem();
-                          container_.pivot_.ZeroSubsystem();
-                          container_.telescope_.ZeroSubsystem();
-                        }).ToPtr());
-
   AddAutos(five_piece_auto_red.get(),
            {five_piece_auto_blue.get(), one_piece_auto_0.get(),
             one_piece_auto_1.get(), one_piece_auto_2.get(),
             one_piece_auto_3.get(), drive_auto_.get()});
 }
 
+void FunkyRobot::OnDisable() {
+  container_.pivot_.Brake();
+  container_.wrist_.Brake();
+  container_.telescope_.Brake();
+}
+
 void FunkyRobot::InitTeleop() {
   container_.pivot_.Brake();
   container_.telescope_.Brake();
-  container_.wrist_.Brake();
+  container_.wrist_.Coast();
 
   container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
   container_.control_input_.SetDefaultCommand(
       OperatorControlCommand{container_});
-  container_.super_structure_.SetDefaultCommand(StowCommand{container_});
+  container_.super_structure_.SetDefaultCommand(
+      StowZeroActionCommand{container_});
   container_.intake_.SetDefaultCommand(IdleIntakeCommand{container_});
   container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
   container_.bracer_.SetDefaultCommand(BracerCommand{container_});
 
   ControlTriggerInitializer::InitTeleopTriggers(container_);
+}
+
+void FunkyRobot::OnPeriodic() {
+  Graph("homing_switch", homing_switch_.Get());
+  Graph("coasting_switch", coasting_switch_.Get());
+
+  if (homing_switch_.Get()) {
+    container_.super_structure_.ZeroSubsystem();
+  }
+
+  if (coast_counter_ >= 1) {
+    coast_counter_--;
+  } else if (coast_counter_ == 0) {
+    container_.pivot_.Brake();
+    container_.wrist_.Brake();
+    container_.telescope_.Brake();
+  } else if (coasting_switch_.Get()) {
+    container_.pivot_.Coast();
+    container_.wrist_.Coast();
+    container_.telescope_.Coast();
+    coast_counter_ = start_coast_counter_.value();
+  }
 }
 
 void FunkyRobot::InitTest() {}

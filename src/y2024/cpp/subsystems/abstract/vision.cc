@@ -120,11 +120,11 @@ VisionReadings VisionSubsystem::ReadFromHardware() {
   robot_x += can_bus_latency_.value() * velocity_x + x_correction;
 
   newReadings.est_dist_from_speaker_x =
-      robot_x - field::points::kSpeaker(
+      robot_x - field::points.kSpeaker(
                     !frc846::util::ShareTables::GetBoolean("is_red_side"))[0];
 
   newReadings.est_dist_from_speaker_y =
-      robot_y - field::points::kSpeaker(
+      robot_y - field::points.kSpeaker(
                     !frc846::util::ShareTables::GetBoolean("is_red_side"))[1];
 
   auto point_target = frc846::math::VectorND<units::foot_t, 2>{

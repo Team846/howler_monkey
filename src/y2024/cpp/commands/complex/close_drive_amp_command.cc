@@ -11,7 +11,7 @@ CloseDriveAmpCommand::CloseDriveAmpCommand(RobotContainer& container)
 void CloseDriveAmpCommand::OnInit() {}
 
 void CloseDriveAmpCommand::Periodic() {
-  auto amp_point = field::points::kAmpNoFlip();
+  auto amp_point = field::points.kAmpNoFlip();
 
   DrivetrainTarget drivetrain_target;
   drivetrain_target.rotation = DrivetrainRotationPosition(amp_point.bearing);
@@ -19,7 +19,7 @@ void CloseDriveAmpCommand::Periodic() {
   drivetrain_target.control = kClosedLoop;
 
   auto amp_drive_dist =
-      (field::points::kPreAmpNoFlip().point - amp_point.point).magnitude();
+      (field::points.kPreAmpNoFlip().point - amp_point.point).magnitude();
 
   auto max_speed = container_.drivetrain_.close_drive_amp_max_speed_.value();
 
@@ -41,7 +41,7 @@ void CloseDriveAmpCommand::Periodic() {
 void CloseDriveAmpCommand::OnEnd(bool interrupted) {}
 
 bool CloseDriveAmpCommand::IsFinished() {
-  return (field::points::kAmpNoFlip().point -
+  return (field::points.kAmpNoFlip().point -
           container_.drivetrain_.GetReadings().pose.point)
              .magnitude() <= 2_in;
 }

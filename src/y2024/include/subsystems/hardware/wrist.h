@@ -40,13 +40,13 @@ class WristSubsystem
   }
 
   void Coast() {
-    //   if (auto esc = wrist_esc_.getESC())
-    //     esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
+    if (auto esc = wrist_esc_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kCoast);
   }
 
   void Brake() {
-    //   if (auto esc = wrist_esc_.getESC())
-    //     esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
+    if (auto esc = wrist_esc_.getESC())
+      esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
   }
 
   void DeZero() { hasZeroed = false; }

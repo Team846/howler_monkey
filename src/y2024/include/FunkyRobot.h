@@ -16,6 +16,10 @@ class FunkyRobot : public frc846::robot::GenericRobot {
 
   void OnInitialize() override;
 
+  void OnDisable() override;
+
+  void OnPeriodic() override;
+
   void InitTeleop() override;
   void InitTest() override;
 
@@ -42,6 +46,9 @@ class FunkyRobot : public frc846::robot::GenericRobot {
 
   frc::DigitalInput homing_switch_{0};
   frc::DigitalInput coasting_switch_{1};
+
+  frc846::ntinf::Pref<int> start_coast_counter_{*this, "start_coast_counter",
+                                                500};
 
   int coast_counter_ = 0;
 };

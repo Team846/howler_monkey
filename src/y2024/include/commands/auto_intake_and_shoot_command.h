@@ -11,7 +11,6 @@ class AutoIntakeAndShootCommand
                                                 frc2::SequentialCommandGroup> {
  public:
   AutoIntakeAndShootCommand(RobotContainer& container,
-                            frc846::Waypoint intake_point,
-                            frc846::Waypoint mid_point,
-                            frc846::Waypoint shoot_point);
+                            std::vector<frc846::Waypoint> intake_path,
+                            std::vector<frc846::Waypoint> shoot_path);
 };

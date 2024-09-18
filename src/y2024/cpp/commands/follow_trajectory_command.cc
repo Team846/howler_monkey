@@ -12,8 +12,7 @@ FollowTrajectoryCommand::FollowTrajectoryCommand(
 void FollowTrajectoryCommand::OnInit() {
   Log("Starting Trajectory");
   for (frc846::Waypoint i : input_points_) {
-    Log("points x{} y{} bearing {}", i.pos.point[0], i.pos.point[1],
-        i.pos.bearing);
+    Log("points x{} y{} bearing {}", i.point[0], i.point[1], i.bearing);
   }
   Log("initial pose x{}, y{}, bearing {}",
       container_.drivetrain_.GetReadings().pose.point[0],
@@ -38,8 +37,7 @@ void FollowTrajectoryCommand::OnInit() {
   } else {
     double extrapolation_distance =
         container_.drivetrain_.extrapolation_distance_.value() / 1_ft;
-    current_extrapolated_point_ =
-        trajectory_[1].pos.point - trajectory_[0].pos.point;
+    current_extrapolated_point_ = trajectory_[1].point - trajectory_[0].point;
     current_extrapolated_point_ =
         current_extrapolated_point_.unit() * extrapolation_distance;
   }
@@ -65,8 +63,8 @@ void FollowTrajectoryCommand::Periodic() {
 
     double extrapolation_distance =
         container_.drivetrain_.extrapolation_distance_.value() / 1_ft;
-    current_extrapolated_point_ = trajectory_[target_idx_].pos.point -
-                                  trajectory_[target_idx_ - 1].pos.point;
+    current_extrapolated_point_ =
+        trajectory_[target_idx_].point - trajectory_[target_idx_ - 1].point;
     current_extrapolated_point_ =
         current_extrapolated_point_.unit() * extrapolation_distance;
   }
@@ -76,13 +74,13 @@ void FollowTrajectoryCommand::Periodic() {
   auto direction = units::math::atan2(delta_pos[1], delta_pos[0]);
 
   DrivetrainTarget target;
-  target.v_x = trajectory_[target_idx_].pos.velocity.magnitude() *
+  target.v_x = trajectory_[target_idx_].velocity.magnitude() *
                units::math::cos(direction);
-  target.v_y = trajectory_[target_idx_].pos.velocity.magnitude() *
+  target.v_y = trajectory_[target_idx_].velocity.magnitude() *
                units::math::sin(direction);
   target.translation_reference = DrivetrainTranslationReference::kField;
   target.rotation =
-      DrivetrainRotationPosition(trajectory_[target_idx_].pos.bearing);
+      DrivetrainRotationPosition(trajectory_[target_idx_].bearing);
   target.control = kClosedLoop;
 
   container_.drivetrain_.SetTarget(target);
@@ -103,8 +101,8 @@ bool FollowTrajectoryCommand::HasCrossedWaypoint(
   // fmt::print(
   //     "\ncurrent_waypoint x {}, current_waypoint y {}, prev_waypoint x {} y "
   //     "{}, pos x{} y{}, extrap x{}, y{}\n",
-  //     current_waypoint.pos.point.x, current_waypoint.pos.point.y,
-  //     prev_waypoint.pos.point.x, prev_waypoint.pos.point.y, pos.x, pos.y,
+  //     current_waypoint.point.x, current_waypoint.point.y,
+  //     prev_waypoint.point.x, prev_waypoint.point.y, pos.x, pos.y,
   //     extrapolated_point.x, extrapolated_point.y);
 
   auto d = [](frc846::math::VectorND<units::foot_t, 2> target,
@@ -121,22 +119,20 @@ bool FollowTrajectoryCommand::HasCrossedWaypoint(
     return 0;
   };
 
-  auto delta_y = current_waypoint.pos.point[1] - prev_waypoint.pos.point[1];
-  auto delta_x = current_waypoint.pos.point[0] - prev_waypoint.pos.point[0];
+  auto delta_y = current_waypoint.point[1] - prev_waypoint.point[1];
+  auto delta_x = current_waypoint.point[0] - prev_waypoint.point[0];
   auto theta = units::math::atan(-delta_x / delta_y);
   double cos_theta = units::math::cos(theta);
   double sin_theta = units::math::sin(theta);
 
-  auto p1 =
-      current_waypoint.pos.point - frc846::math::VectorND<units::foot_t, 2>{
-                                       1_ft * cos_theta,
-                                       1_ft * sin_theta,
-                                   };
-  auto p2 =
-      current_waypoint.pos.point + frc846::math::VectorND<units::foot_t, 2>{
-                                       1_ft * cos_theta,
-                                       1_ft * sin_theta,
-                                   };
+  auto p1 = current_waypoint.point - frc846::math::VectorND<units::foot_t, 2>{
+                                         1_ft * cos_theta,
+                                         1_ft * sin_theta,
+                                     };
+  auto p2 = current_waypoint.point + frc846::math::VectorND<units::foot_t, 2>{
+                                         1_ft * cos_theta,
+                                         1_ft * sin_theta,
+                                     };
 
   return d(pos, p1, p2) == d(extrapolated_point, p1, p2);
 }
