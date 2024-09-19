@@ -10,10 +10,10 @@
 #include "commands/basic/eject_command.h"
 #include "commands/basic/pull_command.h"
 #include "commands/complex/close_drive_amp_command.h"
-#include "commands/follow_trajectory_command.h"
 #include "field.h"
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
+#include "frc846/swerve/follow_trajectory_command.h"
 
 SuperAmpCommand::SuperAmpCommand(RobotContainer& container, bool is_red_side)
     : frc846::robot::GenericCommandGroup<RobotContainer, SuperAmpCommand,
@@ -25,7 +25,7 @@ SuperAmpCommand::SuperAmpCommand(RobotContainer& container, bool is_red_side)
                                           PullCommand{container}},
               frc2::ParallelDeadlineGroup{
                   frc2::SequentialCommandGroup{
-                      FollowTrajectoryCommand{
+                      frc846::swerve::FollowTrajectoryCommand{
                           container, {{field::points.kPreAmpNoFlip()}}},
                       CloseDriveAmpCommand{container},
                       frc2::ParallelDeadlineGroup{
@@ -36,5 +36,5 @@ SuperAmpCommand::SuperAmpCommand(RobotContainer& container, bool is_red_side)
                           EjectCommand{container}},
                   },
                   AmpCommand{container}},
-              FollowTrajectoryCommand{container,
-                                      {{field::points.kPreAmpNoFlip()}}}}} {}
+              frc846::swerve::FollowTrajectoryCommand{
+                  container, {{field::points.kPreAmpNoFlip()}}}}} {}

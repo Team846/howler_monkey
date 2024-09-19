@@ -5,10 +5,10 @@
 #include <frc2/command/ParallelRaceGroup.h>
 #include <frc2/command/SequentialCommandGroup.h>
 
-#include "commands/follow_trajectory_command.h"
 #include "field.h"
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
+#include "frc846/swerve/follow_trajectory_command.h"
 
 DriveAuto::DriveAuto(RobotContainer& container)
     : frc846::robot::GenericCommandGroup<RobotContainer, DriveAuto,
@@ -21,7 +21,7 @@ DriveAuto::DriveAuto(RobotContainer& container)
                 container.drivetrain_.SetPoint(pose_.point);
                 container.drivetrain_.SetBearing(pose_.bearing);
               }},
-              FollowTrajectoryCommand{container,
-                                      {field::points.kTestingPoint()}}
+              frc846::swerve::FollowTrajectoryCommand{
+                  container, {field::points.kTestingPoint()}}
 
           }} {}

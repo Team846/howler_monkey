@@ -91,20 +91,19 @@ class GenericCommandGroup
       : Loggable{name}, container_{container} {
     frc2::Command::SetName(name);
 
-    auto start_command_added = frc2::InstantCommand([&] {
-      Log("Command group {} starting.", name);
-      command_start_time_ = frc846::wpilib::CurrentFPGATime();
-    });
-    auto end_command_added = frc2::InstantCommand([&] {
-      units::millisecond_t elapsed_time =
-          frc846::wpilib::CurrentFPGATime() - command_start_time_;
-      Log("Command group {} ending. Took {} ms to complete.", name,
-          elapsed_time.to<double>());
-    });
+    // auto start_command_added = frc2::InstantCommand([&] {
+    //   Log("Command group {} starting.", name);
+    //   command_start_time_ = frc846::wpilib::CurrentFPGATime();
+    // });
+    // auto end_command_added = frc2::InstantCommand([&] {
+    //   units::millisecond_t elapsed_time =
+    //       frc846::wpilib::CurrentFPGATime() - command_start_time_;
+    //   Log("Command group {} ending. Took {} ms to complete.", name,
+    //       elapsed_time.to<double>());
+    // });
 
     frc2::SequentialCommandGroup::AddCommands(
-        start_command_added, std::forward<Commands>(commands)...,
-        end_command_added);
+        std::forward<Commands>(commands)...);
 
     Log("Constructing instance of command group {}.", name);
   }

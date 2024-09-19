@@ -8,9 +8,9 @@
 #include "commands/basic/auto_deploy_intake_command.h"
 #include "commands/basic/auto_shoot_command.h"
 #include "commands/basic/prepare_auto_shoot_command.h"
-#include "commands/follow_trajectory_command.h"
 #include "field.h"
 #include "frc2/command/WaitCommand.h"
+#include "frc846/swerve/follow_trajectory_command.h"
 
 AutoIntakeAndShootCommand::AutoIntakeAndShootCommand(
     RobotContainer& container, std::vector<frc846::Waypoint> intake_path,
@@ -22,10 +22,11 @@ AutoIntakeAndShootCommand::AutoIntakeAndShootCommand(
           frc2::SequentialCommandGroup{
 
               AutoDeployIntakeCommand{container},
-              FollowTrajectoryCommand{container, intake_path},
+              frc846::swerve::FollowTrajectoryCommand{container, intake_path},
               frc2::ParallelDeadlineGroup{
                   frc2::SequentialCommandGroup{
-                      FollowTrajectoryCommand{container, shoot_path},
+                      frc846::swerve::FollowTrajectoryCommand{container,
+                                                              shoot_path},
                       frc2::WaitCommand(
                           container.super_structure_.pre_shoot_wait_.value())},
                   PrepareAutoShootCommand{container}},

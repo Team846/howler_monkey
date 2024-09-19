@@ -12,9 +12,9 @@
 #include "commands/basic/prepare_auto_shoot_command.h"
 #include "commands/basic/spin_up_command.h"
 #include "commands/basic/wrist_zero_command.h"
-#include "commands/follow_trajectory_command.h"
 #include "commands/teleop/stow_command.h"
 #include "field.h"
+#include "frc846/swerve/follow_trajectory_command.h"
 
 FivePieceAuto::FivePieceAuto(RobotContainer& container, bool should_flip)
     : frc846::robot::GenericCommandGroup<RobotContainer, FivePieceAuto,
@@ -54,5 +54,5 @@ FivePieceAuto::FivePieceAuto(RobotContainer& container, bool should_flip)
                   container, field::points.intake_three_path(should_flip),
                   {field::points.kFivePieceOrigin(should_flip)}),
 
-              FollowTrajectoryCommand(
+              frc846::swerve::FollowTrajectoryCommand(
                   container, {field::points.kFivePieceFinish(should_flip)})}} {}

@@ -14,7 +14,6 @@
 #include "commands/basic/shoot_command.h"
 #include "commands/basic/spin_up_command.h"
 #include "commands/complex/stow_zero_action.h"
-#include "commands/follow_trajectory_command.h"
 #include "commands/teleop/bracer_command.h"
 #include "commands/teleop/drive_command.h"
 #include "commands/teleop/idle_intake_command.h"
@@ -24,6 +23,7 @@
 #include "commands/teleop/stow_command.h"
 #include "control_triggers.h"
 #include "frc846/ntinf/ntaction.h"
+#include "frc846/swerve/follow_trajectory_command.h"
 
 FunkyRobot::FunkyRobot() : GenericRobot{&container_} {}
 

@@ -156,7 +156,7 @@ class VectorND {
   T dot(const VectorND<T, N>& other) const {
     T result = T{};
     for (size_t i = 0; i < N; ++i) {
-      result += data[i] * other[i];
+      result += data[i] * other[i].template to<double>();
     }
     return result;
   }
@@ -186,12 +186,12 @@ class VectorND {
 
   // Projects this vector onto another and returns
   VectorND<T, N> projectOntoAnother(const VectorND<T, N>& other) const {
-    return other.unit() * dot(other.unit()).template to<double>();
+    return other.projectOntoThis(*this);
   }
 
   // Projects another vector onto this and returns
   VectorND<T, N> projectOntoThis(const VectorND<T, N>& other) const {
-    return unit() * other.dot(*this);
+    return unit() * dot(other).template to<double>();
   }
 
   // Returns the angle of this vector
