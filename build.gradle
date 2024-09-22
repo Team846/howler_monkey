@@ -113,8 +113,31 @@ spotless {
 check.dependsOn spotlessApply
 
 task runCppcheck(type: Exec) {
+    def outputBuffer = new ByteArrayOutputStream()
     commandLine 'cppcheck', '--enable=all', '--template=gcc',
             '--force', '--suppress=missingIncludeSystem', '--suppress=missingInclude', '--check-level=exhaustive', 'src/'
+    standardOutput = outputBuffer
+    errorOutput = outputBuffer
+    doLast {
+        def cppcheckOutput = outputBuffer.toString("UTF-8")
+        def warnings = cppcheckOutput.readLines().findAll { it.contains("warning") && !it.contains("nofile:") }
+        def reportContent = warnings.isEmpty() ? "No warnings or errors found." : warnings.join("\n")
+        def cppcheckSection = """
+## CppCheck Warnings
+```
+${reportContent.trim()}
+```
+"""
+        def readmeFile = file('README.md')
+        def readmeContent = readmeFile.text
+        def cppcheckRegex = /## CppCheck Warnings\n```[\s\S]*?```/
+        if (readmeContent.find(cppcheckRegex)) {
+            readmeContent = readmeContent.replaceAll(cppcheckRegex, cppcheckSection.trim())
+        } else {
+            readmeContent += "\n" + cppcheckSection.trim()
+        }
+        readmeFile.text = readmeContent
+    }
 }
 
 check.dependsOn runCppcheck
