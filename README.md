@@ -110,9 +110,9 @@ Ignore the LLVM section.
 
 ### --Setup--
 
-WPILib VSCode is installed in a hard-to-find directory on MacOS. For help finding it, ask someone who has previously installed WPILib VSCode on MacOS.
+WPILib VSCode is installed in a hard-to-find directory on MacOS. It is usually located in ~/wpilib/202x/vscode/ and is called "Visual Studio Code". For example it can be located in /Users/funkymonkey/wpilib/2024/vscode. If you need help finding it, ask someone who has previously installed WPILib VSCode on MacOS.
 
-It may be a good idea to rename the file or move it for easy access and differentiation from normal VSCode.
+It is a good idea to rename the file or move it into your Applications folder and pin it in dock for easy access and differentiation from normal VSCode.
 
 WPILib VSCode will have a W icon in the top right corner, wherease normal VSCode will not.
 
