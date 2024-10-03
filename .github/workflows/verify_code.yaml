@@ -29,11 +29,16 @@ jobs:
       with:
         path: |
           /usr/local/bin/cppcheck
+          /usr/local/bin/cfg
           /usr/local/lib/libpcre.so*
         key: ${{ runner.os }}-build-${{ hashFiles('cache-directory-2.txt') }}
         restore-keys: |
           ${{ runner.os }}-build-
-
+    
+    - name: Update package index
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: sudo apt-get update
+    
     - name: Install dependencies
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: sudo apt-get install -y wget build-essential
@@ -47,10 +52,7 @@ jobs:
         ./configure
         make
         sudo make install
-        
-    - name: Set Library Path
-      run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/local.conf && sudo ldconfig
-
+    
     - name: Download and Install CppCheck
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: |
@@ -60,9 +62,12 @@ jobs:
         make MATCHCOMPILER=yes HAVE_RULES=yes CFGDIR=cfg
         sudo cp cppcheck /usr/local/bin/
         sudo cp -r cfg /usr/local/bin/cfg
+    
+    - name: Set Library Path
+      run: echo "/usr/local/lib" | sudo tee -a /etc/ld.so.conf.d/local.conf && sudo ldconfig
 
     - name: Install clang-format
-      run: sudo apt install clang-format
+      run: sudo apt-get update && sudo apt-get install -y clang-format
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
