@@ -117,5 +117,6 @@
     "queue": "cpp"
   },
   "wpilib.useWindbgX": true,
-  "C_Cpp.errorSquiggles": "enabled"
+  "C_Cpp.errorSquiggles": "enabled",
+  "wpilib.skipTests": true
 }

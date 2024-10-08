@@ -38,8 +38,7 @@ class GenericRobot : public frc::RobotBase, public frc846::base::Loggable {
 
   void VerifyHardware();
 
-  void AddAutos(frc2::Command* defaultOption,
-                std::vector<frc2::Command*> otherOptions);
+  void AddAuto(std::string name, frc2::Command* command);
 
  private:
   hal::Handle<HAL_NotifierHandle> notifier_;
@@ -60,7 +59,8 @@ class GenericRobot : public frc::RobotBase, public frc846::base::Loggable {
                                                                 "loop_time"};
 
   frc2::Command* auto_command_ = nullptr;
-  frc::SendableChooser<frc2::Command*> auto_chooser_;
+  frc::SendableChooser<std::string> auto_chooser_;
+  std::unordered_map<std::string, frc2::Command*> autos_;
 
   frc846::ntinf::FunkyStore robotStore{};
 };

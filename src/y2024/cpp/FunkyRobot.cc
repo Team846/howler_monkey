@@ -2,6 +2,7 @@
 
 #include <cameraserver/CameraServer.h>
 #include <frc/DSControlWord.h>
+#include <frc/Filesystem.h>
 #include <frc/RobotController.h>
 #include <frc/livewindow/LiveWindow.h>
 #include <frc/shuffleboard/Shuffleboard.h>
@@ -22,12 +23,23 @@
 #include "commands/teleop/operator_control.h"
 #include "commands/teleop/stow_command.h"
 #include "control_triggers.h"
+#include "field.h"
 #include "frc846/ntinf/ntaction.h"
 #include "frc846/swerve/follow_trajectory_command.h"
+#include "rsighandler.h"
 
 FunkyRobot::FunkyRobot() : GenericRobot{&container_} {}
 
 void FunkyRobot::OnInitialize() {
+  Field::Setup();
+
+  for (auto x : Field::getAllAutoData()) {
+    Log("Adding Auto: {}", x.name + "_red");
+    AddAuto(x.name + "_red", new GenericAuto{container_, x, false});
+    Log("Adding Auto: {}", x.name + "_blue");
+    AddAuto(x.name + "_blue", new GenericAuto{container_, x, true});
+  }
+
   // Add dashboard buttons
   frc::SmartDashboard::PutData(
       "zero_modules", new frc846::ntinf::NTAction(
@@ -59,11 +71,6 @@ void FunkyRobot::OnInitialize() {
                                  container_.telescope_.Brake();
                                  container_.wrist_.Brake();
                                }));
-
-  AddAutos(five_piece_auto_red.get(),
-           {five_piece_auto_blue.get(), one_piece_auto_0.get(),
-            one_piece_auto_1.get(), one_piece_auto_2.get(),
-            one_piece_auto_3.get(), drive_auto_.get()});
 }
 
 void FunkyRobot::OnDisable() {
@@ -80,8 +87,7 @@ void FunkyRobot::InitTeleop() {
   container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
   container_.control_input_.SetDefaultCommand(
       OperatorControlCommand{container_});
-  container_.super_structure_.SetDefaultCommand(
-      StowZeroActionCommand{container_});
+  container_.super_structure_.SetDefaultCommand(StowCommand{container_});
   container_.intake_.SetDefaultCommand(IdleIntakeCommand{container_});
   container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
   container_.bracer_.SetDefaultCommand(BracerCommand{container_});
@@ -95,20 +101,36 @@ void FunkyRobot::OnPeriodic() {
 
   if (homing_switch_.Get()) {
     container_.super_structure_.ZeroSubsystem();
+    Log("Zeroing subsystems...");
   }
 
-  if (coast_counter_ >= 1) {
-    coast_counter_--;
-  } else if (coast_counter_ == 0) {
+  if (frc846::wpilib::CurrentFPGATime() > stop_coast_time_) {
     container_.pivot_.Brake();
     container_.wrist_.Brake();
     container_.telescope_.Brake();
+
+    stop_coast_time_ =
+        frc846::wpilib::CurrentFPGATime() +
+        coasting_time_
+            .value();  // To prevent Brake from being called each periodic
+
   } else if (coasting_switch_.Get()) {
     container_.pivot_.Coast();
     container_.wrist_.Coast();
     container_.telescope_.Coast();
-    coast_counter_ = start_coast_counter_.value();
+
+    stop_coast_time_ =
+        frc846::wpilib::CurrentFPGATime() + coasting_time_.value();
+
+    Log("Coasting subsystems...");
   }
 }
 
 void FunkyRobot::InitTest() {}
+
+#ifndef RUNNING_FRC_TESTS
+int main() {
+  // configureSignalHandlers();
+  return frc::StartRobot<FunkyRobot>();
+}
+#endif

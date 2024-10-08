@@ -1,308 +1,196 @@
 from pupil_apriltags import Detector
-from datetime import datetime
 import numpy as np
-import math
-import os
-from cv2 import *
+import time
+import cv2
 import threading
 from networktables import NetworkTables
+import subprocess
+from pref import NumericPref, BooleanPref, KillSwitch
 
-NetworkTables.initialize(server='roborio-846-frc.local')
+NetworkTables.initialize(server='10.8.46.2')
 table = NetworkTables.getTable("AprilTags")
 
-validTagIds = [4, 7]
+preferenceTable = NetworkTables.getTable("JetsonPreferences")
 
-aprilTagX=[0-14/12.0]*20
-aprilTagY=[6-6/12.0]*20
-aprilAngle=[180]*20
-aprilHeights=[10]*20
+kill_switch = KillSwitch(preferenceTable)
 
-aprilTagX[4]=-104.4/12 #RED
-aprilTagY[4]=0.0/12.0
-aprilAngle[4]=0
-aprilHeights[4]=53.88
+exposure_pref = NumericPref(preferenceTable, "camera_exposure", 1)
+horizontal_fov_pref = NumericPref(preferenceTable, "h_fov", 63.1)
+vertical_fov_pref = NumericPref(preferenceTable, "v_fov", 50.0)
 
-aprilTagX[3]=-126.65/12 #RED
-aprilTagY[3]=0/12.0
-aprilAngle[3]=0
-aprilHeights[3]=53.88
+h_frame_size = NumericPref(preferenceTable, "h_frame", 640)
+v_frame_size = NumericPref(preferenceTable, "v_frame", 480)
 
-aprilTagX[7]=-104.4/12 #BLUE
-aprilTagY[7]=651.25/12.0
-aprilAngle[7]=0
-aprilHeights[7]=53.88
+cam_latency = NumericPref(preferenceTable, "camera_latency", 0.01)
 
-aprilTagX[8]=-127.08/12 #BLUE
-aprilTagY[8]=651.25/12
-aprilAngle[8]=0
-aprilHeights[8]=53.88
+target_mean_brightness = NumericPref(preferenceTable, "target_mean_brightness", 120)
 
+clip_limit = NumericPref(preferenceTable, "clip_limit", 2.0)
 
-
-# aprilTagX[16]=0.3-14/12.0
-# aprilTagY[16]=9.0247+6/12.0
-
-locations=np.array([0.0, 0.0, 0.0])
-
-framesSeen=0
-confidence=0
-
-lower = np.array([0, 0, 0])
-upper = np.array([255, 255, 105])
-
-visualization = False
-try:
-    import cv2
-except:
-    raise Exception('OpenCV not found')
-
-try:
-    from cv2 import imshow
-except:
-    print("The function imshow was not implemented in this installation. Rebuild OpenCV from source to use it")
-    print("Visualization will be disabled.")
-    visualization = False
-
-
-def getDistanceAssumingHeadOn(y, verticalPixelHeight):
-    heightOfObject =1
-    verticalFOV = 1 * 3.14159/360
-    return (heightOfObject*verticalPixelHeight)/(2*y*math.tan(verticalFOV/2))
-
-# def getDist(xReal, yReal, verticalPixelHeight, horizontalPixelWidth, tagSize):
-#     x = xReal-horizontalPixelWidth/2
-#     y=verticalPixelHeight/2-yReal
-    
-
-def getDistance(xReal, yReal, verticalPixelHeight, horizontalPixelWidth, tagHeight):
-    x = xReal-horizontalPixelWidth/2
-    y=verticalPixelHeight/2 -yReal
-
-    diagonalFOV=(68.5)*(3.14159/180)
-    f = math.sqrt(horizontalPixelWidth*horizontalPixelWidth+verticalPixelHeight*verticalPixelHeight)/(2*(math.tan(diagonalFOV/2)))
-    # 587.4786864517579
-    mountHeight=12
-    mountAngle=(37)*(3.14159/180)
-
-    VertAngle = mountAngle+math.atan(y/f)
-    yDist = (tagHeight-mountHeight)/math.tan(VertAngle)
-    xDist = ((tagHeight-mountHeight)/math.sin(VertAngle))*x/(math.sqrt(f*f+y*y))
-
-
-    return (xDist, yDist, tagHeight)
-
+debug_mode = BooleanPref(preferenceTable, "debug_mode", False)
 
 at_detector = Detector(families='tag36h11',
                        nthreads=1,
                        quad_decimate=1.0,
-                       quad_sigma=0.0,
+                       quad_sigma=0.2,
                        refine_edges=1,
-                       decode_sharpening=0.25,
+                       decode_sharpening=0.5,
                        debug=0)
 
 cameraMatrix = np.array([(336.7755634193813, 0.0, 333.3575643300718), (0.0, 336.02729840829176, 212.77376312080065), (0.0, 0.0, 1.0)])
 
 camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
 
-starttime = datetime.now()
-RealStart = datetime.now()
-framesPassed=0
-roboRioFrameRequests=0
-def run_april (frame):
-    global framesPassed
-    global starttime
-    global roboRioFrameRequests
-    global RealStart
-    global framesSeen
-    global confidence
-    global locations
-    data = table.getNumberArray("roboRioFrameRequest", [0, 0])
-    currentRoboRioFrameRequest=data[0]
-    currentBearing=data[1]
-    # print(currentRoboRioFrameRequest)
-    frameRequested = (currentRoboRioFrameRequest != roboRioFrameRequests) and (currentRoboRioFrameRequest != roboRioFrameRequests -1)
-    # print(str(currentRoboRioFrameRequest) +"    " + str(roboRioFrameRequests))
+queue = []
+
+def adjust_gamma(image, gamma=1.0):
+	invGamma = 1.0 / gamma
+	table = np.array([((i / 255.0) ** invGamma) * 255
+		for i in np.arange(0, 256)]).astype("uint8")
+	return cv2.LUT(image, table)
+
+def pre_process(frame):
+    global clip_limit
+    global target_mean_brightness
+    
+    clahe = cv2.createCLAHE(clipLimit=clip_limit.get(), tileGridSize=(8,8))
+
+    tmean_b = target_mean_brightness.get()
+    result = clahe.apply(frame)
+
+    mean_brightness = np.mean(result)
+
+    if (mean_brightness != 0): result = adjust_gamma(result, tmean_b / mean_brightness)
+
+    return result
+
+def process_frames():
+    global table
+    global queue
+
+    global cam_latency
+    global horizontal_fov_pref
+    global vertical_fov_pref
+    global h_frame_size
+    global v_frame_size
+
+    global debug_mode
+
+    validTagIds = [4, 7]
+
+    CAM_FOV_H = horizontal_fov_pref.get()
+    CAM_FOV_V = vertical_fov_pref.get()
+
+    CAM_SZ_H = h_frame_size.get()
+    CAM_SZ_V = v_frame_size.get()
+
+    while True:
+        if len(queue) == 0: continue
+
+        frame = queue.pop(0)
+
+        process_start_time = time.time()
+
+        orig_img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        img = pre_process(orig_img)
+
+        tags = at_detector.detect(img, False, camera_params, 0.065)
+
+        table.putNumber("tx", 0.0)
+        table.putNumber("ty", 0.0)
+        table.putNumber("tid", -1)
+
+        try:
+            for tag in tags:
+                if not (tag.tag_id in validTagIds): continue
+
+                cx, cy = tag.center
+
+                tx = (cx - CAM_SZ_H/2) * (CAM_FOV_H / CAM_SZ_H)
+                ty = -((cy - CAM_SZ_V/2) * (CAM_FOV_V / CAM_SZ_V))
+
+                table.putNumber("tid", tag.tag_id)
+                table.putNumber("tx", tx)
+
+                table.putNumber("ty", ty)
+
+        except:
+            pass
+
+        latency = cam_latency.get() + time.time() - process_start_time
 
 
-    if (frameRequested):
-        sizingFactor = 1/2
-        img = frame
-        img = cv2.resize(img, ((int)(frame.shape[1]*sizingFactor), (int)(frame.shape[0]*sizingFactor)))
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        if (debug_mode.get()): 
+            cv2.putText(orig_img, f"Original Image: ({CAM_SZ_H}, {CAM_SZ_V}).", 
+                        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 3, cv2.LINE_AA)
+            cv2.imwrite("/home/nvidia/apriltags/orig.png", img)
 
-        #tags = at_detector.detect(img, True, camera_params, parameters['sample_test']['tag_size'])
-        tags = at_detector.detect(img, True, camera_params, 0.065)
-        bufferSize =4
+            img_copy = img.copy()
 
-        if tags != []:
-            try:
-                print(tags.__getitem__(0).tag_id)   
-                
-                (ptUpperL,ptUpperR,ptBottomR,ptBottomL) = tags.__getitem__(0).corners
+            cv2.putText(img_copy, f"Processed Image: ({CAM_SZ_H}, {CAM_SZ_V}).", 
+                        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 3, cv2.LINE_AA)
+            cv2.imwrite("/home/nvidia/apriltags/proc.png", img_copy)
 
-                ptUpperL=((int)(ptUpperL[0]), (int)(ptUpperL[1]))
-                ptUpperR=((int)(ptUpperR[0]), (int)(ptUpperR[1]))
-                ptBottomL=((int)(ptBottomL[0]), (int)(ptBottomL[1]))
-                ptBottomR=((int)(ptBottomR[0]), (int)(ptBottomR[1]))
+            for tag in tags:
+                for idx in range(len(tag.corners)):
+                    cv2.line(img, tuple(tag.corners[idx-1, :].astype(int)), 
+                            tuple(tag.corners[idx, :].astype(int)), (0, 255, 0), thickness=4)
 
-                upperRight = frame[int(ptUpperR[1]/sizingFactor-bufferSize):int(ptUpperR[1]/sizingFactor+bufferSize), int(ptUpperR[0]/sizingFactor-bufferSize):int(ptUpperR[0]/sizingFactor+bufferSize)]
-                
-                upperRightHsv = cv2.cvtColor(upperRight, cv2.COLOR_BGR2HSV)
-                upperRightMask = cv2.inRange(upperRightHsv, lower, upper)
-                upperRightResult =cv2.bitwise_and(upperRight, upperRight, mask=upperRightMask)
-                upperRight_np_result = np.array(upperRightResult)
-                upperRightResult = cv2.merge((upperRight_np_result, upperRight_np_result, upperRight_np_result))
-                upperRightResult = cv2.Canny(upperRightResult, 60, 200)
-                upperRightContours, hierarchy = cv2.findContours(upperRightResult, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                upperRightRect = cv2.boundingRect(upperRightContours[0])
-                bottomRightBound =(int(ptUpperR[1]/sizingFactor-bufferSize)+upperRightRect[2], int(ptUpperR[0]/sizingFactor-bufferSize)+upperRightRect[3])
+                    cv2.putText(img, f"ID: {tag.tag_id}", 
+                                org=(tag.corners[0, 0].astype(int), tag.corners[0, 1].astype(int)), 
+                                fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
+                                fontScale=0.8, color=(0, 255, 0), thickness=4)
 
-                upperLeft = frame[int(ptUpperL[1]/sizingFactor-bufferSize):int(ptUpperL[1]/sizingFactor+bufferSize), int(ptUpperL[0]/sizingFactor-bufferSize):int(ptUpperL[0]/sizingFactor+bufferSize)]
-                upperLeftHsv = cv2.cvtColor(upperLeft, cv2.COLOR_BGR2HSV)
-                upperLeftMask = cv2.inRange(upperLeftHsv, lower, upper)
-                upperLeftResult = cv2.bitwise_and(upperLeft, upperLeft, mask=upperLeftMask)
-                upperLeft_np_result = np.array(upperLeftResult)
-                upperLeftResult = cv2.merge((upperLeft_np_result, upperLeft_np_result, upperLeft_np_result))
-                upperLeftResult = cv2.Canny(upperLeftResult, 60, 200)
+            cv2.putText(img, f"Resultant Image. {len(tags)} Detections. Latency: {latency}.", 
+                        (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 3, cv2.LINE_AA)
+            
+            cv2.imwrite("/home/nvidia/apriltags/res.png", img)
 
-                upperLeftContours, hierarchy = cv2.findContours(upperLeftResult, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                upperLeftRect = cv2.boundingRect(upperLeftContours[0])
-                cv2.line(upperLeftResult,(upperLeftRect[0], upperLeftRect[1]),(upperLeftRect[0], upperLeftRect[1]+upperLeftRect[3]), color=(0, 255, 255), thickness=1)   
-                cv2.line(upperLeftRect,(upperLeftRect[0], upperLeftRect[1]),(upperLeftRect[0]+upperLeftRect[2], upperLeftRect[1]), color=(0, 255, 255), thickness=1)   
-                cv2.line(upperLeftResult,(upperLeftRect[0], upperLeftRect[1]+upperLeftRect[3]),(upperLeftRect[0]+upperLeftRect[2], upperLeftRect[1]+upperLeftRect[3]), color=(0, 255, 255), thickness=1)   
-                cv2.line(upperLeftResult,(upperLeftRect[0]+upperLeftRect[2], upperLeftRect[1]+upperLeftRect[3]),(upperLeftRect[0]+upperLeftRect[2], upperLeftRect[1]), color=(0, 255, 255), thickness=1)   
+        table.putNumber("latency", latency)
+        NetworkTables.flush()
 
-                bottomLeftBound=(int(ptUpperL[1]/sizingFactor-bufferSize)+upperLeftRect[0], int(ptUpperL[0]/sizingFactor-bufferSize)+upperLeftRect[3])
-
-                bottomLeft = frame[int(ptBottomL[1]/sizingFactor-bufferSize):int(ptBottomL[1]/sizingFactor+bufferSize), int(ptBottomL[0]/sizingFactor-bufferSize):int(ptBottomL[0]/sizingFactor+bufferSize)]
-                bottomLeftHsv =cv2.cvtColor(bottomLeft, cv2.COLOR_BGR2HSV)
-                bottomLeftMask=cv2.inRange(bottomLeftHsv, lower, upper)
-                bottomLeftResult =cv2.bitwise_and(bottomLeft, bottomLeft, mask=bottomLeftMask)
-
-                bottomLeft_np_result = np.array(bottomLeftResult)
-                bottomLeftResult = cv2.merge((bottomLeft_np_result, bottomLeft_np_result, bottomLeft_np_result))
-                bottomLeftResult = cv2.Canny(bottomLeftResult, 60, 200)
-
-                bottomLeftContours, hierarchy = cv2.findContours(bottomLeftResult, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                bottomLeftRect = cv2.boundingRect(bottomLeftContours[0])
-                upperLeftBound=(int(ptBottomL[1]/sizingFactor-bufferSize)+bottomLeftRect[0], int(ptBottomL[0]/sizingFactor-bufferSize)+bottomLeftRect[1])
-
-                bottomRight = frame[int(ptBottomR[1]/sizingFactor-bufferSize):int(ptBottomR[1]/sizingFactor+bufferSize), int(ptBottomR[0]/sizingFactor-bufferSize):int(ptBottomR[0]/sizingFactor+bufferSize)]
-                bottomRightHsv =cv2.cvtColor(bottomRight, cv2.COLOR_BGR2HSV)
-                bottomRightMask=cv2.inRange(bottomRightHsv, lower, upper)
-                bottomRightResult =cv2.bitwise_and(bottomRight, bottomRight, mask=bottomRightMask)
-
-                bottomRight_np_result = np.array(bottomRightResult)
-                bottomRightResult = cv2.merge((bottomRight_np_result, bottomRight_np_result, bottomRight_np_result))
-                bottomRightResult = cv2.Canny(bottomRightResult, 60, 200)
-
-                bottomRightContours, hierarchy = cv2.findContours(bottomRightResult, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                bottomRightRect = cv2.boundingRect(bottomRightContours[0])
-                print(bottomRightRect)
-                upperRightBound=(int(ptBottomR[1]/sizingFactor-bufferSize)+bottomRightRect[1], int(ptBottomR[0]/sizingFactor-bufferSize)+bottomRightRect[2])
-                frame=cv2.circle(frame, (upperLeftBound[1], upperLeftBound[0]), radius=0, color=(0, 255, 255), thickness=-1)
-                frame=cv2.circle(frame, (upperRightBound[1], upperRightBound[0]), radius=0, color=(0, 255, 255), thickness=-1)
-                frame=cv2.circle(frame, (bottomLeftBound[1], bottomLeftBound[0]), radius=0, color=(0, 255, 255), thickness=-1)
-                frame=cv2.circle(frame, (bottomRightBound[1], bottomRightBound[0]), radius=0, color=(0, 255, 255), thickness=-1)
-
-                location=(np.array(getDistance(upperRightBound[1], upperRightBound[0], frame.shape[0], frame.shape[1], 60.75))
-                +np.array(getDistance(bottomLeftBound[1], bottomLeftBound[0], frame.shape[0], frame.shape[1], 54.5)+np.array(getDistance(bottomRightBound[1], bottomRightBound[0], frame.shape[0], frame.shape[1], 60.75))+np.array(getDistance(upperLeftBound[1], upperLeftBound[0], frame.shape[0], frame.shape[1], 54.5))))/4
-                # )
-                locations+=location
-
-                print(location)
-                tagId=tags.__getitem__(0).tag_id
-
-                table.putNumber("robotX", location[0]/12.0)
-                table.putNumber("robotY", location[1]/12.0)
-                table.putNumber("aprilTagID", tagId)
-                table.putNumber("aprilTagX", aprilTagX[tagId])
-                table.putNumber("aprilTagAngle", aprilAngle[tagId])
-                table.putNumber("aprilTagY", aprilTagY[tagId])
-
-                if (tagId in validTagIds):
-                    table.putNumber("aprilTagConfidence", confidence)
-                else:
-                    table.putNumber("aprilTagConfidence", 0.0)
-
-                table.putNumber("processorFrameSent", currentRoboRioFrameRequest)
-                roboRioFrameRequests=currentRoboRioFrameRequest
-
-                NetworkTables.flush()
-
-                framesSeen+=1;   
-
-            except:
-                table.putNumber("aprilTagConfidence", 0.0)
-                table.putNumber("processorFrameSent", currentRoboRioFrameRequest)
-                roboRioFrameRequests=currentRoboRioFrameRequest
-                print("Uh oh! We encountered an error and did not send data this loop")  
-
-        else:
-            table.putNumber("aprilTagConfidence", 0.0)
-            table.putNumber("processorFrameSent", currentRoboRioFrameRequest)
-            roboRioFrameRequests=currentRoboRioFrameRequest
-
-        time = datetime.now()-RealStart
-
-        framesPassed+=1
-
-
-        if (framesPassed >= 10):
-            endtime=datetime.now()
-
-            locations=np.array([0.0, 0.0, 0.0])
-            print('FPS: ' + (str)(framesPassed/(endtime-starttime).total_seconds()))
-            starttime=endtime
-            confidence =framesSeen/(1.0*framesPassed)
-            framesPassed=0
-            framesSeen=0
-
-
-
-def RUN_APRIL_846():
-    print("SCRIPT: ATTEMPTING CAM 1")
+def getCamera() -> cv2.VideoCapture:
+    print("\n")
     cap = cv2.VideoCapture("/dev/video0")
-    if cap.isOpened()==False:
-        print("SCRIPT: ATTEMPTING CAM 2")
+    if cap.isOpened() == False:
+        print("CAM 1 FAILURE, ATTEMPTING CAM 2.")
         cap = cv2.VideoCapture("/dev/video1")
-    if cap.isOpened()==False:
-        print("SCRIPT: CAM CONN FAILURE")
+    if cap.isOpened() == False:
+        print("CAM CONN FAILURE.")
     else:
-        print("SCRIPT: CAM CONN")
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        print("CAM CONN SUCCESS.")
+    print("\n")
+
+    return cap
+
+if __name__ == "__main__":
+    cap = getCamera()
+
+    if cap is None:
+        print("Exiting, camera is None.")
+        exit(1)
+
+    subprocess.run(['v4l2-ctl', f'-c exposure_absolute={exposure_pref.get()}'])
+    
+
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(h_frame_size.get()))
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(v_frame_size.get()))
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 0)
 
-    counter = 0
-    otime = datetime.now()
     if cap.isOpened():
-        while(True):
-            counter+=1
-
-            # frame = cv.imread('testing.jpg')
+        t1 = threading.Thread(target=process_frames)
+        t1.start()
+        
+        while True:
             _, frame = cap.read()
 
-            t1 = threading.Thread(target=run_april, args=(frame,))
-            t1.start()
-            t1.join()
+            if frame is None:
+                continue
 
+            queue.append(frame)
 
-            if counter % 10 == 0:
-                counter = 0
-                print("FPS: " + str((datetime.now()-otime)))
-                otime = datetime.now()
-            
-            
-            #if cv.waitKey(1)== ord('q'):
-            #    break
+            if (len(queue) > 5):
+                queue.pop(0)
 
-        
     cap.release()
-
-
-
-
-
-RUN_APRIL_846()

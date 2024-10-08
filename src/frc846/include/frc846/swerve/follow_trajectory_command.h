@@ -11,7 +11,8 @@ class FollowTrajectoryCommand
                                            FollowTrajectoryCommand> {
  public:
   FollowTrajectoryCommand(RobotContainer& container,
-                          std::vector<frc846::Waypoint> input_points);
+                          std::vector<frc846::Waypoint> input_points,
+                          int mirror = 0);
 
   void OnInit() override;
 
@@ -23,7 +24,10 @@ class FollowTrajectoryCommand
 
  private:
   std::vector<frc846::Waypoint> input_points_;
+  std::vector<frc846::Waypoint> path_points_{};
   unsigned int target_idx_;
+
+  int mirror_;
 
   bool is_done_ = false;
 

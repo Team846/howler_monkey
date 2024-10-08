@@ -2,7 +2,6 @@
 
 #include <utility>
 
-#include "field.h"
 #include "frc846/base/loggable.h"
 #include "frc846/math/collection.h"
 #include "frc846/util/share_tables.h"

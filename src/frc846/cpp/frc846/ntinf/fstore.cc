@@ -19,6 +19,9 @@ frc846::base::Loggable FunkyStore::fstore_loggable{"FunkyStore"};
 
 bool FunkyStore::hasChanged = false;
 
+std::map<std::string, std::variant<int, double, std::string, bool>>
+    FunkyStore::prefs = {{"Default.int", 0.0}};
+
 std::string FunkyStore::variantToString(
     std::variant<int, double, std::string, bool>& variant) {
   return std::visit(
@@ -75,11 +78,17 @@ std::string trim(const std::string& str) {
   return (start < end.base()) ? std::string(start, end.base()) : std::string();
 }
 
-std::map<std::string, std::variant<int, double, std::string, bool>>
-    FunkyStore::prefs = {{"Default.int", 0.0}};
-
 bool FunkyStore::ContainsKey(std::string key) {
-  return (prefs.find(key) != prefs.end());
+  if (!hasReadPrefs) {
+    return false;
+  }
+  try {
+    if (prefs.empty()) return false;
+    return (prefs.find(key) != prefs.end());
+  } catch (const std::exception& exc) {
+    (void)exc;
+  }
+  return false;
 }
 
 void FunkyStore::SetDouble(std::string key, double val) {

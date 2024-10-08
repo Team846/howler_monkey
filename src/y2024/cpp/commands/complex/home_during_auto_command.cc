@@ -1,4 +1,4 @@
-#include "commands/complex/stow_zero_action.h"
+#include "commands/complex/home_during_auto_command.h"
 
 #include <frc2/command/Commands.h>
 #include <frc2/command/ParallelDeadlineGroup.h>
@@ -10,10 +10,10 @@
 #include "frc2/command/WaitCommand.h"
 #include "frc2/command/WaitUntilCommand.h"
 
-StowZeroActionCommand::StowZeroActionCommand(RobotContainer& container)
-    : frc846::robot::GenericCommandGroup<RobotContainer, StowZeroActionCommand,
+HomeDuringAutoCommand::HomeDuringAutoCommand(RobotContainer& container)
+    : frc846::robot::GenericCommandGroup<RobotContainer, HomeDuringAutoCommand,
                                          frc2::SequentialCommandGroup>{
-          container, "stow_zero_action_command",
+          container, "home_during_auto_command",
           frc2::SequentialCommandGroup{
               frc2::ParallelDeadlineGroup{
                   frc2::WaitUntilCommand{[&] {
@@ -22,6 +22,4 @@ StowZeroActionCommand::StowZeroActionCommand(RobotContainer& container)
                   }},
                   StowCommand{container}},
               WristZeroCommand{container},
-              StowCommand{container} /* Otherwise, this command will be
-                                                 rescheduled -> infinite loop */
           }} {}

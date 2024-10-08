@@ -7,16 +7,13 @@
 WristSubsystem::WristSubsystem(bool init)
     : frc846::robot::GenericSubsystem<WristReadings, WristTarget>{"wrist",
                                                                   init} {
-  if (init) {
-    wrist_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
-  }
-}
-
-void WristSubsystem::Setup() {
+  wrist_esc_.Init(frc846::control::REVSparkType::kSparkMAX);
   wrist_esc_.Configure({frc846::control::DataTag::kPositionData,
                         frc846::control::DataTag::kVelocityData});
   wrist_esc_.ZeroEncoder(wrist_home_offset_.value());
 }
+
+void WristSubsystem::Setup() {}
 
 WristTarget WristSubsystem::ZeroTarget() const {
   WristTarget target;
@@ -56,11 +53,15 @@ WristReadings WristSubsystem::ReadFromHardware() {
 }
 
 void WristSubsystem::WriteToHardware(WristTarget target) {
+  wrist_weight_pos_graph.Graph(
+      1_deg * frc846::util::ShareTables::GetDouble("pivot_position") -
+      GetReadings().wrist_position + wrist_cg_offset_.value());
+
   hard_limits_.OverrideLimits(target.override_limits);
   if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
     double output = dyFPID.calculate(*pos, GetReadings().wrist_position,
                                      wrist_esc_.GetVelocityPercentage(),
-                                     config_helper_.updateAndGetGains());
+                                     gains_prefs_dyFPID.get());
     // if (units::math::abs(*pos - readings().wrist_position) < 5_deg) {
     //   output = dyFPIDClose.calculate(*pos, readings().wrist_position,
     //                                  wrist_esc_.GetVelocityPercentage(),
@@ -72,6 +73,10 @@ void WristSubsystem::WriteToHardware(WristTarget target) {
     target_wrist_pos_graph.Graph(*pos);
 
   } else if (auto output = std::get_if<double>(&target.wrist_output)) {
+    if (units::math::abs(wrist_esc_.GetVelocity()) >
+        homing_max_speed_.value()) {
+      *output = (*output) / homing_dc_cut_.value();
+    }
     wrist_esc_.WriteDC(*output);
 
     target_wrist_duty_cycle_graph.Graph(*output);

@@ -46,12 +46,19 @@ struct FieldPoint {
 
 class FieldPointPreference {
  public:
+  std::string name_;
+
   FieldPointPreference(std::string name, FieldPoint backup)
-      : x{table_name_, name + "_x", backup.point[0]},
-        y{table_name_, name + "_y", backup.point[1]},
-        bearing{table_name_, name + "_deg", backup.bearing},
-        v_x{table_name_, name + "_v_x", backup.velocity[0]},
-        v_y{table_name_, name + "_v_y", backup.velocity[1]} {}
+      : name_{name},
+        x{table_loggable_, name + "_x", backup.point[0]},
+        y{table_loggable_, name + "_y", backup.point[1]},
+        bearing{table_loggable_, name + "_deg", backup.bearing},
+        v_x{table_loggable_, name + "_v_x", backup.velocity[0]},
+        v_y{table_loggable_, name + "_v_y", backup.velocity[1]} {}
+
+  ~FieldPointPreference() {
+    table_loggable_.Warn("FieldPointPreference destructor was called.");
+  }
 
   FieldPoint get() {
     return {
@@ -65,7 +72,7 @@ class FieldPointPreference {
   frc846::ntinf::Pref<units::feet_per_second_t> v_x;
   frc846::ntinf::Pref<units::feet_per_second_t> v_y;
 
-  const std::string table_name_ = "Preferences/field_points";
+  frc846::base::Loggable table_loggable_{"field_points_2"};
 };
 
 }  // namespace frc846::math

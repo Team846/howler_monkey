@@ -1,37 +1,37 @@
-#include "commands/auto_intake_and_shoot_command.h"
+// #include "commands/auto_intake_and_shoot_command.h"
 
-#include <frc2/command/Commands.h>
-#include <frc2/command/ParallelDeadlineGroup.h>
-#include <frc2/command/ParallelRaceGroup.h>
-#include <frc2/command/SequentialCommandGroup.h>
+// #include <frc2/command/Commands.h>
+// #include <frc2/command/ParallelDeadlineGroup.h>
+// #include <frc2/command/ParallelRaceGroup.h>
+// #include <frc2/command/SequentialCommandGroup.h>
 
-#include "commands/basic/auto_deploy_intake_command.h"
-#include "commands/basic/auto_shoot_command.h"
-#include "commands/basic/prepare_auto_shoot_command.h"
-#include "field.h"
-#include "frc2/command/WaitCommand.h"
-#include "frc846/swerve/follow_trajectory_command.h"
+// #include "commands/basic/auto_deploy_intake_command.h"
+// #include "commands/basic/auto_shoot_command.h"
+// #include "commands/basic/prepare_auto_shoot_command.h"
+// #include "field.h"
+// #include "frc2/command/WaitCommand.h"
+// #include "frc846/swerve/follow_trajectory_command.h"
 
-AutoIntakeAndShootCommand::AutoIntakeAndShootCommand(
-    RobotContainer& container, std::vector<frc846::Waypoint> intake_path,
-    std::vector<frc846::Waypoint> shoot_path)
-    : frc846::robot::GenericCommandGroup<RobotContainer,
-                                         AutoIntakeAndShootCommand,
-                                         frc2::SequentialCommandGroup>{
-          container, "auto_intake_shoot_command",
-          frc2::SequentialCommandGroup{
+// AutoIntakeAndShootCommand::AutoIntakeAndShootCommand(
+//     RobotContainer& container, std::vector<frc846::Waypoint> intake_path,
+//     std::vector<frc846::Waypoint> shoot_path)
+//     : frc846::robot::GenericCommandGroup<RobotContainer,
+//                                          AutoIntakeAndShootCommand,
+//                                          frc2::SequentialCommandGroup>{
+//           container, "auto_intake_shoot_command",
+//           frc2::SequentialCommandGroup{
 
-              AutoDeployIntakeCommand{container},
-              frc846::swerve::FollowTrajectoryCommand{container, intake_path},
-              frc2::ParallelDeadlineGroup{
-                  frc2::SequentialCommandGroup{
-                      frc846::swerve::FollowTrajectoryCommand{container,
-                                                              shoot_path},
-                      frc2::WaitCommand(
-                          container.super_structure_.pre_shoot_wait_.value())},
-                  PrepareAutoShootCommand{container}},
-              AutoShootCommand{container},
-              frc2::WaitCommand(
-                  container.super_structure_.post_shoot_wait_.value())
+//               AutoDeployIntakeCommand{container},
+//               frc846::swerve::FollowTrajectoryCommand{container,
+//               intake_path}, frc2::ParallelDeadlineGroup{
+//                   frc2::SequentialCommandGroup{
+//                       frc846::swerve::FollowTrajectoryCommand{container,
+//                                                               shoot_path},
+//                       frc2::WaitCommand(
+//                           container.super_structure_.pre_shoot_wait_.value())},
+//                   PrepareAutoShootCommand{container}},
+//               AutoShootCommand{container},
+//               frc2::WaitCommand(
+//                   container.super_structure_.post_shoot_wait_.value())
 
-          }} {}
+//           }} {}

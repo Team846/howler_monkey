@@ -5,6 +5,8 @@
 #include <units/length.h>
 #include <units/voltage.h>
 
+#include <algorithm>
+
 #include "config.h"
 #include "frc846/ntinf/pref.h"
 #include "frc846/util/share_tables.h"
@@ -118,8 +120,8 @@ class BrakingPositionDyFPID {
 
     double error = target_pos_capped - current_pos.template to<double>();
 
-    double target_output = g.kF * prop_ff_function_(current_pos) +
-                           g.kP * error + g.kD * current_velocity_percentage;
+    double target_output = (g.kF * prop_ff_function_(current_pos) +
+                            g.kP * error + g.kD * current_velocity_percentage);
 
     return current_control_.calculate(current_velocity_percentage,
                                       target_output);

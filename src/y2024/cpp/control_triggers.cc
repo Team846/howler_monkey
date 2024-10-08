@@ -15,7 +15,6 @@
 #include "commands/basic/spin_up_command.h"
 #include "commands/basic/trap_command.h"
 #include "commands/basic/wrist_zero_command.h"
-#include "commands/complex/super_amp_command.h"
 
 void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
   frc2::Trigger drivetrain_zero_bearing_trigger{
@@ -60,17 +59,18 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
 
   amp_command_trigger.WhileTrue(AmpCommand{container}.ToPtr());
 
-  frc2::Trigger super_amp_trigger_red{[&container] {
-    return container.control_input_.GetReadings().running_super_amp &&
-           frc846::util::ShareTables::GetBoolean("is_red_side");
-  }};
-  frc2::Trigger super_amp_trigger_blue{[&container] {
-    return container.control_input_.GetReadings().running_super_amp &&
-           !frc846::util::ShareTables::GetBoolean("is_red_side");
-  }};
+  // frc2::Trigger super_amp_trigger_red{[&container] {
+  //   return container.control_input_.GetReadings().running_super_amp &&
+  //          frc846::util::ShareTables::GetBoolean("is_red_side");
+  // }};
+  // frc2::Trigger super_amp_trigger_blue{[&container] {
+  //   return container.control_input_.GetReadings().running_super_amp &&
+  //          !frc846::util::ShareTables::GetBoolean("is_red_side");
+  // }};
 
-  super_amp_trigger_red.WhileTrue(SuperAmpCommand{container, true}.ToPtr());
-  super_amp_trigger_blue.WhileTrue(SuperAmpCommand{container, false}.ToPtr());
+  // super_amp_trigger_red.WhileTrue(SuperAmpCommand{container, true}.ToPtr());
+  // super_amp_trigger_blue.WhileTrue(SuperAmpCommand{container,
+  // false}.ToPtr());
 
   frc2::Trigger intake_command_trigger{[&container] {
     return container.control_input_.GetReadings().running_intake;
