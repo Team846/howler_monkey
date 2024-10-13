@@ -7,27 +7,22 @@
 // Field has blue alliance far right corner as origin
 struct field {
   struct points {
-    static frc846::util::Position Origin() {
-      return frc846::util::Position(
-          frc846::util::Vector2D<units::foot_t>(0_in, 0_in), 0_deg);
-    };
+    static frc846::util::Position Origin() { return {{0_in, 0_in}, 0_deg}; };
 
     static frc846::util::Vector2D<units::foot_t> kSpeaker(bool flip = false) {
       if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(217.5_in, -4_in);
+        return {217.5_in, -4_in};
       } else {
-        return frc846::util::Vector2D<units::foot_t>(217.5_in, 655.8_in);
+        return {217.5_in, 655.8_in};
       }
     }
 
     static frc846::util::Position kAmpNoFlip() {
-      return frc846::util::Position(
-          frc846::util::Vector2D<units::foot_t>(0_in, 0_in), 90_deg);
+      return {{0_in, 0_in}, 90_deg};
     }
 
     static frc846::util::Position kPreAmpNoFlip() {
-      return frc846::util::Position(
-          frc846::util::Vector2D<units::foot_t>(-2_ft, 0_in), 90_deg);
+      return {{-2_ft, 0_in}, 90_deg};
     }
 
     // TESTING

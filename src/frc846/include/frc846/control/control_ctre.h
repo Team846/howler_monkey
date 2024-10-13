@@ -156,8 +156,8 @@ class TalonFXController : public BaseESC<X> {
       auto vcomp =
           auton ? config_helper_.getMotorConfig().auton_voltage_compensation
                 : config_helper_.getMotorConfig().voltage_compensation;
-      voltageConfs.WithPeakForwardVoltage(vcomp.to<double>())
-          .WithPeakReverseVoltage(-vcomp.to<double>());
+      voltageConfs.WithPeakForwardVoltage(vcomp.template to<double>())
+          .WithPeakReverseVoltage(-vcomp.template to<double>());
 
       deviceConfigs.WithVoltage(voltageConfs);
 
@@ -194,9 +194,10 @@ class TalonFXController : public BaseESC<X> {
     ctre::configs::CurrentLimitsConfigs currentConfs;
     currentConfs.WithSupplyCurrentLimitEnable(true);
     currentConfs.WithSupplyCurrentLimit(
-        motor_config.current_limiting.target_threshold.to<double>());
+        motor_config.current_limiting.target_threshold.template to<double>());
     currentConfs.WithSupplyTimeThreshold(
-        motor_config.current_limiting.peak_time_threshold.to<double>());
+        motor_config.current_limiting.peak_time_threshold
+            .template to<double>());
 
     deviceConfigs.WithCurrentLimits(currentConfs);
 

@@ -168,13 +168,13 @@ class REVSparkController : public BaseESC<X> {
     if (esc_) {
       this->CheckOK(esc_->EnableVoltageCompensation(
           auton ? config_helper_.getMotorConfig()
-                      .auton_voltage_compensation.to<double>()
+                      .auton_voltage_compensation.template to<double>()
                 : config_helper_.getMotorConfig()
                       .voltage_compensation
-                      .to<double>()));  // switching between
-                                        // autonomous and teleop
-                                        // presets for voltage
-                                        // compensation
+                      .template to<double>()));  // switching between
+                                                 // autonomous and teleop
+                                                 // presets for voltage
+                                                 // compensation
     }
   }
 
@@ -218,7 +218,7 @@ class REVSparkController : public BaseESC<X> {
 
     this->Q(parent_, [&]() {
       return CheckOK(esc_->EnableVoltageCompensation(
-          motor_config.auton_voltage_compensation.to<double>()));
+          motor_config.auton_voltage_compensation.template to<double>()));
     });  // voltage compensation sets the maximum voltage
          // that the controller will output. 10-12V is good
          // for consistency during autonomous, but the
@@ -240,18 +240,19 @@ class REVSparkController : public BaseESC<X> {
     if (motor_config.withRampRate) {
       this->Q(parent_, [&]() {
         return CheckOK(esc_->SetOpenLoopRampRate(
-                   motor_config.rampTime.to<
+                   motor_config.rampTime.template to<
                        double>()))  // if our can bus isn't overloaded, we
                                     // should use custom motion profiles instead
 
                && CheckOK(esc_->SetClosedLoopRampRate(
-                      motor_config.rampTime.to<double>()));
+                      motor_config.rampTime.template to<double>()));
       });
     }
 
     this->Q(parent_, [&]() {
       return CheckOK(esc_->SetSmartCurrentLimit(
-          motor_config.current_limiting.target_threshold.to<double>()));
+          motor_config.current_limiting.target_threshold
+              .template to<double>()));
     });  // REV current limit uses PID to control
          // current if it exceeds output. Reactive
          // system. Happens on board controller at high
