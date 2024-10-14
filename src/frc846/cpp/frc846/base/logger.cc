@@ -4,6 +4,7 @@
 #include <functional>
 #include <future>
 #include <iostream>
+#include <sstream>
 #include <thread>
 
 #include "frc846/base/compression.h"
