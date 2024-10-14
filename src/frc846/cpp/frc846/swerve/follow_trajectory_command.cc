@@ -18,7 +18,7 @@ void FollowTrajectoryCommand::OnInit() {
                              container_.drivetrain_.max_acceleration_.value(),
                              container_.drivetrain_.max_deceleration_.value(),
                              container_.drivetrain_.max_speed_.value(),
-                             80_fps_sq, 80_fps_sq, 3_in, 20_ms});
+                             100_fps_sq, 100_fps_sq, 3_in, 20_ms});
 
   Log("Starting Trajectory");
   Log("Initial pose x{}, y{}, Bearing {}",

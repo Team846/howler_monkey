@@ -78,11 +78,8 @@ class SuperStructureSubsystem
 
   bool VerifyHardware() override;
 
-  void HomeWrist() { homing_wrist = true; }
-
   void ZeroSubsystem() {
     pivot_->ZeroSubsystem();
-    wrist_->ZeroSubsystem();
     telescope_->ZeroSubsystem();
     hasZeroed = true;
   }
@@ -234,8 +231,6 @@ class SuperStructureSubsystem
 
  private:
   bool hasZeroed = false;
-  bool homing_wrist = false;
-  int wrist_home_counter = 0;
 
   ArmKinematicsCalculator arm_kinematics_calculator;
 

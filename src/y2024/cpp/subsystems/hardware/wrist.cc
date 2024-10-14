@@ -17,7 +17,7 @@ void WristSubsystem::Setup() {}
 
 WristTarget WristSubsystem::ZeroTarget() const {
   WristTarget target;
-  target.wrist_output = wrist_home_offset_.value();
+  target.target_position = wrist_home_offset_.value();
   return target;
 }
 
@@ -35,50 +35,61 @@ bool WristSubsystem::VerifyHardware() {
 WristReadings WristSubsystem::ReadFromHardware() {
   WristReadings readings;
 
-  readings.wrist_position = wrist_esc_.GetPosition();
+  readings.position = wrist_esc_.GetPosition();
+  Graph("readings/position", readings.position.to<double>());
 
-  frc846::util::ShareTables::SetDouble("wrist_position",
-                                       readings.wrist_position.to<double>());
+  readings.cg_position =
+      1_deg * frc846::util::ShareTables::GetDouble("pivot_position") -
+      GetReadings().position + wrist_cg_offset_.value();
+  Graph("readings/cg_position", readings.cg_position.to<double>());
 
-  wrist_pos_graph.Graph(readings.wrist_position);
+  Graph("readings/error",
+        (GetTarget().target_position - readings.position).to<double>());
 
-  auto target_output = GetTarget().wrist_output;
-  if (auto target_angle = std::get_if<units::degree_t>(&target_output)) {
-    wrist_error_graph.Graph(*target_angle - readings.wrist_position);
+  Graph("readings/velocity", wrist_esc_.GetVelocity().to<double>());
+
+  if (!hasZeroed) {
+    if (units::math::abs(wrist_esc_.GetVelocity()) <
+        homing_velocity_tolerance_.value()) {
+      Graph("readings/within_homing_velocity", true);
+      homing_counter_ += 1;
+    } else {
+      Graph("readings/within_homing_velocity", false);
+      homing_counter_ = 0;
+    }
+    if (homing_counter_ > 30) {
+      hasZeroed = true;
+      wrist_esc_.ZeroEncoder(wrist_home_offset_.value());
+      Log("Wrist homed successfully.");
+    }
   }
-
-  readings.wrist_velocity = wrist_esc_.GetVelocity();
 
   return readings;
 }
 
 void WristSubsystem::WriteToHardware(WristTarget target) {
-  wrist_weight_pos_graph.Graph(
-      1_deg * frc846::util::ShareTables::GetDouble("pivot_position") -
-      GetReadings().wrist_position + wrist_cg_offset_.value());
+  if (!hasZeroed) {
+    hard_limits_.OverrideLimits(true);
 
-  hard_limits_.OverrideLimits(target.override_limits);
-  if (auto pos = std::get_if<units::degree_t>(&target.wrist_output)) {
-    double output = dyFPID.calculate(*pos, GetReadings().wrist_position,
-                                     wrist_esc_.GetVelocityPercentage(),
-                                     gains_prefs_dyFPID.get());
-    // if (units::math::abs(*pos - readings().wrist_position) < 5_deg) {
-    //   output = dyFPIDClose.calculate(*pos, readings().wrist_position,
-    //                                  wrist_esc_.GetVelocityPercentage(),
-    //                                  config_helper_.updateAndGetGains());
-    // }
-
-    wrist_esc_.WriteDC(output);
-
-    target_wrist_pos_graph.Graph(*pos);
-
-  } else if (auto output = std::get_if<double>(&target.wrist_output)) {
+    double output = homing_speed_.value();
     if (units::math::abs(wrist_esc_.GetVelocity()) >
         homing_max_speed_.value()) {
-      *output = (*output) / homing_dc_cut_.value();
+      output = output / homing_dc_cut_.value();
+      Graph("target/homing_too_fast", true);
+    } else {
+      Graph("target/homing_too_fast", false);
     }
-    wrist_esc_.WriteDC(*output);
+    Graph("target/homing_output", output);
+    wrist_esc_.WriteDC(output);
 
-    target_wrist_duty_cycle_graph.Graph(*output);
+  } else {
+    hard_limits_.OverrideLimits(false);
+
+    double output = dyFPID.calculate(
+        target.target_position, GetReadings().position,
+        wrist_esc_.GetVelocityPercentage(), gains_prefs_dyFPID.get());
+
+    Graph("target/fpid_output", output);
+    wrist_esc_.WriteDC(output);
   }
 }

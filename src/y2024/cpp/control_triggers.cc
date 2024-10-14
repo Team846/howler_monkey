@@ -134,12 +134,8 @@ void ControlTriggerInitializer::InitTeleopTriggers(RobotContainer& container) {
     trap_stage_trigger.WhileTrue(TrapCommand{container, i}.ToPtr());
   }
 
-  frc2::Trigger wrist_zero_trigger{[&] {
-    return container.control_input_.GetReadings().home_wrist &&
-           units::math::abs(container.pivot_.GetReadings().pivot_position -
-                            container.pivot_.pivot_home_offset_.value()) <
-               container.pivot_.pivot_tolerance_.value();
-  }};
+  frc2::Trigger wrist_zero_trigger{
+      [&] { return container.control_input_.GetReadings().home_wrist; }};
 
   wrist_zero_trigger.OnTrue(WristZeroCommand{container}.ToPtr());
 

@@ -12,13 +12,12 @@
 #include "units/math.h"
 
 struct WristReadings {
-  units::degree_t wrist_position;
-  units::degrees_per_second_t wrist_velocity;
+  units::degree_t position;
+  units::degree_t cg_position;
 };
 
 struct WristTarget {
-  std::variant<units::degree_t, double> wrist_output;
-  bool override_limits = false;
+  units::degree_t target_position;
 };
 
 class WristSubsystem
@@ -37,8 +36,8 @@ class WristSubsystem
   bool GetHasZeroed() { return hasZeroed; }
 
   bool WithinTolerance(units::degree_t pos) {
-    return (units::math::abs(pos - GetReadings().wrist_position) <
-            wrist_tolerance_.value());
+    return units::math::abs(GetReadings().position - pos) <
+           wrist_tolerance_.value();
   }
 
   void Coast() {
@@ -51,11 +50,9 @@ class WristSubsystem
       esc->SetIdleMode(rev::CANSparkBase::IdleMode::kBrake);
   }
 
-  void DeZero() { hasZeroed = false; }
-
-  void ZeroSubsystem() {
-    hasZeroed = true;
-    wrist_esc_.ZeroEncoder(wrist_home_offset_.value());
+  void HomeSubsystem() {
+    homing_counter_ = 0;
+    hasZeroed = false;
     SetTarget(ZeroTarget());
   }
 
@@ -80,35 +77,14 @@ class WristSubsystem
 
   frc846::ntinf::Pref<units::degrees_per_second_t> homing_velocity_tolerance_{
       *this, "homing_velocity_tolerance", 1.0_deg_per_s};
-  frc846::ntinf::Pref<double> num_loops_homed_{*this, "num_loops_homed", 20};
+  frc846::ntinf::Pref<int> homing_num_loops_{*this, "homing_num_loops", 20};
   frc846::ntinf::Pref<double> homing_speed_{*this, "homing_speed", -0.2};
   frc846::ntinf::Pref<units::degrees_per_second_t> homing_max_speed_{
       *this, "homing_max_speed", 30.0_deg_per_s};
   frc846::ntinf::Pref<double> homing_dc_cut_{*this, "homing_dc_cut", 1.5};
 
  private:
-  frc846::base::Loggable gains_{*this, "gains"};
-  frc846::ntinf::Pref<double> k_{gains_, "k", 0.0};
-  frc846::ntinf::Pref<double> p_{gains_, "p", 0.0};
-  frc846::ntinf::Pref<double> d_{gains_, "d", 0.0};
-
-  frc846::base::Loggable readings_named_{*this, "readings"};
-
-  frc846::ntinf::Grapher<units::degree_t> wrist_pos_graph{target_named_,
-                                                          "wrist_pos"};
-  frc846::ntinf::Grapher<units::degree_t> wrist_error_graph{target_named_,
-                                                            "wrist_error"};
-
-  frc846::ntinf::Grapher<units::degree_t> wrist_weight_pos_graph{
-      target_named_, "wrist_weight_position"};
-
-  frc846::base::Loggable target_named_{*this, "target"};
-
-  frc846::ntinf::Grapher<double> target_wrist_duty_cycle_graph{
-      target_named_, "wrist_duty_cycle"};
-
-  frc846::ntinf::Grapher<units::degree_t> target_wrist_pos_graph{target_named_,
-                                                                 "wrist_pos"};
+  int homing_counter_ = 0;
 
   frc846::control::ConfigHelper config_helper_{
       *this,
@@ -136,27 +112,8 @@ class WristSubsystem
   frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPID{
       dyFPID_loggable,
       [&](units::degree_t pos) -> double {
-        return units::math::sin(
-                   1_deg *
-                       frc846::util::ShareTables::GetDouble("pivot_position") -
-                   GetReadings().wrist_position + wrist_cg_offset_.value())
-            .to<double>();
+        return units::math::sin(GetReadings().cg_position).to<double>();
       },
       {30_A, frc846::control::DefaultSpecifications::stall_current_neo, 0.3},
       &hard_limits_};
-
-  // frc846::base::Loggable close_dyFPID_loggable{*this, "CloseDynamicFPID"};
-
-  // frc846::motion::BrakingPositionDyFPID<units::degree_t> dyFPIDClose{
-  //     close_dyFPID_loggable,
-  //     [this](units::degree_t pos) -> double {
-  //       return std::abs(
-  //           units::math::cos(
-  //               1_deg *
-  //               frc846::util::ShareTables::GetDouble("pivot_position") -
-  //               GetReadings().wrist_position + wrist_cg_offset_.value())
-  //               .to<double>());
-  //     },
-  //     {15_A, frc846::control::DefaultSpecifications::stall_current_neo,
-  //     0.3}};
 };

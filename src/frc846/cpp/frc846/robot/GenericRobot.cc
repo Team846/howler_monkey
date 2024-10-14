@@ -59,6 +59,21 @@ void GenericRobot::StartCompetition() {
       "verify_hardware",
       new frc846::ntinf::NTAction([this] { VerifyHardware(); }));
 
+  frc::SmartDashboard::PutData(
+      "get_prune_list", new frc846::ntinf::NTAction([this] {
+        for (const std::string& x : robotStore.GetPruneList()) {
+          Log("Key {} found in prune list.", x);
+        }
+      }));
+
+  frc::SmartDashboard::PutData(
+      "prune_prefs", new frc846::ntinf::NTAction([this] {
+        for (const std::string& x : robotStore.GetPruneList()) {
+          Log("Pruning key {}.", x);
+        }
+        robotStore.Prune();
+      }));
+
   // Verify robot hardware
   VerifyHardware();
 

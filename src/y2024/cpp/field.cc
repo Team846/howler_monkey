@@ -83,7 +83,6 @@ std::string Field_nonstatic::forceNormalPath(std::string path) {
 std::string Field_nonstatic::getFileDirectory() {
 #ifdef _WIN32
   std::string deploy_dir = frc::filesystem::GetDeployDirectory();
-  size_t start_pos = 0;
 
   std::vector<std::string> tokens = split(deploy_dir, '\\');
   std::string rejoined{};

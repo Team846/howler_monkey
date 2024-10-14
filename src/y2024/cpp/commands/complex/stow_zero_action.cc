@@ -16,10 +16,7 @@ StowZeroActionCommand::StowZeroActionCommand(RobotContainer& container)
           container, "stow_zero_action_command",
           frc2::SequentialCommandGroup{
               frc2::ParallelDeadlineGroup{
-                  frc2::WaitUntilCommand{[&] {
-                    return container.pivot_.WithinTolerance(
-                        container.super_structure_.getStowSetpoint().pivot);
-                  }},
+                  frc2::WaitCommand{1.65_s},
                   StowCommand{container}},
               WristZeroCommand{container},
               StowCommand{container} /* Otherwise, this command will be

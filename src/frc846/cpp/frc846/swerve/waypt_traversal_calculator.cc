@@ -33,7 +33,7 @@ WTCOutput WayptTraversalCalculator::calculate(WTCInput input) {
 
   auto dir_vec = delta_vec.unit();
 
-  if (delta_vec.magnitude() < 4 * constants_.loc_tolerance) {
+  if (delta_vec.magnitude() < 2 * constants_.loc_tolerance) {
     dir_vec = prev_dir_vec;
   }
 

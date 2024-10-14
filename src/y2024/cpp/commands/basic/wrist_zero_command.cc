@@ -7,11 +7,11 @@ WristZeroCommand::WristZeroCommand(RobotContainer& container)
 }
 
 void WristZeroCommand::OnInit() {
-  container_.super_structure_.wrist_->DeZero();
+  Log("Init Wrist Zero Command.");
+  container_.super_structure_.wrist_->HomeSubsystem();
 }
 
 void WristZeroCommand::Periodic() {
-  container_.super_structure_.HomeWrist();
   container_.super_structure_.SetTargetSetpoint(
       container_.super_structure_.getStowSetpoint());
 }
