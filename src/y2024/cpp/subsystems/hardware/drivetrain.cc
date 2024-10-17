@@ -240,6 +240,8 @@ DrivetrainReadings DrivetrainSubsystem::ReadFromHardware() {
                                        readings.velocity.x.to<double>());
   frc846::util::ShareTables::SetDouble("velocity_y_",
                                        readings.velocity.y.to<double>());
+  frc846::util::ShareTables::SetDouble("robot_omega_",
+                                       readings.angular_velocity.to<double>());
 
   readings.pose.point = odometry_.pose().point;
 

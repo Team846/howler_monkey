@@ -79,8 +79,7 @@
         },
         "drivetrain": {
           "open": true
-        },
-        "open": true
+        }
       }
     },
     "transitory": {
@@ -89,6 +88,18 @@
       },
       "ShareTables": {
         "open": true
+      },
+      "SmartDashboard": {
+        "drivetrain": {
+          "open": true,
+          "pose": {
+            "open": true
+          }
+        },
+        "open": true,
+        "operator": {
+          "open": true
+        }
       }
     }
   },

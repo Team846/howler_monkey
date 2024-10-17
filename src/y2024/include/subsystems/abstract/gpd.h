@@ -32,7 +32,6 @@ class GPDSubsystem
 
   std::pair<frc846::util::Vector2D<units::foot_t>, int> getBestNote(
       const std::vector<frc846::util::Vector2D<units::foot_t>>& notes,
-      const frc846::util::Vector2D<units::foot_t>& robot_position,
       const frc846::util::Vector2D<units::feet_per_second_t>& robot_velocity);
 
   frc846::util::Vector2D<units::foot_t> findDistance(units::degree_t theta_h,
@@ -47,20 +46,25 @@ class GPDSubsystem
   frc846::ntinf::Grapher<bool> note_detected_graph_{readings_named,
                                                     "note_detected"};
 
+  frc846::base::Loggable algo_params{*this, "algo_parameters"};
+  frc846::ntinf::Pref<units::foot_t> mount_height_{algo_params, "mount_height",
+                                                   1_ft};
+  frc846::ntinf::Pref<units::foot_t> note_height_{algo_params, "note_height",
+                                                  0_ft};
+  frc846::ntinf::Pref<units::second_t> nt_latency{algo_params, "nt_latency",
+                                                  0_s};
+
   std::shared_ptr<nt::NetworkTable> gpdTable =
       nt::NetworkTableInstance::GetDefault().GetTable("gpd");
-  frc846::ntinf::Grapher<units::foot_t> note_x_distance_graph_{
-      readings_named, "note_x_distance_graph"};
-  frc846::ntinf::Grapher<units::foot_t> note_y_distance_graph_{
-      readings_named, "note_y_distance_graph"};
-  frc846::ntinf::Grapher<units::second_t> note_camera_latency_{
-      readings_named, "note_camera_latency_graph"};
+  frc846::ntinf::Grapher<units::foot_t> note_distance_magnitude_graph_{
+      readings_named, "note_distance_magnitude_graph"};
+  frc846::ntinf::Grapher<units::degree_t> note_angle_graph_{readings_named,
+                                                            "note_angle_graph"};
+  frc846::ntinf::Grapher<units::second_t> total_latency_{readings_named,
+                                                         "total_latency_graph"};
 
   std::shared_ptr<nt::NetworkTable> raspiPreferences =
       nt::NetworkTableInstance::GetDefault().GetTable("RaspiPreferences");
-
-  frc846::ntinf::Grapher<units::length::foot_t> note_distance_graph_{
-      readings_named, "note_distance"};
 
   GPDReadings ReadFromHardware() override;
 

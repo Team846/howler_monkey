@@ -72,78 +72,80 @@ void DriveCommand::Periodic() {
   drivetrain_target.control = kOpenLoop;
 
   // -----STEER CONTROL-----
-  if (targeting_note && container_.gpd_.GetReadings().note_detected) {
-    // Turn towards the note
-    drivetrain_target.rotation = DrivetrainRotationPosition(
-        container_.gpd_.GetReadings().note_angle +
-        container_.drivetrain_.GetReadings().pose.bearing);
-    // drivetrain_target.translation_reference = kRobot;
+  double steer_x = frc846::util::HorizontalDeadband(
+      container_.control_input_.GetReadings().rotation,
+      container_.control_input_.driver_.steer_deadband_.value(), 1,
+      container_.control_input_.driver_.steer_exponent_.value(), 1);
 
+  if (steer_x !=
+      0) {  // always override any autonomous routines with manual control
+    // Manual steer
+    auto target = steer_x * container_.drivetrain_.max_omega();
+
+    drivetrain_target.rotation = DrivetrainRotationVelocity(target);
   } else {
-    double steer_x = frc846::util::HorizontalDeadband(
-        container_.control_input_.GetReadings().rotation,
-        container_.control_input_.driver_.steer_deadband_.value(), 1,
-        container_.control_input_.driver_.steer_exponent_.value(), 1);
+    // Hold position
+    drivetrain_target.rotation = DrivetrainRotationVelocity(0_deg_per_s);
+  }
 
-    if (steer_x != 0) {
-      // Manual steer
-      auto target = steer_x * container_.drivetrain_.max_omega();
+  if (prep_align_speaker) {
+    VisionReadings vision_readings = container_.vision_.GetReadings();
+    double shooting_dist = vision_readings.est_dist_from_speaker.to<double>();
 
-      drivetrain_target.rotation = DrivetrainRotationVelocity(target);
-    } else {
-      // Hold position
-      drivetrain_target.rotation = DrivetrainRotationVelocity(0_deg_per_s);
-    }
+    shooting_dist =
+        shooting_dist +
+        container_.super_structure_.teleop_shooter_x_.value().to<double>() /
+            12.0;
 
-    if (prep_align_speaker) {
-      VisionReadings vision_readings = container_.vision_.GetReadings();
-      double shooting_dist = vision_readings.est_dist_from_speaker.to<double>();
+    units::degree_t theta_adjust =
+        shooting_calculator
+            .calculateLaunchAngles(
+                container_.shooter_.shooting_exit_velocity_.value(),
+                shooting_dist, vision_readings.velocity_in_component,
+                vision_readings.velocity_orth_component,
+                container_.super_structure_.teleop_shooter_height_.value()
+                    .to<double>())
+            .turning_offset_angle;
 
-      shooting_dist =
-          shooting_dist +
-          container_.super_structure_.teleop_shooter_x_.value().to<double>() /
-              12.0;
-
-      units::degree_t theta_adjust =
-          shooting_calculator
-              .calculateLaunchAngles(
-                  container_.shooter_.shooting_exit_velocity_.value(),
-                  shooting_dist, vision_readings.velocity_in_component,
-                  vision_readings.velocity_orth_component,
-                  container_.super_structure_.teleop_shooter_height_.value()
-                      .to<double>())
-              .turning_offset_angle;
-
-      if (units::math::abs(vision_readings.est_dist_from_speaker_x) > 0.5_ft ||
-          units::math::abs(vision_readings.est_dist_from_speaker_y) > 0.5_ft) {
-        auto target_angle =
-            units::math::atan2(vision_readings.est_dist_from_speaker_x,
-                               vision_readings.est_dist_from_speaker_y);
-
-        drivetrain_target.rotation =
-            DrivetrainRotationPosition(target_angle + theta_adjust);
-      }
-    } else if (amping) {
-      driver_adjust_ += container_.control_input_.GetReadings().rotation / 5.0;
-      driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
+    if (units::math::abs(vision_readings.est_dist_from_speaker_x) > 0.5_ft ||
+        units::math::abs(vision_readings.est_dist_from_speaker_y) > 0.5_ft) {
+      auto target_angle =
+          units::math::atan2(vision_readings.est_dist_from_speaker_x,
+                             vision_readings.est_dist_from_speaker_y);
 
       drivetrain_target.rotation =
-          DrivetrainRotationPosition(90_deg + units::degree_t(driver_adjust_));
-
-    } else if (sourcing) {
-      driver_adjust_ += container_.control_input_.GetReadings().rotation / 5.0;
-      driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
-
-      if (!flipping_controls) {
-        drivetrain_target.rotation = DrivetrainRotationPosition(
-            -51.4_deg + units::degree_t(driver_adjust_));
-      } else {
-        drivetrain_target.rotation = DrivetrainRotationPosition(
-            180_deg + 90_deg - 51.4_deg + units::degree_t(driver_adjust_));
-      }
-    } else {
-      driver_adjust_ = 0.0;
+          DrivetrainRotationPosition(target_angle + theta_adjust);
     }
+  } else if (amping) {
+    driver_adjust_ += container_.control_input_.GetReadings().rotation / 5.0;
+    driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
+
+    drivetrain_target.rotation =
+        DrivetrainRotationPosition(90_deg + units::degree_t(driver_adjust_));
+
+  } else if (sourcing) {
+    driver_adjust_ += container_.control_input_.GetReadings().rotation / 5.0;
+    driver_adjust_ = std::min(std::max(driver_adjust_, -10.0), 10.0);
+
+    if (!flipping_controls) {
+      drivetrain_target.rotation = DrivetrainRotationPosition(
+          -51.4_deg + units::degree_t(driver_adjust_));
+    } else {
+      drivetrain_target.rotation = DrivetrainRotationPosition(
+          180_deg + 90_deg - 51.4_deg + units::degree_t(driver_adjust_));
+    }
+  } else if (targeting_note && container_.gpd_.GetReadings().note_detected) {
+    // Turn towards the note
+    frc846::util::Vector2D rel_note_pos =
+        container_.gpd_.GetReadings().closest_note -
+        container_.drivetrain_.GetReadings().pose.point;
+    std::cout << "x" << rel_note_pos.x.to<double>() << std::endl;
+    std::cout << "y" << rel_note_pos.y.to<double>() << std::endl;
+    drivetrain_target.rotation = DrivetrainRotationPosition(
+        -rel_note_pos.Bearing());  // field centric, negative because switch
+                                   // between ccw to cs
+  } else {
+    driver_adjust_ = 0.0;
   }
   container_.drivetrain_.SetTarget(drivetrain_target);
 }

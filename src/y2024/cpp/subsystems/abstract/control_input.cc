@@ -154,7 +154,7 @@ ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
   // AMP
   ci_readings_.running_amp = dr_readings.left_bumper;
   // SUPER AMP
-  ci_readings_.running_super_amp = dr_readings.a_button;
+  // ci_readings_.running_super_amp = dr_readings.a_button;
 
   // INTAKE
   ci_readings_.running_intake = dr_readings.left_trigger;
@@ -197,7 +197,7 @@ ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
   ci_readings_.zero_bearing = dr_readings.back_button;
 
   // GPD
-  ci_readings_.targeting_note = dr_readings.rsb;
+  ci_readings_.targeting_note = dr_readings.a_button;
 
   previous_operator_ = op_readings;
   previous_driver_ = dr_readings;
