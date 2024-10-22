@@ -18,7 +18,7 @@ SuperStructureReadings SuperStructureSubsystem::ReadFromHardware() {
 void SuperStructureSubsystem::WriteToHardware(SuperStructureTarget target) {
   PTWSetpoint targetPos = currentSetpoint + manualAdjustments;
 
-  pivot_->SetTarget({targetPos.pivot});
+  pivot_->SetTarget({targetPos.pivot, climb_mode_});
   telescope_->SetTarget({targetPos.telescope});
 
   wrist_->SetTarget({targetPos.wrist});

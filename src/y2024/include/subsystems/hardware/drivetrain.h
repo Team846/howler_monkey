@@ -142,6 +142,9 @@ class DrivetrainSubsystem
   frc846::ntinf::Pref<units::feet_per_second_squared_t> max_deceleration_{
       *this, "max_deceleration", 10_fps_sq};
 
+  frc846::ntinf::Pref<double> intake_align_gain_{*this, "intake_align_gain",
+                                                 1.0};
+
   // Lookahead distance during trajectory following.
   frc846::ntinf::Pref<units::inch_t> extrapolation_distance_{
       *this, "extrapolation_distance", 8_in};

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <frc/DigitalInput.h>
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc/trajectory/TrapezoidProfile.h>
 
@@ -16,10 +17,13 @@
 
 struct PivotReadings {
   units::degree_t pivot_position;
+
+  bool both_hooks_engaged;
 };
 
 struct PivotTarget {
   std::variant<units::degree_t, double> pivot_output;
+  bool climb_mode = false;
 };
 
 class PivotSubsystem
@@ -88,8 +92,14 @@ class PivotSubsystem
   frc846::ntinf::Pref<units::degrees_per_second_t> max_adjustment_rate_{
       *this, "max_adjustment_rate", units::degrees_per_second_t(60.0)};
 
+  frc846::ntinf::Pref<double> climb_duty_cycle_{*this, "climb_duty_cycle",
+                                                -0.25};
+
  private:
   bool hasZeroed = false;
+
+  frc::DigitalInput left_switch_{3};
+  frc::DigitalInput right_switch_{4};
 
   frc846::base::Loggable readings_named_{*this, "readings"};
 

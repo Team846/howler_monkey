@@ -53,6 +53,8 @@ class SuperStructureSubsystem
   PTWSetpoint currentSetpoint;
   PTWSetpoint manualAdjustments;
 
+  bool climb_mode_ = false;
+
   units::degree_t wrist_trim_amt = 0_deg;
 
  public:
@@ -86,13 +88,14 @@ class SuperStructureSubsystem
 
   bool GetHasZeroed() { return hasZeroed; }
 
-  void SetTargetSetpoint(PTWSetpoint newSetpoint) {
+  void SetTargetSetpoint(PTWSetpoint newSetpoint, bool climb_mode = false) {
     if (currentSetpoint.pivot != newSetpoint.pivot ||
         currentSetpoint.wrist != newSetpoint.wrist ||
         currentSetpoint.telescope != newSetpoint.telescope) {
       currentSetpoint = newSetpoint;
       ClearAdjustments();
     }
+    climb_mode_ = climb_mode;
   }
 
   bool CheckValidAdjustment(PTWSetpoint adjusted) {

@@ -87,11 +87,11 @@ void FunkyRobot::InitTeleop() {
   container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
   container_.control_input_.SetDefaultCommand(
       OperatorControlCommand{container_});
-  container_.super_structure_.SetDefaultCommand(
-      StowZeroActionCommand{container_});
+  container_.super_structure_.SetDefaultCommand(StowCommand{container_});
   container_.intake_.SetDefaultCommand(IdleIntakeCommand{container_});
   container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
   container_.bracer_.SetDefaultCommand(BracerCommand{container_});
+  container_.leds_.SetDefaultCommand(LEDsCommand{container_});
 
   ControlTriggerInitializer::InitTeleopTriggers(container_);
 }

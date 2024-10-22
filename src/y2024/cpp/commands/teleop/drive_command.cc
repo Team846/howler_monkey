@@ -30,6 +30,7 @@ void DriveCommand::Periodic() {
   bool prep_align_speaker =
       container_.control_input_.GetReadings().running_super_shoot;
   bool amping = container_.control_input_.GetReadings().running_amp;
+  bool intaking = container_.control_input_.GetReadings().running_intake;
   bool sourcing = container_.control_input_.GetReadings().running_source;
 
   bool flipping_controls =
@@ -77,15 +78,29 @@ void DriveCommand::Periodic() {
       container_.control_input_.driver_.steer_deadband_.value(), 1,
       container_.control_input_.driver_.steer_exponent_.value(), 1);
 
-  if (steer_x != 0) {
-    // Manual steer
-    auto target = steer_x * container_.drivetrain_.max_omega();
+  // Manual steer
+  auto target_steer = steer_x * container_.drivetrain_.max_omega();
 
-    drivetrain_target.rotation = DrivetrainRotationVelocity(target);
-  } else {
-    // Hold position
-    drivetrain_target.rotation = DrivetrainRotationVelocity(0_deg_per_s);
-  }
+  //   if (intaking &&
+  //       container_.drivetrain_.GetReadings().pose.velocity.magnitude() >
+  //           1.0_fps) {
+  //     auto current_velocity_bearing =
+  //         container_.drivetrain_.GetReadings().pose.velocity.angle(true);
+  //     auto target_velocity_bearing = 1_rad * std::atan2(translate_x,
+  //     translate_y);
+
+  //     auto avg_bearing =
+  //         (target_velocity_bearing + current_velocity_bearing) / 2.0;
+
+  //     auto steer_error = frc846::math::CoterminalDifference(
+  //         target_velocity_bearing, avg_bearing);
+
+  //     target_steer +=
+  //         container_.drivetrain_.intake_align_gain_.value() * steer_error /
+  //         1_s;
+  //   }
+
+  drivetrain_target.rotation = DrivetrainRotationVelocity(target_steer);
 
   if (prep_align_speaker) {
     VisionReadings vision_readings = container_.vision_.GetReadings();

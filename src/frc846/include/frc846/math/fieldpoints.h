@@ -23,7 +23,7 @@ struct FieldPoint {
     if (shouldMirror) {
       return FieldPoint{{field_size_x - point[0], field_size_y - point[1]},
                         180_deg + bearing,
-                        {-velocity[0], -velocity[1]}};
+                        {velocity[0], velocity[1]}};
     }
     return FieldPoint{
         {point[0], point[1]}, bearing, {velocity[0], velocity[1]}};
@@ -34,14 +34,14 @@ struct FieldPoint {
     if (shouldMirror) {
       return FieldPoint{{point[0], field_size_y - point[1]},
                         180_deg - bearing,
-                        {velocity[0], -velocity[1]}};
+                        {velocity[0], velocity[1]}};
     }
     return mirror(false);
   }
 
  private:
-  static constexpr units::inch_t field_size_x = 651.25_in;
-  static constexpr units::inch_t field_size_y = 315.5_in;
+  static constexpr units::inch_t field_size_y = 651.25_in;
+  static constexpr units::inch_t field_size_x = 315.5_in;
 };
 
 class FieldPointPreference {

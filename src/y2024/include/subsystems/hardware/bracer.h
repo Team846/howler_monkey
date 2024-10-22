@@ -42,9 +42,6 @@ class BracerSubsystem
 
   frc::Spark bracer_{ports::bracer_::kPWM_Left};
 
-  frc::DigitalInput left_switch_{3};
-  frc::DigitalInput right_switch_{4};
-
   BracerReadings ReadFromHardware() override;
 
   void WriteToHardware(BracerTarget target) override;

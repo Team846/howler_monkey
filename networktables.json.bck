@@ -2566,5 +2566,37 @@
     "properties": {
       "persistent": true
     }
+  },
+  {
+    "name": "/Preferences/drivetrain/intake_align_gain",
+    "type": "double",
+    "value": 1.0,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/wrist/homing_num_loops",
+    "type": "int",
+    "value": 20,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/pivot/climb_duty_cycle",
+    "type": "double",
+    "value": -0.25,
+    "properties": {
+      "persistent": true
+    }
+  },
+  {
+    "name": "/Preferences/Robot/coasting_time (s)",
+    "type": "double",
+    "value": 7.5,
+    "properties": {
+      "persistent": true
+    }
   }
 ]

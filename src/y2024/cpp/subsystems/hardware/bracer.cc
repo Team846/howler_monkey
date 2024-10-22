@@ -29,12 +29,6 @@ bool BracerSubsystem::VerifyHardware() {
 BracerReadings BracerSubsystem::ReadFromHardware() {
   BracerReadings readings;
 
-  left_climb_.Graph(left_switch_.Get());
-  right_climb_.Graph(right_switch_.Get());
-
-  frc846::util::ShareTables::SetBoolean(
-      "climb_hooks_engaged", left_switch_.Get() && right_switch_.Get());
-
   return readings;
 }
 

@@ -25,7 +25,7 @@ void TrapCommand::Periodic() {
     auto pullClimbTarget = container_.super_structure_.getPreClimbSetpoint();
     pullClimbTarget.pivot =
         container_.super_structure_.pivot_pull_target_.value();
-    container_.super_structure_.SetTargetSetpoint(pullClimbTarget);
+    container_.super_structure_.SetTargetSetpoint(pullClimbTarget, true);
   }
   if (stage_ == 3) {
     container_.intake_.SetTarget(container_.intake_.ZeroTarget());
