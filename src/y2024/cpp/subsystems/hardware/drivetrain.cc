@@ -227,7 +227,7 @@ DrivetrainReadings DrivetrainSubsystem::ReadFromHardware() {
   readings.pose = frc846::math::FieldPoint(odometry_.position(), bearing,
                                            unfiltered_velocity);
 
-  pose_x_graph_.Graph(odometry_.position()[0]);
+    pose_x_graph_.Graph(odometry_.position()[0]);
   pose_y_graph_.Graph(odometry_.position()[1]);
   // pose_bearing_graph.Graph(odometry_.position().bearing);
   v_x_graph_.Graph(readings.pose.velocity[0]);

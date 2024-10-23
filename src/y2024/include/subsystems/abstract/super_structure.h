@@ -99,7 +99,6 @@ class SuperStructureSubsystem
   }
 
   bool CheckValidAdjustment(PTWSetpoint adjusted) {
-    return true;
     return arm_kinematics_calculator.WithinBounds(
         arm_kinematics_calculator.calculate(
             {(currentSetpoint.pivot + adjusted.pivot),

@@ -1,5 +1,7 @@
 #include "frc846/other/swerve_odometry.h"
 
+#include <frc/DriverStation.h>
+
 #include <cmath>
 #include <cstdio>
 
@@ -15,6 +17,12 @@ void SwerveOdometry::Update(
     std::array<frc846::math::VectorND<units::foot_t, 2>, kModuleCount>
         wheel_vecs,
     units::radian_t bearing) {
+  bool is_red = true;
+  if (auto alliance = frc::DriverStation::GetAlliance()) {
+    if (alliance.value() == frc::DriverStation::Alliance::kBlue) {
+      is_red = false;
+    }
+  }
   // change in distance from the last odometry update
   for (int i = 0; i < kModuleCount; i++) {
     units::foot_t wheel_dist = wheel_vecs[i].magnitude();
@@ -36,6 +44,7 @@ void SwerveOdometry::Update(
     relative_displacement += wheel_vecs[i] / kModuleCount;
   }
 
+  if (!is_red) bearing += 180_deg;
   position_ += relative_displacement.rotate(bearing, true);
 }
 

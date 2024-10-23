@@ -35,10 +35,10 @@ BracerReadings BracerSubsystem::ReadFromHardware() {
 void BracerSubsystem::WriteToHardware(BracerTarget target) {
   if (target.state == BracerState::kExtend) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", true);
-    bracer_.Set(1.0);
+    bracer_.Set(-0.3);
   } else if (target.state == BracerState::kRetract) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", false);
-    bracer_.Set(-0.7);
+    bracer_.Set(0.7);
   } else {
     bracer_.Set(0.0);
   }
