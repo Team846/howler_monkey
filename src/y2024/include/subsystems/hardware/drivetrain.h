@@ -111,7 +111,7 @@ class DrivetrainSubsystem
 
   // Closed loop tuned for this
   frc846::ntinf::Pref<units::feet_per_second_t> auto_max_speed_{
-      *this, "auto_max_speed", 11.2_fps};
+      *this, "auto_speed", 11.2_fps};
 
   frc846::ntinf::Pref<double> driver_speed_multiplier_{
       *this, "driver_speed_multiplier", 1.0};

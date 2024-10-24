@@ -13,7 +13,7 @@ Preferences/MotionTargets/Telescope/trapscore_position (in).double | 3.000000
 Preferences/MotionTargets/Wrist/amp_position (deg).double | 100.000000
 Preferences/MotionTargets/Wrist/auto_shoot_position (deg).double | 42.500000
 Preferences/MotionTargets/Wrist/intake_position (deg).double | 32.000000
-Preferences/MotionTargets/Wrist/pass_position (deg).double | 80.000000
+Preferences/MotionTargets/Wrist/pass_position (deg).double | 86.000000
 Preferences/MotionTargets/Wrist/preclimb_position (deg).double | -30.000000
 Preferences/MotionTargets/Wrist/prescore_position (deg).double | 40.000000
 Preferences/MotionTargets/Wrist/shoot_position (deg).double | 41.000000
@@ -27,7 +27,7 @@ SuperStructure/shooting/auto_shooter_height (in).double | 23.000000
 SuperStructure/shooting/auto_shooter_x (in).double | 15.000000
 SuperStructure/shooting/teleop_shooter_height (in).double | 23.650000
 SuperStructure/shooting/teleop_shooter_x (in).double | 25.000000
-drivetrain/auto_max_speed (fps).double | 13.000000
+drivetrain/auto_max_speed (fps).double | 3.000000
 drivetrain/bearing_gains/d.double | -13.500000
 drivetrain/bearing_gains/p.double | 2.000000
 drivetrain/drive_esc/Configs/CurrentLimiting/peak_time_threshold (ms).double | 1000.000000

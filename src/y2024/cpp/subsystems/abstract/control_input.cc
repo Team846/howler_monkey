@@ -167,10 +167,9 @@ ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
   // PASS
   ci_readings_.running_pass = op_readings.x_button;
 
-  // SHOOT
+  // SHOOTING
   ci_readings_.shooting =
-      ((ci_readings_.running_prep_shoot || ci_readings_.running_super_shoot ||
-        ci_readings_.running_pass) &&
+      ((ci_readings_.running_prep_shoot || ci_readings_.running_super_shoot) &&
        dr_readings.right_bumper) ||
       op_readings.pov == frc846::XboxPOV::kRight;
   // EJECT

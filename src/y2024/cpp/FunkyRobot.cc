@@ -31,6 +31,8 @@
 FunkyRobot::FunkyRobot() : GenericRobot{&container_} {}
 
 void FunkyRobot::OnInitialize() {
+  container_.leds_.SetDefaultCommand(LEDsCommand{container_});
+
   Field::Setup();
 
   for (auto x : Field::getAllAutoData()) {
@@ -74,6 +76,8 @@ void FunkyRobot::OnInitialize() {
 }
 
 void FunkyRobot::OnDisable() {
+  container_.leds_.SetDefaultCommand(LEDsCommand{container_});
+
   container_.pivot_.Brake();
   container_.wrist_.Brake();
   container_.telescope_.Brake();
@@ -102,6 +106,7 @@ void FunkyRobot::OnPeriodic() {
 
   if (!homing_switch_.Get()) {
     container_.super_structure_.ZeroSubsystem();
+    frc846::util::ShareTables::SetBoolean("zero sequence", true);
     Log("Zeroing subsystems...");
   }
 

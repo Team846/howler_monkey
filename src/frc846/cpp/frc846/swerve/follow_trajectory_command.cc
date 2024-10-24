@@ -18,7 +18,7 @@ void FollowTrajectoryCommand::OnInit() {
                              container_.drivetrain_.max_acceleration_.value(),
                              container_.drivetrain_.max_deceleration_.value(),
                              container_.drivetrain_.max_speed_.value(),
-                             100_fps_sq, 100_fps_sq, 3_in, 20_ms});
+                             100_fps_sq, 100_fps_sq, 5_in, 20_ms});
 
   Log("Starting Trajectory");
   Log("Initial pose x{}, y{}, Bearing {}",
@@ -56,6 +56,9 @@ void FollowTrajectoryCommand::OnInit() {
   if (path_points_.size() < 2) {
     Error("Trajectory size ({}) is less than 2 - ending!", path_points_.size());
     is_done_ = true;
+  } else {
+    Log("First target point x{} y{}", path_points_[target_idx_].point[0],
+        path_points_[target_idx_].point[1]);
   }
 }
 
