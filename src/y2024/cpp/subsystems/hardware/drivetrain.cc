@@ -15,6 +15,7 @@ DrivetrainSubsystem::DrivetrainSubsystem(bool initialize)
           "drivetrain", initialize} {
   bearing_offset_ = 0_deg;
   ZeroOdometry();
+  m_field.GetObject("game_piece");
   frc::SmartDashboard::PutData("Field", &m_field);
 }
 
@@ -269,8 +270,18 @@ DrivetrainReadings DrivetrainSubsystem::ReadFromHardware() {
 void DrivetrainSubsystem::SetMap() {
   // set odometry
   m_field.SetRobotPose(frc::Pose2d(odometry_.pose().point.y,
-                                   -odometry_.pose().point.x,
+                                   26_ft - odometry_.pose().point.x,
                                    odometry_.pose().bearing));
+
+  auto x =
+      units::foot_t(frc846::util::ShareTables::GetDouble("closest_note_x"));
+  auto y =
+      units::foot_t(frc846::util::ShareTables::GetDouble("closest_note_y"));
+
+  if (x != 0_ft && y != 0_ft)
+    m_field.GetObject("game_piece")
+        ->SetPose((y - 7_ft / 12), (26_ft - x - 7_ft / 12),
+                  frc::Rotation2d(0_deg));
 }
 
 void DrivetrainSubsystem::WriteToHardware(DrivetrainTarget target) {

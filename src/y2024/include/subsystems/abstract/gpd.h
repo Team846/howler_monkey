@@ -42,6 +42,12 @@ class GPDSubsystem
   bool VerifyHardware() override;
 
  private:
+  GPDReadings prevReadings;
+
+  frc846::util::Position poseAtLastRequest;
+  bool requested = false;
+  int prevFrame = -1;
+
   frc846::base::Loggable readings_named{*this, "readings"};
   frc846::ntinf::Grapher<bool> note_detected_graph_{readings_named,
                                                     "note_detected"};
@@ -62,6 +68,8 @@ class GPDSubsystem
                                                             "note_angle_graph"};
   frc846::ntinf::Grapher<units::second_t> total_latency_{readings_named,
                                                          "total_latency_graph"};
+
+  nt::NetworkTableInstance nt_table = nt::NetworkTableInstance::GetDefault();
 
   std::shared_ptr<nt::NetworkTable> raspiPreferences =
       nt::NetworkTableInstance::GetDefault().GetTable("RaspiPreferences");

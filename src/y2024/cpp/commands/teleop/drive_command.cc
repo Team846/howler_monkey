@@ -139,11 +139,9 @@ void DriveCommand::Periodic() {
     frc846::util::Vector2D rel_note_pos =
         container_.gpd_.GetReadings().closest_note -
         container_.drivetrain_.GetReadings().pose.point;
-    std::cout << "x" << rel_note_pos.x.to<double>() << std::endl;
-    std::cout << "y" << rel_note_pos.y.to<double>() << std::endl;
     drivetrain_target.rotation = DrivetrainRotationPosition(
-        -rel_note_pos.Bearing());  // field centric, negative because switch
-                                   // between ccw to cs
+        rel_note_pos.Bearing());  // field centric, negative because switch
+                                  // between ccw to cs
   } else {
     driver_adjust_ = 0.0;
   }

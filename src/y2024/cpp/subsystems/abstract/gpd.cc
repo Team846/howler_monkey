@@ -70,69 +70,68 @@ frc846::util::Vector2D<units::foot_t> GPDSubsystem::findDistance(
 
 GPDReadings GPDSubsystem::ReadFromHardware() {
   GPDReadings newReadings{};
-  DrivetrainReadings drivetrainReadings;
 
-  units::degree_t bearing_ =
-      units::degree_t(frc846::util::ShareTables::GetDouble("robot_bearing_"));
-  units::degrees_per_second_t omega_ = units::degrees_per_second_t(
-      frc846::util::ShareTables::GetDouble("robot_omega_"));
-
-  units::feet_per_second_t velocity_x = units::feet_per_second_t(
-      frc846::util::ShareTables::GetDouble("velocity_x_"));
-  units::feet_per_second_t velocity_y = units::feet_per_second_t(
-      frc846::util::ShareTables::GetDouble("velocity_y_"));
-
-  units::inch_t robot_x =
-      units::foot_t(frc846::util::ShareTables::GetDouble("odometry_x_"));
-  units::inch_t robot_y =
-      units::foot_t(frc846::util::ShareTables::GetDouble("odometry_y_"));
-  frc846::util::Vector2D<units::foot_t> robot_pose = {robot_x, robot_y};
-
-  std::vector<double> theta_h = gpdTable->GetNumberArray("theta_h", {});
-  std::vector<double> theta_v = gpdTable->GetNumberArray("theta_v", {});
-  theta_h.push_back(20);
-  theta_v.push_back(80);
-  units::second_t camera_latency = units::millisecond_t(
-      gpdTable->GetNumber("latency", 0.0));  // confirm latency is in seconds
-
-  units::second_t total_latency = camera_latency + nt_latency.value();
-  frc846::util::Vector2D<units::foot_t> latency_pose_shift = {
-      -velocity_x * total_latency, -velocity_y * total_latency};
-  robot_pose =
-      robot_pose +
-      latency_pose_shift;  // depending on how slow gpd is might have to switch
-                           // to different method after testing
-  bearing_ -= omega_ * total_latency;
-  //   std::cout<<bearing_.to<double>()<<std::endl;
-  std::vector<frc846::util::Vector2D<units::foot_t>>
-      points;  // shifted to robot pose, but oriented according to field
-  for (int i = 0; i < theta_h.size(); i++) {
-    frc846::util::Vector2D<units::foot_t> values =
-        findDistance(theta_h[i] * 1_deg, theta_v[i] * 1_deg);
-    values = values.Rotate(bearing_);
-    // std
-    points.push_back(values);
+  if (!requested) {
+    prevFrame = (prevFrame + 1) % 500;
+    gpdTable->PutNumber("frameRequested", prevFrame);
+    nt_table.Flush();
+    units::degree_t bearing_ =
+        units::degree_t(frc846::util::ShareTables::GetDouble("robot_bearing_"));
+    units::inch_t robot_x =
+        units::foot_t(frc846::util::ShareTables::GetDouble("odometry_x_"));
+    units::inch_t robot_y =
+        units::foot_t(frc846::util::ShareTables::GetDouble("odometry_y_"));
+    poseAtLastRequest = {{robot_x, robot_y}, bearing_};
+    requested = true;
   }
-  //   std::cout<<points.size()<<"awpighwaugioh"<<std::endl;
-  // points.push_back({1_ft, 1_ft});
-  if (points.size() > 0) {
-    std::pair<frc846::util::Vector2D<units::foot_t>, int> best_note =
-        std::make_pair(points.at(0), 0);
+  if (requested && gpdTable->GetNumber("frameSent", -2) == prevFrame) {
+    std::vector<double> theta_h = gpdTable->GetNumberArray("theta_h", {});
+    std::vector<double> theta_v = gpdTable->GetNumberArray("theta_v", {});
+    //   std::cout<<bearing_.to<double>()<<std::endl;
+    std::vector<frc846::util::Vector2D<units::foot_t>>
+        points;  // shifted to robot pose, but oriented according to field
+    for (int i = 0; i < theta_h.size(); i++) {
+      frc846::util::Vector2D<units::foot_t> values =
+          findDistance(theta_h[i] * 1_deg, theta_v[i] * 1_deg);
+      values = values.Rotate(poseAtLastRequest.bearing);
+      // std
+      points.push_back(values);
+    }
+    //   std::cout<<points.size()<<"awpighwaugioh"<<std::endl;
+    // points.push_back({1_ft, 1_ft});
+    if (points.size() > 0) {
+      std::pair<frc846::util::Vector2D<units::foot_t>, int> best_note =
+          std::make_pair(points.at(0), 0);
 
-    newReadings.note_detected = true;
-    newReadings.points = points;
-    newReadings.closest_note = best_note.first + robot_pose;
-    newReadings.note_index = best_note.second;
-    newReadings.note_angle = std::get<0>(best_note).Bearing();
+      newReadings.note_detected = true;
+      newReadings.points = points;
+      newReadings.closest_note = best_note.first + poseAtLastRequest.point;
+      newReadings.note_index = best_note.second;
+      newReadings.note_angle = std::get<0>(best_note).Bearing();
+    } else {
+      newReadings.note_detected = false;
+    }
+    requested = false;
   } else {
-    newReadings.note_detected = false;
+    newReadings = prevReadings;
   }
-  //   std::cout<<newReadings.note_angle.to<double>()<<std::endl;
+
   note_angle_graph_.Graph(newReadings.note_angle);
   note_distance_magnitude_graph_.Graph(newReadings.closest_note.Magnitude());
-  total_latency_.Graph(total_latency);
+  frc846::util::ShareTables::SetDouble("closest_note_x",
+                                       newReadings.closest_note.x.to<double>());
+  frc846::util::ShareTables::SetDouble("closest_note_y",
+                                       newReadings.closest_note.y.to<double>());
 
+  prevReadings = newReadings;
   return newReadings;
+  // if new frame is equal to current frame
+
+  // DrivetrainReadings drivetrainReadings;
+
+  // //   std::cout<<newReadings.note_angle.to<double>()<<std::endl;
+
+  // return newReadings;
 }
 
 void GPDSubsystem::WriteToHardware(GPDTarget target) {}
