@@ -86,7 +86,7 @@ PivotReadings PivotSubsystem::ReadFromHardware() {
 
 void PivotSubsystem::WriteToHardware(PivotTarget target) {
   if (target.climb_mode) {
-    // hard_limits_.OverrideLimits(true);
+    hard_limits_.OverrideLimits(true);
 
     pivot_one_.WriteDC(climb_duty_cycle_.value());
     pivot_two_.WriteDC(climb_duty_cycle_.value());
@@ -94,7 +94,7 @@ void PivotSubsystem::WriteToHardware(PivotTarget target) {
     pivot_four_.WriteDC(climb_duty_cycle_.value());
 
   } else if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
-    // hard_limits_.OverrideLimits(false);
+    hard_limits_.OverrideLimits(false);
 
     double output = dyFPID.calculate(*pos, GetReadings().pivot_position,
                                      pivot_one_.GetVelocityPercentage(),
