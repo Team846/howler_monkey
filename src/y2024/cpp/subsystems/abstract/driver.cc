@@ -29,10 +29,7 @@ DriverReadings DriverSubsystem::ReadFromHardware() {
 void DriverSubsystem::WriteToHardware(DriverTarget target) {
   target_rumble_graph_.Graph(target.rumble);
 
-  auto rumble =
-      (target.rumble || frc846::util::ShareTables::GetBoolean("ready_to_shoot"))
-          ? rumble_strength_.value()
-          : 0;
+  auto rumble = (target.rumble) ? rumble_strength_.value() : 0;
 
   xbox_.SetRumble(frc::XboxController::RumbleType::kLeftRumble, rumble);
   xbox_.SetRumble(frc::XboxController::RumbleType::kRightRumble, rumble);

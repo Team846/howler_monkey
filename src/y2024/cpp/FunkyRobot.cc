@@ -2,6 +2,7 @@
 
 #include <cameraserver/CameraServer.h>
 #include <frc/DSControlWord.h>
+#include <frc/Filesystem.h>
 #include <frc/RobotController.h>
 #include <frc/livewindow/LiveWindow.h>
 #include <frc/shuffleboard/Shuffleboard.h>
@@ -13,7 +14,7 @@
 #include "commands/basic/deploy_intake_command.h"
 #include "commands/basic/shoot_command.h"
 #include "commands/basic/spin_up_command.h"
-#include "commands/follow_trajectory_command.h"
+#include "commands/complex/stow_zero_action.h"
 #include "commands/teleop/bracer_command.h"
 #include "commands/teleop/drive_command.h"
 #include "commands/teleop/idle_intake_command.h"
@@ -22,53 +23,70 @@
 #include "commands/teleop/operator_control.h"
 #include "commands/teleop/stow_command.h"
 #include "control_triggers.h"
-#include "frc846/other/sendable_callback.h"
+#include "field.h"
+#include "frc846/ntinf/ntaction.h"
+#include "frc846/swerve/follow_trajectory_command.h"
+#include "rsighandler.h"
 
 FunkyRobot::FunkyRobot() : GenericRobot{&container_} {}
 
 void FunkyRobot::OnInitialize() {
+  container_.leds_.SetDefaultCommand(LEDsCommand{container_});
+
+  Field::Setup();
+
+  for (auto x : Field::getAllAutoData()) {
+    Log("Adding Auto: {}", x.name + "_red");
+    AddAuto(x.name + "_red", new GenericAuto{container_, x, false});
+    Log("Adding Auto: {}", x.name + "_blue");
+    AddAuto(x.name + "_blue", new GenericAuto{container_, x, true});
+  }
+
   // Add dashboard buttons
   frc::SmartDashboard::PutData(
-      "zero_modules", new frc846::other::SendableCallback(
+      "zero_modules", new frc846::ntinf::NTAction(
                           [this] { container_.drivetrain_.ZeroModules(); }));
   frc::SmartDashboard::PutData("zero_bearing",
-                               new frc846::other::SendableCallback([this] {
+                               new frc846::ntinf::NTAction([this] {
                                  container_.drivetrain_.SetBearing(0_deg);
                                }));
 
   frc::SmartDashboard::PutData(
-      "zero_odometry", new frc846::other::SendableCallback(
+      "zero_odometry", new frc846::ntinf::NTAction(
                            [this] { container_.drivetrain_.ZeroOdometry(); }));
 
   frc::SmartDashboard::PutData("zero_subsystems",
-                               new frc846::other::SendableCallback([this] {
+                               new frc846::ntinf::NTAction([this] {
                                  container_.super_structure_.ZeroSubsystem();
                                }));
 
   frc::SmartDashboard::PutData("coast_subsystems",
-                               new frc846::other::SendableCallback([this] {
+                               new frc846::ntinf::NTAction([this] {
                                  container_.pivot_.Coast();
                                  container_.telescope_.Coast();
                                  container_.wrist_.Coast();
                                }));
 
   frc::SmartDashboard::PutData("brake_subsystems",
-                               new frc846::other::SendableCallback([this] {
+                               new frc846::ntinf::NTAction([this] {
                                  container_.pivot_.Brake();
                                  container_.telescope_.Brake();
                                  container_.wrist_.Brake();
                                }));
+}
 
-  AddAutos(five_piece_auto_red.get(),
-           {five_piece_auto_blue.get(), one_piece_auto_0.get(),
-            one_piece_auto_1.get(), one_piece_auto_2.get(),
-            one_piece_auto_3.get(), drive_auto_.get()});
+void FunkyRobot::OnDisable() {
+  container_.leds_.SetDefaultCommand(LEDsCommand{container_});
+
+  container_.pivot_.Brake();
+  container_.wrist_.Brake();
+  container_.telescope_.Brake();
 }
 
 void FunkyRobot::InitTeleop() {
   container_.pivot_.Brake();
   container_.telescope_.Brake();
-  container_.wrist_.Brake();
+  container_.wrist_.Coast();
 
   container_.drivetrain_.SetDefaultCommand(DriveCommand{container_});
   container_.control_input_.SetDefaultCommand(
@@ -77,52 +95,48 @@ void FunkyRobot::InitTeleop() {
   container_.intake_.SetDefaultCommand(IdleIntakeCommand{container_});
   container_.shooter_.SetDefaultCommand(IdleShooterCommand{container_});
   container_.bracer_.SetDefaultCommand(BracerCommand{container_});
-
-  frc2::Trigger drivetrain_zero_bearing_trigger{
-      [&] { return container_.control_input_.GetReadings().zero_bearing; }};
-
-  drivetrain_zero_bearing_trigger.WhileTrue(
-      frc2::InstantCommand([this] {
-        container_.drivetrain_.SetBearing(
-            frc846::util::ShareTables::GetBoolean("is_red_side") ? 0_deg
-                                                                 : 180_deg);
-      }).ToPtr());
-
-  frc2::Trigger on_piece_trigger{[&] {
-    return frc846::util::ShareTables::GetBoolean("scorer_has_piece");
-  }};
-
-  on_piece_trigger.OnTrue(
-      frc2::InstantCommand(
-          [&] { container_.control_input_.SetTarget({true, false}); })
-          .WithTimeout(1_s)
-          .AndThen(frc2::WaitCommand(1_s).ToPtr())
-          .AndThen(frc2::InstantCommand([&] {
-                     container_.control_input_.SetTarget({false, false});
-                   }).ToPtr()));
-
-  frc2::Trigger on_coast_trigger{[&] { return coasting_switch_.Get(); }};
-
-  on_coast_trigger.OnTrue(frc2::InstantCommand([&] {
-                            container_.pivot_.Coast();
-                            container_.telescope_.Coast();
-                          })
-                              .WithTimeout(1_s)
-                              .AndThen(frc2::WaitCommand(7_s).ToPtr())
-                              .AndThen(frc2::InstantCommand([&] {
-                                         container_.pivot_.Brake();
-                                         container_.telescope_.Brake();
-                                       }).ToPtr()));
-
-  frc2::Trigger homing_trigger{[&] { return homing_switch_.Get(); }};
-
-  homing_trigger.OnTrue(frc2::InstantCommand([&] {
-                          container_.wrist_.ZeroSubsystem();
-                          container_.pivot_.ZeroSubsystem();
-                          container_.telescope_.ZeroSubsystem();
-                        }).ToPtr());
+  container_.leds_.SetDefaultCommand(LEDsCommand{container_});
 
   ControlTriggerInitializer::InitTeleopTriggers(container_);
 }
 
+void FunkyRobot::OnPeriodic() {
+  Graph("homing_switch", !homing_switch_.Get());
+  Graph("coasting_switch", !coasting_switch_.Get());
+
+  if (!homing_switch_.Get()) {
+    container_.super_structure_.ZeroSubsystem();
+    frc846::util::ShareTables::SetBoolean("zero sequence", true);
+    Log("Zeroing subsystems...");
+  }
+
+  if (frc846::wpilib::CurrentFPGATime() > stop_coast_time_) {
+    container_.pivot_.Brake();
+    container_.wrist_.Brake();
+    container_.telescope_.Brake();
+
+    stop_coast_time_ =
+        frc846::wpilib::CurrentFPGATime() +
+        coasting_time_
+            .value();  // To prevent Brake from being called each periodic
+
+  } else if (!coasting_switch_.Get()) {
+    container_.pivot_.Coast();
+    container_.wrist_.Coast();
+    container_.telescope_.Coast();
+
+    stop_coast_time_ =
+        frc846::wpilib::CurrentFPGATime() + coasting_time_.value();
+
+    Log("Coasting subsystems...");
+  }
+}
+
 void FunkyRobot::InitTest() {}
+
+#ifndef RUNNING_FRC_TESTS
+int main() {
+  // configureSignalHandlers();
+  return frc::StartRobot<FunkyRobot>();
+}
+#endif

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "calculators/shooting_calculator.h"
 #include "frc846/robot/GenericCommand.h"
 #include "subsystems/robot_container.h"
 

@@ -4,7 +4,6 @@
 #include "frc846/ntinf/pref.h"
 #include "frc846/other/xbox.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/math.h"
 #include "ports.h"
 
 using DriverReadings = frc846::XboxReadings;

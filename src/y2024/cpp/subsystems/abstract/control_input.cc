@@ -98,6 +98,15 @@ ControlInputReadings ControlInputSubsystem::ReadFromHardware() {
         readings.home_wrist ? 1 : 0);
   }
 
+  if (readings.trim_up != previous_readings_.trim_up) {
+    Log("ControlInput [Trim Up] state changed to {}", readings.trim_up ? 1 : 0);
+  }
+
+  if (readings.trim_down != previous_readings_.trim_down) {
+    Log("ControlInput [Trim Down] state changed to {}",
+        readings.trim_up ? 1 : 0);
+  }
+
   if (std::abs(readings.pivot_manual_adjust) > 0.01 &&
       !(std::abs(previous_readings_.pivot_manual_adjust) > 0.01)) {
     Log("ControlInput [Pivot Manual Adjustment]");
@@ -158,10 +167,9 @@ ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
   // PASS
   ci_readings_.running_pass = op_readings.x_button;
 
-  // SHOOT
+  // SHOOTING
   ci_readings_.shooting =
-      ((ci_readings_.running_prep_shoot || ci_readings_.running_super_shoot ||
-        ci_readings_.running_pass) &&
+      ((ci_readings_.running_prep_shoot || ci_readings_.running_super_shoot) &&
        dr_readings.right_bumper) ||
       op_readings.pov == frc846::XboxPOV::kRight;
   // EJECT
@@ -190,6 +198,10 @@ ControlInputReadings ControlInputSubsystem::UpdateWithInput() {
   // RESETS
   ci_readings_.home_wrist = dr_readings.b_button;
   ci_readings_.zero_bearing = dr_readings.back_button;
+
+  // TRIM
+  ci_readings_.trim_up = op_readings.y_button;
+  ci_readings_.trim_down = op_readings.a_button;
 
   previous_operator_ = op_readings;
   previous_driver_ = dr_readings;

@@ -14,7 +14,6 @@
 #include "frc846/ntinf/grapher.h"
 #include "frc846/ntinf/pref.h"
 #include "frc846/robot/GenericSubsystem.h"
-#include "frc846/util/math.h"
 
 // FRC846_CTRE_NAMESPACE()
 

@@ -5,7 +5,7 @@
 #include <frc2/command/InstantCommand.h>
 #include <frc2/command/SequentialCommandGroup.h>
 
-#include "frc846/util/math.h"
+#include "frc846/base/Loggable.h"
 #include "frc846/wpilib/time.h"
 
 namespace frc846::robot {
@@ -91,20 +91,10 @@ class GenericCommandGroup
       : Loggable{name}, container_{container} {
     frc2::Command::SetName(name);
 
-    auto start_command_added = frc2::InstantCommand([&] {
-      Log("Command group {} starting.", name);
-      command_start_time_ = frc846::wpilib::CurrentFPGATime();
-    });
-    auto end_command_added = frc2::InstantCommand([&] {
-      units::millisecond_t elapsed_time =
-          frc846::wpilib::CurrentFPGATime() - command_start_time_;
-      Log("Command group {} ending. Took {} ms to complete.", name,
-          elapsed_time.to<double>());
-    });
-
+    frc2::SequentialCommandGroup::AddCommands(start_command_addition);
     frc2::SequentialCommandGroup::AddCommands(
-        start_command_added, std::forward<Commands>(commands)...,
-        end_command_added);
+        std::forward<Commands>(commands)...);
+    frc2::SequentialCommandGroup::AddCommands(end_command_addition);
 
     Log("Constructing instance of command group {}.", name);
   }
@@ -112,6 +102,17 @@ class GenericCommandGroup
  protected:
   RobotContainer& container_;
   units::millisecond_t command_start_time_ = 0.0_ms;
+
+ private:
+  frc2::InstantCommand end_command_addition{[&] {
+    Log("Command group ending. Took {} ms to complete.",
+        (frc846::wpilib::CurrentFPGATime() - command_start_time_).to<double>());
+  }};
+
+  frc2::InstantCommand start_command_addition{[&] {
+    Log("Command group starting.");
+    command_start_time_ = frc846::wpilib::CurrentFPGATime();
+  }};
 };
 
 };  // namespace frc846::robot

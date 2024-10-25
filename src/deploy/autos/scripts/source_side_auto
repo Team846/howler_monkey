@@ -1,0 +1,9 @@
+0,2
+F,kLeftSub
+ACT,prep_shoot
+ACT,shoot
+ACT,deploy_intake
+PATH,sside_piece_one
+ACT,a_prep_shoot
+PATH,sside_home
+ACT,shoot

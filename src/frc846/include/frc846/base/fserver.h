@@ -95,6 +95,7 @@ class LoggingServer {
 
         msg_mtx.lock();
         auto msg = messages.front();
+        messages.pop();
         msg_mtx.unlock();
 
         cli_mtx.lock();

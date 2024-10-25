@@ -33,6 +33,9 @@ class BracerSubsystem
   bool VerifyHardware() override;
 
  private:
+  frc846::ntinf::Pref<double> out_speed_{*this, "bracer_out_speed", -0.3};
+  frc846::ntinf::Pref<double> in_speed_{*this, "bracer_in_speed", 0.5};
+
   frc846::ntinf::Grapher<bool> left_climb_{*this, "left_hook_engaged"};
   frc846::ntinf::Grapher<bool> right_climb_{*this, "right_hook_engaged"};
 
@@ -41,9 +44,6 @@ class BracerSubsystem
   frc846::ntinf::Grapher<bool> target_extend_{target_named_, "extend"};
 
   frc::Spark bracer_{ports::bracer_::kPWM_Left};
-
-  frc::DigitalInput left_switch_{3};
-  frc::DigitalInput right_switch_{4};
 
   BracerReadings ReadFromHardware() override;
 

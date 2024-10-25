@@ -31,6 +31,12 @@ void BracerCommand::Periodic() {
   else
     target.state = BracerState::kStow;
 
+  if (container_.control_input_.operator_.GetReadings().y_button) {
+    target.state = BracerState::kRetract;
+  } else if (container_.control_input_.operator_.GetReadings().b_button) {
+    target.state = BracerState::kExtend;
+  }
+
   prev_ci_readings_ = ci_readings_;
   container_.bracer_.SetTarget(target);
 }

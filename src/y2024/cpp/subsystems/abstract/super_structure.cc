@@ -18,37 +18,19 @@ SuperStructureReadings SuperStructureSubsystem::ReadFromHardware() {
 void SuperStructureSubsystem::WriteToHardware(SuperStructureTarget target) {
   PTWSetpoint targetPos = currentSetpoint + manualAdjustments;
 
-  pivot_->SetTarget({targetPos.pivot});
+  pivot_->SetTarget({targetPos.pivot, climb_mode_});
   telescope_->SetTarget({targetPos.telescope});
 
-  if (homing_wrist) {
-    wrist_->SetTarget({wrist_->homing_speed_.value(), true});
-    if (wrist_->GetReadings().wrist_velocity <=
-        wrist_->homing_velocity_tolerance_.value()) {
-      wrist_home_counter++;
-    } else {
-      wrist_home_counter = 0;
-    }
-    if (wrist_home_counter >= 30) {
-      wrist_->ZeroSubsystem();
-      homing_wrist = false;
-      wrist_home_counter = 0;
-    }
-  } else {
-    wrist_->SetTarget({targetPos.wrist});
-    wrist_home_counter = 0;
-  }
+  wrist_->SetTarget({targetPos.wrist});
 
-  CoordinatePositions targetPosIntake{
-      ArmKinematics::calculateCoordinatePosition(
-          {targetPos.pivot, targetPos.telescope, targetPos.wrist}, true)};
-  CoordinatePositions targetPosShooter{
-      ArmKinematics::calculateCoordinatePosition(
-          {targetPos.pivot, targetPos.telescope, targetPos.wrist}, false)};
+  auto target_end_effector_positions = arm_kinematics_calculator.calculate(
+      {targetPos.pivot, targetPos.telescope, targetPos.wrist});
 
-  intake_point_x_graph_.Graph(targetPosIntake.forward_axis);
-  intake_point_y_graph_.Graph(targetPosIntake.upward_axis);
+  intake_point_x_graph_.Graph(target_end_effector_positions.intake_position[0]);
+  intake_point_y_graph_.Graph(target_end_effector_positions.intake_position[1]);
 
-  shooter_point_x_graph_.Graph(targetPosShooter.forward_axis);
-  shooter_point_y_graph_.Graph(targetPosShooter.upward_axis);
+  shooter_point_x_graph_.Graph(
+      target_end_effector_positions.shooter_position[0]);
+  shooter_point_y_graph_.Graph(
+      target_end_effector_positions.shooter_position[1]);
 }

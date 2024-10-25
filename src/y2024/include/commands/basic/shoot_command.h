@@ -15,4 +15,7 @@ class ShootCommand
   void OnEnd(bool interrupted) override;
 
   bool IsFinished() override;
+
+ private:
+  int num_loops_;
 };

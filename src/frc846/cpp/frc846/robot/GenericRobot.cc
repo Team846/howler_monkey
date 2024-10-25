@@ -15,14 +15,14 @@
 #include "frc2/command/ParallelDeadlineGroup.h"
 #include "frc2/command/WaitCommand.h"
 #include "frc846/base/loggable.h"
-#include "frc846/other/sendable_callback.h"
+#include "frc846/ntinf/ntaction.h"
 #include "frc846/robot/GenericCommand.h"
 #include "frc846/wpilib/time.h"
 
 namespace frc846::robot {
 
 GenericRobot::GenericRobot(GenericRobotContainer* container)
-    : frc846::base::Loggable{"robot"}, generic_robot_container_{container} {
+    : frc846::base::Loggable{"Robot"}, generic_robot_container_{container} {
   next_loop_time_ = frc846::wpilib::CurrentFPGATime();
 
   int32_t status = 0x00;
@@ -57,7 +57,22 @@ void GenericRobot::StartCompetition() {
 
   frc::SmartDashboard::PutData(
       "verify_hardware",
-      new frc846::other::SendableCallback([this] { VerifyHardware(); }));
+      new frc846::ntinf::NTAction([this] { VerifyHardware(); }));
+
+  frc::SmartDashboard::PutData(
+      "get_prune_list", new frc846::ntinf::NTAction([this] {
+        for (const std::string& x : robotStore.GetPruneList()) {
+          Log("Key {} found in prune list.", x);
+        }
+      }));
+
+  frc::SmartDashboard::PutData(
+      "prune_prefs", new frc846::ntinf::NTAction([this] {
+        for (const std::string& x : robotStore.GetPruneList()) {
+          Log("Pruning key {}.", x);
+        }
+        robotStore.Prune();
+      }));
 
   // Verify robot hardware
   VerifyHardware();
@@ -119,10 +134,12 @@ void GenericRobot::StartCompetition() {
         loop.Clear();
       } else if (mode == Mode::kAutonomous) {
         // Get and run selected auto command
-        auto_command_ = auto_chooser_.GetSelected();
+        std::string option_name = auto_chooser_.GetSelected();
+        auto_command_ = autos_[option_name];
 
         if (auto_command_ != nullptr) {
-          Log("Running auto: {}", auto_command_->GetName());
+          Log("Running auto: {}", option_name);
+
           auto_command_->Schedule();
         } else {
           Error("Auto command null!");
@@ -151,6 +168,8 @@ void GenericRobot::StartCompetition() {
 
       last_mode_ = mode;
     }
+
+    OnPeriodic();
 
     // Update subsystem readings
     generic_robot_container_->UpdateReadings();
@@ -195,12 +214,9 @@ void GenericRobot::VerifyHardware() {
   generic_robot_container_->VerifyHardware();
 }
 
-void GenericRobot::AddAutos(frc2::Command* defaultOption,
-                            std::vector<frc2::Command*> otherOptions) {
-  auto_chooser_.SetDefaultOption(defaultOption->GetName(), defaultOption);
-  for (auto option : otherOptions) {
-    auto_chooser_.AddOption(option->GetName(), option);
-  }
+void GenericRobot::AddAuto(std::string name, frc2::Command* command) {
+  auto_chooser_.AddOption(name, name);
+  autos_[name] = command;
   frc::SmartDashboard::PutData(&auto_chooser_);
   frc::SmartDashboard::UpdateValues();
 }

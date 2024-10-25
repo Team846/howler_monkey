@@ -69,6 +69,8 @@ PivotReadings PivotSubsystem::ReadFromHardware() {
 
   readings.pivot_position = pivot_one_.GetPosition();
 
+  readings.both_hooks_engaged = left_switch_.Get() && right_switch_.Get();
+
   frc846::util::ShareTables::SetDouble("pivot_position",
                                        readings.pivot_position.to<double>());
 
@@ -83,7 +85,17 @@ PivotReadings PivotSubsystem::ReadFromHardware() {
 }
 
 void PivotSubsystem::WriteToHardware(PivotTarget target) {
-  if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
+  if (target.climb_mode) {
+    hard_limits_.OverrideLimits(true);
+
+    pivot_one_.WriteDC(climb_duty_cycle_.value());
+    pivot_two_.WriteDC(climb_duty_cycle_.value());
+    pivot_three_.WriteDC(climb_duty_cycle_.value());
+    pivot_four_.WriteDC(climb_duty_cycle_.value());
+
+  } else if (auto pos = std::get_if<units::degree_t>(&target.pivot_output)) {
+    hard_limits_.OverrideLimits(false);
+
     double output = dyFPID.calculate(*pos, GetReadings().pivot_position,
                                      pivot_one_.GetVelocityPercentage(),
                                      config_helper_.updateAndGetGains());
@@ -95,6 +107,8 @@ void PivotSubsystem::WriteToHardware(PivotTarget target) {
 
     target_pivot_pos_graph.Graph(*pos);
   } else if (auto output = std::get_if<double>(&target.pivot_output)) {
+    // hard_limits_.OverrideLimits(false);
+
     pivot_one_.WriteDC(*output);
     pivot_two_.WriteDC(*output);
     pivot_three_.WriteDC(*output);

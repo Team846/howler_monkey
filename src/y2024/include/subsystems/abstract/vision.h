@@ -20,6 +20,9 @@ struct VisionReadings {
   units::inch_t tag_distance;
   units::degree_t tag_angle_difference;
 
+  units::foot_t x_pos;
+  units::foot_t y_pos;
+
   double velocity_in_component;
   double velocity_orth_component;
 };
@@ -44,6 +47,9 @@ class VisionSubsystem
 
   bool VerifyHardware() override;
 
+  frc846::ntinf::Pref<bool> using_vision_autos_{*this, "using_vision_autos",
+                                                false};
+
  private:
   frc846::ntinf::Pref<bool> default_is_red_side_{*this, "default_is_red_side"};
 
@@ -53,6 +59,10 @@ class VisionSubsystem
                                                                  "ll_latency"};
 
   frc846::base::Loggable readings_named{*this, "readings"};
+  frc846::ntinf::Grapher<units::foot_t> robot_x_graph_{readings_named,
+                                                       "robot_x"};
+  frc846::ntinf::Grapher<units::foot_t> robot_y_graph_{readings_named,
+                                                       "robot_y"};
   frc846::ntinf::Grapher<units::foot_t> speaker_x_dist_graph_{readings_named,
                                                               "speaker_dist_x"};
   frc846::ntinf::Grapher<units::foot_t> speaker_y_dist_graph_{readings_named,

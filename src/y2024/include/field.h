@@ -1,95 +1,77 @@
 #pragma once
 
-#include <cmath>
+#include <frc/Filesystem.h>
 
-#include "frc846/util/math.h"
+#include <map>
 
-// Field has blue alliance far right corner as origin
-struct field {
-  struct points {
-    static frc846::util::Position Origin() {
-      return frc846::util::Position(
-          frc846::util::Vector2D<units::foot_t>(0_in, 0_in), 0_deg);
-    };
+#include "frc846/math/fieldpoints.h"
 
-    static frc846::util::Vector2D<units::foot_t> kSpeaker(bool flip = false) {
-      if (!flip) {
-        return frc846::util::Vector2D<units::foot_t>(217.5_in, -4_in);
-      } else {
-        return frc846::util::Vector2D<units::foot_t>(217.5_in, 655.8_in);
-      }
-    }
+enum AutoFlipType { kNone, kMirror, kMirrorOnlyY };
 
-    static frc846::util::Position kAmpNoFlip() {
-      return frc846::util::Position(
-          frc846::util::Vector2D<units::foot_t>(0_in, 0_in), 90_deg);
-    }
+struct AutoData {
+  std::string name;
+  AutoFlipType red;
+  AutoFlipType blue;
+  frc846::math::FieldPoint start;
+  std::vector<std::variant<std::vector<frc846::math::FieldPoint>, std::string>>
+      actions;
+};
 
-    static frc846::util::Position kPreAmpNoFlip() {
-      return frc846::util::Position(
-          frc846::util::Vector2D<units::foot_t>(-2_ft, 0_in), 90_deg);
-    }
+class Field_nonstatic : public frc846::base::Loggable {
+ public:
+  std::vector<std::pair<std::string, frc846::math::FieldPoint>> points;
 
-    // TESTING
-    static frc846::util::FieldPoint testing_origin;
-    static frc846::util::Position kTestingOrigin(bool should_flip) {
-      return testing_origin.flip(should_flip);
-    };
+  std::vector<std::pair<std::string, std::vector<frc846::math::FieldPoint>>>
+      paths;
 
-    static frc846::util::FieldPoint testing_point;
-    static frc846::util::Position kTestingPoint(bool should_flip) {
-      return testing_point.flip(should_flip);
-    };
+  frc846::math::FieldPoint getPoint(std::string name);
 
-    // FIVE PIECE AUTO
-    static frc846::util::FieldPoint five_piece_origin;
-    static frc846::util::Position kFivePieceOrigin(bool should_flip) {
-      return five_piece_origin.flip(should_flip, true);
-    };
+  std::vector<frc846::math::FieldPoint> getPath(std::string name);
 
-    static frc846::util::FieldPoint five_piece_intake_one;
-    static frc846::util::Position kFivePieceIntakeOne(bool should_flip) {
-      return five_piece_intake_one.flip(should_flip, true);
-    };
+  Field_nonstatic();
 
-    static frc846::util::FieldPoint five_piece_mid_one;
-    static frc846::util::Position kFivePieceMidOne(bool should_flip) {
-      return five_piece_mid_one.flip(should_flip, true);
-    };
+  void Setup();
 
-    static frc846::util::FieldPoint five_piece_shoot_one;
-    static frc846::util::Position kFivePieceShootOne(bool should_flip) {
-      return five_piece_shoot_one.flip(should_flip, true);
-    };
+  std::vector<AutoData> getAllAutoData();
 
-    static frc846::util::FieldPoint five_piece_intake_two;
-    static frc846::util::Position kFivePieceIntakeTwo(bool should_flip) {
-      return five_piece_intake_two.flip(should_flip, true);
-    };
+ private:
+  void addPoint(std::string name, frc846::math::FieldPoint point) {
+    points.push_back(std::pair{name, point});
+  }
 
-    static frc846::util::FieldPoint five_piece_mid_two;
-    static frc846::util::Position kFivePieceMidTwo(bool should_flip) {
-      return five_piece_mid_two.flip(should_flip, true);
-    };
+  static std::vector<std::string> split(const std::string& s, char delimiter);
 
-    static frc846::util::FieldPoint five_piece_shoot_two;
-    static frc846::util::Position kFivePieceShootTwo(bool should_flip) {
-      return five_piece_shoot_two.flip(should_flip, true);
-    };
+  static std::vector<std::string> readLines(std::string filename);
 
-    static frc846::util::FieldPoint five_piece_intake_three;
-    static frc846::util::Position kFivePieceIntakeThree(bool should_flip) {
-      return five_piece_intake_three.flip(should_flip, true);
-    };
+  static std::string fixPath(std::string path);
 
-    static frc846::util::FieldPoint five_piece_mid_three;
-    static frc846::util::Position kFivePieceMidThree(bool should_flip) {
-      return five_piece_mid_three.flip(should_flip, true);
-    };
+  static std::string forceNormalPath(std::string path);
 
-    static frc846::util::FieldPoint five_piece_shoot_three;
-    static frc846::util::Position kFivePieceShootThree(bool should_flip) {
-      return five_piece_shoot_three.flip(should_flip, true);
-    };
-  };
+  static std::string getFileDirectory();
+
+  frc846::math::FieldPoint parsePoint(std::string line);
+
+  void readPointsFile();
+
+  void readAllPaths();
+};
+
+class Field {
+ public:
+  static frc846::math::FieldPoint getPoint(std::string name) {
+    return instance.getPoint(name);
+  }
+
+  static std::vector<frc846::math::FieldPoint> getPath(std::string name) {
+    return instance.getPath(name);
+  }
+
+  static void Setup() { instance.Setup(); }
+
+  static std::vector<AutoData> getAllAutoData() {
+    return instance.getAllAutoData();
+  }
+
+ private:
+  static Field_nonstatic instance;
 };

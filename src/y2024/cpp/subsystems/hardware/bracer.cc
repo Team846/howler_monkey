@@ -29,22 +29,16 @@ bool BracerSubsystem::VerifyHardware() {
 BracerReadings BracerSubsystem::ReadFromHardware() {
   BracerReadings readings;
 
-  left_climb_.Graph(left_switch_.Get());
-  right_climb_.Graph(right_switch_.Get());
-
-  frc846::util::ShareTables::SetBoolean(
-      "climb_hooks_engaged", left_switch_.Get() && right_switch_.Get());
-
   return readings;
 }
 
 void BracerSubsystem::WriteToHardware(BracerTarget target) {
   if (target.state == BracerState::kExtend) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", true);
-    bracer_.Set(1.0);
+    bracer_.Set(out_speed_.value());
   } else if (target.state == BracerState::kRetract) {
     frc846::util::ShareTables::SetBoolean("is_climb_sequence", false);
-    bracer_.Set(-0.7);
+    bracer_.Set(in_speed_.value());
   } else {
     bracer_.Set(0.0);
   }

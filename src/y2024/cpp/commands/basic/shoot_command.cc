@@ -6,7 +6,7 @@ ShootCommand::ShootCommand(RobotContainer& container)
   AddRequirements({&container_.intake_, &container_.shooter_});
 }
 
-void ShootCommand::OnInit() {}
+void ShootCommand::OnInit() { num_loops_ = 0; }
 
 void ShootCommand::Periodic() {
   container_.intake_.SetTarget({IntakeState::kFeed});
@@ -17,4 +17,12 @@ void ShootCommand::OnEnd(bool interrupted) {
   frc846::util::ShareTables::SetBoolean("ready_to_shoot", false);
 }
 
-bool ShootCommand::IsFinished() { return false; }
+bool ShootCommand::IsFinished() {
+  if (!container_.intake_.GetHasPiece()) {
+    num_loops_ += 1;
+  } else {
+    num_loops_ = 0;
+  }
+
+  return num_loops_ > 70;
+}

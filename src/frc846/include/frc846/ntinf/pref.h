@@ -22,17 +22,21 @@ class Pref {
   // Construct a new pref for a unit type with a fallback value.
   //
   // The pref name will be post-fixed with the unit (e.g. `length (in)`).
-  Pref(const frc846::base::Loggable& parent, std::string name, T fallback);
-  Pref(const frc846::base::Loggable& parent, std::string name);
+  Pref(frc846::base::Loggable& parent, std::string name, T fallback);
+  Pref(frc846::base::Loggable& parent, std::string name);
 
-  ~Pref() { pref_table_->RemoveListener(entry_listener_); }
+  ~Pref() {
+    parent_.Warn("Preference {} destructor was called.", f_ptr_.key_);
+    pref_table_->RemoveListener(entry_listener_);
+  }
 
  private:
-  Pref(const frc846::base::Loggable& parent, std::string name, T fallback,
+  Pref(frc846::base::Loggable& parent, std::string name, T fallback,
        std::function<void(std::string, T, frc846::ntinf::FPointer)> init,
        std::function<void(frc846::ntinf::FPointer, T)> set,
        std::function<T(std::string, T)> get)
-      : f_ptr_{frc846::base::Loggable::Join(parent.name(), name)} {
+      : parent_{parent},
+        f_ptr_{frc846::base::Loggable::Join(parent.name(), name)} {
     FunkyStore::FP_HardReadPrefs();
     // Full networktables key (parent name + pref name)
     auto full_key = frc846::base::Loggable::Join(parent.name(), name);
@@ -62,6 +66,8 @@ class Pref {
   T value() const { return value_; }
 
  private:
+  frc846::base::Loggable& parent_;
+
   T value_;
 
   NT_Listener entry_listener_;
@@ -73,8 +79,7 @@ class Pref {
 };
 
 template <class U>
-Pref<U>::Pref(const frc846::base::Loggable& parent, std::string name,
-              U fallback)
+Pref<U>::Pref(frc846::base::Loggable& parent, std::string name, U fallback)
     : Pref{parent,
            fmt::format("{} ({})", name,
                        units::abbreviation(units::make_unit<U>(0))),
@@ -94,11 +99,11 @@ Pref<U>::Pref(const frc846::base::Loggable& parent, std::string name,
 }
 
 template <class U>
-Pref<U>::Pref(const frc846::base::Loggable& parent, std::string name)
+Pref<U>::Pref(frc846::base::Loggable& parent, std::string name)
     : Pref{parent, name, units::abbreviation(units::make_unit<U>(0))} {}
 
 template <>
-inline Pref<bool>::Pref(const frc846::base::Loggable& parent, std::string name,
+inline Pref<bool>::Pref(frc846::base::Loggable& parent, std::string name,
                         bool fallback)
     : Pref<bool>{
           parent,
@@ -114,12 +119,12 @@ inline Pref<bool>::Pref(const frc846::base::Loggable& parent, std::string name,
       } {}
 
 template <>
-inline Pref<bool>::Pref(const frc846::base::Loggable& parent, std::string name)
+inline Pref<bool>::Pref(frc846::base::Loggable& parent, std::string name)
     : Pref<bool>{parent, name, false} {}
 
 template <>
-inline Pref<double>::Pref(const frc846::base::Loggable& parent,
-                          std::string name, double fallback)
+inline Pref<double>::Pref(frc846::base::Loggable& parent, std::string name,
+                          double fallback)
     : Pref<double>{
           parent,
           name,
@@ -134,12 +139,11 @@ inline Pref<double>::Pref(const frc846::base::Loggable& parent,
       } {}
 
 template <>
-inline Pref<double>::Pref(const frc846::base::Loggable& parent,
-                          std::string name)
+inline Pref<double>::Pref(frc846::base::Loggable& parent, std::string name)
     : Pref<double>{parent, name, 0.0} {}
 
 template <>
-inline Pref<int>::Pref(const frc846::base::Loggable& parent, std::string name,
+inline Pref<int>::Pref(frc846::base::Loggable& parent, std::string name,
                        int fallback)
     : Pref<int>{
           parent,
@@ -155,12 +159,12 @@ inline Pref<int>::Pref(const frc846::base::Loggable& parent, std::string name,
       } {}
 
 template <>
-inline Pref<int>::Pref(const frc846::base::Loggable& parent, std::string name)
+inline Pref<int>::Pref(frc846::base::Loggable& parent, std::string name)
     : Pref<int>{parent, name, 0} {}
 
 template <>
-inline Pref<std::string>::Pref(const frc846::base::Loggable& parent,
-                               std::string name, std::string fallback)
+inline Pref<std::string>::Pref(frc846::base::Loggable& parent, std::string name,
+                               std::string fallback)
     : Pref<std::string>{
           parent,
           name,

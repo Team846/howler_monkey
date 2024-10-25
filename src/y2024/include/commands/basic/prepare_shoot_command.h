@@ -1,8 +1,7 @@
 #pragma once
 
-#include "constants.h"
+#include "calculators/shooting_calculator.h"
 #include "frc846/robot/GenericCommand.h"
-#include "frc846/util/math.h"
 #include "subsystems/robot_container.h"
 
 class PrepareShootCommand

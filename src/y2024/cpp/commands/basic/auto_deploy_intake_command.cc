@@ -7,7 +7,7 @@ AutoDeployIntakeCommand::AutoDeployIntakeCommand(RobotContainer& container)
                    &container_.super_structure_});
 }
 
-void AutoDeployIntakeCommand::OnInit() {}
+void AutoDeployIntakeCommand::OnInit() { Periodic(); }
 
 void AutoDeployIntakeCommand::Periodic() {
   container_.intake_.SetTarget({kIntake});
@@ -18,7 +18,4 @@ void AutoDeployIntakeCommand::Periodic() {
 
 void AutoDeployIntakeCommand::OnEnd(bool interrupted) {}
 
-bool AutoDeployIntakeCommand::IsFinished() {
-  return container_.super_structure_.hasReachedSetpoint(
-      container_.super_structure_.getIntakeSetpoint());
-}
+bool AutoDeployIntakeCommand::IsFinished() { return true; }

@@ -17,7 +17,7 @@ void LEDsCommand::Periodic() {
     lstate = LEDsState::kLEDSAutonomous;
   } else if (frc846::util::ShareTables::GetBoolean("zero sequence")) {
     lstate = LEDsState::kLEDSZeroing;
-  } else if (container_.super_structure_.GetHasZeroed()) {
+  } else if (!container_.super_structure_.GetHasZeroed()) {
     lstate = LEDsState::kLEDSNotReady;
   } else if (frc846::util::ShareTables::GetString("mode") == "disabled") {
     lstate = LEDsState::kLEDSDisabled;

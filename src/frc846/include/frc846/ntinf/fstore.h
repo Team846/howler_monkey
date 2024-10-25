@@ -21,6 +21,8 @@ class FunkyStore {
   static std::map<std::string, std::variant<int, double, std::string, bool>>
       prefs;
 
+  static std::unordered_set<std::string> keys_accessed;
+
   static std::vector<std::string> changes;
 
   static bool ContainsKey(std::string key);
@@ -64,6 +66,9 @@ class FunkyStore {
 
   void WriteToDisk();
   void AppendToChangeLog();
+
+  std::vector<std::string> GetPruneList();
+  void Prune();
 
   static void HardReadPrefs();
   static void FP_HardReadPrefs();

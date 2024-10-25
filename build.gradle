@@ -7,10 +7,15 @@ plugins {
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 deploy {
+    println "Setting up deploy targets and artifacts..."
     targets {
         roborio(getTargetTypeClass('RoboRIO')) {
             team = project.frc.getTeamNumber()
             debug = project.frc.getDebugOrDefault(false)
+
+            println "Deploy team # set to ${team}."
+            println "Debug set to ${debug} (disabled by default).\n"
+
 
             artifacts {
                 frcCpp(getArtifactTypeClass('FRCNativeArtifact')) {
@@ -28,22 +33,27 @@ deploy {
 def deployArtifact = deploy.targets.roborio.artifacts.frcCpp
 
 // Set this to true to enable desktop support.
-def includeDesktopSupport = false
+def includeDesktopSupport = true
 
 // Set to true to run simulation in debug mode
-wpi.cpp.debugSimulation = true
+wpi.cpp.debugSimulation = false
 
 // Default enable simgui
-wpi.sim.addGui().defaultEnabled = true
+wpi.sim.addGui().defaultEnabled = false
 // Enable DS but not by default
 wpi.sim.addDriverstation()
 
 model {
     components {
         frcUserProgram(NativeExecutableSpec) {
+            println "Configuring frcUserProgram..."
             targetPlatform wpi.platforms.roborio
             if (includeDesktopSupport) {
                 targetPlatform wpi.platforms.desktop
+                binaries.all {
+                    cppCompiler.args << '-DNOMINMAX'
+                    println "Applied compiler argument NOMINMAX to allow for compilation on Windows platform."
+                }
             }
 
             sources.cpp {
@@ -71,22 +81,28 @@ model {
             wpi.cpp.deps.wpilib(it)
         }
     }
-    // Uncomment and configure test suites if needed
-    // testSuites {
-    //     frcUserProgramTest(GoogleTestTestSuiteSpec) {
-    //         testing $.components.frcUserProgram
-    //         sources.cpp {
-    //             source {
-    //                 srcDir 'src/test/cpp'
-    //                 include '**/*.cpp'
-    //             }
-    //         }
-    //         wpi.cpp.enableExternalTasks(it)
-    //         wpi.cpp.vendor.cpp(it)
-    //         wpi.cpp.deps.wpilib(it)
-    //         wpi.cpp.deps.googleTest(it)
-    //     }
-    // }
+
+    testSuites {
+        frcUserProgramTest(GoogleTestTestSuiteSpec) {
+            testing $.components.frcUserProgram
+
+            println "Configuring frcUserProgramTest..."
+            sources.cpp {
+                source {
+                    srcDir 'src/test/cpp'
+                    include '**/*.cpp'
+                }
+            }
+            binaries.all {
+                cppCompiler.args << '-DNOMINMAX'
+                println "Applied compiler argument NOMINMAX to allow for compilation on Windows platform."
+            }
+            wpi.cpp.enableExternalTasks(it)
+            wpi.cpp.vendor.cpp(it)
+            wpi.cpp.deps.wpilib(it)
+            wpi.cpp.deps.googleTest(it)
+        }
+    }
 }
 
 spotless {

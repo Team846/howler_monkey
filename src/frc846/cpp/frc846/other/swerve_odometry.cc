@@ -1,77 +1,58 @@
 #include "frc846/other/swerve_odometry.h"
 
+#include <frc/DriverStation.h>
+
 #include <cmath>
 #include <cstdio>
 
-#include "frc846/util/math.h"
-#include "frc846/util/share_tables.h"
+#include "frc846/math/vectors.h"
 
 namespace frc846 {
 
-SwerveOdometry::SwerveOdometry(util::Position initial_pose)
-    : pose_(initial_pose) {}
+SwerveOdometry::SwerveOdometry(
+    frc846::math::VectorND<units::foot_t, 2> initial_position)
+    : position_{initial_position[0], initial_position[1]} {}
 
 void SwerveOdometry::Update(
-    std::array<util::Vector2D<units::foot_t>, kModuleCount> wheel_vecs,
+    std::array<frc846::math::VectorND<units::foot_t, 2>, kModuleCount>
+        wheel_vecs,
     units::radian_t bearing) {
+  bool is_red = true;
+  if (auto alliance = frc::DriverStation::GetAlliance()) {
+    if (alliance.value() == frc::DriverStation::Alliance::kBlue) {
+      is_red = false;
+    }
+  }
   // change in distance from the last odometry update
   for (int i = 0; i < kModuleCount; i++) {
-    units::foot_t wheel_dist = wheel_vecs[i].Magnitude();
+    units::foot_t wheel_dist = wheel_vecs[i].magnitude();
     units::foot_t delta_distance = wheel_dist - prev_wheel_distances_[i];
     units::foot_t dx =
-        delta_distance * units::math::cos(wheel_vecs[i].Bearing() + bearing);
+        delta_distance * units::math::sin(wheel_vecs[i].angle(true) + bearing);
     units::foot_t dy =
-        delta_distance * units::math::sin(wheel_vecs[i].Bearing() + bearing);
+        delta_distance * units::math::cos(wheel_vecs[i].angle(true) + bearing);
 
     prev_wheel_distances_[i] = wheel_dist;
 
-    wheel_vecs[i] = {dx, dy};
+    wheel_vecs[i][0] = dx;
+    wheel_vecs[i][1] = dy;
   }
 
-  // get the distance components of each of the module, accounting for the robot
-  // bearing
-  std::array<util::Vector2D<units::foot_t>, kModuleCount> xy_comps;
+  frc846::math::VectorND<units::foot_t, 2> relative_displacement{0_ft, 0_ft};
 
   for (int i = 0; i < kModuleCount; i++) {
-    xy_comps[i] = {
-        wheel_vecs[i].Magnitude() * units::math::sin(wheel_vecs[i].Bearing()),
-        wheel_vecs[i].Magnitude() * units::math::cos(wheel_vecs[i].Bearing()),
-    };
+    relative_displacement += wheel_vecs[i] / kModuleCount;
   }
 
-  // the distance travelled by each "side" of the robot
-  units::foot_t top = (xy_comps[0].x + xy_comps[1].x) / 2;
-  units::foot_t bottom = (xy_comps[3].x + xy_comps[2].x) / 2;
-  units::foot_t left = (xy_comps[0].y + xy_comps[2].y) / 2;
-  units::foot_t right = (xy_comps[1].y + xy_comps[3].y) / 2;
-
-  units::radian_t theta = bearing - pose_.bearing;
-
-  auto sin_theta = units::math::sin(theta);
-  auto cos_theta = units::math::cos(theta);
-
-  auto top_bottom = util::Vector2D<units::foot_t>{
-      (left + right) * sin_theta,
-      (left + right) * cos_theta,
-  };
-  auto left_right = util::Vector2D<units::foot_t>{
-      (top + bottom) * cos_theta,
-      (top + bottom) * -sin_theta,
-  };
-
-  pose_.point.x += (top_bottom.y + left_right.y) / 2;
-  pose_.point.y += (top_bottom.x + left_right.x) / 2;
-
-  pose_.bearing = bearing;
+  if (!is_red) bearing += 180_deg;
+  position_ += relative_displacement.rotate(bearing, true);
 }
 
-void SwerveOdometry::SetPoint(util::Vector2D<units::foot_t> point) {
-  pose_.point = point;
+void SwerveOdometry::SetPoint(frc846::math::VectorND<units::foot_t, 2> point) {
+  position_[0] = point[0];
+  position_[1] = point[1];
 }
 
-void SwerveOdometry::Zero() {
-  SetPoint({0_ft, 0_ft});
-  pose_.bearing = 0_deg;
-}
+void SwerveOdometry::Zero() { SetPoint({0_ft, 0_ft}); }
 
 }  // namespace frc846

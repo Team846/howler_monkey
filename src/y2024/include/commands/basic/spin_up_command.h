@@ -15,4 +15,9 @@ class SpinUpCommand
   void OnEnd(bool interrupted) override;
 
   bool IsFinished() override;
+
+ private:
+  bool has_spinned_up_;
+
+  units::second_t start_time;
 };

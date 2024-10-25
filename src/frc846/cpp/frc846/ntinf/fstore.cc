@@ -19,6 +19,11 @@ frc846::base::Loggable FunkyStore::fstore_loggable{"FunkyStore"};
 
 bool FunkyStore::hasChanged = false;
 
+std::map<std::string, std::variant<int, double, std::string, bool>>
+    FunkyStore::prefs = {{"Default.int", 0.0}};
+
+std::unordered_set<std::string> FunkyStore::keys_accessed{};
+
 std::string FunkyStore::variantToString(
     std::variant<int, double, std::string, bool>& variant) {
   return std::visit(
@@ -75,15 +80,23 @@ std::string trim(const std::string& str) {
   return (start < end.base()) ? std::string(start, end.base()) : std::string();
 }
 
-std::map<std::string, std::variant<int, double, std::string, bool>>
-    FunkyStore::prefs = {{"Default.int", 0.0}};
-
 bool FunkyStore::ContainsKey(std::string key) {
-  return (prefs.find(key) != prefs.end());
+  keys_accessed.insert(key);
+  if (!hasReadPrefs) {
+    return false;
+  }
+  try {
+    if (prefs.empty()) return false;
+    return (prefs.find(key) != prefs.end());
+  } catch (const std::exception& exc) {
+    (void)exc;
+  }
+  return false;
 }
 
 void FunkyStore::SetDouble(std::string key, double val) {
   FunkyStore::SetString(key, std::to_string(val), true);
+  keys_accessed.insert(key + ".double");
   hasChanged = true;
 }
 
@@ -113,6 +126,7 @@ double FunkyStore::GetDouble(std::string key, double fallback) {
 
 void FunkyStore::SetInt(std::string key, int val) {
   prefs[key + ".int"] = val;
+  keys_accessed.insert(key + ".int");
   hasChanged = true;
 }
 
@@ -133,9 +147,8 @@ int FunkyStore::GetInt(std::string key, int fallback) {
 }
 
 void FunkyStore::SetBoolean(std::string key, bool val) {
-  while (prefs.empty()) {
-  }
   prefs[key + ".bool"] = val;
+  keys_accessed.insert(key + ".bool");
   hasChanged = true;
 }
 
@@ -158,8 +171,10 @@ bool FunkyStore::GetBoolean(std::string key, bool fallback) {
 void FunkyStore::SetString(std::string key, std::string val, bool isDouble) {
   if (!isDouble) {
     prefs[key + ".string"] = val;
+    keys_accessed.insert(key + ".string");
   } else {
     prefs[key + ".double"] = val;
+    keys_accessed.insert(key + ".double");
   }
 
   hasChanged = true;
@@ -259,6 +274,31 @@ void FunkyStore::WriteToDisk() {
   std::rename("/home/lvuser/preferences.nform.tmp",
               "/home/lvuser/preferences.nform");
   AppendToChangeLog();
+}
+
+std::vector<std::string> FunkyStore::GetPruneList() {
+  std::vector<std::string> result{};
+  for (std::map<std::string,
+                std::variant<int, double, std::string, bool>>::iterator it =
+           FunkyStore::prefs.begin();
+       it != FunkyStore::prefs.end(); ++it) {
+    bool foundKey = false;
+    for (const std::string& x : FunkyStore::keys_accessed) {
+      if (it->first == x) {
+        foundKey = true;
+        break;
+      }
+    }
+    if (!foundKey) result.push_back(it->first);
+  }
+  return result;
+}
+
+void FunkyStore::Prune() {
+  for (const std::string& x : GetPruneList()) {
+    prefs.erase(x);
+  }
+  hasChanged = true;
 }
 
 void FunkyStore::AppendToChangeLog() {
