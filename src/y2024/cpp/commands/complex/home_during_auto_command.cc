@@ -11,18 +11,20 @@
 #include "frc2/command/WaitUntilCommand.h"
 
 HomeDuringAutoCommand::HomeDuringAutoCommand(RobotContainer& container)
-    : frc846::robot::GenericCommandGroup<RobotContainer, HomeDuringAutoCommand,
-                                         frc2::SequentialCommandGroup>{
-          container, "home_during_auto_command",
-          frc2::SequentialCommandGroup{frc2::ParallelDeadlineGroup{
-              frc2::WaitUntilCommand{[&] {
-                return container_.super_structure_.wrist_->GetHasZeroed();
-              }},
-              frc2::SequentialCommandGroup{
-                  frc2::ParallelDeadlineGroup{
-                      frc2::WaitUntilCommand{[&] {
-                        return container.pivot_.WithinTolerance(
-                            container.super_structure_.getStowSetpoint().pivot);
-                      }},
-                      StowCommand{container}},
-                  WristZeroCommand{container}}}}} {}
+    : frc846::robot::GenericCommandGroup<
+          RobotContainer, HomeDuringAutoCommand,
+          frc2::SequentialCommandGroup>{container, "home_during_auto_command",
+                                        frc2::SequentialCommandGroup{
+                                            frc2::ParallelDeadlineGroup{
+                                                frc2::WaitUntilCommand{[&] {
+                                                  return container.pivot_
+                                                      .WithinTolerance(
+                                                          container
+                                                              .super_structure_
+                                                              .getStowSetpoint()
+                                                              .pivot);
+                                                }},
+                                                StowCommand{container}},
+                                            WristZeroCommand{container}}}
+
+{}

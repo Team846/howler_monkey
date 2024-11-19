@@ -6,10 +6,6 @@
 #include "frc846/wpilib/time.h"
 #include "subsystems/hardware/swerve_module.h"
 
-units::feet_per_second_t vel_readings_composite;
-double vel_readings_composite_x;
-double vel_readings_composite_y;
-
 DrivetrainSubsystem::DrivetrainSubsystem(bool initialize)
     : frc846::robot::GenericSubsystem<DrivetrainReadings,
                                       DrivetrainTarget>{"drivetrain",

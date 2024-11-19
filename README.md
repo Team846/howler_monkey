@@ -169,3 +169,19 @@ src/y2024/cpp/commands/teleop/drive_command.cc:67:8: warning: Condition 'is_robo
 src/frc846/cpp/frc846/util/math.cc:19:0: warning: The function 'VerticalDeadband' is never used. [unusedFunction]
 src/frc846/cpp/frc846/util/math.cc:46:0: warning: The function 'CoterminalSum' is never used. [unusedFunction]
 ```
+## CppCheck Warnings
+```
+srcfrc846cppfrc846ntinffstore.cc:287:27: warning: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
+srcy2024cppcommandsteleopdrive_command.cc:69:8: warning: Condition 'is_robot_centric' is always false [knownConditionTrueFalse]
+srcy2024cppcommandsteleopdrive_command.cc:33:17: warning: Variable 'intaking' is assigned a value that is never used. [unreadVariable]
+srcy2024cppfield.cc:9:16: warning: Variable 'point' can be declared as reference to const [constVariableReference]
+srcy2024cppfield.cc:21:14: warning: Variable 'path' can be declared as reference to const [constVariableReference]
+srcy2024cppfield.cc:10:32: warning: Consider using std::find_if algorithm instead of a raw loop. [useStlAlgorithm]
+srcy2024cppfield.cc:22:29: warning: Consider using std::find_if algorithm instead of a raw loop. [useStlAlgorithm]
+srcy2024cppfield.cc:67:10: warning: Consider using std::replace_if algorithm instead of a raw loop. [useStlAlgorithm]
+srcy2024cppfield.cc:77:10: warning: Consider using std::replace_if algorithm instead of a raw loop. [useStlAlgorithm]
+srcy2024cppfield.cc:60:10: warning: Consider using std::replace_if algorithm instead of a raw loop. [useStlAlgorithm]
+srcfrc846cppfrc846mathcollection.cc:7:0: warning: The function 'DEquals' is never used. [unusedFunction]
+srcfrc846cppfrc846mathcollection.cc:25:0: warning: The function 'VerticalDeadband' is never used. [unusedFunction]
+srcfrc846cppfrc846mathcollection.cc:52:0: warning: The function 'CoterminalSum' is never used. [unusedFunction]
+```

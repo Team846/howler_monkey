@@ -1,5 +1,6 @@
 0,2
 F,kPointBlank
+ACT,auto_home
 ACT,prep_shoot
 ACT,shoot
 ACT,deploy_intake

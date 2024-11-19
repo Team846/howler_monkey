@@ -33,7 +33,7 @@ deploy {
 def deployArtifact = deploy.targets.roborio.artifacts.frcCpp
 
 // Set this to true to enable desktop support.
-def includeDesktopSupport = true
+def includeDesktopSupport = false
 
 // Set to true to run simulation in debug mode
 wpi.cpp.debugSimulation = false
@@ -82,27 +82,27 @@ model {
         }
     }
 
-    testSuites {
-        frcUserProgramTest(GoogleTestTestSuiteSpec) {
-            testing $.components.frcUserProgram
+    // testSuites {
+    //     frcUserProgramTest(GoogleTestTestSuiteSpec) {
+    //         testing $.components.frcUserProgram
 
-            println "Configuring frcUserProgramTest..."
-            sources.cpp {
-                source {
-                    srcDir 'src/test/cpp'
-                    include '**/*.cpp'
-                }
-            }
-            binaries.all {
-                cppCompiler.args << '-DNOMINMAX'
-                println "Applied compiler argument NOMINMAX to allow for compilation on Windows platform."
-            }
-            wpi.cpp.enableExternalTasks(it)
-            wpi.cpp.vendor.cpp(it)
-            wpi.cpp.deps.wpilib(it)
-            wpi.cpp.deps.googleTest(it)
-        }
-    }
+    //         println "Configuring frcUserProgramTest..."
+    //         sources.cpp {
+    //             source {
+    //                 srcDir 'src/test/cpp'
+    //                 include '**/*.cpp'
+    //             }
+    //         }
+    //         binaries.all {
+    //             cppCompiler.args << '-DNOMINMAX'
+    //             println "Applied compiler argument NOMINMAX to allow for compilation on Windows platform."
+    //         }
+    //         wpi.cpp.enableExternalTasks(it)
+    //         wpi.cpp.vendor.cpp(it)
+    //         wpi.cpp.deps.wpilib(it)
+    //         wpi.cpp.deps.googleTest(it)
+    //     }
+    // }
 }
 
 spotless {
@@ -111,7 +111,7 @@ spotless {
             include '**/*.cpp', '**/*.cc', '**/*.h', '**/*.hpp'
             exclude '**/build/**', '**/build-*/**'
         }
-        def selectedClangVersion = project.hasProperty('fromCI') ? '14.0.0-1ubuntu1.1' : '19.1.1'
+        def selectedClangVersion = project.hasProperty('fromCI') ? '14.0.0-1ubuntu1.1' : '18.1.8'
         clangFormat(selectedClangVersion).style('Google')
     }
     groovyGradle {

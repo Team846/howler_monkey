@@ -173,6 +173,10 @@ class DrivetrainSubsystem
   bool VerifyHardware() override;
 
  private:
+  units::feet_per_second_t vel_readings_composite;
+  double vel_readings_composite_x;
+  double vel_readings_composite_y;
+
   // Drivetrain dimensions.
   frc846::ntinf::Pref<units::inch_t> width_{*this, "width", 21.75_in};
   frc846::ntinf::Pref<units::inch_t> height_{*this, "height", 26.75_in};
