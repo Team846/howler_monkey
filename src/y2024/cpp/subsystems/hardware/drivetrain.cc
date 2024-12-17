@@ -239,6 +239,8 @@ DrivetrainReadings DrivetrainSubsystem::ReadFromHardware() {
                                        readings.pose.velocity[0].to<double>());
   frc846::util::ShareTables::SetDouble("velocity_y_",
                                        readings.pose.velocity[1].to<double>());
+  frc846::util::ShareTables::SetDouble("bearing_velocity",
+                                       readings.angular_velocity.to<double>());
 
   SetMap();
 

@@ -1,11 +1,14 @@
 #include "subsystems/abstract/vision.h"
 
 #include <frc/DriverStation.h>
+#include <units/angle.h>
+#include <units/angular_velocity.h>
 #include <units/math.h>
 
 #include "field.h"
 #include "frc846/math/vectors.h"
 #include "frc846/util/share_tables.h"
+#include "frc846/wpilib/time.h"
 
 VisionSubsystem::VisionSubsystem(bool init)
     : frc846::robot::GenericSubsystem<VisionReadings, VisionTarget>("vision",
@@ -48,6 +51,14 @@ VisionReadings VisionSubsystem::ReadFromHardware() {
 
   units::degree_t bearing_ =
       units::degree_t(frc846::util::ShareTables::GetDouble("robot_bearing_"));
+
+  units::angular_velocity::degrees_per_second_t bearing_velocity =
+      units::angular_velocity::degrees_per_second_t(
+          frc846::util::ShareTables::GetDouble("bearing_velocity"));
+
+  units::second_t latency_seconds{latency};
+
+  bearing_ = bearing_ - bearing_velocity * latency_seconds;
 
   units::inch_t robot_x =
       units::foot_t(frc846::util::ShareTables::GetDouble("odometry_x_"));
