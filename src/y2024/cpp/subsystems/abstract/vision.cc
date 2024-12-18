@@ -52,9 +52,8 @@ VisionReadings VisionSubsystem::ReadFromHardware() {
   units::degree_t bearing_ =
       units::degree_t(frc846::util::ShareTables::GetDouble("robot_bearing_"));
 
-  units::angular_velocity::degrees_per_second_t bearing_velocity =
-      units::angular_velocity::degrees_per_second_t(
-          frc846::util::ShareTables::GetDouble("bearing_velocity"));
+  units::degrees_per_second_t bearing_velocity = units::degrees_per_second_t(
+      frc846::util::ShareTables::GetDouble("bearing_velocity"));
 
   units::second_t latency_seconds{latency};
 
