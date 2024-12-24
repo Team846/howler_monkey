@@ -25,153 +25,162 @@ VisionTarget VisionSubsystem::ZeroTarget() const {
 bool VisionSubsystem::VerifyHardware() { return true; }
 
 VisionReadings VisionSubsystem::ReadFromHardware() {
-  if (auto alliance = frc::DriverStation::GetAlliance()) {
-    if (alliance.value() == frc::DriverStation::Alliance::kRed) {
-      frc846::util::ShareTables::SetBoolean("is_red_side", true);
-    }
-    if (alliance.value() == frc::DriverStation::Alliance::kBlue) {
-      frc846::util::ShareTables::SetBoolean("is_red_side", false);
-    }
-  } else {
-    frc846::util::ShareTables::SetBoolean("is_red_side",
-                                          default_is_red_side_.value());
-  }
+  //   if (auto alliance = frc::DriverStation::GetAlliance()) {
+  //     if (alliance.value() == frc::DriverStation::Alliance::kRed) {
+  //       frc846::util::ShareTables::SetBoolean("is_red_side", true);
+  //     }
+  //     if (alliance.value() == frc::DriverStation::Alliance::kBlue) {
+  //       frc846::util::ShareTables::SetBoolean("is_red_side", false);
+  //     }
+  //   } else {
+  //     frc846::util::ShareTables::SetBoolean("is_red_side",
+  //                                           default_is_red_side_.value());
+  //   }
 
   VisionReadings newReadings{};
 
-  double targetOffsetAngle_Horizontal = table->GetNumber("tx", 0.0);
-  double targetOffsetAngle_Vertical = table->GetNumber("ty", 0.0);
-  double tag_id = table->GetNumber("tid", 0.0);
+  //   double targetOffsetAngle_Horizontal = table->GetNumber("tx", 0.0);
+  //   double targetOffsetAngle_Vertical = table->GetNumber("ty", 0.0);
+  //   double tag_id = table->GetNumber("tid", 0.0);
 
-  tag_id_graph_.Graph(tag_id);
+  //   tag_id_graph_.Graph(tag_id);
 
-  double latency = table->GetNumber("tl", 0.0) + table->GetNumber("cl", 0.0);
+  //   double latency = table->GetNumber("tl", 0.0) + table->GetNumber("cl",
+  //   0.0);
 
-  ll_latency_graph_.Graph(latency * 1_s);
+  //   ll_latency_graph_.Graph(latency * 1_s);
 
-  units::degree_t bearing_ =
-      units::degree_t(frc846::util::ShareTables::GetDouble("robot_bearing_"));
+  //   units::degree_t bearing_ =
+  //       units::degree_t(frc846::util::ShareTables::GetDouble("robot_bearing_"));
 
-  units::degrees_per_second_t bearing_velocity = units::degrees_per_second_t(
-      frc846::util::ShareTables::GetDouble("bearing_velocity"));
+  //   units::degrees_per_second_t bearing_velocity =
+  //   units::degrees_per_second_t(
+  //       frc846::util::ShareTables::GetDouble("bearing_velocity"));
 
-  units::second_t latency_seconds{latency};
+  //   units::second_t latency_seconds{latency};
 
-  bearing_ = bearing_ - bearing_velocity * latency_seconds;
+  //   bearing_ = bearing_ - bearing_velocity * latency_seconds;
 
-  units::inch_t robot_x =
-      units::foot_t(frc846::util::ShareTables::GetDouble("odometry_x_"));
+  //   units::inch_t robot_x =
+  //       units::foot_t(frc846::util::ShareTables::GetDouble("odometry_x_"));
 
-  units::inch_t robot_y =
-      units::foot_t(frc846::util::ShareTables::GetDouble("odometry_y_"));
+  //   units::inch_t robot_y =
+  //       units::foot_t(frc846::util::ShareTables::GetDouble("odometry_y_"));
 
-  units::feet_per_second_t velocity_x = units::feet_per_second_t(
-      frc846::util::ShareTables::GetDouble("velocity_x_"));
+  //   units::feet_per_second_t velocity_x = units::feet_per_second_t(
+  //       frc846::util::ShareTables::GetDouble("velocity_x_"));
 
-  units::feet_per_second_t velocity_y = units::feet_per_second_t(
-      frc846::util::ShareTables::GetDouble("velocity_y_"));
+  //   units::feet_per_second_t velocity_y = units::feet_per_second_t(
+  //       frc846::util::ShareTables::GetDouble("velocity_y_"));
 
-  if (tag_locations.contains(tag_id)) {  // &&
-    // frc846::util::ShareTables::GetString("mode").compare("kTeleop") == 0) {
-    tag_in_sight_graph_.Graph(true);
+  //   if (tag_locations.contains(tag_id)) {  // &&
+  //     // frc846::util::ShareTables::GetString("mode").compare("kTeleop") ==
+  //     0) { tag_in_sight_graph_.Graph(true);
 
-    auto april_tag = tag_locations[tag_id];
-    units::inch_t height_difference_ =
-        april_tag.height - camera_height_.value();
+  //     auto april_tag = tag_locations[tag_id];
+  //     units::inch_t height_difference_ =
+  //         april_tag.height - camera_height_.value();
 
-    units::degree_t april_tag_vertical_angle =
-        units::degree_t(targetOffsetAngle_Vertical) + camera_angle_.value();
+  //     units::degree_t april_tag_vertical_angle =
+  //         units::degree_t(targetOffsetAngle_Vertical) +
+  //         camera_angle_.value();
 
-    newReadings.tag_distance =
-        height_difference_ / units::math::tan(april_tag_vertical_angle);
+  //     newReadings.tag_distance =
+  //         height_difference_ / units::math::tan(april_tag_vertical_angle);
 
-    newReadings.local_y_dist =
-        newReadings.tag_distance *
-            units::math::cos(units::degree_t(targetOffsetAngle_Horizontal) +
-                             180_deg) +
-        camera_y_offset_.value();
-    newReadings.local_x_dist =
-        newReadings.tag_distance *
-            units::math::sin(units::degree_t(targetOffsetAngle_Horizontal) +
-                             180_deg) +
-        camera_x_offset_.value();
+  //     newReadings.local_y_dist =
+  //         newReadings.tag_distance *
+  //             units::math::cos(units::degree_t(targetOffsetAngle_Horizontal)
+  //             +
+  //                              180_deg) +
+  //         camera_y_offset_.value();
+  //     newReadings.local_x_dist =
+  //         newReadings.tag_distance *
+  //             units::math::sin(units::degree_t(targetOffsetAngle_Horizontal)
+  //             +
+  //                              180_deg) +
+  //         camera_x_offset_.value();
 
-    robot_y += can_bus_latency_.value() * velocity_y;
+  //     robot_y += can_bus_latency_.value() * velocity_y;
 
-    robot_x += can_bus_latency_.value() * velocity_x;
+  //     robot_x += can_bus_latency_.value() * velocity_x;
 
-    // auto flipped = frc846::util::FieldPoint::flip(
-    //     {{robot_x, robot_y}, bearing_},
-    //     !frc846::util::ShareTables::GetBoolean("is_red_side"), true);
+  //     // auto flipped = frc846::util::FieldPoint::flip(
+  //     //     {{robot_x, robot_y}, bearing_},
+  //     //     !frc846::util::ShareTables::GetBoolean("is_red_side"), true);
 
-    // robot_y = flipped.point[1];
-    // robot_x = flipped.point[0];
-    // bearing_ = flipped.bearing;
+  //     // robot_y = flipped.point[1];
+  //     // robot_x = flipped.point[0];
+  //     // bearing_ = flipped.bearing;
 
-    frc846::math::VectorND<units::inch_t, 2> local_tag_vec{
-        newReadings.local_x_dist, newReadings.local_y_dist};
-    auto tag_vec = local_tag_vec.rotate(bearing_);
+  //     frc846::math::VectorND<units::inch_t, 2> local_tag_vec{
+  //         newReadings.local_x_dist, newReadings.local_y_dist};
+  //     auto tag_vec = local_tag_vec.rotate(bearing_);
 
-    units::inch_t tag_x_dist = tag_vec[0];
+  //     units::inch_t tag_x_dist = tag_vec[0];
 
-    units::inch_t tag_y_dist = tag_vec[1];
+  //     units::inch_t tag_y_dist = tag_vec[1];
 
-    y_correction =
-        (april_tag.y_pos - tag_y_dist) - (robot_y - latency * 1_s * velocity_y);
+  //     y_correction =
+  //         (april_tag.y_pos - tag_y_dist) - (robot_y - latency * 1_s *
+  //         velocity_y);
 
-    x_correction =
-        (april_tag.x_pos - tag_x_dist) - (robot_x - latency * 1_s * velocity_x);
-  } else {
-    tag_in_sight_graph_.Graph(false);
-  }
+  //     x_correction =
+  //         (april_tag.x_pos - tag_x_dist) - (robot_x - latency * 1_s *
+  //         velocity_x);
+  //   } else {
+  //     tag_in_sight_graph_.Graph(false);
+  //   }
 
-  robot_y += can_bus_latency_.value() * velocity_y + y_correction;
+  //   robot_y += can_bus_latency_.value() * velocity_y + y_correction;
 
-  robot_x += can_bus_latency_.value() * velocity_x + x_correction;
+  //   robot_x += can_bus_latency_.value() * velocity_x + x_correction;
 
-  newReadings.x_pos = robot_x;
-  newReadings.y_pos = robot_y;
+  //   newReadings.x_pos = robot_x;
+  //   newReadings.y_pos = robot_y;
 
-  robot_x_graph_.Graph(robot_x);
-  robot_y_graph_.Graph(robot_y);
+  //   robot_x_graph_.Graph(robot_x);
+  //   robot_y_graph_.Graph(robot_y);
 
-  auto speaker_pt =
-      Field::getPoint("kSpeaker")
-          .mirrorOnlyY(!frc846::util::ShareTables::GetBoolean("is_red_side"));
+  //   auto speaker_pt =
+  //       Field::getPoint("kSpeaker")
+  //           .mirrorOnlyY(!frc846::util::ShareTables::GetBoolean("is_red_side"));
 
-  newReadings.est_dist_from_speaker_x = robot_x - speaker_pt.point[0];
+  //   newReadings.est_dist_from_speaker_x = robot_x - speaker_pt.point[0];
 
-  newReadings.est_dist_from_speaker_y = robot_y - speaker_pt.point[1];
+  //   newReadings.est_dist_from_speaker_y = robot_y - speaker_pt.point[1];
 
-  auto point_target = frc846::math::VectorND<units::foot_t, 2>{
-      -newReadings.est_dist_from_speaker_x,
-      -newReadings.est_dist_from_speaker_y};
+  //   auto point_target = frc846::math::VectorND<units::foot_t, 2>{
+  //       -newReadings.est_dist_from_speaker_x,
+  //       -newReadings.est_dist_from_speaker_y};
 
-  newReadings.velocity_in_component =
-      ((velocity_x * point_target[0] + velocity_y * point_target[1]) /
-       point_target.magnitude())
-          .to<double>();
+  //   newReadings.velocity_in_component =
+  //       ((velocity_x * point_target[0] + velocity_y * point_target[1]) /
+  //        point_target.magnitude())
+  //           .to<double>();
 
-  point_target = point_target.rotate(90_deg);
+  //   point_target = point_target.rotate(90_deg);
 
-  newReadings.velocity_orth_component =
-      ((velocity_x * point_target[0] + velocity_y * point_target[1]) /
-       point_target.magnitude())
-          .to<double>();
+  //   newReadings.velocity_orth_component =
+  //       ((velocity_x * point_target[0] + velocity_y * point_target[1]) /
+  //        point_target.magnitude())
+  //           .to<double>();
 
-  newReadings.est_dist_from_speaker = units::math::sqrt(
-      units::math::pow<2, units::foot_t>(newReadings.est_dist_from_speaker_x) +
-      units::math::pow<2, units::foot_t>(newReadings.est_dist_from_speaker_y));
+  //   newReadings.est_dist_from_speaker = units::math::sqrt(
+  //       units::math::pow<2,
+  //       units::foot_t>(newReadings.est_dist_from_speaker_x) +
+  //       units::math::pow<2,
+  //       units::foot_t>(newReadings.est_dist_from_speaker_y));
 
-  speaker_x_dist_graph_.Graph(newReadings.est_dist_from_speaker_x);
-  speaker_y_dist_graph_.Graph(newReadings.est_dist_from_speaker_y);
-  speaker_dist_graph_.Graph(newReadings.est_dist_from_speaker);
-  local_x_dist_graph_.Graph(newReadings.local_x_dist);
-  local_y_dist_graph_.Graph(newReadings.local_y_dist);
-  tag_distance_graph_.Graph(newReadings.tag_distance);
-  tag_angle_difference_graph_.Graph(newReadings.tag_angle_difference);
-  velocity_in_component_graph_.Graph(newReadings.velocity_in_component);
-  velocity_orth_component_graph_.Graph(newReadings.velocity_orth_component);
+  //   speaker_x_dist_graph_.Graph(newReadings.est_dist_from_speaker_x);
+  //   speaker_y_dist_graph_.Graph(newReadings.est_dist_from_speaker_y);
+  //   speaker_dist_graph_.Graph(newReadings.est_dist_from_speaker);
+  //   local_x_dist_graph_.Graph(newReadings.local_x_dist);
+  //   local_y_dist_graph_.Graph(newReadings.local_y_dist);
+  //   tag_distance_graph_.Graph(newReadings.tag_distance);
+  //   tag_angle_difference_graph_.Graph(newReadings.tag_angle_difference);
+  //   velocity_in_component_graph_.Graph(newReadings.velocity_in_component);
+  //   velocity_orth_component_graph_.Graph(newReadings.velocity_orth_component);
 
   return newReadings;
 }

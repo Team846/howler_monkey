@@ -14,6 +14,9 @@ DrivetrainSubsystem::DrivetrainSubsystem(bool initialize)
   bearing_offset_ = 0_deg;
   ZeroOdometry();
   frc::SmartDashboard::PutData("Field", &m_field);
+  april_calc.setConstants({april_locations, camera_x_offset_.value(),
+                           camera_y_offset_.value(),
+                           cam_angle_offset_.value()});
 }
 
 void DrivetrainSubsystem::ZeroModules() {
@@ -177,6 +180,44 @@ bool DrivetrainSubsystem::VerifyHardware() {
   return ok;
 }
 
+DrivetrainReadings DrivetrainSubsystem::trackTags(DrivetrainReadings input) {
+  units::second_t tl = units::second_t(april_table->GetNumber("tl", -1));
+  std::vector<double> tx_num = april_table->GetNumberArray("tx", {});
+  std::vector<double> distances_num =
+      april_table->GetNumberArray("distances", {});
+  std::vector<units::degree_t> tx;
+  std::vector<units::inch_t> distances;
+  for (double tx_num : tx_num) {
+    tx.push_back(units::degree_t(tx_num));
+  };
+  for (double distance_num : distances_num) {
+    distances.push_back(units::inch_t(distance_num));
+  };
+  std::vector<double> tags = april_table->GetNumberArray("tags", {});
+
+  units::degree_t bearingAtCapture =
+      input.pose.bearing - input.angular_velocity * tl;
+  ATCalculatorOutput out =
+      april_calc.calculate({bearingAtCapture, tx, distances, tags});
+
+  DrivetrainReadings readings = input;
+  readings.april_pose = readings.pose;
+  if (out.pos[0] == -1_ft && out.pos[1] == -1_ft) {
+    readings.april_pose.point = readings.pose.point - GetReadings().pose.point +
+                                GetReadings().april_pose.point;
+  } else {
+    readings.april_pose.point = {
+        out.pos[0] + input.pose.velocity[0] * (tl + fudge_latency_.value()),
+        out.pos[1] + input.pose.velocity[1] * (tl + fudge_latency_.value()),
+    };
+  }
+
+  april_x_graph_.Graph(readings.april_pose.point[0]);
+  april_y_graph_.Graph(readings.april_pose.point[1]);
+
+  return readings;
+}
+
 DrivetrainReadings DrivetrainSubsystem::ReadFromHardware() {
   DrivetrainReadings readings{};
 
@@ -220,8 +261,9 @@ DrivetrainReadings DrivetrainSubsystem::ReadFromHardware() {
   frc846::math::VectorND<units::feet_per_second_t, 2> unfiltered_velocity = {
       total_x / kModuleCount, total_y / kModuleCount};
 
-  readings.pose = frc846::math::FieldPoint(odometry_.position(), bearing,
-                                           unfiltered_velocity);
+  readings.pose = {odometry_.position(), bearing, unfiltered_velocity};
+
+  readings = trackTags(readings);
 
   pose_x_graph_.Graph(odometry_.position()[0]);
   pose_y_graph_.Graph(odometry_.position()[1]);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <AHRS.h>
+#include <calculators/april_tag_calculator.h>
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -25,6 +26,7 @@ struct DrivetrainReadings {
   frc846::math::FieldPoint pose;
   units::degrees_per_second_t angular_velocity;
   units::degree_t tilt;
+  frc846::math::FieldPoint april_pose;
 };
 
 // Robot vs field oriented translation control.
@@ -173,6 +175,31 @@ class DrivetrainSubsystem
   bool VerifyHardware() override;
 
  private:
+  // April Tags
+  std::map<int, AprilTagData> april_locations{
+      {4, {217.5_in, -1.5_in, 0_deg, 57.13_in}},
+      {3, {196.17_in, -1.5_in, 0_deg, 57.13_in}},
+      {7, {217.5_in, 652.73_in, 180_deg, 57.13_in}},
+      {8, {196.17_in, 652.73_in, 180_deg, 57.13_in}}};
+  AprilTagCalculator april_calc{};
+
+  DrivetrainReadings trackTags(DrivetrainReadings input);
+
+  frc846::base::Loggable april_named{*this, "april_tags"};
+  frc846::ntinf::Pref<units::inch_t> camera_y_offset_{
+      april_named, "camera_y_offset", -10_in};  // TODO: check
+  frc846::ntinf::Pref<units::inch_t> camera_x_offset_{april_named,
+                                                      "camera_x_offset", -7_in};
+  frc846::ntinf::Pref<units::degree_t> cam_angle_offset_{
+      april_named, "camera_angle_offset", 180_deg};
+  frc846::ntinf::Pref<units::millisecond_t> fudge_latency_{
+      *this, "fudge_latency", 20_ms};
+  frc846::ntinf::Grapher<units::foot_t> april_x_graph_{april_named, "april_x"};
+  frc846::ntinf::Grapher<units::foot_t> april_y_graph_{april_named, "april_y"};
+
+  std::shared_ptr<nt::NetworkTable> april_table =
+      nt::NetworkTableInstance::GetDefault().GetTable("AprilTags");
+
   units::feet_per_second_t vel_readings_composite;
   double vel_readings_composite_x;
   double vel_readings_composite_y;
